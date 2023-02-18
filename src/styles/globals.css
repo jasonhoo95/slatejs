@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* html,
+body {
+	height: 100%;
+} */
+
+ul li {
+	list-style-type: disc;
+}
+
+.slate-break::after {
+	content: "";
+	display: block;
+	height: 0;
+}
+
+.banner-red {
+	background-color: rgba(255, 100, 100, 0.3);
+	border-left: 4px solid #ff6464;
+	padding: 10px;
+}
+
+a {
+	color: blue;
+	text-decoration: underline;
+}
+
+input {
+	outline: none;
+}
