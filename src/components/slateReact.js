@@ -125,7 +125,7 @@ const SlateReact = () => {
 		if (
 			currentParent &&
 			["list-item", "banner-red-wrapper"].includes(currentParent[0].type) &&
-			!previousKatex &&
+			!previousKatex[0].type &&
 			selectedLeaf.text.length == 0
 		) {
 			toggleBlock(editor, currentParent[0].type);
@@ -238,11 +238,10 @@ const SlateReact = () => {
 						SlateElement.isElement(n) &&
 						LIST_TYPES.includes(n.type),
 				});
-			}
-			// if (previousKatex[0].type == "katex") {
-			// 	Transforms.move(editor, { distance: 1, unit: "offset" });
-			// }
-			else if (
+				// if (previousKatex[0].type == "katex") {
+				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+				// }
+			} else if (
 				listItemParent &&
 				listItemParent[0].type == "list-item" &&
 				editor.selection.anchor.offset == 0 &&
