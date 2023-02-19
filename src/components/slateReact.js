@@ -349,7 +349,8 @@ const SlateReact = () => {
 						// const block = { type: "editable-void", children: [text] };
 						const block = { type: "heading-one", children: [text] };
 
-						Transforms.insertNodes(editor, block);
+						Transforms.setNodes(editor, block);
+						ReactEditor.focus(editor);
 					}}>
 					insert void
 				</div>
