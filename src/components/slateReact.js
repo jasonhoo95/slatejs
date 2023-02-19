@@ -102,44 +102,45 @@ const SlateReact = () => {
 	const { insertBreak } = editor;
 
 	editor.insertBreak = () => {
-		const { selection } = editor;
-
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
+		FORMAT_TYPES.map((o) => {
+			Editor.removeMark(editor, o);
+		});
+		const listItems = Editor.nodes(editor, {
+			at: editor.selection.anchor,
+			match: (n) =>
+				n.type == "list-item" ||
+				n.type == "banner-red-wrapper" ||
+				n.type == "katex",
+		});
+		let currentParent;
+		for (const listItem of listItems) {
+			currentParent = Editor.node(editor, listItem[1]);
+		}
+		const previousKatex = Editor.previous(editor, {
+			at: editor.selection.anchor,
+		});
 
-		if (selection) {
+		console.log(previousKatex, "enter offset");
+		if (
+			currentParent &&
+			["list-item", "banner-red-wrapper"].includes(currentParent[0].type) &&
+			!previousKatex &&
+			selectedLeaf.text.length == 0
+		) {
+			toggleBlock(editor, currentParent[0].type);
+		} else if (
+			currentParent &&
+			["list-item", "banner-red-wrapper"].includes(currentParent[0].type) &&
+			(previousKatex[0].type == "katex" || editor.selection.anchor.offset > 0)
+		) {
+			insertBreak();
+		} else {
 			Transforms.insertNodes(editor, {
 				children: [{ text: "" }],
 				type: "paragraph",
 			});
-
-			const listItems = Editor.nodes(editor, {
-				at: editor.selection.anchor,
-				match: (n) =>
-					n.type == "list-item" ||
-					n.type == "banner-red-wrapper" ||
-					n.type == "katex",
-			});
-			let currentParent;
-			for (const listItem of listItems) {
-				currentParent = Editor.node(editor, listItem[1]);
-			}
-			const previousKatex = Editor.previous(editor, {
-				at: editor.selection.anchor.path,
-			});
-
-			console.log(previousKatex, "enter offset");
-			if (
-				currentParent &&
-				["list-item", "banner-red-wrapper"].includes(currentParent[0].type) &&
-				!previousKatex &&
-				selectedLeaf.text.length == 0
-			) {
-				toggleBlock(editor, currentParent[0].type);
-			}
-			return;
 		}
-
-		insertBreak();
 	};
 
 	editor.deleteBackward = (...args) => {
