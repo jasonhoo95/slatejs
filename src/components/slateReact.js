@@ -102,36 +102,44 @@ const SlateReact = () => {
 	const { insertBreak } = editor;
 
 	editor.insertBreak = () => {
-		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
-		FORMAT_TYPES.map((o) => {
-			Editor.removeMark(editor, o);
-		});
-		const listItems = Editor.nodes(editor, {
-			at: editor.selection.anchor,
-			match: (n) =>
-				n.type == "list-item" ||
-				n.type == "banner-red-wrapper" ||
-				n.type == "katex",
-		});
-		let currentParent;
-		for (const listItem of listItems) {
-			currentParent = Editor.node(editor, listItem[1]);
-		}
-		const previousKatex = Editor.previous(editor, {
-			at: editor.selection.anchor.path,
-		});
+		const { selection } = editor;
 
-		console.log(previousKatex, "enter offset");
-		if (
-			currentParent &&
-			["list-item", "banner-red-wrapper"].includes(currentParent[0].type) &&
-			!previousKatex &&
-			selectedLeaf.text.length == 0
-		) {
-			toggleBlock(editor, currentParent[0].type);
-		} else {
-			insertBreak();
+		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
+
+		if (selection) {
+			Transforms.insertNodes(editor, {
+				children: [{ text: "" }],
+				type: "paragraph",
+			});
+
+			const listItems = Editor.nodes(editor, {
+				at: editor.selection.anchor,
+				match: (n) =>
+					n.type == "list-item" ||
+					n.type == "banner-red-wrapper" ||
+					n.type == "katex",
+			});
+			let currentParent;
+			for (const listItem of listItems) {
+				currentParent = Editor.node(editor, listItem[1]);
+			}
+			const previousKatex = Editor.previous(editor, {
+				at: editor.selection.anchor.path,
+			});
+
+			console.log(previousKatex, "enter offset");
+			if (
+				currentParent &&
+				["list-item", "banner-red-wrapper"].includes(currentParent[0].type) &&
+				!previousKatex &&
+				selectedLeaf.text.length == 0
+			) {
+				toggleBlock(editor, currentParent[0].type);
+			}
+			return;
 		}
+
+		insertBreak();
 	};
 
 	editor.deleteBackward = (...args) => {
@@ -337,8 +345,10 @@ const SlateReact = () => {
 
 				<div
 					onClick={(e) => {
-						const text = { text: "", type: "editable-void" };
-						const block = { type: "editable-void", children: [text] };
+						const text = { text: "", type: "heading-one" };
+						// const block = { type: "editable-void", children: [text] };
+						const block = { type: "heading-one", children: [text] };
+
 						Transforms.insertNodes(editor, block);
 					}}>
 					insert void
@@ -744,6 +754,16 @@ const isMarkActive = (editor, format) => {
 	return marks ? marks[format] === true : false;
 };
 
+const Heading1Component = ({ attributes, children, element }) => {
+	return (
+		<h1
+			style={{ fontSize: "30px", fontWeight: "bold", color: "red" }}
+			{...attributes}>
+			{children}
+		</h1>
+	);
+};
+
 const Element = (props) => {
 	const { attributes, children, element } = props;
 
@@ -774,13 +794,7 @@ const Element = (props) => {
 		case "editable-void":
 			return <EditableVoid {...props}></EditableVoid>;
 		case "heading-one":
-			return (
-				<h1
-					style={style}
-					{...attributes}>
-					{children}
-				</h1>
-			);
+			return <Heading1Component {...props}></Heading1Component>;
 		case "heading-two":
 			return (
 				<h2
