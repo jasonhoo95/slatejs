@@ -121,7 +121,6 @@ const SlateReact = () => {
 			at: editor.selection.anchor,
 		});
 
-		console.log(previousKatex, "enter offset");
 		if (
 			currentParent &&
 			["list-item", "banner-red-wrapper"].includes(currentParent[0].type) &&
@@ -131,7 +130,7 @@ const SlateReact = () => {
 			toggleBlock(editor, currentParent[0].type);
 		} else if (
 			currentParent &&
-			["list-item", "banner-red-wrapper"].includes(currentParent[0].type) &&
+			["list-item"].includes(currentParent[0].type) &&
 			(previousKatex[0].type == "katex" || editor.selection.anchor.offset > 0)
 		) {
 			insertBreak();
@@ -162,10 +161,8 @@ const SlateReact = () => {
 			listItemParent = Editor.node(editor, listItem[1]);
 			previousParent = Editor.previous(editor, {
 				at: listItem[1],
-				mode: "highest",
 			});
 			nextParent = Editor.next(editor, { at: listItem[1] });
-			console.log(listItem[1], editor.selection.anchor, "selected anchor");
 		}
 
 		if (
@@ -182,7 +179,6 @@ const SlateReact = () => {
 					!Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "katex",
 			});
 
-			console.log(listItemParent, "path anchor");
 			if (
 				nextParent &&
 				nextParent[0].type == "banner-red-wrapper" &&
@@ -200,7 +196,6 @@ const SlateReact = () => {
 				});
 
 				const previousKatex = Editor.node(editor, editor.selection.anchor.path);
-				console.log(previousKatex, "red selection anchor");
 
 				const nextNode = Editor.next(editor, {
 					at: editor.selection.anchor.path,
@@ -209,8 +204,6 @@ const SlateReact = () => {
 						SlateElement.isElement(n) &&
 						n.type == "numbered-list",
 				});
-
-				console.log(nextNode, "next node banner red");
 
 				if (nextNode && nextNode[0].type == "numbered-list") {
 					Transforms.mergeNodes(editor, {
@@ -228,19 +221,33 @@ const SlateReact = () => {
 				previousParent[0].type == "numbered-list" &&
 				nextParent[0].type == "numbered-list"
 			) {
-				console.log("merge numbering");
+				console.log(
+					"merge numbering",
+					previousParent,
+					nextParent,
+					listItemParent[1]
+				);
 				deleteBackward(...args);
 
-				Transforms.mergeNodes(editor, {
-					at: listItemParent[1],
+				const previousKatex = Editor.node(editor, editor.selection.anchor.path);
+				if (previousKatex[0].type == "katex") {
+					Transforms.move(editor, { distance: 1, unit: "offset" });
+				}
+				const nextNode = Editor.next(editor, {
+					at: editor.selection.anchor.path,
 					match: (n) =>
 						!Editor.isEditor(n) &&
 						SlateElement.isElement(n) &&
-						LIST_TYPES.includes(n.type),
+						n.type == "numbered-list",
 				});
-				// if (previousKatex[0].type == "katex") {
-				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
-				// }
+
+				Transforms.mergeNodes(editor, {
+					at: nextNode[1],
+					match: (n) =>
+						!Editor.isEditor(n) &&
+						SlateElement.isElement(n) &&
+						n.type == "numbered-list",
+				});
 			} else if (
 				listItemParent &&
 				listItemParent[0].type == "list-item" &&
@@ -248,7 +255,6 @@ const SlateReact = () => {
 				editor.selection.anchor.path[editor.selection.anchor.path.length - 1] ==
 					0
 			) {
-				console.log(editor.selection, "wrap numbering");
 				Transforms.unwrapNodes(editor, {
 					match: (n) =>
 						!Editor.isEditor(n) &&
@@ -285,7 +291,6 @@ const SlateReact = () => {
 				parent &&
 				!["numbered-list", "bulleted-list"].includes(parent[0].type)
 			) {
-				console.log("delete fragment");
 				Transforms.setNodes(
 					editor,
 					{ type: "paragraph" },
@@ -394,7 +399,6 @@ const SlateReact = () => {
 							event.preventDefault();
 							HistoryEditor.redo(editor);
 						} else if (selectedLeaf.text.startsWith("1.")) {
-							console.log("toggle number list");
 							event.preventDefault();
 							toggleBlock(editor, "numbered-list", "number");
 							Transforms.delete(editor, {
@@ -699,8 +703,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const selected = useSelected();
 	const focused = useFocused();
-
-	console.log(selected, focused, "editable void");
 
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
