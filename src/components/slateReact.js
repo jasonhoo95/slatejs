@@ -190,13 +190,18 @@ const SlateReact = () => {
 						n.type == "banner-red-wrapper",
 				});
 
+				const previousKatex = Editor.node(editor, editor.selection.anchor.path);
+				console.log(previousKatex, "red selection anchor");
+
 				const nextNode = Editor.next(editor, {
-					at: editor.selection.anchor,
+					at: editor.selection.anchor.path,
 					match: (n) =>
 						!Editor.isEditor(n) &&
 						SlateElement.isElement(n) &&
 						n.type == "numbered-list",
 				});
+
+				console.log(nextNode, "next node banner red");
 
 				if (nextNode && nextNode[0].type == "numbered-list") {
 					Transforms.mergeNodes(editor, {
