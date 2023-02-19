@@ -175,7 +175,6 @@ const SlateReact = () => {
 
 			console.log(listItemParent, "path anchor");
 			if (
-				selectedLeaf.text.length == 0 &&
 				nextParent &&
 				nextParent[0].type == "banner-red-wrapper" &&
 				previousParent &&
@@ -492,9 +491,6 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const selected = useSelected();
 	const focused = useFocused();
-	// useEffect(() => {
-	//
-	// }, []);
 	let updateAmount = useModalStore((state) => state.updateModal);
 	let updateClick = useModalStore((state) => state.updateClick);
 
