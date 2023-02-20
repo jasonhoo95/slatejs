@@ -103,9 +103,7 @@ const SlateReact = () => {
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
-		FORMAT_TYPES.map((o) => {
-			Editor.removeMark(editor, o);
-		});
+
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
 			match: (n) =>
@@ -131,7 +129,7 @@ const SlateReact = () => {
 		} else if (
 			currentParent &&
 			["list-item"].includes(currentParent[0].type) &&
-			(previousKatex[0].type == "katex" || editor.selection.anchor.offset > 0)
+			(previousKatex[0].type == "katex" || selectedLeaf.text.length > 0)
 		) {
 			insertBreak();
 		} else {
@@ -139,6 +137,7 @@ const SlateReact = () => {
 				children: [{ text: "" }],
 				type: "paragraph",
 			});
+			return;
 		}
 	};
 
@@ -215,11 +214,10 @@ const SlateReact = () => {
 					});
 				}
 			} else if (
-				selectedLeaf.text.length == 0 &&
 				nextParent &&
 				previousParent &&
-				previousParent[0].type == "numbered-list" &&
-				nextParent[0].type == "numbered-list"
+				(previousParent[0].type == "numbered-list" ||
+					nextParent[0].type == "numbered-list")
 			) {
 				console.log(
 					"merge numbering",
@@ -251,10 +249,9 @@ const SlateReact = () => {
 			} else if (
 				listItemParent &&
 				listItemParent[0].type == "list-item" &&
-				editor.selection.anchor.offset == 0 &&
-				editor.selection.anchor.path[editor.selection.anchor.path.length - 1] ==
-					0
+				listItemParent[1].includes(0)
 			) {
+				console.log("numbering match", listItemParent);
 				Transforms.unwrapNodes(editor, {
 					match: (n) =>
 						!Editor.isEditor(n) &&
