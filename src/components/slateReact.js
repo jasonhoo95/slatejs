@@ -330,48 +330,58 @@ const SlateReact = () => {
 				editor={editor}
 				onChange={(e) => {}}
 				value={initialValue}>
-				<MarkButton
-					format="bold"
-					icon="format_bold"
-				/>
-				<BlockButton
-					format="bulleted-list"
-					icon="format_list_numbered"
-				/>
-				<BlockButton
-					format="numbered-list"
-					icon="format_list_item"
-				/>
-
-				<BlockButton
-					format="url-link"
-					icon="format_list_item"
-				/>
-
-				<BlockButton
-					format="katex-link"
-					icon="format_list_item"
-				/>
-
 				<div
-					onClick={(e) => {
-						const block = { type: "banner-red-wrapper", children: [] };
-						Transforms.wrapNodes(editor, block);
+					style={{
+						position: "fixed",
+						top: 0,
+						width: "100%",
+						display: "flex",
+						padding: "10px",
 					}}>
-					Banner red
+					<MarkButton
+						format="bold"
+						icon="format_bold"
+					/>
+					<BlockButton
+						format="bulleted-list"
+						icon="format_list_numbered"
+					/>
+					<BlockButton
+						format="numbered-list"
+						icon="format_list_item"
+					/>
+
+					<BlockButton
+						format="url-link"
+						icon="format_list_item"
+					/>
+
+					<BlockButton
+						format="katex-link"
+						icon="format_list_item"
+					/>
+
+					<div
+						onClick={(e) => {
+							const block = { type: "banner-red-wrapper", children: [] };
+							Transforms.wrapNodes(editor, block);
+						}}>
+						Banner red
+					</div>
+
+					<div
+						onClick={(e) => {
+							const text = { text: "", type: "heading-one" };
+							// const block = { type: "editable-void", children: [text] };
+							const block = { type: "heading-one", children: [text] };
+
+							Transforms.setNodes(editor, block);
+							ReactEditor.focus(editor);
+						}}>
+						insert void
+					</div>
 				</div>
 
-				<div
-					onClick={(e) => {
-						const text = { text: "", type: "heading-one" };
-						// const block = { type: "editable-void", children: [text] };
-						const block = { type: "heading-one", children: [text] };
-
-						Transforms.setNodes(editor, block);
-						ReactEditor.focus(editor);
-					}}>
-					insert void
-				</div>
 				<Editable
 					renderElement={renderElement}
 					autoCapitalize="off"
@@ -583,6 +593,7 @@ const MarkButton = ({ format, icon }) => {
 	const editor = useSlate();
 	return (
 		<div
+			style={{ padding: "10px" }}
 			onMouseDown={(event) => {
 				event.preventDefault();
 				toggleMark(editor, format);
@@ -598,6 +609,7 @@ const BlockButton = ({ format, icon }) => {
 	if (format == "numbered-list") {
 		return (
 			<div
+				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
 					event.preventDefault();
 					toggleBlock(editor, "numbered-list", "number");
@@ -608,6 +620,7 @@ const BlockButton = ({ format, icon }) => {
 	} else if (format == "url-link") {
 		return (
 			<div
+				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
 					event.preventDefault();
 					const url = window.prompt("Enter the URL of the link:");
@@ -620,6 +633,7 @@ const BlockButton = ({ format, icon }) => {
 	} else if (format == "katex-link") {
 		return (
 			<div
+				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
 					event.preventDefault();
 					let data = {
