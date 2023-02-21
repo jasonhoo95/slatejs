@@ -333,6 +333,9 @@ const SlateReact = () => {
 				<div
 					style={{
 						position: "fixed",
+						background: "red",
+						overflowX: "auto",
+						left: 0,
 						top: 0,
 						width: "100%",
 						display: "flex",
@@ -386,6 +389,7 @@ const SlateReact = () => {
 					renderElement={renderElement}
 					autoCapitalize="off"
 					autoFocus
+					style={{ marginTop: "150px" }}
 					id={id}
 					renderLeaf={renderLeaf}
 					onKeyDown={(event) => {
