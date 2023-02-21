@@ -187,18 +187,30 @@ const SlateReact = () => {
 				previousParent[0].type == "banner-red-wrapper"
 			) {
 				deleteBackward(...args);
+				const previousKatex = Editor.node(editor, editor.selection.anchor.path);
+				if (previousKatex[0].type == "katex") {
+					Transforms.move(editor, { distance: 1, unit: "offset" });
+				}
 
-				Transforms.mergeNodes(editor, {
-					at: listItemParent[1],
+				const nextNode1 = Editor.next(editor, {
+					at: editor.selection.anchor.path,
 					match: (n) =>
 						!Editor.isEditor(n) &&
 						SlateElement.isElement(n) &&
 						n.type == "banner-red-wrapper",
 				});
 
-				const previousKatex = Editor.node(editor, editor.selection.anchor.path);
+				console.log(nextNode1, "banner red wrapper next node");
 
-				const nextNode = Editor.next(editor, {
+				Transforms.mergeNodes(editor, {
+					at: nextNode1[1],
+					match: (n) =>
+						!Editor.isEditor(n) &&
+						SlateElement.isElement(n) &&
+						n.type == "banner-red-wrapper",
+				});
+
+				const nextNode2 = Editor.next(editor, {
 					at: editor.selection.anchor.path,
 					match: (n) =>
 						!Editor.isEditor(n) &&
@@ -206,9 +218,9 @@ const SlateReact = () => {
 						n.type == "numbered-list",
 				});
 
-				if (nextNode && nextNode[0].type == "numbered-list") {
+				if (nextNode2 && nextNode2[0].type == "numbered-list") {
 					Transforms.mergeNodes(editor, {
-						at: nextNode[1],
+						at: nextNode2[1],
 						match: (n) =>
 							!Editor.isEditor(n) &&
 							SlateElement.isElement(n) &&
@@ -399,9 +411,10 @@ const SlateReact = () => {
 							console.log(nextNode, "shift next node");
 
 							Transforms.insertText(editor, "\n");
-							if (nextNode && nextNode[0].type == "katex") {
-								Transforms.move(editor, { unit: "offset", distance: 2 });
-							}
+							// if (nextNode && nextNode[0].type == "katex") {
+							// 	Transforms.select(editor, nextNode[1]);
+							// 	Transforms.move(editor);
+							// }
 						} else if (event.metaKey && event.key === "z" && !event.shiftKey) {
 							event.preventDefault();
 							HistoryEditor.undo(editor);
