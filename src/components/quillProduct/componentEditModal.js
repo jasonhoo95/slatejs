@@ -26,6 +26,7 @@ export default function ComponentEditModal({
 	// const dispatch = useDispatch();
 	let updateClick = useModalStore((state) => state.updateClick);
 	const ModalProps = useModalStore((state) => state.amount);
+	let updateAmount = useModalStore((state) => state.updateModal);
 
 	const wrapKatex = (editor) => {
 		let id = v4();
@@ -53,10 +54,21 @@ export default function ComponentEditModal({
 			<Dialog
 				onClose={(e) => {
 					setOpen(e);
-					const path = ReactEditor.findPath(editor, element);
-					const nextNode = Editor.next(editor, { at: path });
-					Transforms.select(editor, { path: nextNode[1], offset: 0 });
-					ReactEditor.focus(editor);
+					if (!ModalProps.click) {
+						Transforms.select(ModalProps.editor, {
+							path: ModalProps.path,
+							offset: 0,
+						});
+						ReactEditor.focus(ModalProps.editor);
+					} else {
+						const nextNode = Editor.next(ModalProps.editor, { at: path });
+						Transforms.select(ModalProps.editor, {
+							path: nextNode[1],
+							offset: 0,
+						});
+						ReactEditor.focus(ModalProps.editor);
+					}
+					updateAmount(null);
 					updateClick(null);
 				}}>
 				<Transition.Child
@@ -70,7 +82,7 @@ export default function ComponentEditModal({
 					<div className="fixed inset-0 bg-black bg-opacity-25" />
 				</Transition.Child>
 
-				<div className="fixed inset-0 overflow-y-auto">
+				<div className="fixed inset-0 z-[100] overflow-y-auto">
 					<div className="flex min-h-full items-center justify-center p-4 text-center">
 						<Transition.Child
 							as={Fragment}
@@ -104,8 +116,7 @@ export default function ComponentEditModal({
 								<div className="mt-4">
 									<button
 										onClick={(e) => {
-											console.log(editor, "editor click");
-											Transforms.removeNodes(editor, { at: path });
+											Transforms.removeNodes(ModalProps.editor, { at: path });
 
 											const url = "123";
 											let id = v4();
@@ -117,14 +128,16 @@ export default function ComponentEditModal({
 												children: [{ text: "", type: "katex" }],
 											};
 
-											Transforms.insertNodes(editor, katex);
+											Transforms.insertNodes(ModalProps.editor, katex);
 
-											const nextNode = Editor.next(editor, { at: path });
-											Transforms.select(editor, {
+											const nextNode = Editor.next(ModalProps.editor, {
+												at: path,
+											});
+											Transforms.select(ModalProps.editor, {
 												path: nextNode[1],
 												offset: 0,
 											});
-											ReactEditor.focus(editor);
+											ReactEditor.focus(ModalProps.editor);
 
 											setOpen(false);
 

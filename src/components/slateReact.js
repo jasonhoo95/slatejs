@@ -93,7 +93,7 @@ const SlateReact = () => {
 	const { deleteFragment, deleteBackward, onChange } = editor;
 
 	useEffect(() => {
-		if (ModalProps.open) {
+		if (ModalProps?.open) {
 			setOpen(true);
 		} else {
 			setOpen(false);
@@ -321,14 +321,13 @@ const SlateReact = () => {
 			<ComponentEditModal
 				open={open}
 				setOpen={setOpen}
-				editor={ModalProps.editor}
-				element={ModalProps.element}
-				path={ModalProps.path}
+				editor={ModalProps?.editor}
+				element={ModalProps?.element}
+				path={ModalProps?.path}
 			/>
 			{state.text}
 			<Slate
 				editor={editor}
-				onChange={(e) => {}}
 				value={initialValue}>
 				<div
 					style={{
@@ -339,6 +338,7 @@ const SlateReact = () => {
 						top: 0,
 						width: "100%",
 						display: "flex",
+						zIndex: 30,
 						padding: "10px",
 					}}>
 					<MarkButton
@@ -389,7 +389,7 @@ const SlateReact = () => {
 					renderElement={renderElement}
 					autoCapitalize="off"
 					autoFocus
-					style={{ marginTop: "150px" }}
+					style={{ marginTop: "150px", overflowY: "auto" }}
 					id={id}
 					renderLeaf={renderLeaf}
 					onKeyDown={(event) => {

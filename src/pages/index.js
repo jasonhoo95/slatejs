@@ -6,9 +6,15 @@ import ProseMirrorEditor from "@/components/prosemirrorEditor";
 import SlateReact from "@/components/slateReact";
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { useSelected } from "slate-react";
+// const SlateReact = dynamic(() => import("@/components/slateReact"), {
+// 	ssr: false,
+// });
 
 // import Editor from "@/components/quillProduct/reactQuill";
 export default function Home() {
+	// useEffect(() => {
+	// 	document.body.style.overflow = "hidden";
+	// }, []);
 	// var string = "helloworld \n yoyoahtsap";
 	// const RenderContent = () => {
 	// 	const ref = useRef();
@@ -31,6 +37,119 @@ export default function Home() {
 					href="/favicon.ico"
 				/>
 			</Head>
+
+			{/* <div
+				style={{
+					position: "fixed",
+					background: "red",
+					overflowX: "auto",
+					left: 0,
+					top: 0,
+					width: "100%",
+					display: "flex",
+					zIndex: 30,
+					padding: "10px",
+				}}>
+				asd asd a da da
+			</div>
+			<div>
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+				sample text
+				<br />
+			</div> */}
 
 			<SlateReact />
 		</div>

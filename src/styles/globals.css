@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* html,
+html,
 body {
 	height: 100%;
-} */
+}
 
 ul li {
 	list-style-type: disc;
