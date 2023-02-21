@@ -389,7 +389,7 @@ const SlateReact = () => {
 					renderElement={renderElement}
 					autoCapitalize="off"
 					autoFocus
-					style={{ marginTop: "150px", overflowY: "auto" }}
+					className="editable-slate"
 					id={id}
 					renderLeaf={renderLeaf}
 					onKeyDown={(event) => {
@@ -643,7 +643,7 @@ const BlockButton = ({ format, icon }) => {
 					let data = {
 						url: "jkl",
 						editor: editor,
-						path: editor.selection.anchor.path,
+						path: editor.selection.anchor,
 						open: true,
 					};
 					updateAmount(data);

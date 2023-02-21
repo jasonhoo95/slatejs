@@ -38,7 +38,9 @@ export default function ComponentEditModal({
 			children: [{ text: "", type: "katex" }],
 		};
 		Transforms.insertNodes(ModalProps.editor, katex);
-		const nextNode = Editor.next(ModalProps.editor, { at: ModalProps.path });
+		const nextNode = Editor.next(ModalProps.editor, {
+			at: ModalProps.path.path,
+		});
 		Transforms.select(ModalProps.editor, nextNode[1]);
 		ReactEditor.focus(ModalProps.editor);
 		Transforms.move(ModalProps.editor);
@@ -55,10 +57,7 @@ export default function ComponentEditModal({
 				onClose={(e) => {
 					setOpen(e);
 					if (!ModalProps.click) {
-						Transforms.select(ModalProps.editor, {
-							path: ModalProps.path,
-							offset: 0,
-						});
+						Transforms.select(ModalProps.editor, ModalProps.path);
 						ReactEditor.focus(ModalProps.editor);
 					} else {
 						const nextNode = Editor.next(ModalProps.editor, { at: path });
@@ -116,7 +115,9 @@ export default function ComponentEditModal({
 								<div className="mt-4">
 									<button
 										onClick={(e) => {
-											Transforms.removeNodes(ModalProps.editor, { at: path });
+											Transforms.removeNodes(ModalProps.editor, {
+												at: ModalProps.path,
+											});
 
 											const url = "123";
 											let id = v4();
@@ -131,7 +132,7 @@ export default function ComponentEditModal({
 											Transforms.insertNodes(ModalProps.editor, katex);
 
 											const nextNode = Editor.next(ModalProps.editor, {
-												at: path,
+												at: ModalProps.path,
 											});
 											Transforms.select(ModalProps.editor, {
 												path: nextNode[1],

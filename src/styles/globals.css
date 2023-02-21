@@ -11,6 +11,25 @@ ul li {
 	list-style-type: disc;
 }
 
+/* .main-wrapper {
+	overflow-y: auto;
+	max-height: calc(100vh - 40px);
+} */
+
+.editable-slate {
+	margin-top: 150px;
+	/* overflow-x: hidden; */
+	border: 1px solid grey;
+	/* min-width: 20em; */
+	min-height: 1.4em;
+	padding: 0.3em 0.5em 0 0.5em;
+	background-color: white;
+	font-size: larger;
+	text-align: left;
+	border: 3px solid black;
+	border-radius: 5px;
+}
+
 .slate-break::after {
 	content: "";
 	display: block;

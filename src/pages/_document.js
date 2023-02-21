@@ -5,7 +5,7 @@ export default function Document() {
 			<Head>
 				<meta
 					name="viewport"
-					content="minimum-scale=1"
+					content="width=device-width, initial-scale=1, maximum-scale=1"
 				/>
 				<link
 					rel="stylesheet"
