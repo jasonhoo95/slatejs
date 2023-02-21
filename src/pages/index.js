@@ -9,15 +9,15 @@ import { useSelected } from "slate-react";
 
 // import Editor from "@/components/quillProduct/reactQuill";
 export default function Home() {
-	var string = "helloworld \n yoyoahtsap";
-	const RenderContent = () => {
-		const ref = useRef();
-		useLayoutEffect(() => {
-			console.log("layoutEffect", ref.current);
-		}, []);
+	// var string = "helloworld \n yoyoahtsap";
+	// const RenderContent = () => {
+	// 	const ref = useRef();
+	// 	useLayoutEffect(() => {
+	// 		console.log("layoutEffect", ref.current);
+	// 	}, []);
 
-		return <div ref={ref}>HELLO WORLD!!!</div>;
-	};
+	// 	return <div ref={ref}>HELLO WORLD!!!</div>;
+	// };
 	return (
 		<div className="m-8">
 			<Head>
@@ -31,16 +31,7 @@ export default function Home() {
 					href="/favicon.ico"
 				/>
 			</Head>
-			<RenderContent />
-			<div>
-				<ol>
-					<li>
-						can create like a topic and provide different solution for them to
-						see, example like math equatiasda
-					</li>
-					<li className="linebreak-unordered">on or science solution</li>
-				</ol>
-			</div>
+
 			<SlateReact />
 		</div>
 	);
