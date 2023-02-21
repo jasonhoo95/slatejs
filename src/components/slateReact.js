@@ -147,14 +147,13 @@ const SlateReact = () => {
 		let nextParent;
 
 		const listItems = Editor.nodes(editor, {
-			at: editor.selection.anchor,
+			at: editor.selection.anchor.path,
 			match: (n) =>
 				n.type === "paragraph" ||
 				n.type == "list-item" ||
-				n.type == "banner-red-wrapper",
+				n.type == "banner-red-wrapper" ||
+				n.type == "katex",
 		});
-
-		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
 
 		for (const listItem of listItems) {
 			listItemParent = Editor.node(editor, listItem[1]);
@@ -173,10 +172,13 @@ const SlateReact = () => {
 		} else {
 			//
 
-			const previousKatex = Editor.parent(editor, editor.selection.anchor, {
+			const previousKatex = Editor.previous(editor, {
+				at: editor.selection.anchor.path,
 				match: (n) =>
 					!Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "katex",
 			});
+
+			console.log(previousKatex, "previous katex");
 
 			if (
 				nextParent &&
@@ -249,7 +251,9 @@ const SlateReact = () => {
 			} else if (
 				listItemParent &&
 				listItemParent[0].type == "list-item" &&
-				listItemParent[1].includes(0)
+				listItemParent[1].includes(0) &&
+				editor.selection.anchor.offset == 0 &&
+				!previousKatex
 			) {
 				console.log("numbering match", listItemParent);
 				Transforms.unwrapNodes(editor, {
@@ -388,7 +392,16 @@ const SlateReact = () => {
 						) {
 							event.preventDefault();
 
+							const nextNode = Editor.next(editor, {
+								at: editor.selection.anchor.path,
+							});
+
+							console.log(nextNode, "shift next node");
+
 							Transforms.insertText(editor, "\n");
+							if (nextNode && nextNode[0].type == "katex") {
+								Transforms.move(editor, { unit: "offset", distance: 2 });
+							}
 						} else if (event.metaKey && event.key === "z" && !event.shiftKey) {
 							event.preventDefault();
 							HistoryEditor.undo(editor);
