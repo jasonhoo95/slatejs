@@ -175,10 +175,13 @@ const SlateReact = () => {
 			const previousKatex = Editor.previous(editor, {
 				at: editor.selection.anchor.path,
 				match: (n) =>
-					!Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "katex",
+					!Editor.isEditor(n) &&
+					SlateElement.isElement(n) &&
+					n.type == "inline-bug",
 			});
 
 			console.log(previousKatex, "previous katex");
+			console.log("list item", listItemParent);
 
 			if (
 				nextParent &&
@@ -265,7 +268,7 @@ const SlateReact = () => {
 				listItemParent[0].type == "list-item" &&
 				listItemParent[1].includes(0) &&
 				editor.selection.anchor.offset == 0 &&
-				!previousKatex
+				listItemParent[0].children.length == 1
 			) {
 				console.log("numbering match", listItemParent);
 				Transforms.unwrapNodes(editor, {
@@ -282,8 +285,12 @@ const SlateReact = () => {
 
 				// Editor.deleteBackward(editor, { unit: "word" });
 				const previousKatex = Editor.node(editor, editor.selection.anchor.path);
+				console.log(previousKatex, "katex check");
 
-				if (previousKatex[0].type == "katex") {
+				if (
+					previousKatex[0].type == "katex" ||
+					previousKatex[0].type == "inline-bug"
+				) {
 					Transforms.move(editor, { distance: 1, unit: "offset" });
 				}
 			}
@@ -424,11 +431,11 @@ const SlateReact = () => {
 
 							console.log(nextNode, "shift next node");
 
-							Transforms.insertText(editor, "\n");
-							// if (nextNode && nextNode[0].type == "katex") {
-							// 	Transforms.select(editor, nextNode[1]);
-							// 	Transforms.move(editor);
-							// }
+							Transforms.insertNodes(editor, {
+								children: [{ text: "\n", type: "inline-bug" }],
+								type: "inline-bug",
+							});
+							Transforms.move(editor, { unit: "offset", distance: 1 });
 						} else if (event.metaKey && event.key === "z" && !event.shiftKey) {
 							event.preventDefault();
 							HistoryEditor.undo(editor);
@@ -532,15 +539,7 @@ const LinkComponent = ({ attributes, children, element }) => {
 };
 
 const InlineChromiumBugfix = ({ attributes, children, element }) => {
-	return (
-		<span
-			contentEditable={false}
-			className={css`
-				font-size: 0;
-			`}>
-			${String.fromCodePoint(160) /* Non-breaking space */}
-		</span>
-	);
+	return <span contentEditable="false">{children}</span>;
 };
 
 const KatexComponent = ({ attributes, children, element }) => {
@@ -577,9 +576,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 			className="span-katex"
 			{...attributes}>
 			<span dangerouslySetInnerHTML={{ __html: katextext }}></span>
-			<InlineChromiumBugfix />
 			{children}
-			<InlineChromiumBugfix />
 			{/* <RenderModal /> */}
 		</span>
 	);
