@@ -122,22 +122,19 @@ const SlateReact = () => {
 		if (
 			currentParent &&
 			["list-item", "banner-red-wrapper"].includes(currentParent[0].type) &&
-			!previousKatex[0].type &&
+			currentParent[0].children.length == 1 &&
 			selectedLeaf.text.length == 0
 		) {
+			console.log("toggle block", currentParent);
 			toggleBlock(editor, currentParent[0].type);
-		} else if (
-			currentParent &&
-			["list-item"].includes(currentParent[0].type) &&
-			(previousKatex[0].type == "katex" || selectedLeaf.text.length > 0)
-		) {
+		} else if (currentParent && ["list-item"].includes(currentParent[0].type)) {
 			insertBreak();
 		} else {
+			console.log("toggle paragraph");
 			Transforms.insertNodes(editor, {
 				children: [{ text: "" }],
 				type: "paragraph",
 			});
-			return;
 		}
 	};
 
@@ -172,16 +169,11 @@ const SlateReact = () => {
 		} else {
 			//
 
-			const previousKatex = Editor.previous(editor, {
+			const currentNodeParent = Editor.node(editor, {
 				at: editor.selection.anchor.path,
-				match: (n) =>
-					!Editor.isEditor(n) &&
-					SlateElement.isElement(n) &&
-					n.type == "inline-bug",
 			});
 
-			console.log(previousKatex, "previous katex");
-			console.log("list item", listItemParent);
+			console.log(currentNodeParent, "current node");
 
 			if (
 				nextParent &&
@@ -266,9 +258,9 @@ const SlateReact = () => {
 			} else if (
 				listItemParent &&
 				listItemParent[0].type == "list-item" &&
-				listItemParent[1].includes(0) &&
+				listItemParent[1][listItemParent[1].length - 1] == 0 &&
 				editor.selection.anchor.offset == 0 &&
-				listItemParent[0].children.length == 1
+				currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
 			) {
 				console.log("numbering match", listItemParent);
 				Transforms.unwrapNodes(editor, {
