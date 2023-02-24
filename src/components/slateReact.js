@@ -177,14 +177,10 @@ const SlateReact = () => {
 				const previousKatex = Editor.node(editor, editor.selection.anchor.path);
 				console.log(previousKatex, "banner red wrapper katex");
 				if (
-					previousKatex[0].type == "katex" ||
-					previousKatex[0].type == "inline-bug" ||
+					["katex", "inline-bug"].includes(previousKatex[0].type) ||
 					previousKatex[0].text.length > 0
 				) {
-					if (
-						previousKatex[0].type == "katex" ||
-						previousKatex[0].type == "inline-bug"
-					) {
+					if (["katex", "inline-bug"].includes(previousKatex[0].type)) {
 						Transforms.move(editor, { distance: 1, unit: "offset" });
 					}
 					const nextNode1 = Editor.next(editor, {
@@ -234,8 +230,11 @@ const SlateReact = () => {
 
 				console.log(currentNode, "numbering current node");
 
-				if (currentNode[0].type == "katex" || currentNode[0].text.length > 0) {
-					if (currentNode[0].type == "katex") {
+				if (
+					["katex", "inline-bug"].includes(currentNode[0].type) ||
+					currentNode[0].text.length > 0
+				) {
+					if (["katex", "inline-bug"].includes(currentNode[0].type)) {
 						Transforms.move(editor, { distance: 1, unit: "offset" });
 					}
 					const nextNode = Editor.next(editor, {
@@ -526,7 +525,13 @@ const LinkComponent = ({ attributes, children, element }) => {
 };
 
 const InlineChromiumBugfix = ({ attributes, children, element }) => {
-	return <span contentEditable="false">{children}</span>;
+	return (
+		<span
+			contentEditable="false"
+			{...attributes}>
+			{children}
+		</span>
+	);
 };
 
 const KatexComponent = ({ attributes, children, element }) => {
