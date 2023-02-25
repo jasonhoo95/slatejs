@@ -66,6 +66,10 @@ export default function Document() {
 					async
 					src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 				{/* <script
+					type="application/javascript"
+					src="/web_support.js"></script> */}
+
+				{/* <script
 					async
 					src="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/contrib/auto-render.min.js"
 					onLoad="renderMathInElement(document.body);"></script> */}

@@ -11,11 +11,49 @@ ul li {
 	list-style-type: disc;
 }
 
-/* .main-wrapper {
-	overflow-y: auto;
-	max-height: calc(100vh - 40px);
-} */
+#editor {
+	padding: 5px 20px;
+}
 
+#editor:focus {
+	outline: 2px solid transparent;
+}
+
+#toolbar-wrap {
+	position: sticky;
+	top: 0px;
+	height: 60px;
+	width: 100%;
+}
+
+#toolbar {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	padding: 15px;
+	background-color: #f1f5f9;
+}
+
+#toolbar.down {
+	transition-property: all;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 500ms;
+}
+
+.button {
+	border-radius: 5px;
+	background-color: transparent;
+	border: 0px;
+	padding: 3px 5px;
+	line-height: 0px;
+	display: inline-block;
+	margin: 1px;
+	cursor: pointer;
+}
+
+.button:hover {
+	background-color: #e2e8f0;
+}
 .editable-slate {
 	margin-top: 150px;
 	/* overflow-x: hidden; */

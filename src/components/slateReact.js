@@ -55,26 +55,38 @@ const SlateReact = () => {
 	let id = v4();
 
 	useEffect(() => {
-		window.addEventListener(
-			"message",
-			function (event) {
-				if (event.data == "bold") {
-					toggleMark(editor, "bold");
+		window.addEventListener("message", function (event) {
+			if (event.data == "bold") {
+				toggleMark(editor, "bold");
 
-					if (event.ports[0] != null) {
-						// the port is ready for communication,
-						// so you can use port.postMessage(message); wherever you want
-						var port = event.ports[0];
-						// To listen to messages coming from the Dart side, set the onmessage event listener
-						port.onmessage = function (event) {
-							// event.data contains the message data coming from the Dart side
-						};
-					}
-					// capture port2 coming from the Dart side
+				if (event.ports[0] != null) {
+					// the port is ready for communication,
+					// so you can use port.postMessage(message); wherever you want
+					var port = event.ports[0];
+					// To listen to messages coming from the Dart side, set the onmessage event listener
+					port.onmessage = function (event) {
+						// event.data contains the message data coming from the Dart side
+					};
 				}
-			},
-			false
-		);
+				// capture port2 coming from the Dart side
+			}
+		});
+
+		window.flutter_inappwebview
+			.callHandler("handlerFoo")
+			.then(function (result) {
+				// print to the console the data coming
+				// from the Flutter side.
+				alert("true");
+				window.flutter_inappwebview.callHandler(
+					"handlerFooWithArgs",
+					1,
+					true,
+					["bar", 5],
+					{ foo: "baz" },
+					result
+				);
+			});
 	}, []);
 	const [state, setState] = useState({
 		text: "",
