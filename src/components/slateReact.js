@@ -120,6 +120,7 @@ const SlateReact = () => {
 			match: (n) =>
 				n.type == "list-item" ||
 				n.type == "banner-red-wrapper" ||
+				n.type == "paragraph" ||
 				n.type == "katex",
 		});
 		let currentParent;
@@ -135,9 +136,13 @@ const SlateReact = () => {
 			selectedLeaf.text.length == 0
 		) {
 			toggleBlock(editor, currentParent[0].type);
-		} else if (currentParent && ["list-item"].includes(currentParent[0].type)) {
+		} else if (
+			(currentParent && ["list-item"].includes(currentParent[0].type)) ||
+			selectedLeaf.text.length != editor.selection.anchor.offset
+		) {
 			insertBreak();
 		} else {
+			console.log(currentParent, "current");
 			Transforms.insertNodes(editor, {
 				children: [{ text: "" }],
 				type: "paragraph",
@@ -336,7 +341,7 @@ const SlateReact = () => {
 				editor={editor}
 				onChange={(e) => {}}
 				value={initialValue}>
-				<div
+				{/* <div
 					style={{
 						position: "fixed",
 						background: "red",
@@ -390,7 +395,7 @@ const SlateReact = () => {
 						}}>
 						insert void
 					</div>
-				</div>
+				</div> */}
 
 				<Editable
 					renderElement={renderElement}
@@ -448,6 +453,7 @@ const SlateReact = () => {
 							event.preventDefault();
 							HistoryEditor.redo(editor);
 						} else if (selectedLeaf.text.startsWith("1.")) {
+							console.log("numbering match");
 							event.preventDefault();
 							toggleBlock(editor, "numbered-list", "number");
 							Transforms.delete(editor, {
