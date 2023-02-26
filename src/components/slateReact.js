@@ -73,11 +73,10 @@ const SlateReact = () => {
 		});
 
 		window.flutter_inappwebview
-			.callHandler("handlerFoo")
+			?.callHandler("handlerFoo")
 			.then(function (result) {
 				// print to the console the data coming
 				// from the Flutter side.
-				alert("true");
 				window.flutter_inappwebview.callHandler(
 					"handlerFooWithArgs",
 					1,
@@ -335,6 +334,7 @@ const SlateReact = () => {
 			{state.text}
 			<Slate
 				editor={editor}
+				onChange={(e) => {}}
 				value={initialValue}>
 				<div
 					style={{
@@ -395,7 +395,14 @@ const SlateReact = () => {
 				<Editable
 					renderElement={renderElement}
 					autoCapitalize="off"
-					autoFocus
+					onFocus={(e) => {
+						console.log("focus");
+						window.flutter_inappwebview?.callHandler(
+							"handlerFooWithArgs",
+							"ASDADASDAS"
+						);
+					}}
+					autoFocus={false}
 					className="editable-slate"
 					id={id}
 					renderLeaf={renderLeaf}
