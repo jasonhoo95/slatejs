@@ -341,6 +341,20 @@ const SlateReact = () => {
 				editor={editor}
 				onChange={(e) => {}}
 				value={initialValue}>
+				<div
+					style={{
+						position: "fixed",
+						background: "red",
+						overflowX: "auto",
+						left: 0,
+						top: 0,
+						width: "100%",
+						display: "flex",
+						zIndex: 30,
+						padding: "10px",
+					}}>
+					<div>helloworld</div>
+				</div>
 				{/* <div
 					style={{
 						position: "fixed",
