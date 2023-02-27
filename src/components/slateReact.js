@@ -341,7 +341,7 @@ const SlateReact = () => {
 				editor={editor}
 				onChange={(e) => {}}
 				value={initialValue}>
-				{/* <div
+				<div
 					style={{
 						position: "fixed",
 						background: "red",
@@ -395,7 +395,7 @@ const SlateReact = () => {
 						}}>
 						insert void
 					</div>
-				</div> */}
+				</div>
 
 				<Editable
 					renderElement={renderElement}
