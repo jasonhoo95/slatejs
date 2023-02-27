@@ -40,6 +40,7 @@ const LIST_TYPES = ["numbered-list", "bulleted-list"];
 const TEXT_ALIGN_TYPES = ["left", "center", "right", "justify"];
 const FORMAT_TYPES = ["bold", "italic", "underline"];
 const FORMAT_NONE = ["numbered-list", "paragraph"];
+let backwardCheck = false;
 const initialValue = [
 	{
 		type: "paragraph",
@@ -142,7 +143,6 @@ const SlateReact = () => {
 		) {
 			insertBreak();
 		} else {
-			console.log(currentParent, "current");
 			Transforms.insertNodes(editor, {
 				children: [{ text: "" }],
 				type: "paragraph",
@@ -187,88 +187,86 @@ const SlateReact = () => {
 				nextParent &&
 				nextParent[0].type == "banner-red-wrapper" &&
 				previousParent &&
+				!backwardCheck &&
 				previousParent[0].type == "banner-red-wrapper"
 			) {
 				deleteBackward(...args);
-				const previousKatex = Editor.node(editor, editor.selection.anchor.path);
-				console.log(previousKatex, "banner red wrapper katex");
-				if (
-					["katex", "inline-bug"].includes(previousKatex[0].type) ||
-					previousKatex[0].text.length > 0
-				) {
-					if (["katex", "inline-bug"].includes(previousKatex[0].type)) {
-						Transforms.move(editor, { distance: 1, unit: "offset" });
-					}
-					const nextNode1 = Editor.next(editor, {
-						at: editor.selection.anchor.path,
-						match: (n) =>
-							!Editor.isEditor(n) &&
-							SlateElement.isElement(n) &&
-							n.type == "banner-red-wrapper",
-					});
 
+				if (!backwardCheck) {
+					backwardCheck = true;
+				}
+
+				if (["katex", "inline-bug"].includes(previousKatex[0].type)) {
+					Transforms.move(editor, { distance: 1, unit: "offset" });
+				}
+				const nextNode1 = Editor.next(editor, {
+					at: editor.selection.anchor.path,
+					match: (n) =>
+						!Editor.isEditor(n) &&
+						SlateElement.isElement(n) &&
+						n.type == "banner-red-wrapper",
+				});
+
+				Transforms.mergeNodes(editor, {
+					at: nextNode1[1],
+					match: (n) =>
+						!Editor.isEditor(n) &&
+						SlateElement.isElement(n) &&
+						n.type == "banner-red-wrapper",
+				});
+
+				const nextNode2 = Editor.next(editor, {
+					at: editor.selection.anchor.path,
+					match: (n) =>
+						!Editor.isEditor(n) &&
+						SlateElement.isElement(n) &&
+						n.type == "numbered-list",
+				});
+
+				//
+				if (nextNode2 && nextNode2[0].type == "numbered-list") {
 					Transforms.mergeNodes(editor, {
-						at: nextNode1[1],
-						match: (n) =>
-							!Editor.isEditor(n) &&
-							SlateElement.isElement(n) &&
-							n.type == "banner-red-wrapper",
-					});
-
-					const nextNode2 = Editor.next(editor, {
-						at: editor.selection.anchor.path,
+						at: nextNode2[1],
 						match: (n) =>
 							!Editor.isEditor(n) &&
 							SlateElement.isElement(n) &&
 							n.type == "numbered-list",
 					});
-
-					//
-					if (nextNode2 && nextNode2[0].type == "numbered-list") {
-						Transforms.mergeNodes(editor, {
-							at: nextNode2[1],
-							match: (n) =>
-								!Editor.isEditor(n) &&
-								SlateElement.isElement(n) &&
-								n.type == "numbered-list",
-						});
-					}
 				}
 			} else if (
 				nextParent &&
 				previousParent &&
 				previousParent[0].type == "numbered-list" &&
+				!backwardCheck &&
 				nextParent[0].type == "numbered-list"
 			) {
+				if (!backwardCheck) {
+					backwardCheck = true;
+				}
+
 				deleteBackward(...args);
 
 				const currentNode = Editor.node(editor, editor.selection.anchor.path);
 
-				console.log(currentNode, "numbering current node");
-
-				if (
-					["katex", "inline-bug"].includes(currentNode[0].type) ||
-					currentNode[0].text.length > 0
-				) {
-					if (["katex", "inline-bug"].includes(currentNode[0].type)) {
-						Transforms.move(editor, { distance: 1, unit: "offset" });
-					}
-					const nextNode = Editor.next(editor, {
-						at: editor.selection.anchor.path,
-						match: (n) =>
-							!Editor.isEditor(n) &&
-							SlateElement.isElement(n) &&
-							n.type == "numbered-list",
-					});
-
-					Transforms.mergeNodes(editor, {
-						at: nextNode[1],
-						match: (n) =>
-							!Editor.isEditor(n) &&
-							SlateElement.isElement(n) &&
-							n.type == "numbered-list",
-					});
+				if (["katex", "inline-bug"].includes(currentNode[0].type)) {
+					Transforms.move(editor, { distance: 1, unit: "offset" });
 				}
+				const nextNode = Editor.next(editor, {
+					at: currentNode[1],
+					match: (n) =>
+						!Editor.isEditor(n) &&
+						SlateElement.isElement(n) &&
+						n.type == "numbered-list",
+				});
+
+				console.log("merge numbering");
+				Transforms.mergeNodes(editor, {
+					at: nextNode[1],
+					match: (n) =>
+						!Editor.isEditor(n) &&
+						SlateElement.isElement(n) &&
+						n.type == "numbered-list",
+				});
 			} else if (
 				listItemParent &&
 				listItemParent[0].type == "list-item" &&
@@ -339,7 +337,9 @@ const SlateReact = () => {
 			{state.text}
 			<Slate
 				editor={editor}
-				onChange={(e) => {}}
+				onChange={(e) => {
+					backwardCheck = false;
+				}}
 				value={initialValue}>
 				<div
 					style={{
@@ -357,6 +357,18 @@ const SlateReact = () => {
 						format="katex-link"
 						icon="format_list_item"
 					/>
+
+					<BlockButton
+						format="numbered-list"
+						icon="format_list_item"
+					/>
+					<div
+						onClick={(e) => {
+							const block = { type: "banner-red-wrapper", children: [] };
+							Transforms.wrapNodes(editor, block);
+						}}>
+						Banner red
+					</div>
 				</div>
 				{/* <div
 					style={{
@@ -418,7 +430,6 @@ const SlateReact = () => {
 					renderElement={renderElement}
 					autoCapitalize="off"
 					onFocus={(e) => {
-						console.log("focus");
 						window.flutter_inappwebview?.callHandler(
 							"handlerFooWithArgs",
 							"ASDADASDAS"
@@ -470,7 +481,6 @@ const SlateReact = () => {
 							event.preventDefault();
 							HistoryEditor.redo(editor);
 						} else if (selectedLeaf.text.startsWith("1.")) {
-							console.log("numbering match");
 							event.preventDefault();
 							toggleBlock(editor, "numbered-list", "number");
 							Transforms.delete(editor, {
@@ -586,8 +596,6 @@ const KatexComponent = ({ attributes, children, element }) => {
 
 	const clickProps = useModalStore((state) => state.click);
 
-	console.log(clickProps, "click props");
-
 	return (
 		<span
 			onClick={(e) => {
@@ -613,7 +621,9 @@ const KatexComponent = ({ attributes, children, element }) => {
 			contentEditable="false"
 			className="span-katex"
 			{...attributes}>
-			<span dangerouslySetInnerHTML={{ __html: katextext }}></span>
+			<span
+				contentEditable="false"
+				dangerouslySetInnerHTML={{ __html: katextext }}></span>
 			{children}
 			{/* <RenderModal /> */}
 		</span>

@@ -43,12 +43,13 @@ export default function ComponentEditModal({
 		});
 		Transforms.select(ModalProps.editor, nextNode[1]);
 
-		ReactEditor.focus(ModalProps.editor);
 		Transforms.move(ModalProps.editor);
 
 		Transforms.insertText(ModalProps.editor, "\u00a0".toString(), {
 			at: ModalProps.editor.selection.anchor,
 		});
+		ReactEditor.focus(ModalProps.editor);
+
 		setOpen(false);
 		updateAmount(null);
 		updateClick(null);
