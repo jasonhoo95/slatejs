@@ -586,6 +586,8 @@ const KatexComponent = ({ attributes, children, element }) => {
 
 	const clickProps = useModalStore((state) => state.click);
 
+	console.log(clickProps, "click props");
+
 	return (
 		<span
 			onClick={(e) => {
@@ -604,7 +606,9 @@ const KatexComponent = ({ attributes, children, element }) => {
 			style={{
 				// userSelect: "none",
 				background:
-					(selected && focused) || element.id == clickProps ? "red" : "",
+					(selected && focused) || (clickProps && clickProps == element.id)
+						? "red"
+						: "",
 			}}
 			contentEditable="false"
 			className="span-katex"
