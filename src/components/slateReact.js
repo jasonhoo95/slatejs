@@ -328,7 +328,7 @@ const SlateReact = () => {
 	};
 
 	return (
-		<div>
+		<div style={{ marginTop: "100px" }}>
 			<ComponentEditModal
 				open={open}
 				setOpen={setOpen}
@@ -341,7 +341,7 @@ const SlateReact = () => {
 				editor={editor}
 				onChange={(e) => {}}
 				value={initialValue}>
-				{/* <div
+				<div
 					style={{
 						position: "fixed",
 						background: "red",
@@ -353,8 +353,11 @@ const SlateReact = () => {
 						zIndex: 30,
 						padding: "10px",
 					}}>
-					<div>helloworld</div>
-				</div> */}
+					<BlockButton
+						format="katex-link"
+						icon="format_list_item"
+					/>
+				</div>
 				{/* <div
 					style={{
 						position: "fixed",
