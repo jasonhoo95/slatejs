@@ -341,7 +341,7 @@ const SlateReact = () => {
 				editor={editor}
 				onChange={(e) => {}}
 				value={initialValue}>
-				<div
+				{/* <div
 					style={{
 						position: "fixed",
 						background: "red",
@@ -354,7 +354,7 @@ const SlateReact = () => {
 						padding: "10px",
 					}}>
 					<div>helloworld</div>
-				</div>
+				</div> */}
 				{/* <div
 					style={{
 						position: "fixed",
