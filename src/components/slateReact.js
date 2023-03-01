@@ -36,7 +36,7 @@ const HOTKEYS = {
 	"mod+`": "code",
 };
 
-const LIST_TYPES = ["numbered-list", "bulleted-list"];
+const LIST_TYPES = ["numbered-list", "bulleted-list", "list-item"];
 const TEXT_ALIGN_TYPES = ["left", "center", "right", "justify"];
 const FORMAT_TYPES = ["bold", "italic", "underline"];
 const FORMAT_NONE = ["numbered-list", "paragraph"];
@@ -121,14 +121,13 @@ const SlateReact = () => {
 			match: (n) =>
 				n.type == "list-item" ||
 				n.type == "banner-red-wrapper" ||
-				n.type == "paragraph" ||
 				n.type == "katex",
 		});
 		let currentParent;
 		for (const listItem of listItems) {
 			currentParent = Editor.node(editor, listItem[1]);
 		}
-
+		console.log(currentParent, "current parent");
 		if (
 			currentParent &&
 			((["list-item"].includes(currentParent[0].type) &&
@@ -154,6 +153,8 @@ const SlateReact = () => {
 		let listItemParent;
 		let previousParent;
 		let nextParent;
+
+		console.log("delete now");
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
@@ -194,79 +195,79 @@ const SlateReact = () => {
 
 				if (!backwardCheck) {
 					backwardCheck = true;
-				}
+					console.log("backward check", backwardCheck);
+					const currentNode = Editor.node(editor, editor.selection.anchor.path);
 
-				if (["katex", "inline-bug"].includes(previousKatex[0].type)) {
-					Transforms.move(editor, { distance: 1, unit: "offset" });
-				}
-				const nextNode1 = Editor.next(editor, {
-					at: editor.selection.anchor.path,
-					match: (n) =>
-						!Editor.isEditor(n) &&
-						SlateElement.isElement(n) &&
-						n.type == "banner-red-wrapper",
-				});
+					if (["katex", "inline-bug"].includes(currentNode[0].type)) {
+						Transforms.move(editor, { distance: 1, unit: "offset" });
+					}
+					const nextNode1 = Editor.next(editor, {
+						at: editor.selection.anchor.path,
+						match: (n) =>
+							!Editor.isEditor(n) &&
+							SlateElement.isElement(n) &&
+							n.type == "banner-red-wrapper",
+					});
 
-				Transforms.mergeNodes(editor, {
-					at: nextNode1[1],
-					match: (n) =>
-						!Editor.isEditor(n) &&
-						SlateElement.isElement(n) &&
-						n.type == "banner-red-wrapper",
-				});
-
-				const nextNode2 = Editor.next(editor, {
-					at: editor.selection.anchor.path,
-					match: (n) =>
-						!Editor.isEditor(n) &&
-						SlateElement.isElement(n) &&
-						n.type == "numbered-list",
-				});
-
-				//
-				if (nextNode2 && nextNode2[0].type == "numbered-list") {
 					Transforms.mergeNodes(editor, {
-						at: nextNode2[1],
+						at: nextNode1[1],
+						match: (n) =>
+							!Editor.isEditor(n) &&
+							SlateElement.isElement(n) &&
+							n.type == "banner-red-wrapper",
+					});
+
+					const nextNode2 = Editor.next(editor, {
+						at: editor.selection.anchor.path,
+						match: (n) =>
+							!Editor.isEditor(n) &&
+							SlateElement.isElement(n) &&
+							n.type == "numbered-list",
+					});
+
+					//
+					if (nextNode2 && nextNode2[0].type == "numbered-list") {
+						Transforms.mergeNodes(editor, {
+							at: nextNode2[1],
+							match: (n) =>
+								!Editor.isEditor(n) &&
+								SlateElement.isElement(n) &&
+								n.type == "numbered-list",
+						});
+					}
+				}
+			} else if (
+				nextParent &&
+				previousParent &&
+				previousParent[0].type == "numbered-list" &&
+				nextParent[0].type == "numbered-list"
+			) {
+				deleteBackward(...args);
+
+				if (!backwardCheck) {
+					backwardCheck = true;
+					const currentNode = Editor.node(editor, editor.selection.anchor.path);
+
+					if (["katex", "inline-bug"].includes(currentNode[0].type)) {
+						Transforms.move(editor, { distance: 1, unit: "offset" });
+					}
+					const nextNode = Editor.next(editor, {
+						at: currentNode[1],
+						match: (n) =>
+							!Editor.isEditor(n) &&
+							SlateElement.isElement(n) &&
+							n.type == "numbered-list",
+					});
+
+					console.log("merge numbering");
+					Transforms.mergeNodes(editor, {
+						at: nextNode[1],
 						match: (n) =>
 							!Editor.isEditor(n) &&
 							SlateElement.isElement(n) &&
 							n.type == "numbered-list",
 					});
 				}
-			} else if (
-				nextParent &&
-				previousParent &&
-				previousParent[0].type == "numbered-list" &&
-				!backwardCheck &&
-				nextParent[0].type == "numbered-list"
-			) {
-				if (!backwardCheck) {
-					backwardCheck = true;
-				}
-
-				deleteBackward(...args);
-
-				const currentNode = Editor.node(editor, editor.selection.anchor.path);
-
-				if (["katex", "inline-bug"].includes(currentNode[0].type)) {
-					Transforms.move(editor, { distance: 1, unit: "offset" });
-				}
-				const nextNode = Editor.next(editor, {
-					at: currentNode[1],
-					match: (n) =>
-						!Editor.isEditor(n) &&
-						SlateElement.isElement(n) &&
-						n.type == "numbered-list",
-				});
-
-				console.log("merge numbering");
-				Transforms.mergeNodes(editor, {
-					at: nextNode[1],
-					match: (n) =>
-						!Editor.isEditor(n) &&
-						SlateElement.isElement(n) &&
-						n.type == "numbered-list",
-				});
 			} else if (
 				listItemParent &&
 				listItemParent[0].type == "list-item" &&
@@ -365,7 +366,19 @@ const SlateReact = () => {
 					<div
 						onClick={(e) => {
 							const block = { type: "banner-red-wrapper", children: [] };
-							Transforms.wrapNodes(editor, block);
+
+							Transforms.wrapNodes(editor, block, {
+								match: (n) => {
+									console.log(n.type, "types");
+									return (
+										(!Editor.isEditor(n) &&
+											SlateElement.isElement(n) &&
+											n.type == "numbered-list") ||
+										n.type == "paragraph"
+									);
+								},
+								split: true,
+							});
 						}}>
 						Banner red
 					</div>
@@ -732,23 +745,39 @@ const toggleBlock = (editor, format, type) => {
 		depth: 2,
 	});
 
-	if (type != "number") {
-		Transforms.unwrapNodes(editor, {
-			match: (n) =>
-				!Editor.isEditor(n) &&
-				SlateElement.isElement(n) &&
-				(LIST_TYPES.includes(n.type) || n.type == "banner-red-wrapper"),
-			split: true,
-		});
+	let formatCheck;
+
+	if (format == "list-item") {
+		formatCheck = "numbered-list";
 	} else {
-		Transforms.unwrapNodes(editor, {
-			match: (n) =>
+		formatCheck = format;
+	}
+
+	console.log(format, "numbering format check");
+
+	// if (type != "number") {
+
+	// } else {
+	// 	Transforms.unwrapNodes(editor, {
+	// 		match: (n) =>
+	// 			!Editor.isEditor(n) &&
+	// 			SlateElement.isElement(n) &&
+	// 			LIST_TYPES.includes(n.type),
+	// 		split: true,
+	// 	});
+	// }
+
+	Transforms.unwrapNodes(editor, {
+		match: (n) => {
+			console.log(n.type, "types");
+			return (
 				!Editor.isEditor(n) &&
 				SlateElement.isElement(n) &&
-				LIST_TYPES.includes(n.type),
-			split: true,
-		});
-	}
+				n.type == formatCheck
+			);
+		},
+		split: true,
+	});
 
 	let newProperties;
 	if (TEXT_ALIGN_TYPES.includes(format)) {
@@ -757,7 +786,7 @@ const toggleBlock = (editor, format, type) => {
 		};
 	} else {
 		newProperties = {
-			type: isActive ? "paragraph" : isList ? "list-item" : format,
+			type: isActive ? "paragraph" : isList ? "list-item" : formatCheck,
 		};
 	}
 	Transforms.setNodes(editor, newProperties);
