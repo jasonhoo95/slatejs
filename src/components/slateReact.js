@@ -127,19 +127,22 @@ const SlateReact = () => {
 		for (const listItem of listItems) {
 			currentParent = Editor.node(editor, listItem[1]);
 		}
-		console.log(currentParent, "current parent");
+		console.log(selectedLeaf.text.indexOf(), "current parent");
 		if (
 			currentParent &&
 			((["list-item"].includes(currentParent[0].type) &&
 				currentParent[0].children.length == 1) ||
 				["banner-red-wrapper"].includes(currentParent[0].type)) &&
-			selectedLeaf.text.length == 0
+			!/\S/.test(selectedLeaf.text)
 		) {
+			console.log("toggle enter");
 			toggleBlock(editor, currentParent[0].type);
 		} else if (
 			(currentParent && ["list-item"].includes(currentParent[0].type)) ||
 			selectedLeaf.text.length != editor.selection.anchor.offset
 		) {
+			console.log("normal enter");
+
 			insertBreak();
 		} else {
 			Transforms.insertNodes(editor, {
@@ -153,8 +156,6 @@ const SlateReact = () => {
 		let listItemParent;
 		let previousParent;
 		let nextParent;
-
-		console.log("delete now");
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
@@ -246,22 +247,22 @@ const SlateReact = () => {
 
 				if (!backwardCheck) {
 					backwardCheck = true;
-					const currentNode = Editor.node(editor, editor.selection.anchor.path);
+					const currentNode = Editor.node(editor, editor.selection.anchor);
+					console.log(listItemParent, "current node");
 
 					if (["katex", "inline-bug"].includes(currentNode[0].type)) {
 						Transforms.move(editor, { distance: 1, unit: "offset" });
 					}
-					const nextNode = Editor.next(editor, {
-						at: currentNode[1],
-						match: (n) =>
-							!Editor.isEditor(n) &&
-							SlateElement.isElement(n) &&
-							n.type == "numbered-list",
-					});
+					// const nextNode = Editor.next(editor, {
+					// 	at: currentNode[1],
+					// 	match: (n) =>
+					// 		!Editor.isEditor(n) &&
+					// 		SlateElement.isElement(n) &&
+					// 		n.type == "numbered-list",
+					// });
 
-					console.log("merge numbering");
 					Transforms.mergeNodes(editor, {
-						at: nextNode[1],
+						at: listItemParent[1],
 						match: (n) =>
 							!Editor.isEditor(n) &&
 							SlateElement.isElement(n) &&
@@ -288,12 +289,14 @@ const SlateReact = () => {
 				deleteBackward(...args);
 
 				// Editor.deleteBackward(editor, { unit: "word" });
-				const previousKatex = Editor.node(editor, editor.selection.anchor.path);
+				const previousKatex = Editor.node(editor, editor.selection.anchor);
+				console.log("delete backward", previousKatex);
 
 				if (
 					previousKatex[0].type == "katex" ||
 					previousKatex[0].type == "inline-bug"
 				) {
+					console.log("katex backward");
 					Transforms.move(editor, { distance: 1, unit: "offset" });
 				}
 			}
@@ -366,19 +369,43 @@ const SlateReact = () => {
 					<div
 						onClick={(e) => {
 							const block = { type: "banner-red-wrapper", children: [] };
+							const isActive = isBlockActive(
+								editor,
+								"banner-red-wrapper",
+								TEXT_ALIGN_TYPES.includes("banner-red-wrapper")
+									? "align"
+									: "type"
+							);
 
-							Transforms.wrapNodes(editor, block, {
-								match: (n) => {
-									console.log(n.type, "types");
-									return (
-										(!Editor.isEditor(n) &&
+							if (!isActive) {
+								Transforms.wrapNodes(editor, block, {
+									match: (n) => {
+										console.log(n.type, "types");
+										return (
+											(!Editor.isEditor(n) &&
+												SlateElement.isElement(n) &&
+												n.type == "numbered-list") ||
+											n.type == "paragraph"
+										);
+									},
+									split: true,
+								});
+							} else {
+								Transforms.unwrapNodes(editor, {
+									at: editor.selection.anchor.path,
+									match: (n) => {
+										console.log(n.type, "types");
+										return (
+											!Editor.isEditor(n) &&
 											SlateElement.isElement(n) &&
-											n.type == "numbered-list") ||
-										n.type == "paragraph"
-									);
-								},
-								split: true,
-							});
+											n.type == "banner-red-wrapper"
+										);
+									},
+									split: true,
+								});
+							}
+
+							console.log(isActive, "is active");
 						}}>
 						Banner red
 					</div>
