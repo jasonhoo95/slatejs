@@ -472,7 +472,13 @@ const SlateReact = () => {
 					onFocus={(e) => {
 						window.flutter_inappwebview?.callHandler(
 							"handlerFooWithArgs",
-							"ASDADASDAS"
+							"focus"
+						);
+					}}
+					onBlur={(e) => {
+						window.flutter_inappwebview?.callHandler(
+							"handlerFooWithArgs",
+							"blur"
 						);
 					}}
 					autoFocus={false}
