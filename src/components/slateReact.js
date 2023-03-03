@@ -104,9 +104,6 @@ const SlateReact = () => {
 			toggleBlock(editor, currentParent[0].type);
 		} else {
 			insertBreak();
-			FORMAT_TYPES.map((o) => {
-				Editor.removeMark(editor, o);
-			});
 
 			const isActive = isBlockActive(
 				editor,
@@ -116,6 +113,9 @@ const SlateReact = () => {
 			if (isActive) {
 				Transforms.setNodes(editor, { type: "paragraph" });
 			}
+			FORMAT_TYPES.map((o) => {
+				Editor.removeMark(editor, o);
+			});
 		}
 
 		// else if (
@@ -319,6 +319,10 @@ const SlateReact = () => {
 						format="numbered-list"
 						icon="format_list_item"
 					/>
+					<MarkButton
+						format="bold"
+						icon="format_bold"
+					/>
 					<div
 						onClick={(e) => {
 							const block = { type: "heading-one", children: [] };
@@ -327,7 +331,7 @@ const SlateReact = () => {
 					>
 						Heading (1)
 					</div>
-					<div
+					{/* <div
 						onClick={(e) => {
 							const block = { type: "banner-red-wrapper", children: [] };
 							const isActive = isBlockActive(
@@ -362,7 +366,7 @@ const SlateReact = () => {
 						}}
 					>
 						Banner red
-					</div>
+					</div> */}
 				</div>
 				{/* <div
 					style={{
