@@ -85,9 +85,7 @@ const SlateReact = () => {
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
-		FORMAT_TYPES.map((o) => {
-			Editor.removeMark(editor, o);
-		});
+
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
 			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex",
@@ -106,6 +104,18 @@ const SlateReact = () => {
 			toggleBlock(editor, currentParent[0].type);
 		} else {
 			insertBreak();
+			FORMAT_TYPES.map((o) => {
+				Editor.removeMark(editor, o);
+			});
+
+			const isActive = isBlockActive(
+				editor,
+				"heading-one",
+				TEXT_ALIGN_TYPES.includes("heading-one") ? "align" : "type"
+			);
+			if (isActive) {
+				Transforms.setNodes(editor, { type: "paragraph" });
+			}
 		}
 
 		// else if (
@@ -309,6 +319,14 @@ const SlateReact = () => {
 						format="numbered-list"
 						icon="format_list_item"
 					/>
+					<div
+						onClick={(e) => {
+							const block = { type: "heading-one", children: [] };
+							Transforms.setNodes(editor, block);
+						}}
+					>
+						Heading (1)
+					</div>
 					<div
 						onClick={(e) => {
 							const block = { type: "banner-red-wrapper", children: [] };
