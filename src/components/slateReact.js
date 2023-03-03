@@ -141,8 +141,7 @@ const SlateReact = () => {
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) =>
-				n.type === "paragraph" || n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex",
+			match: (n) => ["paragraph", "list-item", "heading-one", "banner-red-wrapper", "katex"].includes(n.type),
 		});
 
 		for (const listItem of listItems) {
@@ -246,12 +245,15 @@ const SlateReact = () => {
 				deleteBackward(...args);
 
 				// Editor.deleteBackward(editor, { unit: "word" });
-				const previousKatex = Editor.node(editor, editor.selection.anchor);
-				console.log("delete backward", previousKatex);
+				const currentNode = Editor.node(editor, editor.selection.anchor);
+				console.log("delete backward", listItemParent);
+				const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
 
-				if (previousKatex[0].type == "katex" || previousKatex[0].type == "inline-bug") {
+				if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
 					console.log("katex backward");
 					Transforms.move(editor, { distance: 1, unit: "offset" });
+				} else if (listItemParent[0].type == "heading-one" && selectedLeaf.text.length == 0) {
+					Transforms.setNodes(editor, { type: "paragraph" });
 				}
 			}
 		}
@@ -325,7 +327,7 @@ const SlateReact = () => {
 					/>
 					<div
 						onClick={(e) => {
-							const block = { type: "heading-one", children: [] };
+							const block = { type: "heading-one", children: [{ type: "header-one" }] };
 							Transforms.setNodes(editor, block);
 						}}
 					>
