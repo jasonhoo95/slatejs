@@ -117,21 +117,6 @@ const SlateReact = () => {
 				Editor.removeMark(editor, o);
 			});
 		}
-
-		// else if (
-		// 	currentParent &&
-		// 	currentParent[0].children.length - 1 == editor.selection.anchor.path.slice(-1) &&
-		// 	editor.selection.anchor.offset == selectedLeaf.text.length &&
-		// 	!["list-item"].includes(currentParent[0].type)
-		// ) {
-		// 	console.log("normal enter");
-		// 	Transforms.insertNodes(editor, {
-		// 		children: [{ text: "" }],
-		// 		type: "paragraph",
-		// 	});
-		// } else {
-		// 	insertBreak();
-		// }
 	};
 
 	editor.deleteBackward = (...args) => {
@@ -235,8 +220,9 @@ const SlateReact = () => {
 				editor.selection.anchor.offset == 0 &&
 				currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
 			) {
+				console.log("remove item 1st");
 				Transforms.unwrapNodes(editor, {
-					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_TYPES.includes(n.type),
+					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list",
 					split: true,
 				});
 
@@ -246,14 +232,22 @@ const SlateReact = () => {
 
 				// Editor.deleteBackward(editor, { unit: "word" });
 				const currentNode = Editor.node(editor, editor.selection.anchor);
-				console.log("delete backward", listItemParent);
 				const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
+				console.log(selectedLeaf.text, listItemParent, "leaf text");
 
 				if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
 					console.log("katex backward");
 					Transforms.move(editor, { distance: 1, unit: "offset" });
-				} else if (listItemParent[0].type == "heading-one" && selectedLeaf.text.length == 0) {
-					Transforms.setNodes(editor, { type: "paragraph" });
+				} else if (
+					listItemParent[0].type != "list-item" &&
+					listItemParent[0].children.length == 1 &&
+					selectedLeaf.text.length == 0 &&
+					editor.selection.anchor.offset == 0
+				) {
+					Transforms.setNodes(editor, { type: "paragraph", children: [{ text: "" }] });
+					FORMAT_TYPES.map((o) => {
+						Editor.removeMark(editor, o);
+					});
 				}
 			}
 		}
