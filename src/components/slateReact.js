@@ -100,7 +100,6 @@ const SlateReact = () => {
 				["banner-red-wrapper"].includes(currentParent[0].type)) &&
 			!/\S/.test(selectedLeaf.text)
 		) {
-			console.log("toggle enter");
 			toggleBlock(editor, currentParent[0].type);
 		} else {
 			insertBreak();
@@ -155,7 +154,7 @@ const SlateReact = () => {
 
 				if (!backwardCheck) {
 					backwardCheck = true;
-					console.log("backward check", backwardCheck);
+
 					const currentNode = Editor.node(editor, editor.selection.anchor.path);
 
 					if (["katex", "inline-bug"].includes(currentNode[0].type)) {
@@ -195,18 +194,10 @@ const SlateReact = () => {
 				if (!backwardCheck) {
 					backwardCheck = true;
 					const currentNode = Editor.node(editor, editor.selection.anchor);
-					console.log(listItemParent, "current node");
 
 					if (["katex", "inline-bug"].includes(currentNode[0].type)) {
 						Transforms.move(editor, { distance: 1, unit: "offset" });
 					}
-					// const nextNode = Editor.next(editor, {
-					// 	at: currentNode[1],
-					// 	match: (n) =>
-					// 		!Editor.isEditor(n) &&
-					// 		SlateElement.isElement(n) &&
-					// 		n.type == "numbered-list",
-					// });
 
 					Transforms.mergeNodes(editor, {
 						at: listItemParent[1],
@@ -220,7 +211,6 @@ const SlateReact = () => {
 				editor.selection.anchor.offset == 0 &&
 				currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
 			) {
-				console.log("remove item 1st");
 				Transforms.unwrapNodes(editor, {
 					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list",
 					split: true,
@@ -233,10 +223,8 @@ const SlateReact = () => {
 				// Editor.deleteBackward(editor, { unit: "word" });
 				const currentNode = Editor.node(editor, editor.selection.anchor);
 				const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
-				console.log(selectedLeaf.text, listItemParent, "leaf text");
 
 				if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
-					console.log("katex backward");
 					Transforms.move(editor, { distance: 1, unit: "offset" });
 				} else if (
 					listItemParent[0].type != "list-item" &&
@@ -339,7 +327,7 @@ const SlateReact = () => {
 							if (!isActive) {
 								Transforms.wrapNodes(editor, block, {
 									match: (n) => {
-										console.log(n.type, "types");
+										
 										return (
 											(!Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list") ||
 											n.type == "paragraph"
@@ -351,14 +339,14 @@ const SlateReact = () => {
 								Transforms.unwrapNodes(editor, {
 									at: editor.selection.anchor.path,
 									match: (n) => {
-										console.log(n.type, "types");
+										
 										return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper";
 									},
 									split: true,
 								});
 							}
 
-							console.log(isActive, "is active");
+							
 						}}
 					>
 						Banner red
@@ -722,8 +710,6 @@ const toggleBlock = (editor, format, type) => {
 		formatCheck = format;
 	}
 
-	console.log(format, "numbering format check");
-
 	// if (type != "number") {
 
 	// } else {
@@ -738,7 +724,6 @@ const toggleBlock = (editor, format, type) => {
 
 	Transforms.unwrapNodes(editor, {
 		match: (n) => {
-			console.log(n.type, "types");
 			return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == formatCheck;
 		},
 		split: true,
