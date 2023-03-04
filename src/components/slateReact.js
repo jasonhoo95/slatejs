@@ -269,7 +269,7 @@ const SlateReact = () => {
 	};
 
 	return (
-		<div>
+		<div style={{ marginTop: "100px" }}>
 			<ComponentEditModal
 				open={open}
 				setOpen={setOpen}
@@ -285,6 +285,77 @@ const SlateReact = () => {
 				}}
 				value={initialValue}
 			>
+				<div
+					style={{
+						position: "fixed",
+						background: "red",
+						overflowX: "auto",
+						left: 0,
+						top: 0,
+						width: "100%",
+						display: "flex",
+						zIndex: 30,
+						padding: "10px",
+					}}
+				>
+					<BlockButton
+						format="katex-link"
+						icon="format_list_item"
+					/>
+
+					<BlockButton
+						format="numbered-list"
+						icon="format_list_item"
+					/>
+					<MarkButton
+						format="bold"
+						icon="format_bold"
+					/>
+					<div
+						onClick={(e) => {
+							const block = { type: "heading-one", children: [{ type: "header-one" }] };
+							Transforms.setNodes(editor, block);
+						}}
+					>
+						Heading (1)
+					</div>
+					{/* <div
+						onClick={(e) => {
+							const block = { type: "banner-red-wrapper", children: [] };
+							const isActive = isBlockActive(
+								editor,
+								"banner-red-wrapper",
+								TEXT_ALIGN_TYPES.includes("banner-red-wrapper") ? "align" : "type"
+							);
+
+							if (!isActive) {
+								Transforms.wrapNodes(editor, block, {
+									match: (n) => {
+										
+										return (
+											(!Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list") ||
+											n.type == "paragraph"
+										);
+									},
+									split: true,
+								});
+							} else {
+								Transforms.unwrapNodes(editor, {
+									at: editor.selection.anchor.path,
+									match: (n) => {
+										
+										return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper";
+									},
+									split: true,
+								});
+							}
+
+							
+						}}
+					>
+						Banner red
+					</div> */}
+				</div>
 				{/* <div
 					style={{
 						position: "fixed",
