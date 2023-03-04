@@ -26,7 +26,11 @@ let backwardCheck = false;
 const initialValue = [
 	{
 		type: "paragraph",
-		children: [{ text: "" }],
+		children: [
+			{
+				text: "金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。",
+			},
+		],
 	},
 	// {
 	// 	type: "editable-void",
@@ -265,7 +269,7 @@ const SlateReact = () => {
 	};
 
 	return (
-		<div style={{ marginTop: "100px" }}>
+		<div>
 			<ComponentEditModal
 				open={open}
 				setOpen={setOpen}
@@ -281,77 +285,6 @@ const SlateReact = () => {
 				}}
 				value={initialValue}
 			>
-				<div
-					style={{
-						position: "fixed",
-						background: "red",
-						overflowX: "auto",
-						left: 0,
-						top: 0,
-						width: "100%",
-						display: "flex",
-						zIndex: 30,
-						padding: "10px",
-					}}
-				>
-					<BlockButton
-						format="katex-link"
-						icon="format_list_item"
-					/>
-
-					<BlockButton
-						format="numbered-list"
-						icon="format_list_item"
-					/>
-					<MarkButton
-						format="bold"
-						icon="format_bold"
-					/>
-					<div
-						onClick={(e) => {
-							const block = { type: "heading-one", children: [{ type: "header-one" }] };
-							Transforms.setNodes(editor, block);
-						}}
-					>
-						Heading (1)
-					</div>
-					{/* <div
-						onClick={(e) => {
-							const block = { type: "banner-red-wrapper", children: [] };
-							const isActive = isBlockActive(
-								editor,
-								"banner-red-wrapper",
-								TEXT_ALIGN_TYPES.includes("banner-red-wrapper") ? "align" : "type"
-							);
-
-							if (!isActive) {
-								Transforms.wrapNodes(editor, block, {
-									match: (n) => {
-										
-										return (
-											(!Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list") ||
-											n.type == "paragraph"
-										);
-									},
-									split: true,
-								});
-							} else {
-								Transforms.unwrapNodes(editor, {
-									at: editor.selection.anchor.path,
-									match: (n) => {
-										
-										return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper";
-									},
-									split: true,
-								});
-							}
-
-							
-						}}
-					>
-						Banner red
-					</div> */}
-				</div>
 				{/* <div
 					style={{
 						position: "fixed",
