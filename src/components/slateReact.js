@@ -285,42 +285,7 @@ const SlateReact = () => {
 				}}
 				value={initialValue}
 			>
-				<div
-					style={{
-						position: "fixed",
-						background: "red",
-						overflowX: "auto",
-						left: 0,
-						top: 0,
-						width: "100%",
-						display: "flex",
-						zIndex: 30,
-						padding: "10px",
-					}}
-				>
-					<BlockButton
-						format="katex-link"
-						icon="format_list_item"
-					/>
-
-					<BlockButton
-						format="numbered-list"
-						icon="format_list_item"
-					/>
-					<MarkButton
-						format="bold"
-						icon="format_bold"
-					/>
-					<div
-						onClick={(e) => {
-							const block = { type: "heading-one", children: [{ type: "header-one" }] };
-							Transforms.setNodes(editor, block);
-							ReactEditor.focus(editor);
-						}}
-					>
-						Heading (1)
-					</div>
-					{/* <div
+				{/* <div
 						onClick={(e) => {
 							const block = { type: "banner-red-wrapper", children: [] };
 							const isActive = isBlockActive(
@@ -356,7 +321,43 @@ const SlateReact = () => {
 					>
 						Banner red
 					</div> */}
-				</div>
+				{/* <div
+					style={{
+						position: "fixed",
+						background: "red",
+						overflowX: "auto",
+						left: 0,
+						top: 0,
+						width: "100%",
+						display: "flex",
+						zIndex: 30,
+						padding: "10px",
+					}}
+				>
+					<BlockButton
+						format="katex-link"
+						icon="format_list_item"
+					/>
+
+					<BlockButton
+						format="numbered-list"
+						icon="format_list_item"
+					/>
+					<MarkButton
+						format="bold"
+						icon="format_bold"
+					/>
+					<div
+						onClick={(e) => {
+							const block = { type: "heading-one", children: [{ type: "header-one" }] };
+							Transforms.setNodes(editor, block);
+							ReactEditor.focus(editor);
+						}}
+					>
+						Heading (1)
+					</div>
+			
+				</div> */}
 				{/* <div
 					style={{
 						position: "fixed",
@@ -417,7 +418,9 @@ const SlateReact = () => {
 					renderElement={renderElement}
 					autoCapitalize="off"
 					onFocus={(e) => {
-						window.scrollTo(0, window.scrollY + 150);
+						console.log(e.target.offsetHeight, "height now");
+						// window.scrollTo(0, 1200);
+						console.log(e.target);
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
