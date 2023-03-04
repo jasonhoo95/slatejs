@@ -61,8 +61,8 @@ ul li {
 	border: 1px solid grey;
 	/* min-width: 20em; */
 	min-height: 1.4em;
-	height: calc(100vh - 150px);
-	overflow-y: auto;
+	/* height: calc(100vh - 150px);
+	overflow-y: auto; */
 	background-color: white;
 	text-align: left;
 	/* border: 3px solid black;

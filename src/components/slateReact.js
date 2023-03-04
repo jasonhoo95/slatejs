@@ -417,6 +417,7 @@ const SlateReact = () => {
 					renderElement={renderElement}
 					autoCapitalize="off"
 					onFocus={(e) => {
+						window.scrollTo(0, window.scrollY + 150);
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
