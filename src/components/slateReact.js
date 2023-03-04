@@ -315,6 +315,7 @@ const SlateReact = () => {
 						onClick={(e) => {
 							const block = { type: "heading-one", children: [{ type: "header-one" }] };
 							Transforms.setNodes(editor, block);
+							ReactEditor.focus(editor);
 						}}
 					>
 						Heading (1)
