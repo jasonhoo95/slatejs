@@ -321,7 +321,7 @@ const SlateReact = () => {
 					>
 						Banner red
 					</div> */}
-				{/* <div
+				<div
 					style={{
 						position: "fixed",
 						background: "red",
@@ -356,8 +356,7 @@ const SlateReact = () => {
 					>
 						Heading (1)
 					</div>
-			
-				</div> */}
+				</div>
 				{/* <div
 					style={{
 						position: "fixed",
