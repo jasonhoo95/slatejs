@@ -327,8 +327,6 @@ const SlateReact = () => {
 			<Slate
 				editor={editor}
 				onChange={(e) => {
-					getCaretCoordinates();
-
 					backwardCheck = false;
 
 					// console.log(x, y, "coordinates");
@@ -468,7 +466,7 @@ const SlateReact = () => {
 					renderElement={renderElement}
 					autoCapitalize="false"
 					onFocus={(event) => {
-						// window.addEventListener("resize", getCaretCoordinates);
+						window.addEventListener("resize", getCaretCoordinates);
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
