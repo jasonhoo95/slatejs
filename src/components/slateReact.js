@@ -23,6 +23,7 @@ const TEXT_ALIGN_TYPES = ["left", "center", "right", "justify"];
 const FORMAT_TYPES = ["bold", "italic", "underline"];
 const FORMAT_NONE = ["numbered-list", "paragraph"];
 let backwardCheck = false;
+// let focusCheck = false;
 const initialValue = [
 	{
 		type: "paragraph",
@@ -37,6 +38,49 @@ const initialValue = [
 	// 	children: [{ text: "" }],
 	// },
 ];
+
+function getCaretCoordinates() {
+	let x = 0,
+		y = 0;
+
+	const isSupported = typeof window.getSelection !== "undefined";
+	if (isSupported) {
+		const sel = window.getSelection();
+		if (!sel || sel.rangeCount === 0) {
+			return;
+		}
+		const range = sel.getRangeAt(0);
+		// we can still workaround the default behavior too
+		const rects = range.getClientRects();
+		if (!rects.length) {
+			if (range.startContainer && range.collapsed) {
+				range.selectNodeContents(range.startContainer);
+			}
+		}
+
+		let position = range.getBoundingClientRect();
+		const char_before = range.startContainer.textContent[range.startOffset - 1];
+		// if we are on a \n
+		if (range.collapsed && char_before === "\n") {
+			// create a clone of our Range so we don't mess with the visible one
+			const clone = range.cloneRange();
+			// check if we are experiencing a bug
+			clone.setStart(range.startContainer, range.startOffset - 1);
+			if (clone.getBoundingClientRect().top === position.top) {
+				// make it select the next character
+				clone.setStart(range.startContainer, range.startOffset + 1);
+				position = clone.getBoundingClientRect();
+			}
+		}
+		console.log(position, "rect range");
+		x = position.x;
+		y = position.y;
+		setTimeout(() => {
+			document.documentElement.scrollTop = y;
+		}, 600);
+	}
+	return { x, y };
+}
 
 const SlateReact = () => {
 	let id = v4();
@@ -70,6 +114,7 @@ const SlateReact = () => {
 		numbering: false,
 		backward: false,
 	});
+	const [focus, setFocus] = useState(false);
 	const ModalProps = useModalStore((state) => state.amount);
 
 	const [open, setOpen] = useState(false);
@@ -269,7 +314,8 @@ const SlateReact = () => {
 	};
 
 	return (
-		<div style={{ marginTop: "100px" }}>
+		<div>
+			<div id="color-tag">color now</div>
 			<ComponentEditModal
 				open={open}
 				setOpen={setOpen}
@@ -281,7 +327,12 @@ const SlateReact = () => {
 			<Slate
 				editor={editor}
 				onChange={(e) => {
+					getCaretCoordinates();
+
 					backwardCheck = false;
+
+					// console.log(x, y, "coordinates");
+					// document.documentElement.scrollTop = y;
 				}}
 				value={initialValue}
 			>
@@ -321,7 +372,7 @@ const SlateReact = () => {
 					>
 						Banner red
 					</div> */}
-				<div
+				{/* <div
 					style={{
 						position: "fixed",
 						background: "red",
@@ -354,9 +405,9 @@ const SlateReact = () => {
 							ReactEditor.focus(editor);
 						}}
 					>
-						Heading (1)
+						Heading (1-1)
 					</div>
-				</div>
+				</div> */}
 				{/* <div
 					style={{
 						position: "fixed",
@@ -415,20 +466,25 @@ const SlateReact = () => {
 
 				<Editable
 					renderElement={renderElement}
-					autoCapitalize="off"
-					onFocus={(e) => {
-						console.log(e.target.offsetHeight, "height now");
-						// window.scrollTo(0, 1200);
-						console.log(e.target);
+					autoCapitalize="false"
+					onFocus={(event) => {
+						// window.addEventListener("resize", getCaretCoordinates);
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
+						window.removeEventListener("resize", getCaretCoordinates);
+						document.getElementById("color-tag").style.background = "green";
+
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 					}}
 					autoFocus={false}
 					className="editable-slate"
 					id={id}
 					renderLeaf={renderLeaf}
+					// onKeyUp={(event) => {
+					// 	console.log("scroll into view");
+					// 	event.target.lastChild.scrollIntoView();
+					// }}
 					onKeyDown={(event) => {
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
