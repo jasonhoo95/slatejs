@@ -72,9 +72,11 @@ function getCaretCoordinates() {
 				position = clone.getBoundingClientRect();
 			}
 		}
-		console.log(position, "rect range");
+		console.log(window.pageYOffset, "rect range");
+		document.getElementById("color-tag").innerText = document.documentElement.offsetHeight + " S" + position.y;
+
 		x = position.x;
-		y = position.y;
+		y = position.y + window.scrollY;
 		setTimeout(() => {
 			document.documentElement.scrollTop = y;
 		}, 600);
@@ -329,7 +331,6 @@ const SlateReact = () => {
 				onChange={(e) => {
 					backwardCheck = false;
 
-					// console.log(x, y, "coordinates");
 					// document.documentElement.scrollTop = y;
 				}}
 				value={initialValue}
@@ -467,6 +468,7 @@ const SlateReact = () => {
 					autoCapitalize="false"
 					onFocus={(event) => {
 						window.addEventListener("resize", getCaretCoordinates);
+
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
@@ -771,18 +773,6 @@ const toggleBlock = (editor, format, type) => {
 	} else {
 		formatCheck = format;
 	}
-
-	// if (type != "number") {
-
-	// } else {
-	// 	Transforms.unwrapNodes(editor, {
-	// 		match: (n) =>
-	// 			!Editor.isEditor(n) &&
-	// 			SlateElement.isElement(n) &&
-	// 			LIST_TYPES.includes(n.type),
-	// 		split: true,
-	// 	});
-	// }
 
 	Transforms.unwrapNodes(editor, {
 		match: (n) => {
