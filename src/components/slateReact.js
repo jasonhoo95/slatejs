@@ -29,7 +29,7 @@ const initialValue = [
 		type: "paragraph",
 		children: [
 			{
-				text: "金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。",
+				text: "金高。",
 			},
 		],
 	},
@@ -78,6 +78,7 @@ function getCaretCoordinates() {
 		x = position.x;
 		y = position.y + window.scrollY;
 		setTimeout(() => {
+			document.documentElement.style.scrollBehavior = "smooth";
 			document.documentElement.scrollTop = y;
 		}, 600);
 	}
@@ -262,12 +263,7 @@ const SlateReact = () => {
 				editor.selection.anchor.offset == 0 &&
 				currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
 			) {
-				Transforms.unwrapNodes(editor, {
-					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list",
-					split: true,
-				});
-
-				Transforms.setNodes(editor, { type: "paragraph" });
+				toggleBlock(editor, "numbered-list", "number");
 			} else {
 				deleteBackward(...args);
 
@@ -336,42 +332,6 @@ const SlateReact = () => {
 				value={initialValue}
 			>
 				{/* <div
-						onClick={(e) => {
-							const block = { type: "banner-red-wrapper", children: [] };
-							const isActive = isBlockActive(
-								editor,
-								"banner-red-wrapper",
-								TEXT_ALIGN_TYPES.includes("banner-red-wrapper") ? "align" : "type"
-							);
-
-							if (!isActive) {
-								Transforms.wrapNodes(editor, block, {
-									match: (n) => {
-										
-										return (
-											(!Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list") ||
-											n.type == "paragraph"
-										);
-									},
-									split: true,
-								});
-							} else {
-								Transforms.unwrapNodes(editor, {
-									at: editor.selection.anchor.path,
-									match: (n) => {
-										
-										return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper";
-									},
-									split: true,
-								});
-							}
-
-							
-						}}
-					>
-						Banner red
-					</div> */}
-				{/* <div
 					style={{
 						position: "fixed",
 						background: "red",
@@ -407,7 +367,7 @@ const SlateReact = () => {
 						Heading (1-1)
 					</div>
 				</div> */}
-				{/* <div
+				<div
 					style={{
 						position: "fixed",
 						background: "red",
@@ -418,7 +378,8 @@ const SlateReact = () => {
 						display: "flex",
 						zIndex: 30,
 						padding: "10px",
-					}}>
+					}}
+				>
 					<MarkButton
 						format="bold"
 						icon="format_bold"
@@ -445,8 +406,33 @@ const SlateReact = () => {
 					<div
 						onClick={(e) => {
 							const block = { type: "banner-red-wrapper", children: [] };
-							Transforms.wrapNodes(editor, block);
-						}}>
+							const isActive = isBlockActive(
+								editor,
+								"banner-red-wrapper",
+								TEXT_ALIGN_TYPES.includes("banner-red-wrapper") ? "align" : "type"
+							);
+
+							if (!isActive) {
+								Transforms.wrapNodes(editor, block, {
+									match: (n) => {
+										return (
+											(!Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list") ||
+											n.type == "paragraph"
+										);
+									},
+									split: true,
+								});
+							} else {
+								Transforms.unwrapNodes(editor, {
+									at: editor.selection.anchor.path,
+									match: (n) => {
+										return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper";
+									},
+									split: true,
+								});
+							}
+						}}
+					>
 						Banner red
 					</div>
 
@@ -458,14 +444,15 @@ const SlateReact = () => {
 
 							Transforms.setNodes(editor, block);
 							ReactEditor.focus(editor);
-						}}>
+						}}
+					>
 						insert void
 					</div>
-				</div> */}
+				</div>
 
 				<Editable
 					renderElement={renderElement}
-					autoCapitalize="false"
+					autoCapitalize="off"
 					onFocus={(event) => {
 						window.addEventListener("resize", getCaretCoordinates);
 
@@ -481,10 +468,6 @@ const SlateReact = () => {
 					className="editable-slate"
 					id={id}
 					renderLeaf={renderLeaf}
-					// onKeyUp={(event) => {
-					// 	console.log("scroll into view");
-					// 	event.target.lastChild.scrollIntoView();
-					// }}
 					onKeyDown={(event) => {
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
@@ -518,12 +501,41 @@ const SlateReact = () => {
 							HistoryEditor.redo(editor);
 						} else if (selectedLeaf.text.startsWith("1.")) {
 							event.preventDefault();
+
 							toggleBlock(editor, "numbered-list", "number");
 							Transforms.delete(editor, {
 								at: editor.selection.anchor,
 								unit: "word",
 								reverse: true,
 							});
+							const listItems = Editor.nodes(editor, {
+								at: editor.selection.anchor.path,
+								match: (n) => ["numbered-list"].includes(n.type),
+							});
+							let listItemParent, previousParent, nextParent;
+							console.log(editor.selection.anchor.path, "current node");
+
+							for (const listItem of listItems) {
+								listItemParent = Editor.node(editor, listItem[1]);
+								previousParent = Editor.previous(editor, {
+									at: listItem[1],
+								});
+								nextParent = Editor.next(editor, { at: listItem[1] });
+							}
+							console.log(nextParent, "next parent");
+
+							if (nextParent && previousParent) {
+								console.log("wrapping npw");
+								Transforms.mergeNodes(editor, {
+									at: nextParent[1],
+									match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list",
+								});
+
+								Transforms.mergeNodes(editor, {
+									at: editor.selection.anchor.path,
+									match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list",
+								});
+							}
 
 							// checklist(editor);
 						}
