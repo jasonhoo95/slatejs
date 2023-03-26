@@ -4,7 +4,7 @@
 
 html,
 body {
-	scroll-behavior: smooth;
+	/* scroll-behavior: smooth !important; */
 }
 
 .disable-scroll {
@@ -80,10 +80,21 @@ ul li {
 	height: 0;
 }
 
+.heightBottom {
+	position: fixed;
+	height: 30px;
+	transition: all 1s;
+	bottom: 0;
+	left: 0;
+	background: red;
+	width: 100%;
+}
+
 .banner-red {
 	background-color: rgba(255, 100, 100, 0.3);
 	border-left: 4px solid #ff6464;
 	padding: 10px;
+	margin: 10px 10px;
 }
 
 a {

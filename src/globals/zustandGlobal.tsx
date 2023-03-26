@@ -12,4 +12,5 @@ export const useModalStore = create<IModal>((set) => ({
 	click: false,
 	updateClick: (newClick: any) => set({ click: newClick }),
 	updateModal: (newAmount: any) => set({ amount: newAmount }),
+	retrieveJSONData: async () => {},
 }));
