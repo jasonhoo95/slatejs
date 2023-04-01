@@ -30,7 +30,8 @@ const initialValue = [
 		type: "paragraph",
 		children: [
 			{
-				text: "金高。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。",
+				text:
+					"金高。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。",
 			},
 		],
 	},
@@ -306,7 +307,7 @@ const SlateReact = () => {
 					// document.documentElement.scrollTop = y;
 				}}
 				value={initialValue}>
-				{/* <div
+				<div
 					style={{
 						position: "fixed",
 						background: "red",
@@ -317,8 +318,7 @@ const SlateReact = () => {
 						display: "flex",
 						zIndex: 30,
 						padding: "10px",
-					}}
-				>
+					}}>
 					<BlockButton
 						format="katex-link"
 						icon="format_list_item"
@@ -337,13 +337,12 @@ const SlateReact = () => {
 							const block = { type: "heading-one", children: [{ type: "header-one" }] };
 							Transforms.setNodes(editor, block);
 							ReactEditor.focus(editor);
-						}}
-					>
+						}}>
 						Heading (1-1)
 					</div>
-				</div> */}
+				</div>
 
-				<MarkButton
+				{/* <MarkButton
 					format="bold"
 					icon="format_bold"
 				/>
@@ -366,7 +365,7 @@ const SlateReact = () => {
 						wrapperCheck(editor);
 					}}>
 					Banner red
-				</div>
+				</div> */}
 
 				{/* <div
 						onClick={(e) => {
@@ -562,7 +561,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const selected = useSelected();
 	const focused = useFocused();
-	let updateAmount = useModalStore((state) => state.updateModal);
+	let updateModal = useModalStore((state) => state.updateModal);
 	let updateClick = useModalStore((state) => state.updateClick);
 
 	const clickProps = useModalStore((state) => state.click);
@@ -578,7 +577,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 						open: true,
 						path: ReactEditor.findPath(editor, element),
 					};
-					updateAmount(data);
+					updateModal(data);
 					updateClick(element.id);
 				}
 			}}

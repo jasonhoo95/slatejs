@@ -1,17 +1,8 @@
 import Head from "next/head";
 import Image from "next/image";
-import Quilljs from "@/components/quillProduct/quillComponent";
 import dynamic from "next/dynamic";
-import ProseMirrorEditor from "@/components/prosemirrorEditor";
-// import SlateReact from "@/components/slateReact";
-import { useEffect, useState, useRef, useLayoutEffect } from "react";
-import { useSelected } from "slate-react";
-import FixKeyboardMain from "@/components/fixKeyboardMain";
+import SlateReact from "@/components/slateReact";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
-
-const SlateReact = dynamic(() => import("@/components/slateReact"), {
-	ssr: false,
-});
 
 // import Editor from "@/components/quillProduct/reactQuill";
 export default function Home() {
