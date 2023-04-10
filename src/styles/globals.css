@@ -2,17 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-	/* scroll-behavior: smooth !important; */
-}
-
 .disable-scroll {
 	overflow: hidden;
 }
 
-ul li {
-	list-style-type: disc;
+@layer base {
+	ul {
+		list-style-type: disc;
+		margin: inherit;
+		padding-inline-start: 40px;
+	}
 }
 
 #editor {

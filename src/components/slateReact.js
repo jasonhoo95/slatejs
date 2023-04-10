@@ -12,6 +12,8 @@ import { withHistory, HistoryEditor } from "slate-history";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
 
 import { useModalStore } from "@/globals/zustandGlobal";
+
+import _ from "lodash";
 const HOTKEYS = {
 	"mod+b": "bold",
 	"mod+i": "italic",
@@ -147,6 +149,7 @@ const SlateReact = () => {
 		const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "paragraph" });
 
 		if (currentParent && ["list-item"].includes(currentParent[0].type) && currentParent[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
+			console.log(currentParent[0].type, "current parent");
 			toggleBlock(editor, currentParent[0].type);
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
@@ -204,23 +207,35 @@ const SlateReact = () => {
 						at: listItemParent[1],
 						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper",
 					});
-
-					const nextNode2 = Editor.next(editor, {
+					const listItems = Editor.nodes(editor, {
 						at: editor.selection.anchor.path,
-						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "paragraph"].includes(n.type),
+						match: (n) => ["list-item", "paragraph", "banner-red-wrapper"].includes(n.type),
 					});
+					let listCheck;
+					let nextnode;
+					for (const listItem of listItems) {
+						listCheck = Editor.node(editor, listItem[1]);
+						nextnode = Editor.next(editor, {
+							at: listItem[1],
+							match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list", "paragraph"].includes(n.type),
+						});
+					}
 
-					console.log(nextNode2, "next node numbered");
-
-					// //
-					if (nextNode2 && nextNode2[0].type == "numbered-list") {
+					//
+					if (nextnode && ["numbered-list", "bulleted-list"].includes(nextnode[0].type) && listCheck && listCheck[0].type == "list-item") {
 						Transforms.mergeNodes(editor, {
-							at: nextNode2[1],
-							match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list",
+							at: nextnode[1],
+							match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
 						});
 					}
 				}
-			} else if (nextParent && previousParent && previousParent[0].type == "numbered-list" && nextParent[0].type == "numbered-list") {
+			} else if (
+				nextParent &&
+				previousParent &&
+				["numbered-list", "bulleted-list"].includes(previousParent[0].type) &&
+				["numbered-list", "bulleted-list"].includes(nextParent[0].type) &&
+				previousParent[0].type == nextParent[0].type
+			) {
 				deleteBackward(...args);
 
 				if (!backwardCheck) {
@@ -233,7 +248,7 @@ const SlateReact = () => {
 
 					Transforms.mergeNodes(editor, {
 						at: listItemParent[1],
-						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list",
+						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
 					});
 				}
 			} else if (
@@ -243,7 +258,7 @@ const SlateReact = () => {
 				editor.selection.anchor.offset == 0 &&
 				currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
 			) {
-				toggleBlock(editor, "numbered-list", "number");
+				toggleBlock(editor, "list-item");
 			} else {
 				deleteBackward(...args);
 
@@ -325,6 +340,11 @@ const SlateReact = () => {
 					/>
 
 					<BlockButton
+						format="bulleted-list"
+						icon="format_list_numbered"
+					/>
+
+					<BlockButton
 						format="numbered-list"
 						icon="format_list_item"
 					/>
@@ -332,14 +352,22 @@ const SlateReact = () => {
 						format="bold"
 						icon="format_bold"
 					/>
+
 					<div
+						onClick={(e) => {
+							wrapperCheck(editor);
+						}}>
+						Banner red
+					</div>
+					{/* <div
 						onClick={(e) => {
 							const block = { type: "heading-one", children: [{ type: "header-one" }] };
 							Transforms.setNodes(editor, block);
 							ReactEditor.focus(editor);
-						}}>
+						}}
+					>
 						Heading (1-1)
-					</div>
+					</div> */}
 				</div>
 
 				{/* <MarkButton
@@ -359,13 +387,7 @@ const SlateReact = () => {
 					format="katex-link"
 					icon="format_list_item"
 				/>
-
-				<div
-					onClick={(e) => {
-						wrapperCheck(editor);
-					}}>
-					Banner red
-				</div> */}
+ */}
 
 				{/* <div
 						onClick={(e) => {
@@ -451,16 +473,40 @@ const wrapperCheck = (editor) => {
 	const block = { type: "banner-red-wrapper", children: [] };
 	const isActive = isBlockActive(editor, "banner-red-wrapper", TEXT_ALIGN_TYPES.includes("banner-red-wrapper") ? "align" : "type");
 
+	const firstNode1 = Editor.parent(editor, editor.selection.anchor.path);
+	const lastNode1 = Editor.parent(editor, editor.selection.focus.path);
+
+	console.log(firstNode1, lastNode1, "range now");
+	let anchorPath, focusPath;
+	if (_.sum(firstNode1) <= _.sum(lastNode1)) {
+		let lastnode = Editor.last(editor, lastNode1[1]);
+		let firstnode = Editor.first(editor, firstNode1[1]);
+		anchorPath = firstnode;
+		focusPath = lastnode;
+	} else {
+		let lastnode = Editor.last(editor, firstNode1[1]);
+		let firstnode = Editor.first(editor, lastNode1[1]);
+		anchorPath = firstnode;
+		focusPath = lastnode;
+	}
+
+	console.log(anchorPath, focusPath, "anchor path");
 	if (!isActive) {
 		Transforms.wrapNodes(editor, block, {
+			at: {
+				anchor: { path: anchorPath[1], offset: 0 },
+				focus: {
+					path: focusPath[1],
+					offset: focusPath[0].text.length,
+				},
+			},
 			match: (n) => {
-				return (!Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list") || n.type == "paragraph";
+				return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "numbered-list" || n.type == "paragraph" || n.type == "bulleted-list");
 			},
 			split: true,
 		});
 	} else {
 		Transforms.unwrapNodes(editor, {
-			at: editor.selection.anchor.path,
 			match: (n) => {
 				return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper";
 			},
@@ -689,18 +735,18 @@ const toggleMark = (editor, format) => {
 const toggleBlock = (editor, format, type) => {
 	const isActive = isBlockActive(editor, format, TEXT_ALIGN_TYPES.includes(format) ? "align" : "type");
 	const isList = LIST_TYPES.includes(format) || format == "banner-red-wrapper";
-
+	let LIST_PARENT = ["numbered-list", "bulleted-list"];
 	let formatCheck;
 
 	if (format == "list-item") {
-		formatCheck = "numbered-list";
+		formatCheck = ["numbered-list", "bulleted-list"];
 	} else {
 		formatCheck = format;
 	}
 
 	Transforms.unwrapNodes(editor, {
 		match: (n) => {
-			return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == formatCheck;
+			return !Editor.isEditor(n) && SlateElement.isElement(n) && formatCheck.includes(n.type);
 		},
 		split: true,
 	});
@@ -724,9 +770,9 @@ const toggleBlock = (editor, format, type) => {
 
 	const listItems = Editor.nodes(editor, {
 		at: editor.selection.anchor.path,
-		match: (n) => ["numbered-list"].includes(n.type),
+		match: (n) => LIST_PARENT.includes(n.type),
 	});
-	let previousParent, nextParent;
+	let previousParent, nextParent, currentParent;
 	for (const listItem of listItems) {
 		previousParent = Editor.previous(editor, {
 			at: listItem[1],
@@ -734,26 +780,28 @@ const toggleBlock = (editor, format, type) => {
 		nextParent = Editor.next(editor, {
 			at: listItem[1],
 		});
+
+		currentParent = Editor.node(editor, listItem[1]);
 	}
 
-	if (nextParent && previousParent && nextParent[0].type == "numbered-list" && previousParent[0].type == "numbered-list") {
+	if (nextParent && previousParent && LIST_PARENT.includes(nextParent[0].type) && LIST_PARENT.includes(previousParent[0].type) && currentParent[0].type == previousParent[0].type) {
 		Transforms.mergeNodes(editor, {
 			at: nextParent[1],
-			match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list",
+			match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
 		});
 		Transforms.mergeNodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list"].includes(n.type),
+			match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
 		});
-	} else if (nextParent && nextParent[0].type == "numbered-list") {
+	} else if (currentParent && nextParent && currentParent[0].type == nextParent[0].type && nextParent && LIST_PARENT.includes(nextParent[0].type)) {
 		Transforms.mergeNodes(editor, {
 			at: nextParent[1],
-			match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list",
+			match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
 		});
-	} else if (previousParent && previousParent[0].type == "numbered-list") {
+	} else if (currentParent && previousParent && currentParent[0].type == previousParent[0].type && LIST_PARENT.includes(previousParent[0].type)) {
 		Transforms.mergeNodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list",
+			match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
 		});
 	}
 };
