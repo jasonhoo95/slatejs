@@ -506,7 +506,14 @@ const wrapperCheck = (editor) => {
 			split: true,
 		});
 	} else {
-		toggleBlock(editor, "numbered-list", "number");
+		Transforms.unwrapNodes(editor, {
+			match: (n) => {
+				return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list";
+			},
+			split: true,
+		});
+
+		Transforms.setNodes(editor, { type: "paragraph" });
 
 		Transforms.unwrapNodes(editor, {
 			match: (n) => {
