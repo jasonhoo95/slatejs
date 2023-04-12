@@ -80,8 +80,10 @@ function getCaretCoordinates() {
 		x = position.x;
 		y = position.y + window.scrollY - 100;
 		window.scrollTo({ top: y, behavior: "smooth" });
+
+		console.log(y, "scroll y position");
 	}
-	return { x, y };
+	// return { x, y };
 }
 
 const SlateReact = () => {
@@ -301,9 +303,6 @@ const SlateReact = () => {
 		}
 	};
 
-	const BearStore = useBearStore((state) => state.bears);
-	const AuthStore = useAuthStore((state) => state.auth);
-
 	return (
 		<div>
 			<ComponentEditModal
@@ -348,6 +347,11 @@ const SlateReact = () => {
 						format="numbered-list"
 						icon="format_list_item"
 					/>
+
+					<BlockButton
+						format="banner-red"
+						icon="format_list_item"
+					/>
 					<MarkButton
 						format="bold"
 						icon="format_bold"
@@ -355,19 +359,13 @@ const SlateReact = () => {
 
 					<div
 						onClick={(e) => {
-							wrapperCheck(editor);
-						}}>
-						Banner red
-					</div>
-					{/* <div
-						onClick={(e) => {
 							const block = { type: "heading-one", children: [{ type: "header-one" }] };
 							Transforms.setNodes(editor, block);
-							ReactEditor.focus(editor);
-						}}
-					>
+							// ReactEditor.focus(editor);
+							getCaretCoordinates();
+						}}>
 						Heading (1-1)
-					</div> */}
+					</div>
 				</div>
 
 				{/* <MarkButton
@@ -524,6 +522,8 @@ const wrapperCheck = (editor) => {
 	}
 
 	ReactEditor.focus(editor);
+	Transforms.select(editor, editor.selection);
+	console.log(editor.selection, "selection choose all");
 };
 
 const wrapLink = (editor, url) => {
@@ -667,6 +667,7 @@ const MarkButton = ({ format, icon }) => {
 			onMouseDown={(event) => {
 				event.preventDefault();
 				toggleMark(editor, format);
+				getCaretCoordinates();
 			}}>
 			{format}
 		</div>
@@ -681,7 +682,9 @@ const BlockButton = ({ format, icon }) => {
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
-					event.preventDefault();
+					getCaretCoordinates();
+
+					// event.preventDefault();
 					toggleBlock(editor, "numbered-list", "number");
 				}}>
 				number list
@@ -692,6 +695,8 @@ const BlockButton = ({ format, icon }) => {
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
+					getCaretCoordinates();
+
 					event.preventDefault();
 					const url = window.prompt("Enter the URL of the link:");
 					if (!url) return;
@@ -700,11 +705,25 @@ const BlockButton = ({ format, icon }) => {
 				URL LINK
 			</div>
 		);
+	} else if (format == "banner-red") {
+		return (
+			<div
+				style={{ padding: "10px" }}
+				onMouseDown={(event) => {
+					event.preventDefault();
+					wrapperCheck(editor);
+					getCaretCoordinates();
+				}}>
+				Banner red
+			</div>
+		);
 	} else if (format == "katex-link") {
 		return (
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
+					getCaretCoordinates();
+
 					event.preventDefault();
 					let data = {
 						url: "jkl",
@@ -722,7 +741,8 @@ const BlockButton = ({ format, icon }) => {
 		return (
 			<div
 				onMouseDown={(event) => {
-					event.preventDefault();
+					getCaretCoordinates();
+
 					toggleBlock(editor, format);
 				}}>
 				bullet list
