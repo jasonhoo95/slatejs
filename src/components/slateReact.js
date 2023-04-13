@@ -685,10 +685,11 @@ const BlockButton = ({ format, icon }) => {
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
+					event.preventDefault();
 					getCaretCoordinates();
 
-					// event.preventDefault();
 					toggleBlock(editor, "numbered-list", "number");
+					ReactEditor.focus(editor);
 				}}>
 				number list
 			</div>
