@@ -404,11 +404,14 @@ const SlateReact = () => {
 					renderElement={renderElement}
 					autoCapitalize="off"
 					onFocus={(event) => {
+						console.log("focus");
+
 						window.addEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
+						console.log("blur");
 						window.removeEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
@@ -722,7 +725,7 @@ const BlockButton = ({ format, icon }) => {
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
-					getCaretCoordinates();
+					// getCaretCoordinates();
 
 					event.preventDefault();
 					let data = {
