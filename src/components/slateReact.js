@@ -321,7 +321,7 @@ const SlateReact = () => {
 					// document.documentElement.scrollTop = y;
 				}}
 				value={initialValue}>
-				<div
+				{/* <div
 					style={{
 						position: "fixed",
 						background: "red",
@@ -366,7 +366,7 @@ const SlateReact = () => {
 						}}>
 						Heading (1-1)
 					</div>
-				</div>
+				</div> */}
 
 				{/* <MarkButton
 					format="bold"
