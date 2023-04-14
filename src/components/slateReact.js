@@ -64,6 +64,7 @@ function getCaretCoordinates() {
 
 		let position = range.getBoundingClientRect();
 		const char_before = range.startContainer.textContent[range.startOffset - 1];
+
 		// if we are on a \n
 		if (range.collapsed && char_before === "\n") {
 			// create a clone of our Range so we don't mess with the visible one
@@ -81,7 +82,7 @@ function getCaretCoordinates() {
 		y = position.y + window.scrollY - 100;
 		window.scrollTo({ top: y, behavior: "smooth" });
 
-		console.log(y, "scroll y position");
+		console.log(y, "position y");
 	}
 	// return { x, y };
 }
@@ -151,7 +152,6 @@ const SlateReact = () => {
 		const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "paragraph" });
 
 		if (currentParent && ["list-item"].includes(currentParent[0].type) && currentParent[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
-			console.log(currentParent[0].type, "current parent");
 			toggleBlock(editor, currentParent[0].type);
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
@@ -404,14 +404,11 @@ const SlateReact = () => {
 					renderElement={renderElement}
 					autoCapitalize="off"
 					onFocus={(event) => {
-						console.log("focus");
-
 						window.addEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
-						console.log("blur");
 						window.removeEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
@@ -477,7 +474,6 @@ const wrapperCheck = (editor) => {
 	const firstNode1 = Editor.parent(editor, editor.selection.anchor.path);
 	const lastNode1 = Editor.parent(editor, editor.selection.focus.path);
 
-	console.log(firstNode1, lastNode1, "range now");
 	let anchorPath, focusPath;
 	if (_.sum(firstNode1) <= _.sum(lastNode1)) {
 		let lastnode = Editor.last(editor, lastNode1[1]);
@@ -491,7 +487,6 @@ const wrapperCheck = (editor) => {
 		focusPath = lastnode;
 	}
 
-	console.log(anchorPath, focusPath, "anchor path");
 	if (!isActive) {
 		Transforms.wrapNodes(editor, block, {
 			at: {
@@ -524,9 +519,7 @@ const wrapperCheck = (editor) => {
 		});
 	}
 
-	ReactEditor.focus(editor);
-	Transforms.select(editor, editor.selection);
-	console.log(editor.selection, "selection choose all");
+	// ReactEditor.focus(editor);
 };
 
 const wrapLink = (editor, url) => {
@@ -685,11 +678,10 @@ const BlockButton = ({ format, icon }) => {
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
-					event.preventDefault();
-					getCaretCoordinates();
-
+					// event.preventDefault();
 					toggleBlock(editor, "numbered-list", "number");
-					ReactEditor.focus(editor);
+					getCaretCoordinates();
+					// ReactEditor.focus(editor);
 				}}>
 				number list
 			</div>
