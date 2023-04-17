@@ -81,8 +81,6 @@ function getCaretCoordinates() {
 		x = position.x;
 		y = position.y + window.scrollY - 100;
 		window.scrollTo({ top: y, behavior: "smooth" });
-
-		console.log(y, "position y");
 	}
 	// return { x, y };
 }
@@ -157,14 +155,17 @@ const SlateReact = () => {
 			toggleBlock(editor, currentParent[0].type);
 		} else {
 			insertBreak();
+			const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
 
-			const isActive = isBlockActive(editor, "heading-one", TEXT_ALIGN_TYPES.includes("heading-one") ? "align" : "type");
-			if (isActive) {
-				Transforms.setNodes(editor, { type: "paragraph" });
+			if (selectedLeaf1.text.length == 0) {
+				const isActive = isBlockActive(editor, "heading-one", TEXT_ALIGN_TYPES.includes("heading-one") ? "align" : "type");
+				if (isActive) {
+					Transforms.setNodes(editor, { type: "paragraph" });
+				}
+				FORMAT_TYPES.map((o) => {
+					Editor.removeMark(editor, o);
+				});
 			}
-			FORMAT_TYPES.map((o) => {
-				Editor.removeMark(editor, o);
-			});
 		}
 	};
 
@@ -186,96 +187,94 @@ const SlateReact = () => {
 			nextParent = Editor.next(editor, { at: listItem[1] });
 		}
 
-		if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
-			Transforms.move(editor, { distance: 2, unit: "offset", reverse: true });
-		} else {
-			//
-			const currentNodeParent = Editor.node(editor, {
-				at: editor.selection.anchor.path,
-			});
-			if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && !backwardCheck && previousParent[0].type == "banner-red-wrapper") {
-				deleteBackward(...args);
+		//
+		const currentNodeParent = Editor.node(editor, {
+			at: editor.selection.anchor.path,
+		});
+		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && !backwardCheck && previousParent[0].type == "banner-red-wrapper") {
+			deleteBackward(...args);
 
-				if (!backwardCheck) {
-					backwardCheck = true;
+			if (!backwardCheck) {
+				backwardCheck = true;
 
-					const currentNode = Editor.node(editor, editor.selection.anchor.path);
+				const currentNode = Editor.node(editor, editor.selection.anchor.path);
 
-					if (["katex", "inline-bug"].includes(currentNode[0].type)) {
-						Transforms.move(editor, { distance: 1, unit: "offset" });
-					}
-
-					Transforms.mergeNodes(editor, {
-						at: listItemParent[1],
-						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper",
-					});
-					const listItems = Editor.nodes(editor, {
-						at: editor.selection.anchor.path,
-						match: (n) => ["list-item", "paragraph", "banner-red-wrapper"].includes(n.type),
-					});
-					let listCheck;
-					let nextnode;
-					for (const listItem of listItems) {
-						listCheck = Editor.node(editor, listItem[1]);
-						nextnode = Editor.next(editor, {
-							at: listItem[1],
-							match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list", "paragraph"].includes(n.type),
-						});
-					}
-
-					//
-					if (nextnode && ["numbered-list", "bulleted-list"].includes(nextnode[0].type) && listCheck && listCheck[0].type == "list-item") {
-						Transforms.mergeNodes(editor, {
-							at: nextnode[1],
-							match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
-						});
-					}
+				if (["katex", "inline-bug"].includes(currentNode[0].type)) {
+					Transforms.move(editor, { distance: 1, unit: "offset" });
 				}
-			} else if (
-				nextParent &&
-				previousParent &&
-				["numbered-list", "bulleted-list"].includes(previousParent[0].type) &&
-				["numbered-list", "bulleted-list"].includes(nextParent[0].type) &&
-				previousParent[0].type == nextParent[0].type
-			) {
-				deleteBackward(...args);
 
-				if (!backwardCheck) {
-					backwardCheck = true;
-					const currentNode = Editor.node(editor, editor.selection.anchor);
+				Transforms.mergeNodes(editor, {
+					at: listItemParent[1],
+					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper",
+				});
+				const listItems = Editor.nodes(editor, {
+					at: editor.selection.anchor.path,
+					match: (n) => ["list-item", "paragraph", "banner-red-wrapper"].includes(n.type),
+				});
+				let listCheck;
+				let nextnode;
+				for (const listItem of listItems) {
+					listCheck = Editor.node(editor, listItem[1]);
+					nextnode = Editor.next(editor, {
+						at: listItem[1],
+						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list", "paragraph"].includes(n.type),
+					});
+				}
 
-					if (["katex", "inline-bug"].includes(currentNode[0].type)) {
-						Transforms.move(editor, { distance: 1, unit: "offset" });
-					}
-
+				//
+				if (nextnode && ["numbered-list", "bulleted-list"].includes(nextnode[0].type) && listCheck && listCheck[0].type == "list-item") {
 					Transforms.mergeNodes(editor, {
-						at: listItemParent[1],
+						at: nextnode[1],
 						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
 					});
 				}
-			} else if (
-				listItemParent &&
-				listItemParent[0].type == "list-item" &&
-				listItemParent[1][listItemParent[1].length - 1] == 0 &&
-				editor.selection.anchor.offset == 0 &&
-				currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
-			) {
-				toggleBlock(editor, "list-item");
-			} else {
-				deleteBackward(...args);
+			}
+		} else if (
+			nextParent &&
+			previousParent &&
+			["numbered-list", "bulleted-list"].includes(previousParent[0].type) &&
+			["numbered-list", "bulleted-list"].includes(nextParent[0].type) &&
+			previousParent[0].type == nextParent[0].type
+		) {
+			deleteBackward(...args);
 
-				// Editor.deleteBackward(editor, { unit: "word" });
+			if (!backwardCheck) {
+				backwardCheck = true;
 				const currentNode = Editor.node(editor, editor.selection.anchor);
-				const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
 
-				if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
+				if (["katex", "inline-bug"].includes(currentNode[0].type)) {
 					Transforms.move(editor, { distance: 1, unit: "offset" });
-				} else if (listItemParent[0].type != "list-item" && listItemParent[0].children.length == 1 && selectedLeaf.text.length == 0 && editor.selection.anchor.offset == 0) {
-					Transforms.setNodes(editor, { type: "paragraph", children: [{ text: "" }] });
-					FORMAT_TYPES.map((o) => {
-						Editor.removeMark(editor, o);
-					});
 				}
+
+				Transforms.mergeNodes(editor, {
+					at: listItemParent[1],
+					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
+				});
+			}
+		} else if (
+			listItemParent &&
+			listItemParent[0].type == "list-item" &&
+			listItemParent[1][listItemParent[1].length - 1] == 0 &&
+			editor.selection.anchor.offset == 0 &&
+			currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
+		) {
+			toggleBlock(editor, "list-item");
+		} else {
+			deleteBackward(...args);
+
+			// Editor.deleteBackward(editor, { unit: "word" });
+			const currentNode = Editor.node(editor, editor.selection.anchor);
+			const string = Editor.leaf(editor, editor.selection.anchor);
+
+			console.log(string, "String node now");
+
+			if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
+				Transforms.move(editor, { distance: 1, unit: "offset" });
+			} else if (string[0].text.length == 0) {
+				FORMAT_TYPES.map((o) => {
+					Editor.removeMark(editor, o);
+				});
+				Transforms.setNodes(editor, { type: "paragraph" });
 			}
 		}
 	};
@@ -317,6 +316,8 @@ const SlateReact = () => {
 				editor={editor}
 				onChange={(e) => {
 					backwardCheck = false;
+					const isActive = isMarkActive(editor, "bold");
+					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", { type: "bold", active: isActive });
 
 					// document.documentElement.scrollTop = y;
 				}}
@@ -330,6 +331,7 @@ const SlateReact = () => {
 						top: 0,
 						width: "100%",
 						display: "flex",
+						height: "50px",
 						zIndex: 30,
 						padding: "10px",
 					}}>
@@ -352,17 +354,17 @@ const SlateReact = () => {
 						format="banner-red"
 						icon="format_list_item"
 					/>
-					<MarkButton
-						format="bold"
-						icon="format_bold"
-					/>
+				
 
 					<div
 						onClick={(e) => {
+							e.preventDefault();
+
 							const block = { type: "heading-one", children: [{ type: "header-one" }] };
 							Transforms.setNodes(editor, block);
-							// ReactEditor.focus(editor);
+
 							getCaretCoordinates();
+							ReactEditor.focus(editor);
 						}}>
 						Heading (1-1)
 					</div>
@@ -387,18 +389,37 @@ const SlateReact = () => {
 				/>
  */}
 
-				{/* <div
-						onClick={(e) => {
-							const text = { text: "", type: "heading-one" };
-							// const block = { type: "editable-void", children: [text] };
-							const block = { type: "heading-one", children: [text] };
+				<BlockButton
+					format="katex-link"
+					icon="format_list_item"
+				/>
 
-							Transforms.setNodes(editor, block);
-							ReactEditor.focus(editor);
-						}}
-					>
-						insert void
-					</div> */}
+				<MarkButton
+					format="bold"
+					icon="format_bold"
+				/>
+
+				<div
+					onClick={(e) => {
+						const text = { text: "", type: "heading-one" };
+						const block = { type: "editable-void", children: [text] };
+
+						Transforms.setNodes(editor, block);
+						ReactEditor.focus(editor);
+					}}>
+					insert void
+				</div>
+
+				<div
+					onClick={(e) => {
+						const text = { text: "", type: "heading-one" };
+						// const block = { type: "editable-void", children: [text] };
+
+						Transforms.setNodes(editor, text);
+						ReactEditor.focus(editor);
+					}}>
+					heading one
+				</div>
 
 				<Editable
 					renderElement={renderElement}
@@ -678,10 +699,9 @@ const BlockButton = ({ format, icon }) => {
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
-					// event.preventDefault();
+					event.preventDefault();
 					toggleBlock(editor, "numbered-list", "number");
 					getCaretCoordinates();
-					// ReactEditor.focus(editor);
 				}}>
 				number list
 			</div>
