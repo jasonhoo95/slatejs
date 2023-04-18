@@ -3,7 +3,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import SlateReact from "@/components/slateReact";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
-
+import PlainTextExample from "@/components/slatePlainText";
 // import Editor from "@/components/quillProduct/reactQuill";
 export default function Home() {
 	const BearProps = useBearStore((state) => state.updateBears);
@@ -25,6 +25,7 @@ export default function Home() {
 			</Head>
 
 			<SlateReact />
+			{/* <PlainTextExample /> */}
 		</div>
 	);
 }

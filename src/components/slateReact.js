@@ -32,8 +32,7 @@ const initialValue = [
 		type: "paragraph",
 		children: [
 			{
-				text:
-					"金高。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。金高银将主演韩国首部音乐片[英雄]，饰演目睹明成皇后之死的朝鲜最后一个宫女雪姬。本片由尹济均执导，根据同名音乐剧改编，讲述朝鲜近代史上著名的运动家安重根生命中最后一年的故事。雪姬将收集日本的主要情报，是个积极支持社会事件的坚强角色。本片计划于今年下半年开拍，将在中国、日本、俄罗斯等国家取景。",
+				text: "asda",
 			},
 		],
 	},
@@ -318,8 +317,6 @@ const SlateReact = () => {
 					backwardCheck = false;
 					const isActive = isMarkActive(editor, "bold");
 					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", { type: "bold", active: isActive });
-
-					// document.documentElement.scrollTop = y;
 				}}
 				value={initialValue}>
 				{/* <div
@@ -423,7 +420,9 @@ const SlateReact = () => {
 
 				<Editable
 					renderElement={renderElement}
+					style={{ padding: "10px" }}
 					autoCapitalize="off"
+					spellCheck={false}
 					onFocus={(event) => {
 						window.addEventListener("resize", getCaretCoordinates);
 
@@ -1052,13 +1051,13 @@ const Leaf = ({ attributes, children, leaf }) => {
 
 	return (
 		<span
-			className={
-				leaf.text === ""
-					? css`
-							padding-left: 0.1px;
-					  `
-					: null
-			}
+			// className={
+			// 	leaf.text === ""
+			// 		? css`
+			// 				padding-left: 0.1px;
+			// 		  `
+			// 		: null
+			// }
 			{...attributes}>
 			{children}
 		</span>
