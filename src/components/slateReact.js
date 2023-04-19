@@ -155,7 +155,7 @@ const SlateReact = () => {
 		} else {
 			insertBreak();
 			const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
-
+			console.log(selectedLeaf1, "selected leaf");
 			if (selectedLeaf1.text.length == 0) {
 				const isActive = isBlockActive(editor, "heading-one", TEXT_ALIGN_TYPES.includes("heading-one") ? "align" : "type");
 				if (isActive) {
@@ -259,28 +259,29 @@ const SlateReact = () => {
 		) {
 			toggleBlock(editor, "list-item");
 		} else {
-			deleteBackward(...args);
-
 			// Editor.deleteBackward(editor, { unit: "word" });
 			const currentNode = Editor.node(editor, editor.selection.anchor);
-			const string = Editor.leaf(editor, editor.selection.anchor);
-
-			console.log(string, "String node now");
+			const string = Node.leaf(editor, editor.selection.anchor.path);
+			// console.log(editor.selection.anchor.path.slice(0, 1), "path slice");
 
 			if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
 				Transforms.move(editor, { distance: 1, unit: "offset" });
-			} else if (string[0].text.length == 0) {
+			} else if (string.text.length == 0) {
+				console.log("merge nodes");
+				deleteBackward(...args);
+				Transforms.setNodes(editor, { type: "paragraph" });
 				FORMAT_TYPES.map((o) => {
 					Editor.removeMark(editor, o);
 				});
-				Transforms.setNodes(editor, { type: "paragraph" });
+			} else {
+				deleteBackward(...args);
 			}
 		}
 	};
 
 	editor.deleteFragment = (...args) => {
 		deleteFragment(...args);
-
+		console.log("deleted");
 		const listItems = Editor.nodes(editor, {
 			match: (n) => n.type === "list-item",
 		});
@@ -316,6 +317,8 @@ const SlateReact = () => {
 				onChange={(e) => {
 					backwardCheck = false;
 					const isActive = isMarkActive(editor, "bold");
+					console.log(isActive, "is actived");
+
 					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", { type: "bold", active: isActive });
 				}}
 				value={initialValue}>
@@ -388,6 +391,11 @@ const SlateReact = () => {
 
 				<BlockButton
 					format="katex-link"
+					icon="format_list_item"
+				/>
+
+				<BlockButton
+					format="banner-red"
 					icon="format_list_item"
 				/>
 
