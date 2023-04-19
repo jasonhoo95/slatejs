@@ -267,12 +267,18 @@ const SlateReact = () => {
 			if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
 				Transforms.move(editor, { distance: 1, unit: "offset" });
 			} else if (string.text.length == 0) {
-				console.log("merge nodes");
 				deleteBackward(...args);
-				Transforms.setNodes(editor, { type: "paragraph" });
+				const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+				const string = Node.leaf(editor, editor.selection.anchor.path);
+
 				FORMAT_TYPES.map((o) => {
 					Editor.removeMark(editor, o);
 				});
+				if (["heading-one"].includes(currentNode[0].type) && string.text.length == 0) {
+					Transforms.setNodes(editor, { type: "paragraph" });
+				}
+
+				console.log(currentNode, "current node");
 			} else {
 				deleteBackward(...args);
 			}
