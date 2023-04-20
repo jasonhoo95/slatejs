@@ -26,13 +26,14 @@ const TEXT_ALIGN_TYPES = ["left", "center", "right", "justify"];
 const FORMAT_TYPES = ["bold", "italic", "underline"];
 const FORMAT_NONE = ["numbered-list", "paragraph"];
 let backwardCheck = false;
+let buttonCheck = false;
 // let focusCheck = false;
 const initialValue = [
 	{
 		type: "paragraph",
 		children: [
 			{
-				text: "asda",
+				text: "a",
 			},
 		],
 	},
@@ -155,7 +156,7 @@ const SlateReact = () => {
 		} else {
 			insertBreak();
 			const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
-			console.log(selectedLeaf1, "selected leaf");
+
 			if (selectedLeaf1.text.length == 0) {
 				const isActive = isBlockActive(editor, "heading-one", TEXT_ALIGN_TYPES.includes("heading-one") ? "align" : "type");
 				if (isActive) {
@@ -172,7 +173,6 @@ const SlateReact = () => {
 		let listItemParent;
 		let previousParent;
 		let nextParent;
-
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
 			match: (n) => ["paragraph", "list-item", "heading-one", "banner-red-wrapper", "katex"].includes(n.type),
@@ -192,7 +192,6 @@ const SlateReact = () => {
 		});
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && !backwardCheck && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
-
 			if (!backwardCheck) {
 				backwardCheck = true;
 
@@ -262,32 +261,34 @@ const SlateReact = () => {
 			// Editor.deleteBackward(editor, { unit: "word" });
 			const currentNode = Editor.node(editor, editor.selection.anchor);
 			const string = Node.leaf(editor, editor.selection.anchor.path);
-			// console.log(editor.selection.anchor.path.slice(0, 1), "path slice");
+			//
 
 			if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
 				Transforms.move(editor, { distance: 1, unit: "offset" });
 			} else if (string.text.length == 0) {
+				alert("empty");
 				deleteBackward(...args);
 				const currentNode = Editor.parent(editor, editor.selection.anchor.path);
 				const string = Node.leaf(editor, editor.selection.anchor.path);
 
-				FORMAT_TYPES.map((o) => {
-					Editor.removeMark(editor, o);
-				});
 				if (["heading-one"].includes(currentNode[0].type) && string.text.length == 0) {
 					Transforms.setNodes(editor, { type: "paragraph" });
 				}
-
-				console.log(currentNode, "current node");
 			} else {
 				deleteBackward(...args);
+				// if (currentNode[0].text.length <= 1) {
+				// 	alert(currentNode[0].text);
+				// 	FORMAT_TYPES.map((o) => {
+				// 		Editor.removeMark(editor, o);
+				// 	});
+				// }
 			}
 		}
 	};
 
 	editor.deleteFragment = (...args) => {
 		deleteFragment(...args);
-		console.log("deleted");
+
 		const listItems = Editor.nodes(editor, {
 			match: (n) => n.type === "list-item",
 		});
@@ -321,9 +322,23 @@ const SlateReact = () => {
 			<Slate
 				editor={editor}
 				onChange={(e) => {
-					backwardCheck = false;
+					const string = Node.leaf(editor, editor.selection.anchor.path);
 					const isActive = isMarkActive(editor, "bold");
-					console.log(isActive, "is actived");
+					buttonCheck = true;
+					if (string.text.length == 0 && isActive && !buttonCheck) {
+						removeFormats(editor, "bold");
+					} else if (string.text.startsWith("1. ")) {
+						toggleBlock(editor, "numbered-list", "number");
+						Transforms.delete(editor, {
+							at: editor.selection.anchor,
+							unit: "word",
+							reverse: true,
+						});
+
+						// checklist(editor);
+					}
+					backwardCheck = false;
+					console.log(buttonCheck, "button check");
 
 					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", { type: "bold", active: isActive });
 				}}
@@ -443,6 +458,7 @@ const SlateReact = () => {
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
+						console.log("blur");
 						window.removeEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
@@ -452,6 +468,8 @@ const SlateReact = () => {
 					id={id}
 					renderLeaf={renderLeaf}
 					onKeyDown={(event) => {
+						console.log("key down");
+						buttonCheck = false;
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
 								event.preventDefault();
@@ -482,17 +500,6 @@ const SlateReact = () => {
 						} else if (event.metaKey && event.shiftKey && event.key === "z") {
 							event.preventDefault();
 							HistoryEditor.redo(editor);
-						} else if (selectedLeaf.text.startsWith("1.")) {
-							event.preventDefault();
-
-							toggleBlock(editor, "numbered-list", "number");
-							Transforms.delete(editor, {
-								at: editor.selection.anchor,
-								unit: "word",
-								reverse: true,
-							});
-
-							// checklist(editor);
 						}
 					}}
 				/>
@@ -934,6 +941,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 const isMarkActive = (editor, format) => {
 	const marks = Editor.marks(editor);
 	return marks ? marks[format] === true : false;
+};
+
+const removeFormats = (editor, format) => {
+	Editor.removeMark(editor, format);
 };
 
 const Heading1Component = ({ attributes, children, element }) => {
