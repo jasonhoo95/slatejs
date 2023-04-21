@@ -259,25 +259,36 @@ const SlateReact = () => {
 			toggleBlock(editor, "list-item");
 		} else {
 			// Editor.deleteBackward(editor, { unit: "word" });
-			const currentNode = Editor.node(editor, editor.selection.anchor);
 			const string = Node.leaf(editor, editor.selection.anchor.path);
+
 			//
-
-			if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
-				Transforms.move(editor, { distance: 1, unit: "offset" });
-			} else if (string.text.length == 0) {
+			if (string.text.length == 0) {
 				deleteBackward(...args);
-				const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-				const string = Node.leaf(editor, editor.selection.anchor.path);
+				if (!backwardCheck) {
+					backwardCheck = true;
+					const currentNode = Editor.node(editor, editor.selection.anchor);
+					const string = Node.leaf(editor, editor.selection.anchor.path);
+					if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
+						Transforms.move(editor, { distance: 1, unit: "offset" });
+					}
 
-				if (string.text.length == 0) {
-					Transforms.setNodes(editor, { type: "paragraph" });
-					FORMAT_TYPES.map((o) => {
-						Editor.removeMark(editor, o);
-					});
+					if (string.text.length == 0 && currentNode[0].type != "inline-bug") {
+						Transforms.setNodes(editor, { type: "paragraph" });
+						FORMAT_TYPES.map((o) => {
+							Editor.removeMark(editor, o);
+						});
+					}
 				}
 			} else {
 				deleteBackward(...args);
+				if (!backwardCheck) {
+					backwardCheck = true;
+					const currentNode = Editor.node(editor, editor.selection.anchor);
+
+					if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
+						Transforms.move(editor, { distance: 1, unit: "offset" });
+					}
+				}
 			}
 		}
 	};
@@ -1071,13 +1082,13 @@ const Leaf = ({ attributes, children, leaf }) => {
 
 	return (
 		<span
-			// className={
-			// 	leaf.text === ""
-			// 		? css`
-			// 				padding-left: 0.1px;
-			// 		  `
-			// 		: null
-			// }
+			className={
+				leaf.text === ""
+					? css`
+							padding-left: 0.1px;
+					  `
+					: null
+			}
 			{...attributes}>
 			{children}
 		</span>
