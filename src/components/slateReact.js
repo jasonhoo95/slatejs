@@ -266,32 +266,33 @@ const SlateReact = () => {
 			if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
 				Transforms.move(editor, { distance: 1, unit: "offset" });
 			} else if (string.text.length == 0) {
-				alert("empty");
 				deleteBackward(...args);
 				const currentNode = Editor.parent(editor, editor.selection.anchor.path);
 				const string = Node.leaf(editor, editor.selection.anchor.path);
 
-				if (["heading-one"].includes(currentNode[0].type) && string.text.length == 0) {
+				if (string.text.length == 0) {
 					Transforms.setNodes(editor, { type: "paragraph" });
+					FORMAT_TYPES.map((o) => {
+						Editor.removeMark(editor, o);
+					});
 				}
 			} else {
 				deleteBackward(...args);
-				// if (currentNode[0].text.length <= 1) {
-				// 	alert(currentNode[0].text);
-				// 	FORMAT_TYPES.map((o) => {
-				// 		Editor.removeMark(editor, o);
-				// 	});
-				// }
 			}
 		}
 	};
 
 	editor.deleteFragment = (...args) => {
+		const firstNode = Editor.fragment(editor, editor.selection.anchor);
+		const lastNode = Editor.fragment(editor, editor.selection.focus);
+
 		deleteFragment(...args);
 
 		const listItems = Editor.nodes(editor, {
 			match: (n) => n.type === "list-item",
 		});
+
+		const string = Node.leaf(editor, editor.selection.anchor.path);
 
 		for (const listItem of listItems) {
 			const parent = Editor.parent(editor, listItem[1]);
@@ -324,10 +325,7 @@ const SlateReact = () => {
 				onChange={(e) => {
 					const string = Node.leaf(editor, editor.selection.anchor.path);
 					const isActive = isMarkActive(editor, "bold");
-					buttonCheck = true;
-					if (string.text.length == 0 && isActive && !buttonCheck) {
-						removeFormats(editor, "bold");
-					} else if (string.text.startsWith("1. ")) {
+					if (string.text.startsWith("1. ")) {
 						toggleBlock(editor, "numbered-list", "number");
 						Transforms.delete(editor, {
 							at: editor.selection.anchor,
@@ -338,7 +336,6 @@ const SlateReact = () => {
 						// checklist(editor);
 					}
 					backwardCheck = false;
-					console.log(buttonCheck, "button check");
 
 					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", { type: "bold", active: isActive });
 				}}
@@ -458,7 +455,6 @@ const SlateReact = () => {
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
-						console.log("blur");
 						window.removeEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
@@ -468,8 +464,7 @@ const SlateReact = () => {
 					id={id}
 					renderLeaf={renderLeaf}
 					onKeyDown={(event) => {
-						console.log("key down");
-						buttonCheck = false;
+						buttonCheck = true;
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
 								event.preventDefault();
