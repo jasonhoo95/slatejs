@@ -6,23 +6,8 @@ import Quilljs from "./quillComponent";
 
 import { ReactEditor } from "slate-react";
 import { useModalStore } from "@/globals/zustandGlobal";
-import {
-	Editor,
-	Transforms,
-	createEditor,
-	Path,
-	Descendant,
-	Element as SlateElement,
-	Range,
-	Node,
-} from "slate";
-export default function ComponentEditModal({
-	open,
-	setOpen,
-	path,
-	editor,
-	element,
-}) {
+import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Range, Node } from "slate";
+export default function ComponentEditModal({ open, setOpen, path, editor, element }) {
 	// const dispatch = useDispatch();
 	let updateClick = useModalStore((state) => state.updateClick);
 	const ModalProps = useModalStore((state) => state.amount);
@@ -106,10 +91,7 @@ export default function ComponentEditModal({
 									Payment successful
 								</Dialog.Title>
 								<div className="mt-2">
-									<p className="text-sm text-gray-500">
-										Your payment has been successfully submitted. We’ve sent you
-										an email with all of the details of your order.
-									</p>
+									<p className="text-sm text-gray-500">Your payment has been successfully submitted. We’ve sent you an email with all of the details of your order.</p>
 								</div>
 
 								<div

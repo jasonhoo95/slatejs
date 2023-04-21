@@ -46,7 +46,7 @@ const initialValue = [
 function getCaretCoordinates() {
 	let x = 0,
 		y = 0;
-
+	alert("caret coordinates");
 	const isSupported = typeof window.getSelection !== "undefined";
 	if (isSupported) {
 		const sel = window.getSelection();
@@ -91,8 +91,10 @@ const SlateReact = () => {
 	useEffect(() => {
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
-				toggleMark(editor, "bold");
+				// toggleMark(editor, "bold");
+				const editor = useSlate();
 
+				insertKatex(editor, "jjk");
 				if (event.ports[0] != null) {
 					// the port is ready for communication,
 					// so you can use port.postMessage(message); wherever you want
@@ -461,11 +463,14 @@ const SlateReact = () => {
 					autoCapitalize="off"
 					spellCheck={false}
 					onFocus={(event) => {
+						console.log("focus");
 						window.addEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
+						console.log("blur");
+
 						window.removeEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
