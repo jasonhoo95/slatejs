@@ -75,7 +75,7 @@
 	overflow-wrap: break-word !important;
 }
 
-.slate-break::after {
+.slite-line-break::after {
 	content: "";
 	display: block;
 	height: 0;

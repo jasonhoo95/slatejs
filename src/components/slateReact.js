@@ -43,10 +43,54 @@ const initialValue = [
 	// },
 ];
 
+function getCursorMoving(editor) {
+	const currentOffset = window.getSelection().getRangeAt(0).startOffset;
+
+	// Set the new offset
+	const newOffset = 10;
+
+	// Check if the new offset is less than the current offset
+	if (newOffset < currentOffset) {
+		console.log("Cursor is going backward");
+	} else {
+		console.log("Cursor is not going backward");
+	}
+	// const selection = window.getSelection();
+	// const currentRange = selection.getRangeAt(0);
+	// const currentOffset = currentRange.startOffset;
+	// const currentNode = Editor.node(editor, editor.selection.anchor);
+	// const previousNode = Editor.previous(editor, { at: editor.selection.anchor });
+	// const nextNode = Editor.next(editor, { at: editor.selection.anchor });
+
+	// console.log(nextNode, "current node");
+	// console.log(previousNode, "previous node");
+
+	// setTimeout(() => {
+	// 	const newRange = selection.getRangeAt(0);
+	// 	const newOffset = newRange.startOffset;
+	// 	console.log(newOffset, "new offset");
+	// 	console.log(currentOffset, "current offset");
+
+	// 	if (newOffset > currentOffset && currentNode[0].type == "inline-bug") {
+	// 		console.log("forward cursor", currentNode);
+	// 		Transforms.move(editor, { distance: 1, unit: "offset", reverse: true });
+	// 	} else if (newOffset < currentOffset && currentNode[0].type == "inline-bug") {
+	// 		Transforms.move(editor, { distance: 1, unit: "offset" });
+
+	// 		console.log("backward cursor", currentNode);
+	// 	} else if (newOffset > 0 && currentOffset > 0 && newOffset == currentOffset) {
+	// 		if(previousNode[0].text.length == 0){
+
+	// 		}
+	// 		Transforms.move(editor, { distance: 1, unit: "offset", reverse: true });
+	// 		console.log("Cursor is not moving");
+	// 	}
+	// }, 0);
+}
+
 function getCaretCoordinates() {
 	let x = 0,
 		y = 0;
-	alert("caret coordinates");
 	const isSupported = typeof window.getSelection !== "undefined";
 	if (isSupported) {
 		const sel = window.getSelection();
@@ -87,14 +131,14 @@ function getCaretCoordinates() {
 
 const SlateReact = () => {
 	let id = v4();
+	let updateAmount = useModalStore((state) => state.updateModal);
 
 	useEffect(() => {
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
 				// toggleMark(editor, "bold");
-				const editor = useSlate();
 
-				insertKatex(editor, "jjk");
+				insertKatex(editor, "jjk", updateAmount);
 				if (event.ports[0] != null) {
 					// the port is ready for communication,
 					// so you can use port.postMessage(message); wherever you want
@@ -268,13 +312,20 @@ const SlateReact = () => {
 				deleteBackward(...args);
 				if (!backwardCheck) {
 					backwardCheck = true;
-					const currentNode = Editor.node(editor, editor.selection.anchor);
 					const string = Node.leaf(editor, editor.selection.anchor.path);
-					if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
+					const [listItems] = Editor.nodes(editor, {
+						at: editor.selection.anchor.path,
+						match: (n) => ["list-item", "katex", "inline-bug"].includes(n.type),
+					});
+
+					const currentNode = Editor.node(editor, editor.selection.anchor);
+					console.log(currentNode, "current node type");
+
+					if (currentNode && (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug")) {
 						Transforms.move(editor, { distance: 1, unit: "offset" });
 					}
 
-					if (string.text.length == 0 && currentNode[0].type != "inline-bug") {
+					if (string.text.length == 0 && !listItems) {
 						Transforms.setNodes(editor, { type: "paragraph" });
 						FORMAT_TYPES.map((o) => {
 							Editor.removeMark(editor, o);
@@ -286,7 +337,9 @@ const SlateReact = () => {
 				if (!backwardCheck) {
 					backwardCheck = true;
 					const currentNode = Editor.node(editor, editor.selection.anchor);
+					const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
 
+					console.log(previousNode, "previous node now");
 					if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
 						Transforms.move(editor, { distance: 1, unit: "offset" });
 					}
@@ -337,6 +390,20 @@ const SlateReact = () => {
 				editor={editor}
 				onChange={(e) => {
 					const string = Node.leaf(editor, editor.selection.anchor.path);
+					const parentNode = Editor.nodes(editor, {
+						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === "inline-bug",
+					});
+
+					const lastNode = Editor.previous(editor, { at: editor.selection.anchor });
+
+					// if (previousNode[0].type == "inline-bug") {
+					// 	Transforms.move(editor, { unit: "offset", distance: 1, reverse: true });
+					// }
+
+					// for (const listitem of parentNode) {
+					// 	const previousNode = Editor.previous(editor, { at: listitem[1] });
+					// }
+
 					const isActive = isMarkActive(editor, "bold");
 					if (string.text.startsWith("1. ")) {
 						toggleBlock(editor, "numbered-list", "number");
@@ -421,6 +488,11 @@ const SlateReact = () => {
  */}
 
 				<BlockButton
+					format="url-link"
+					icon="format_list_item"
+				/>
+
+				<BlockButton
 					format="katex-link"
 					icon="format_list_item"
 				/>
@@ -463,14 +535,11 @@ const SlateReact = () => {
 					autoCapitalize="off"
 					spellCheck={false}
 					onFocus={(event) => {
-						console.log("focus");
 						window.addEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
-						console.log("blur");
-
 						window.removeEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
@@ -489,11 +558,17 @@ const SlateReact = () => {
 							}
 						}
 
-						const curretNode = Node.parent(editor, editor.selection.anchor.path);
-						const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
+						const currentNode = Editor.previous(editor, { at: editor.selection.anchor.path });
+						const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
+						const selectedLeaf = Editor.node(editor, editor.selection.anchor.path);
+						console.log(selectedLeaf, "selected node");
+						const [listItems] = Editor.nodes(editor, {
+							match: (n) => n.type === "list-item" || n.type == "inline-bug",
+						});
+						console.log(nextNode, "next node");
 						// setState({ text: selectedLeaf.text });
 
-						if (event.key == "Enter" && event.shiftKey && curretNode.type == "list-item") {
+						if (event.key == "Enter" && event.shiftKey && listItems[0].type == "list-item") {
 							event.preventDefault();
 
 							const nextNode = Editor.next(editor, {
@@ -501,9 +576,17 @@ const SlateReact = () => {
 							});
 
 							Transforms.insertNodes(editor, {
-								children: [{ text: "\n", type: "inline-bug" }],
+								children: [{ text: "", type: "inline-bug" }],
 								type: "inline-bug",
 							});
+							// const block = { type: "inline-bug", children: [] };
+
+							// Transforms.wrapNodes(editor, block);
+
+							Transforms.move(editor, { unit: "offset", distance: 1 });
+						} else if (event.key == "ArrowLeft" && currentNode && currentNode[0].type == "inline-bug") {
+							Transforms.move(editor, { unit: "offset", distance: 1, reverse: true });
+						} else if (event.key == "ArrowRight" && nextNode && nextNode[0].type == "inline-bug") {
 							Transforms.move(editor, { unit: "offset", distance: 1 });
 						} else if (event.metaKey && event.key === "z" && !event.shiftKey) {
 							event.preventDefault();
@@ -584,7 +667,7 @@ const wrapLink = (editor, url) => {
 	const link = {
 		type: "link",
 		url,
-		children: isCollapsed ? [{ text: url }] : [],
+		children: isCollapsed ? [{ text: url, type: "link" }] : [],
 	};
 
 	if (isCollapsed) {
@@ -601,26 +684,24 @@ const insertLink = (editor, url) => {
 	}
 };
 
-const insertKatex = (editor, url) => {
-	if (editor.selection) {
-		let data = {
-			url: url,
-			editor: editor,
-			path: editor.selection.anchor,
-			open: true,
-		};
-		updateAmount(data);
-		// ReactEditor.blur(editor);
-		// wrapKatex(editor, url, editor.selection);
-	}
+const insertKatex = (editor, url, updateAmount) => {
+	let data = {
+		url: url,
+		editor: editor,
+		path: editor.selection.anchor,
+		open: true,
+	};
+	updateAmount(data);
+	// ReactEditor.blur(editor);
+	// wrapKatex(editor, url, editor.selection);
 };
 
 const withInlines = (editor) => {
 	const { insertData, insertText, isInline, markableVoid, isVoid } = editor;
 
-	editor.isInline = (element) => ["link", "button", "katex", "inline-bug"].includes(element.type) || isInline(element);
+	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "editable-void"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "editable-void", "inline-bug"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" ? true : markableVoid(element);
@@ -642,18 +723,42 @@ const LinkComponent = ({ attributes, children, element }) => {
 					: ""
 			}
 			href={element.url}>
-			<InlineChromiumBugfix />
 			{children}
-			<InlineChromiumBugfix />
 		</a>
 	);
 };
 
-const InlineChromiumBugfix = ({ attributes, children, element }) => {
+const InlineWrapperBug = ({ attributes, children }) => {
 	return (
 		<span
 			contentEditable="false"
 			{...attributes}>
+			<span
+				contentEditable="false"
+				className="slite-line-break"></span>
+			{children}
+		</span>
+	);
+};
+
+const InlineChromiumBugfix = ({ attributes, children, element }) => {
+	const selected = useSelected();
+	const editor = useSlate();
+	const focused = useFocused();
+
+	// if (focused && selected) {
+	// 	Transforms.move(editor, { unit: "offset", distance: 1, reverse: true });
+	// }
+	return (
+		<span
+			contentEditable="false"
+			{...attributes}>
+			<span contentEditable="false">
+				<span
+					contentEditable="false"
+					data-slate-inline="true"
+					className="slite-line-break"></span>
+			</span>
 			{children}
 		</span>
 	);
@@ -771,15 +876,14 @@ const BlockButton = ({ format, icon }) => {
 				onMouseDown={(event) => {
 					// getCaretCoordinates();
 
-					event.preventDefault();
-					let data = {
-						url: "jkl",
-						editor: editor,
-						path: editor.selection.anchor,
-						open: true,
-					};
-					updateAmount(data);
-					// insertKatex(editor, "jjk");
+					// let data = {
+					// 	url: "jkl",
+					// 	editor: editor,
+					// 	path: editor.selection.anchor,
+					// 	open: true,
+					// };
+					// updateAmount(data);
+					insertKatex(editor, "jjk", updateAmount);
 				}}>
 				Katex Link
 			</div>
@@ -995,6 +1099,8 @@ const Element = (props) => {
 			return <KatexComponent {...props} />;
 		case "inline-bug":
 			return <InlineChromiumBugfix {...props} />;
+		case "inline-wrapper-bug":
+			return <InlineWrapperBug {...props} />;
 		case "editable-void":
 			return <EditableVoid {...props}></EditableVoid>;
 		case "heading-one":
