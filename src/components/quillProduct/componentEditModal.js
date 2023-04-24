@@ -49,7 +49,10 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 			<Dialog
 				onClose={(e) => {
 					setOpen(e);
+					console.log(editor.selection, ModalProps.type, "selection");
+
 					ReactEditor.focus(editor);
+
 					// if (!ModalProps.click) {
 					// 	Transforms.select(ModalProps.editor, ModalProps.path);
 					// 	ReactEditor.focus(ModalProps.editor);
@@ -63,8 +66,8 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 					// 	});
 					// 	ReactEditor.focus(ModalProps.editor);
 					// }
-					// updateAmount(null);
-					// updateClick(null);
+					updateAmount(null);
+					updateClick(null);
 				}}>
 				<Transition.Child
 					as={Fragment}

@@ -698,6 +698,8 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
+	window.scrollTo({ top: 0, behavior: "smooth" });
+
 	let data = {
 		url: url,
 		editor: editor,
