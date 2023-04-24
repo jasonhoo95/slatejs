@@ -36,8 +36,8 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 		ReactEditor.focus(ModalProps.editor);
 
 		setOpen(false);
-		updateAmount(null);
-		updateClick(null);
+		// updateAmount(null);
+		// updateClick(null);
 	};
 
 	return (
@@ -49,19 +49,22 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 			<Dialog
 				onClose={(e) => {
 					setOpen(e);
-					if (!ModalProps.click) {
-						Transforms.select(ModalProps.editor, ModalProps.path);
-						ReactEditor.focus(ModalProps.editor);
-					} else {
-						const nextNode = Editor.next(ModalProps.editor, { at: path });
-						Transforms.select(ModalProps.editor, {
-							path: nextNode[1],
-							offset: 0,
-						});
-						ReactEditor.focus(ModalProps.editor);
-					}
-					updateAmount(null);
-					updateClick(null);
+					ReactEditor.focus(editor);
+					// if (!ModalProps.click) {
+					// 	Transforms.select(ModalProps.editor, ModalProps.path);
+					// 	ReactEditor.focus(ModalProps.editor);
+					// 	console.log(" click");
+					// } else {
+					// 	console.log("not click");
+					// 	const nextNode = Editor.next(ModalProps.editor, { at: path });
+					// 	Transforms.select(ModalProps.editor, {
+					// 		path: nextNode[1],
+					// 		offset: 0,
+					// 	});
+					// 	ReactEditor.focus(ModalProps.editor);
+					// }
+					// updateAmount(null);
+					// updateClick(null);
 				}}>
 				<Transition.Child
 					as={Fragment}
@@ -79,8 +82,8 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 						<Transition.Child
 							as={Fragment}
 							enter="ease-out duration-300"
-							enterFrom="opacity-0 scale-95"
-							enterTo="opacity-100 scale-100"
+							enterFrom="opacity-0 translate-y-[-100%]"
+							enterTo="opacity-100 translate-y-[0]"
 							leave="ease-in duration-200"
 							leaveFrom="opacity-100 scale-100"
 							leaveTo="opacity-0 scale-95">
@@ -88,7 +91,7 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 								<Dialog.Title
 									as="h3"
 									className="text-lg font-medium leading-6 text-gray-900">
-									Payment successful
+									{ModalProps ? ModalProps.type : null}
 								</Dialog.Title>
 								<div className="mt-2">
 									<p className="text-sm text-gray-500">Your payment has been successfully submitted. We’ve sent you an email with all of the details of your order.</p>

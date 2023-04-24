@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, useEffect } from "react";
+import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import isUrl from "is-url";
 
 import isHotkey from "is-hotkey";
@@ -27,6 +27,7 @@ const FORMAT_TYPES = ["bold", "italic", "underline"];
 const FORMAT_NONE = ["numbered-list", "paragraph"];
 let backwardCheck = false;
 let buttonCheck = false;
+let blurCheck = "false";
 // let focusCheck = false;
 const initialValue = [
 	{
@@ -51,9 +52,7 @@ function getCursorMoving(editor) {
 
 	// Check if the new offset is less than the current offset
 	if (newOffset < currentOffset) {
-		console.log("Cursor is going backward");
 	} else {
-		console.log("Cursor is not going backward");
 	}
 	// const selection = window.getSelection();
 	// const currentRange = selection.getRangeAt(0);
@@ -62,28 +61,28 @@ function getCursorMoving(editor) {
 	// const previousNode = Editor.previous(editor, { at: editor.selection.anchor });
 	// const nextNode = Editor.next(editor, { at: editor.selection.anchor });
 
-	// console.log(nextNode, "current node");
-	// console.log(previousNode, "previous node");
+	//
+	//
 
 	// setTimeout(() => {
 	// 	const newRange = selection.getRangeAt(0);
 	// 	const newOffset = newRange.startOffset;
-	// 	console.log(newOffset, "new offset");
-	// 	console.log(currentOffset, "current offset");
+	//
+	//
 
 	// 	if (newOffset > currentOffset && currentNode[0].type == "inline-bug") {
-	// 		console.log("forward cursor", currentNode);
+	//
 	// 		Transforms.move(editor, { distance: 1, unit: "offset", reverse: true });
 	// 	} else if (newOffset < currentOffset && currentNode[0].type == "inline-bug") {
 	// 		Transforms.move(editor, { distance: 1, unit: "offset" });
 
-	// 		console.log("backward cursor", currentNode);
+	//
 	// 	} else if (newOffset > 0 && currentOffset > 0 && newOffset == currentOffset) {
 	// 		if(previousNode[0].text.length == 0){
 
 	// 		}
 	// 		Transforms.move(editor, { distance: 1, unit: "offset", reverse: true });
-	// 		console.log("Cursor is not moving");
+	//
 	// 	}
 	// }, 0);
 }
@@ -107,20 +106,20 @@ function getCaretCoordinates() {
 		}
 
 		let position = range.getBoundingClientRect();
-		const char_before = range.startContainer.textContent[range.startOffset - 1];
+		// const char_before = range.startContainer.textContent[range.startOffset - 1];
 
-		// if we are on a \n
-		if (range.collapsed && char_before === "\n") {
-			// create a clone of our Range so we don't mess with the visible one
-			const clone = range.cloneRange();
-			// check if we are experiencing a bug
-			clone.setStart(range.startContainer, range.startOffset - 1);
-			if (clone.getBoundingClientRect().top === position.top) {
-				// make it select the next character
-				clone.setStart(range.startContainer, range.startOffset + 1);
-				position = clone.getBoundingClientRect();
-			}
-		}
+		// // if we are on a \n
+		// if (range.collapsed && char_before === "\n") {
+		// 	// create a clone of our Range so we don't mess with the visible one
+		// 	const clone = range.cloneRange();
+		// 	// check if we are experiencing a bug
+		// 	clone.setStart(range.startContainer, range.startOffset - 1);
+		// 	if (clone.getBoundingClientRect().top === position.top) {
+		// 		// make it select the next character
+		// 		clone.setStart(range.startContainer, range.startOffset + 1);
+		// 		position = clone.getBoundingClientRect();
+		// 	}
+		// }
 
 		x = position.x;
 		y = position.y + window.scrollY - 100;
@@ -136,7 +135,11 @@ const SlateReact = () => {
 	useEffect(() => {
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
+				ReactEditor.blur(editor);
 				// toggleMark(editor, "bold");
+				// const url = window.prompt("Enter the URL of the link:");
+				// if (!url) return;
+				// insertLink(editor, url);
 
 				insertKatex(editor, "jjk", updateAmount);
 				if (event.ports[0] != null) {
@@ -150,6 +153,7 @@ const SlateReact = () => {
 				}
 				// capture port2 coming from the Dart side
 			}
+			getCaretCoordinates();
 		});
 
 		window.flutter_inappwebview?.callHandler("handlerFoo").then(function (result) {
@@ -163,8 +167,9 @@ const SlateReact = () => {
 		numbering: false,
 		backward: false,
 	});
-	const [focus, setFocus] = useState(false);
+	const [focus, setFocus] = useState(true);
 	const ModalProps = useModalStore((state) => state.amount);
+	const contentEditableRef = useRef(null);
 
 	const [open, setOpen] = useState(false);
 	const renderElement = useCallback((props) => <Element {...props} />, []);
@@ -319,7 +324,6 @@ const SlateReact = () => {
 					});
 
 					const currentNode = Editor.node(editor, editor.selection.anchor);
-					console.log(currentNode, "current node type");
 
 					if (currentNode && (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug")) {
 						Transforms.move(editor, { distance: 1, unit: "offset" });
@@ -338,10 +342,12 @@ const SlateReact = () => {
 					backwardCheck = true;
 					const currentNode = Editor.node(editor, editor.selection.anchor);
 					const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
+					const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
 
-					console.log(previousNode, "previous node now");
 					if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
 						Transforms.move(editor, { distance: 1, unit: "offset" });
+					} else if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
+						Transforms.delete(editor, { at: editor.selection.anchor.path });
 					}
 				}
 			}
@@ -417,7 +423,7 @@ const SlateReact = () => {
 					}
 					backwardCheck = false;
 
-					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", { type: "bold", active: isActive });
+					// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", { type: "bold", active: isActive });
 				}}
 				value={initialValue}>
 				{/* <div
@@ -532,6 +538,7 @@ const SlateReact = () => {
 				<Editable
 					renderElement={renderElement}
 					style={{ padding: "10px" }}
+					ref={contentEditableRef}
 					autoCapitalize="off"
 					spellCheck={false}
 					onFocus={(event) => {
@@ -540,6 +547,12 @@ const SlateReact = () => {
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
+						// if (ModalProps && ModalProps.open && ModalProps.type != "katex") {
+						//
+
+						// 	ReactEditor.focus(editor);
+						// }
+						console.log("blur");
 						window.removeEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
@@ -561,14 +574,14 @@ const SlateReact = () => {
 						const currentNode = Editor.previous(editor, { at: editor.selection.anchor.path });
 						const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
 						const selectedLeaf = Editor.node(editor, editor.selection.anchor.path);
-						console.log(selectedLeaf, "selected node");
+
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug",
 						});
-						console.log(nextNode, "next node");
+
 						// setState({ text: selectedLeaf.text });
 
-						if (event.key == "Enter" && event.shiftKey && listItems[0].type == "list-item") {
+						if (event.key == "Enter" && event.shiftKey && listItems && listItems[0].type == "list-item") {
 							event.preventDefault();
 
 							const nextNode = Editor.next(editor, {
@@ -674,7 +687,7 @@ const wrapLink = (editor, url) => {
 		Transforms.insertNodes(editor, link);
 	} else {
 		Transforms.wrapNodes(editor, link, { split: true });
-		Transforms.collapse(editor, { edge: "end" });
+		ReactEditor.focus(editor);
 	}
 };
 
@@ -701,7 +714,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "editable-void", "inline-bug"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "editable-void", "inline-bug", "link"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" ? true : markableVoid(element);
@@ -712,6 +725,10 @@ const withInlines = (editor) => {
 
 const LinkComponent = ({ attributes, children, element }) => {
 	const selected = useSelected();
+	const editor = useSlate();
+
+	let updateModal = useModalStore((state) => state.updateModal);
+	const focused = useFocused();
 	return (
 		<a
 			{...attributes}
@@ -722,7 +739,20 @@ const LinkComponent = ({ attributes, children, element }) => {
 					  `
 					: ""
 			}
-			href={element.url}>
+			href={element.url}
+			onClick={(e) => {
+				e.preventDefault();
+				let data = {
+					element: element,
+					editor: editor,
+					click: true,
+					type: "link",
+					open: true,
+					path: ReactEditor.findPath(editor, element),
+				};
+				updateModal(data);
+			}}>
+			<span>{element.children[0].text}</span>
 			{children}
 		</a>
 	);
@@ -770,28 +800,27 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const focused = useFocused();
 	let updateModal = useModalStore((state) => state.updateModal);
-	let updateClick = useModalStore((state) => state.updateClick);
-
-	const clickProps = useModalStore((state) => state.click);
 
 	return (
 		<span
 			onClick={(e) => {
-				if (focused) {
-					let data = {
-						element: element,
-						editor: editor,
-						click: true,
-						open: true,
-						path: ReactEditor.findPath(editor, element),
-					};
-					updateModal(data);
-					updateClick(element.id);
-				}
+				ReactEditor.blur(editor);
+				let data = {
+					element: element,
+					editor: editor,
+					click: true,
+					type: "katex",
+					open: true,
+					path: ReactEditor.findPath(editor, element),
+				};
+				updateModal(data);
+				// updateClick(element.id);
+				// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "modal");
 			}}
+			//
 			style={{
 				// userSelect: "none",
-				background: (selected && focused) || (clickProps && clickProps == element.id) ? "red" : "",
+				background: selected ? "red" : "",
 			}}
 			contentEditable="false"
 			className="span-katex"
@@ -910,6 +939,7 @@ const toggleMark = (editor, format) => {
 	} else {
 		Editor.addMark(editor, format, true);
 	}
+	ReactEditor.focus(editor);
 };
 
 const toggleBlock = (editor, format, type) => {
