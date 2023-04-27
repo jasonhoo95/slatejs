@@ -14,6 +14,7 @@ import { useBearStore, useAuthStore } from "@/globals/authStorage";
 import { useModalStore } from "@/globals/zustandGlobal";
 
 import _ from "lodash";
+import next from "next";
 const HOTKEYS = {
 	"mod+b": "bold",
 	"mod+i": "italic",
@@ -44,49 +45,6 @@ const initialValue = [
 	// 	children: [{ text: "" }],
 	// },
 ];
-
-function getCursorMoving(editor) {
-	const currentOffset = window.getSelection().getRangeAt(0).startOffset;
-
-	// Set the new offset
-	const newOffset = 10;
-
-	// Check if the new offset is less than the current offset
-	if (newOffset < currentOffset) {
-	} else {
-	}
-	// const selection = window.getSelection();
-	// const currentRange = selection.getRangeAt(0);
-	// const currentOffset = currentRange.startOffset;
-	// const currentNode = Editor.node(editor, editor.selection.anchor);
-	// const previousNode = Editor.previous(editor, { at: editor.selection.anchor });
-	// const nextNode = Editor.next(editor, { at: editor.selection.anchor });
-
-	//
-	//
-
-	// setTimeout(() => {
-	// 	const newRange = selection.getRangeAt(0);
-	// 	const newOffset = newRange.startOffset;
-	//
-	//
-
-	// 	if (newOffset > currentOffset && currentNode[0].type == "inline-bug") {
-	//
-	// 		Transforms.move(editor, { distance: 1, unit: "offset", reverse: true });
-	// 	} else if (newOffset < currentOffset && currentNode[0].type == "inline-bug") {
-	// 		Transforms.move(editor, { distance: 1, unit: "offset" });
-
-	//
-	// 	} else if (newOffset > 0 && currentOffset > 0 && newOffset == currentOffset) {
-	// 		if(previousNode[0].text.length == 0){
-
-	// 		}
-	// 		Transforms.move(editor, { distance: 1, unit: "offset", reverse: true });
-	//
-	// 	}
-	// }, 0);
-}
 
 function getCaretCoordinates() {
 	let x = 0,
@@ -231,24 +189,23 @@ const SlateReact = () => {
 		let listItemParent;
 		let previousParent;
 		let nextParent;
-		const listItems = Editor.nodes(editor, {
+		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["paragraph", "list-item", "heading-one", "banner-red-wrapper", "katex"].includes(n.type),
+			match: (n) => ["banner-red-wrapper", "paragraph", "list-item"].includes(n.type),
 		});
 
-		for (const listItem of listItems) {
-			listItemParent = Editor.node(editor, listItem[1]);
+		if (listItems) {
+			listItemParent = Editor.node(editor, listItems[1]);
 			previousParent = Editor.previous(editor, {
-				at: listItem[1],
+				at: listItems[1],
 			});
-			nextParent = Editor.next(editor, { at: listItem[1] });
+			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
 
-		//
 		const currentNodeParent = Editor.node(editor, {
 			at: editor.selection.anchor.path,
 		});
-		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && !backwardCheck && previousParent[0].type == "banner-red-wrapper") {
+		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
 			if (!backwardCheck) {
 				backwardCheck = true;
@@ -322,6 +279,7 @@ const SlateReact = () => {
 			//
 			if (string.text.length == 0) {
 				deleteBackward(...args);
+
 				if (!backwardCheck) {
 					backwardCheck = true;
 					const string = Node.leaf(editor, editor.selection.anchor.path);
@@ -345,6 +303,7 @@ const SlateReact = () => {
 				}
 			} else {
 				deleteBackward(...args);
+
 				if (!backwardCheck) {
 					backwardCheck = true;
 					const currentNode = Editor.node(editor, editor.selection.anchor.path);
@@ -403,7 +362,6 @@ const SlateReact = () => {
 				editor={editor}
 				onChange={(e) => {
 					const string = Node.leaf(editor, editor.selection.anchor.path);
-					console.log("on change");
 
 					const isActive = isMarkActive(editor, "bold");
 					if (string.text.startsWith("1. ")) {
@@ -1099,6 +1057,26 @@ const Heading1Component = ({ attributes, children, element }) => {
 	);
 };
 
+const BannerRed = ({ attributes, children, element }) => {
+	// const editor = useSlate();
+	// const [listItems] = Editor.nodes(editor, {
+	// 	at: editor.selection.anchor,
+	// 	match: (n) => n.type == "banner-red-wrapper",
+	// });
+	// const previousNode = Editor.previous(editor, { at: listItems[1] });
+	// const nextNode = Editor.previous(editor, { at: listItems[1] });
+	// const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
+	//
+
+	return (
+		<div
+			className="banner-red"
+			{...attributes}>
+			{children}
+		</div>
+	);
+};
+
 const Element = (props) => {
 	const { attributes, children, element } = props;
 
@@ -1175,13 +1153,7 @@ const Element = (props) => {
 			);
 
 		case "banner-red-wrapper":
-			return (
-				<div
-					className="banner-red"
-					{...attributes}>
-					{children}
-				</div>
-			);
+			return <BannerRed {...props} />;
 		case "paragraph-inline":
 			return <p {...attributes}>{children}</p>;
 		case "paragraph":
