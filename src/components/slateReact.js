@@ -759,7 +759,8 @@ const KatexComponent = ({ attributes, children, element }) => {
 	return (
 		<span
 			onClick={(e) => {
-				ReactEditor.blur(editor);
+				document.body.scrollTop = 0; // For Safari
+				document.documentElement.scrollTop = 0;
 				let data = {
 					element: element,
 					editor: editor,
@@ -869,7 +870,7 @@ const BlockButton = ({ format, icon }) => {
 					// updateAmount(data);
 					insertKatex(editor, "jjk", updateAmount);
 				}}>
-				Katex Link123
+				Katex Link1235
 			</div>
 		);
 	} else {
