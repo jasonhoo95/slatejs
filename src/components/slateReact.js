@@ -1193,7 +1193,8 @@ const Leaf = ({ attributes, children, leaf }) => {
 			className={
 				leaf.text === ""
 					? css`
-							padding-left: 0.1px;
+							padding-left: 1px;
+							font-size: 1rem;
 					  `
 					: null
 			}
