@@ -52,7 +52,7 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 					console.log(editor.selection, ModalProps.type, "selection");
 					const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
 					console.log(text, "text now");
-					if (text.length == 0) {
+					if (text.text.length == 0) {
 						Transforms.insertText(ModalProps.editor, "\u00a0".toString(), {
 							at: ModalProps.editor.selection.anchor,
 						});
