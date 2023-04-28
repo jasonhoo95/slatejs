@@ -52,11 +52,12 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 					console.log(editor.selection, ModalProps.type, "selection");
 					const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
 					console.log(text, "text now");
-					// if (text.text.length == 0) {
-					// 	Transforms.insertText(ModalProps.editor, "\u200B".toString(), {
-					// 		at: ModalProps.editor.selection.anchor,
-					// 	});
-					// }
+					if (text.text.length == 0) {
+						Transforms.insertText(ModalProps.editor, "\u00a0".toString(), {
+							at: ModalProps.editor.selection.anchor,
+						});
+						Transforms.move(ModalProps.editor, { reverse: true, unit: "offset", distance: 1 });
+					}
 
 					ReactEditor.focus(ModalProps.editor);
 					// if (!ModalProps.click) {

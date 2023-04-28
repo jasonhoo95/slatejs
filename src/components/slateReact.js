@@ -186,6 +186,7 @@ const SlateReact = () => {
 	};
 
 	editor.deleteBackward = (...args) => {
+		// alert("delete");
 		let listItemParent;
 		let previousParent;
 		let nextParent;
@@ -1055,6 +1056,10 @@ const Heading1Component = ({ attributes, children, element }) => {
 	);
 };
 
+const ZeroWidthText = () => {
+	return <span dangerouslySetInnerHTML={{ __html: "\u00a0" }}></span>;
+};
+
 const BannerRed = ({ attributes, children, element }) => {
 	// const editor = useSlate();
 	// const [listItems] = Editor.nodes(editor, {
@@ -1124,6 +1129,7 @@ const Element = (props) => {
 					{children}
 				</li>
 			);
+
 		case "numbered-list":
 			return (
 				<ol
@@ -1157,9 +1163,10 @@ const Element = (props) => {
 		case "paragraph":
 			return (
 				<p
-					style={{ marginTop: "5px" }}
+					style={{ marginTop: "5px", display: "flex" }}
 					{...attributes}>
 					{children}
+					{/* <ZeroWidthText /> */}
 				</p>
 			);
 		default:
