@@ -46,57 +46,58 @@ const initialValue = [
 	// },
 ];
 
-function getCaretCoordinates() {
-	let x = 0,
-		y = 0;
-	const isSupported = typeof window.getSelection !== "undefined";
-	if (isSupported) {
-		const sel = window.getSelection();
-		if (!sel || sel.rangeCount === 0) {
-			return;
-		}
-		const range = sel.getRangeAt(0);
-		// we can still workaround the default behavior too
-		const rects = range.getClientRects();
-		if (!rects.length) {
-			if (range.startContainer && range.collapsed) {
-				range.selectNodeContents(range.startContainer);
-			}
-		}
-
-		let position = range.getBoundingClientRect();
-		const char_before = range.startContainer.textContent;
-
-		// if we are on a \n
-		//
-		if (range.collapsed && !char_before) {
-			// create a clone of our Range so we don't mess with the visible one
-			const clone = range.cloneRange();
-			sel.removeAllRanges();
-			sel.addRange(clone);
-
-			position = clone.getBoundingClientRect();
-
-			// check if we are experiencing a bug
-			// clone.setStart(range.startContainer, range.startOffset - 1);
-			// if (clone.getBoundingClientRect().top === position.top) {
-			// 	// make it select the next character
-			// 	clone.setStart(range.startContainer, range.startOffset + 1);
-			// 	position = clone.getBoundingClientRect();
-			// }
-		}
-
-		x = position.x;
-		y = position.y + window.scrollY - 100;
-		window.scrollTo({ top: y, behavior: "smooth" });
-	}
-	// return { x, y };
-}
-
 const SlateReact = () => {
 	let id = v4();
 	let updateAmount = useModalStore((state) => state.updateModal);
+	function getCaretCoordinates() {
+		let x = 0,
+			y = 0;
+		const isSupported = typeof window.getSelection !== "undefined";
+		if (isSupported) {
+			const sel = window.getSelection();
+			if (!sel || sel.rangeCount === 0) {
+				return;
+			}
+			const range = sel.getRangeAt(0);
+			// we can still workaround the default behavior too
+			const rects = range.getClientRects();
+			if (!rects.length) {
+				if (range.startContainer && range.collapsed) {
+					range.selectNodeContents(range.startContainer);
+				}
+			}
 
+			let position = range.getBoundingClientRect();
+			const char_before = range.startContainer.textContent;
+
+			// if we are on a \n
+			//
+			// if (range.collapsed && !char_before) {
+			// 	// create a clone of our Range so we don't mess with the visible one
+			// 	const clone = range.cloneRange();
+			// 	sel.removeAllRanges();
+			// 	sel.addRange(clone);
+
+			// 	position = clone.getBoundingClientRect();
+
+			// 	// check if we are experiencing a bug
+			// 	// clone.setStart(range.startContainer, range.startOffset - 1);
+			// 	// if (clone.getBoundingClientRect().top === position.top) {
+			// 	// 	// make it select the next character
+			// 	// 	clone.setStart(range.startContainer, range.startOffset + 1);
+			// 	// 	position = clone.getBoundingClientRect();
+			// 	// }
+			// }
+
+			x = position.x;
+			y = position.y + window.scrollY - 100;
+			setState({ text: y });
+			if (y > 0) {
+				window.scrollTo({ top: y, behavior: "smooth" });
+			}
+		}
+		// return { x, y };
+	}
 	useEffect(() => {
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
@@ -118,7 +119,6 @@ const SlateReact = () => {
 				}
 				// capture port2 coming from the Dart side
 			}
-			getCaretCoordinates();
 		});
 
 		window.flutter_inappwebview?.callHandler("handlerFoo").then(function (result) {
@@ -496,7 +496,6 @@ const SlateReact = () => {
 					spellCheck={false}
 					onFocus={(event) => {
 						window.addEventListener("resize", getCaretCoordinates);
-
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
@@ -523,7 +522,6 @@ const SlateReact = () => {
 
 						leftCheck = false;
 						rightCheck = false;
-						const nodeNow = Editor.node(editor, editor.selection.anchor);
 
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug",
@@ -650,6 +648,7 @@ const insertLink = (editor, url) => {
 const insertKatex = (editor, url, updateAmount) => {
 	document.body.scrollTop = 0; // For Safari
 	document.documentElement.scrollTop = 0;
+	ReactEditor.blur(editor);
 	let data = {
 		url: url,
 		editor: editor,
@@ -657,7 +656,6 @@ const insertKatex = (editor, url, updateAmount) => {
 		open: true,
 	};
 	updateAmount(data);
-	// ReactEditor.blur(editor);
 	// wrapKatex(editor, url, editor.selection);
 };
 
@@ -859,8 +857,6 @@ const BlockButton = ({ format, icon }) => {
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
-					// getCaretCoordinates();
-
 					// let data = {
 					// 	url: "jkl",
 					// 	editor: editor,
@@ -869,8 +865,9 @@ const BlockButton = ({ format, icon }) => {
 					// };
 					// updateAmount(data);
 					insertKatex(editor, "jjk", updateAmount);
+					// getCaretCoordinates();
 				}}>
-				Katex Link1235
+				Katex Link
 			</div>
 		);
 	} else {
