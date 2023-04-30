@@ -770,6 +770,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 					editor: editor,
 					click: true,
 					type: "katex",
+					edit: true,
 					open: true,
 					path: ReactEditor.findPath(editor, element),
 				};

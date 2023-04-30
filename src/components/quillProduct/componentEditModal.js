@@ -48,9 +48,9 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 			appear
 			show={open}
 			afterLeave={(e) => {
-				if (!ModalProps.edit) {
-					const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
+				const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
 
+				if (!ModalProps.edit && text.text.length == 0) {
 					Transforms.delete(ModalProps.editor, { at: ModalProps.editor.selection.anchor, unit: "offset", distance: 1 });
 				}
 				updateModal(null);
@@ -63,7 +63,7 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 
 					const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
 
-					if (!ModalProps.edit) {
+					if (!ModalProps.edit && text.text.length == 0) {
 						Transforms.insertText(ModalProps.editor, "\u00a0".toString(), {
 							at: ModalProps.editor.selection.anchor,
 						});
