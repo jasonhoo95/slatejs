@@ -11,8 +11,8 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 	// const dispatch = useDispatch();
 	let updateClick = useModalStore((state) => state.updateClick);
 	const ModalProps = useModalStore((state) => state.amount);
-	let updateAmount = useModalStore((state) => state.updateModal);
-
+	let updateModal = useModalStore((state) => state.updateModal);
+	const [check, setCheck] = useState(false);
 	const wrapKatex = (editor) => {
 		let id = v4();
 		const url = ModalProps.url;
@@ -36,45 +36,43 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 		ReactEditor.focus(ModalProps.editor);
 
 		setOpen(false);
-		// updateAmount(null);
-		// updateClick(null);
+		setCheck(true);
+		let data = {
+			edit: true,
+		};
+		updateModal(data);
 	};
 
 	return (
 		<Transition.Root
 			appear
 			show={open}
-			afterLeave={(e) => {}}
+			afterLeave={(e) => {
+				if (!ModalProps.edit) {
+					const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
+
+					Transforms.delete(ModalProps.editor, { at: ModalProps.editor.selection.anchor, unit: "offset", distance: 1 });
+				}
+				updateModal(null);
+				updateClick(null);
+			}}
 			as={Fragment}>
 			<Dialog
 				onClose={(e) => {
 					setOpen(e);
-					console.log(editor.selection, ModalProps.type, "selection");
+
 					const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
-					console.log(text, "text now");
-					if (text.text.length == 0) {
+
+					if (!ModalProps.edit) {
 						Transforms.insertText(ModalProps.editor, "\u00a0".toString(), {
 							at: ModalProps.editor.selection.anchor,
 						});
+						// Transforms.delete(ModalProps.editor, { at: ModalProps.editor.selection.anchor, reverse: true, unit: "offset", distance: 1 });
+
 						Transforms.move(ModalProps.editor, { reverse: true, unit: "offset", distance: 1 });
 					}
 
 					ReactEditor.focus(ModalProps.editor);
-					// if (!ModalProps.click) {
-					// 	Transforms.select(ModalProps.editor, ModalProps.path);
-					// 	ReactEditor.focus(ModalProps.editor);
-					// 	console.log(" click");
-					// } else {
-					// 	console.log("not click");
-					// 	const nextNode = Editor.next(ModalProps.editor, { at: path });
-					// 	Transforms.select(ModalProps.editor, {
-					// 		path: nextNode[1],
-					// 		offset: 0,
-					// 	});
-					// 	ReactEditor.focus(ModalProps.editor);
-					// }
-					updateAmount(null);
-					updateClick(null);
 				}}>
 				<Transition.Child
 					as={Fragment}

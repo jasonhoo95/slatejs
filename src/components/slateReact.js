@@ -94,6 +94,10 @@ const SlateReact = () => {
 			setState({ text: y });
 			if (y > 0) {
 				window.scrollTo({ top: y, behavior: "smooth" });
+				// const text = Node.leaf(editor, editor.selection.anchor.path);
+				// if (text.text.length == 1) {
+				// 	Transforms.delete(editor, { at: editor.selection.anchor, unit: "offset", distance: 1 });
+				// }
 			}
 		}
 		// return { x, y };
@@ -698,6 +702,7 @@ const LinkComponent = ({ attributes, children, element }) => {
 					editor: editor,
 					click: true,
 					type: "link",
+					edit: true,
 					open: true,
 					path: ReactEditor.findPath(editor, element),
 				};
@@ -831,8 +836,6 @@ const BlockButton = ({ format, icon }) => {
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
-					getCaretCoordinates();
-
 					event.preventDefault();
 					const url = window.prompt("Enter the URL of the link:");
 					if (!url) return;
