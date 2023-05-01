@@ -189,141 +189,141 @@ const SlateReact = () => {
 		}
 	};
 
-	// editor.deleteBackward = (...args) => {
-	// 	// alert("delete");
-	// 	let listItemParent;
-	// 	let previousParent;
-	// 	let nextParent;
-	// 	const [listItems] = Editor.nodes(editor, {
-	// 		at: editor.selection.anchor.path,
-	// 		match: (n) => ["banner-red-wrapper", "paragraph", "list-item"].includes(n.type),
-	// 	});
+	editor.deleteBackward = (...args) => {
+		// alert("delete");
+		let listItemParent;
+		let previousParent;
+		let nextParent;
+		const [listItems] = Editor.nodes(editor, {
+			at: editor.selection.anchor.path,
+			match: (n) => ["banner-red-wrapper", "paragraph", "list-item"].includes(n.type),
+		});
 
-	// 	if (listItems) {
-	// 		listItemParent = Editor.node(editor, listItems[1]);
-	// 		previousParent = Editor.previous(editor, {
-	// 			at: listItems[1],
-	// 		});
-	// 		nextParent = Editor.next(editor, { at: listItems[1] });
-	// 	}
+		if (listItems) {
+			listItemParent = Editor.node(editor, listItems[1]);
+			previousParent = Editor.previous(editor, {
+				at: listItems[1],
+			});
+			nextParent = Editor.next(editor, { at: listItems[1] });
+		}
 
-	// 	const currentNodeParent = Editor.node(editor, {
-	// 		at: editor.selection.anchor.path,
-	// 	});
-	// 	if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
-	// 		deleteBackward(...args);
-	// 		if (!backwardCheck) {
-	// 			backwardCheck = true;
+		const currentNodeParent = Editor.node(editor, {
+			at: editor.selection.anchor.path,
+		});
+		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
+			deleteBackward(...args);
+			if (!backwardCheck) {
+				backwardCheck = true;
 
-	// 			const currentNode = Editor.node(editor, editor.selection.anchor.path);
+				const currentNode = Editor.node(editor, editor.selection.anchor.path);
 
-	// 			if (["katex", "inline-bug"].includes(currentNode[0].type)) {
-	// 				Transforms.move(editor, { distance: 1, unit: "offset" });
-	// 			}
+				if (["katex", "inline-bug"].includes(currentNode[0].type)) {
+					Transforms.move(editor, { distance: 1, unit: "offset" });
+				}
 
-	// 			Transforms.mergeNodes(editor, {
-	// 				at: listItemParent[1],
-	// 				match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper",
-	// 			});
-	// 			const listItems = Editor.nodes(editor, {
-	// 				at: editor.selection.anchor.path,
-	// 				match: (n) => ["list-item", "paragraph", "banner-red-wrapper"].includes(n.type),
-	// 			});
-	// 			let listCheck;
-	// 			let nextnode;
-	// 			for (const listItem of listItems) {
-	// 				listCheck = Editor.node(editor, listItem[1]);
-	// 				nextnode = Editor.next(editor, {
-	// 					at: listItem[1],
-	// 					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list", "paragraph"].includes(n.type),
-	// 				});
-	// 			}
+				Transforms.mergeNodes(editor, {
+					at: listItemParent[1],
+					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "banner-red-wrapper",
+				});
+				const listItems = Editor.nodes(editor, {
+					at: editor.selection.anchor.path,
+					match: (n) => ["list-item", "paragraph", "banner-red-wrapper"].includes(n.type),
+				});
+				let listCheck;
+				let nextnode;
+				for (const listItem of listItems) {
+					listCheck = Editor.node(editor, listItem[1]);
+					nextnode = Editor.next(editor, {
+						at: listItem[1],
+						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list", "paragraph"].includes(n.type),
+					});
+				}
 
-	// 			//
-	// 			if (nextnode && ["numbered-list", "bulleted-list"].includes(nextnode[0].type) && listCheck && listCheck[0].type == "list-item") {
-	// 				Transforms.mergeNodes(editor, {
-	// 					at: nextnode[1],
-	// 					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
-	// 				});
-	// 			}
-	// 		}
-	// 	} else if (
-	// 		nextParent &&
-	// 		previousParent &&
-	// 		["numbered-list", "bulleted-list"].includes(previousParent[0].type) &&
-	// 		["numbered-list", "bulleted-list"].includes(nextParent[0].type) &&
-	// 		previousParent[0].type == nextParent[0].type
-	// 	) {
-	// 		deleteBackward(...args);
+				//
+				if (nextnode && ["numbered-list", "bulleted-list"].includes(nextnode[0].type) && listCheck && listCheck[0].type == "list-item") {
+					Transforms.mergeNodes(editor, {
+						at: nextnode[1],
+						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
+					});
+				}
+			}
+		} else if (
+			nextParent &&
+			previousParent &&
+			["numbered-list", "bulleted-list"].includes(previousParent[0].type) &&
+			["numbered-list", "bulleted-list"].includes(nextParent[0].type) &&
+			previousParent[0].type == nextParent[0].type
+		) {
+			deleteBackward(...args);
 
-	// 		if (!backwardCheck) {
-	// 			backwardCheck = true;
-	// 			const currentNode = Editor.node(editor, editor.selection.anchor);
+			if (!backwardCheck) {
+				backwardCheck = true;
+				const currentNode = Editor.node(editor, editor.selection.anchor);
 
-	// 			if (["katex", "inline-bug"].includes(currentNode[0].type)) {
-	// 				Transforms.move(editor, { distance: 1, unit: "offset" });
-	// 			}
+				if (["katex", "inline-bug"].includes(currentNode[0].type)) {
+					Transforms.move(editor, { distance: 1, unit: "offset" });
+				}
 
-	// 			Transforms.mergeNodes(editor, {
-	// 				at: listItemParent[1],
-	// 				match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
-	// 			});
-	// 		}
-	// 	} else if (
-	// 		listItemParent &&
-	// 		listItemParent[0].type == "list-item" &&
-	// 		listItemParent[1][listItemParent[1].length - 1] == 0 &&
-	// 		editor.selection.anchor.offset == 0 &&
-	// 		currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
-	// 	) {
-	// 		toggleBlock(editor, "list-item");
-	// 	} else {
-	// 		// Editor.deleteBackward(editor, { unit: "word" });
-	// 		const string = Node.leaf(editor, editor.selection.anchor.path);
+				Transforms.mergeNodes(editor, {
+					at: listItemParent[1],
+					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
+				});
+			}
+		} else if (
+			listItemParent &&
+			listItemParent[0].type == "list-item" &&
+			listItemParent[1][listItemParent[1].length - 1] == 0 &&
+			editor.selection.anchor.offset == 0 &&
+			currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
+		) {
+			toggleBlock(editor, "list-item");
+		} else {
+			// Editor.deleteBackward(editor, { unit: "word" });
+			const string = Node.leaf(editor, editor.selection.anchor.path);
 
-	// 		//
-	// 		if (string.text.length == 0) {
-	// 			deleteBackward(...args);
+			//
+			if (string.text.length == 0) {
+				deleteBackward(...args);
 
-	// 			if (!backwardCheck) {
-	// 				backwardCheck = true;
-	// 				const string = Node.leaf(editor, editor.selection.anchor.path);
-	// 				const [listItems] = Editor.nodes(editor, {
-	// 					at: editor.selection.anchor.path,
-	// 					match: (n) => ["list-item", "katex", "inline-bug"].includes(n.type),
-	// 				});
+				if (!backwardCheck) {
+					backwardCheck = true;
+					const string = Node.leaf(editor, editor.selection.anchor.path);
+					const [listItems] = Editor.nodes(editor, {
+						at: editor.selection.anchor.path,
+						match: (n) => ["list-item", "katex", "inline-bug"].includes(n.type),
+					});
 
-	// 				const currentNode = Editor.node(editor, editor.selection.anchor);
+					const currentNode = Editor.node(editor, editor.selection.anchor);
 
-	// 				if (currentNode && (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug")) {
-	// 					Transforms.move(editor, { distance: 1, unit: "offset" });
-	// 				}
+					if (currentNode && (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug")) {
+						Transforms.move(editor, { distance: 1, unit: "offset" });
+					}
 
-	// 				if (string.text.length == 0 && !listItems) {
-	// 					Transforms.setNodes(editor, { type: "paragraph" });
-	// 					FORMAT_TYPES.map((o) => {
-	// 						Editor.removeMark(editor, o);
-	// 					});
-	// 				}
-	// 			}
-	// 		} else {
-	// 			deleteBackward(...args);
+					if (string.text.length == 0 && !listItems) {
+						Transforms.setNodes(editor, { type: "paragraph" });
+						FORMAT_TYPES.map((o) => {
+							Editor.removeMark(editor, o);
+						});
+					}
+				}
+			} else {
+				deleteBackward(...args);
 
-	// 			if (!backwardCheck) {
-	// 				backwardCheck = true;
-	// 				const currentNode = Editor.node(editor, editor.selection.anchor.path);
-	// 				const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
-	// 				const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
+				if (!backwardCheck) {
+					backwardCheck = true;
+					const currentNode = Editor.node(editor, editor.selection.anchor.path);
+					const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
+					const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
 
-	// 				if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
-	// 					Transforms.move(editor, { distance: 1, unit: "offset" });
-	// 				} else if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
-	// 					Transforms.delete(editor, { at: editor.selection.anchor.path });
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// };
+					if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
+						Transforms.move(editor, { distance: 1, unit: "offset" });
+					} else if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
+						Transforms.delete(editor, { at: editor.selection.anchor.path });
+					}
+				}
+			}
+		}
+	};
 
 	editor.deleteFragment = (...args) => {
 		const firstNode = Editor.fragment(editor, editor.selection.anchor);
