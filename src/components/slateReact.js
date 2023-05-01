@@ -45,63 +45,39 @@ const initialValue = [
 	// 	children: [{ text: "" }],
 	// },
 ];
+function getCaretCoordinates() {
+	let x = 0,
+		y = 0;
+	const isSupported = typeof window.getSelection !== "undefined";
+	if (isSupported) {
+		const sel = window.getSelection();
+		if (!sel || sel.rangeCount === 0) {
+			return;
+		}
+		const range = sel.getRangeAt(0);
+		// we can still workaround the default behavior too
+		const rects = range.getClientRects();
+		if (!rects.length) {
+			if (range.startContainer && range.collapsed) {
+				range.selectNodeContents(range.startContainer);
+			}
+		}
 
+		let position = range.getBoundingClientRect();
+		const char_before = range.startContainer.textContent;
+
+		x = position.x;
+		y = position.y + window.scrollY - 100;
+		if (y > 0) {
+			window.scrollTo({ top: y, behavior: "smooth" });
+		}
+	}
+	// return { x, y };
+}
 const SlateReact = () => {
 	let id = v4();
 	let updateAmount = useModalStore((state) => state.updateModal);
-	function getCaretCoordinates() {
-		let x = 0,
-			y = 0;
-		const isSupported = typeof window.getSelection !== "undefined";
-		if (isSupported) {
-			const sel = window.getSelection();
-			if (!sel || sel.rangeCount === 0) {
-				return;
-			}
-			const range = sel.getRangeAt(0);
-			// we can still workaround the default behavior too
-			const rects = range.getClientRects();
-			if (!rects.length) {
-				if (range.startContainer && range.collapsed) {
-					range.selectNodeContents(range.startContainer);
-				}
-			}
 
-			let position = range.getBoundingClientRect();
-			const char_before = range.startContainer.textContent;
-
-			// if we are on a \n
-			//
-			// if (range.collapsed && !char_before) {
-			// 	// create a clone of our Range so we don't mess with the visible one
-			// 	const clone = range.cloneRange();
-			// 	sel.removeAllRanges();
-			// 	sel.addRange(clone);
-
-			// 	position = clone.getBoundingClientRect();
-
-			// 	// check if we are experiencing a bug
-			// 	// clone.setStart(range.startContainer, range.startOffset - 1);
-			// 	// if (clone.getBoundingClientRect().top === position.top) {
-			// 	// 	// make it select the next character
-			// 	// 	clone.setStart(range.startContainer, range.startOffset + 1);
-			// 	// 	position = clone.getBoundingClientRect();
-			// 	// }
-			// }
-
-			x = position.x;
-			y = position.y + window.scrollY - 100;
-			setState({ text: y });
-			if (y > 0) {
-				window.scrollTo({ top: y, behavior: "smooth" });
-				// const text = Node.leaf(editor, editor.selection.anchor.path);
-				// if (text.text.length == 1) {
-				// 	Transforms.delete(editor, { at: editor.selection.anchor, unit: "offset", distance: 1 });
-				// }
-			}
-		}
-		// return { x, y };
-	}
 	useEffect(() => {
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
@@ -368,7 +344,6 @@ const SlateReact = () => {
 				onChange={(e) => {
 					const string = Node.leaf(editor, editor.selection.anchor.path);
 
-					const isActive = isMarkActive(editor, "bold");
 					if (string.text.startsWith("1. ")) {
 						toggleBlock(editor, "numbered-list", "number");
 						Transforms.delete(editor, {
@@ -479,7 +454,7 @@ const SlateReact = () => {
 						Transforms.setNodes(editor, block);
 						ReactEditor.focus(editor);
 					}}>
-					insert void
+					insert void123
 				</div>
 
 				<div
@@ -524,31 +499,23 @@ const SlateReact = () => {
 								toggleMark(editor, mark);
 							}
 						}
-
 						leftCheck = false;
 						rightCheck = false;
-
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug",
 						});
-
 						// setState({ text: selectedLeaf.text });
-
 						if (event.key == "Enter" && event.shiftKey && listItems && listItems[0].type == "list-item") {
 							event.preventDefault();
-
 							const nextNode = Editor.next(editor, {
 								at: editor.selection.anchor.path,
 							});
-
 							Transforms.insertNodes(editor, {
 								children: [{ text: "", type: "inline-bug" }],
 								type: "inline-bug",
 							});
 							// const block = { type: "inline-bug", children: [] };
-
 							// Transforms.wrapNodes(editor, block);
-
 							Transforms.move(editor, { unit: "offset", distance: 1 });
 						} else if (event.key == "ArrowLeft") {
 							leftCheck = true;
