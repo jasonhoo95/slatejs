@@ -730,20 +730,18 @@ const KatexComponent = ({ attributes, children, element }) => {
 	return (
 		<span
 			onClick={(e) => {
-				document.body.scrollTop = 0; // For Safari
-				document.documentElement.scrollTop = 0;
-				let data = {
-					element: element,
-					editor: editor,
-					click: true,
-					type: "katex",
-					edit: true,
-					open: true,
-					path: ReactEditor.findPath(editor, element),
-				};
-				updateModal(data);
-				// updateClick(element.id);
-				// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "modal");
+				if (focused) {
+					let data = {
+						element: element,
+						editor: editor,
+						click: true,
+						type: "katex",
+						edit: true,
+						open: true,
+						path: ReactEditor.findPath(editor, element),
+					};
+					updateModal(data);
+				}
 			}}
 			//
 			style={{
@@ -829,13 +827,7 @@ const BlockButton = ({ format, icon }) => {
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
-					// let data = {
-					// 	url: "jkl",
-					// 	editor: editor,
-					// 	path: editor.selection.anchor,
-					// 	open: true,
-					// };
-					// updateAmount(data);
+					event.preventDefault();
 					insertKatex(editor, "jjk", updateAmount);
 					// getCaretCoordinates();
 				}}>
