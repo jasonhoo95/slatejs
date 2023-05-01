@@ -15,6 +15,8 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 	const [check, setCheck] = useState(false);
 	const wrapKatex = (editor) => {
 		let id = v4();
+		console.log(ModalProps, "data return");
+
 		const url = ModalProps.url;
 		const katex = {
 			type: "katex",
@@ -38,7 +40,9 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 		setOpen(false);
 		setCheck(true);
 		let data = {
+			...ModalProps,
 			edit: true,
+			open: false,
 		};
 		updateModal(data);
 	};

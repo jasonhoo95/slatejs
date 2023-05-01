@@ -1167,7 +1167,7 @@ const Element = (props) => {
 		case "paragraph":
 			return (
 				<p
-					style={{ marginTop: "5px", display: "flex" }}
+					style={{ marginTop: "5px" }}
 					{...attributes}>
 					{children}
 					{/* <ZeroWidthText /> */}
@@ -1204,8 +1204,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 			className={
 				leaf.text === ""
 					? css`
-							padding-left: 1px;
-							font-size: 1rem;
+							padding-left: 0.1px;
 					  `
 					: null
 			}
