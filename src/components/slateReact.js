@@ -122,13 +122,13 @@ const SlateReact = () => {
 	const editor = useMemo(() => withInlines(withHistory(withReact(createEditor()))), []);
 	const { deleteFragment, deleteBackward, onChange } = editor;
 
-	useEffect(() => {
-		if (ModalProps?.open) {
-			setOpen(true);
-		} else {
-			setOpen(false);
-		}
-	}, [ModalProps]);
+	// useEffect(() => {
+	// 	if (ModalProps?.open) {
+	// 		setOpen(true);
+	// 	} else {
+	// 		setOpen(false);
+	// 	}
+	// }, [ModalProps]);
 	const { insertBreak } = editor;
 
 	editor.insertBreak = () => {
@@ -331,13 +331,16 @@ const SlateReact = () => {
 
 	return (
 		<div>
-			<ComponentEditModal
-				open={open}
-				setOpen={setOpen}
-				editor={ModalProps?.editor}
-				element={ModalProps?.element}
-				path={ModalProps?.path}
-			/>
+			{ModalProps?.open ? (
+				<ComponentEditModal
+					open={ModalProps?.open ? true : false}
+					// setOpen={setOpen}
+					editor={ModalProps?.editor}
+					element={ModalProps?.element}
+					path={ModalProps?.path}
+				/>
+			) : null}
+
 			{state.text}
 			<Slate
 				editor={editor}
@@ -618,8 +621,6 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
-	document.body.scrollTop = 0; // For Safari
-	document.documentElement.scrollTop = 0;
 	ReactEditor.blur(editor);
 	let data = {
 		url: url,
@@ -1024,16 +1025,6 @@ const ZeroWidthText = () => {
 };
 
 const BannerRed = ({ attributes, children, element }) => {
-	// const editor = useSlate();
-	// const [listItems] = Editor.nodes(editor, {
-	// 	at: editor.selection.anchor,
-	// 	match: (n) => n.type == "banner-red-wrapper",
-	// });
-	// const previousNode = Editor.previous(editor, { at: listItems[1] });
-	// const nextNode = Editor.previous(editor, { at: listItems[1] });
-	// const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
-	//
-
 	return (
 		<div
 			className="banner-red"

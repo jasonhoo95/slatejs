@@ -37,7 +37,7 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 		});
 		ReactEditor.focus(ModalProps.editor);
 
-		setOpen(false);
+		// setOpen(false);
 		setCheck(true);
 		let data = {
 			...ModalProps,
@@ -63,7 +63,7 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 			as={Fragment}>
 			<Dialog
 				onClose={(e) => {
-					setOpen(e);
+					// setOpen(e);
 
 					const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
 
@@ -75,6 +75,11 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 
 						Transforms.move(ModalProps.editor, { reverse: true, unit: "offset", distance: 1 });
 					}
+					let data = {
+						...ModalProps,
+						open: false,
+					};
+					updateModal(data);
 
 					ReactEditor.focus(ModalProps.editor);
 				}}>
@@ -145,7 +150,7 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 											});
 											ReactEditor.focus(ModalProps.editor);
 
-											setOpen(false);
+											// setOpen(false);
 
 											// dispatch(increment());
 										}}
