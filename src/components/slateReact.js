@@ -7,7 +7,7 @@ import { css } from "@emotion/css";
 import { v4 } from "uuid";
 import ComponentEditModal from "./quillProduct/componentEditModal";
 import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from "slate-react";
-import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node } from "slate";
+import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Node } from "slate";
 import { withHistory, HistoryEditor } from "slate-history";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
 
@@ -30,6 +30,8 @@ let backwardCheck = false;
 let leftCheck = false;
 let rightCheck = false;
 let blurCheck = "false";
+let anchorPoint;
+let editorNow;
 // let focusCheck = false;
 const initialValue = [
 	{
@@ -78,35 +80,6 @@ const SlateReact = () => {
 	let id = v4();
 	let updateAmount = useModalStore((state) => state.updateModal);
 
-	useEffect(() => {
-		window.addEventListener("message", function (event) {
-			if (event.data == "bold") {
-				ReactEditor.blur(editor);
-				// toggleMark(editor, "bold");
-				// const url = window.prompt("Enter the URL of the link:");
-				// if (!url) return;
-				// insertLink(editor, url);
-
-				insertKatex(editor, "jjk", updateAmount);
-				if (event.ports[0] != null) {
-					// the port is ready for communication,
-					// so you can use port.postMessage(message); wherever you want
-					var port = event.ports[0];
-					// To listen to messages coming from the Dart side, set the onmessage event listener
-					port.onmessage = function (event) {
-						// event.data contains the message data coming from the Dart side
-					};
-				}
-				// capture port2 coming from the Dart side
-			}
-		});
-
-		window.flutter_inappwebview?.callHandler("handlerFoo").then(function (result) {
-			// print to the console the data coming
-			// from the Flutter side.
-			window.flutter_inappwebview.callHandler("handlerFooWithArgs", 1, true, ["bar", 5], { foo: "baz" }, result);
-		});
-	}, []);
 	const [state, setState] = useState({
 		text: "",
 		numbering: false,
@@ -122,14 +95,46 @@ const SlateReact = () => {
 	const editor = useMemo(() => withInlines(withHistory(withReact(createEditor()))), []);
 	const { deleteFragment, deleteBackward, onChange } = editor;
 
-	// useEffect(() => {
-	// 	if (ModalProps?.open) {
-	// 		setOpen(true);
-	// 	} else {
-	// 		setOpen(false);
-	// 	}
-	// }, [ModalProps]);
 	const { insertBreak } = editor;
+
+	useEffect(() => {
+		window.addEventListener("message", function (event) {
+			if (event.data == "blur") {
+				// let data = {
+				// 	url: url,
+				// 	editor: editor,
+				// 	path: editor.selection.anchor,
+				// 	open: true,
+				// };
+				// updateAmount(data);
+
+				ReactEditor.blur(editor);
+
+				// toggleMark(editor, "bold");
+				// const url = window.prompt("Enter the URL of the link:");
+				// if (!url) return;
+				// insertLink(editor, url);
+
+				// capture port2 coming from the Dart side
+			} else if (event.data == "katex") {
+				event.preventDefault();
+				ReactEditor.blur(editor);
+				insertKatex(editor, "kkasdl", updateAmount);
+			} else if (event.data == "focus") {
+				let data = {
+					type: "focus",
+				};
+				updateAmount(data);
+				ReactEditor.focus(editor);
+			}
+		});
+
+		window.flutter_inappwebview?.callHandler("handlerFoo").then(function (result) {
+			// print to the console the data coming
+			// from the Flutter side.
+			window.flutter_inappwebview.callHandler("handlerFooWithArgs", 1, true, ["bar", 5], { foo: "baz" }, result);
+		});
+	}, [editor]);
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -478,14 +483,16 @@ const SlateReact = () => {
 					autoCapitalize="off"
 					spellCheck={false}
 					onFocus={(event) => {
+						console.log("focus");
+						// if (ModalProps && ModalProps.type) {
+						// 	ReactEditor.blur(editor);
+						// 	updateAmount(null);
+						// }
 						window.addEventListener("resize", getCaretCoordinates);
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
-						// if (ModalProps && ModalProps.open) {
-						// 	ReactEditor.focus(editor);
-						// }
-
+						console.log(e, "blur event");
 						window.removeEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
@@ -621,7 +628,6 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
-	ReactEditor.blur(editor);
 	let data = {
 		url: url,
 		editor: editor,
@@ -629,7 +635,33 @@ const insertKatex = (editor, url, updateAmount) => {
 		open: true,
 	};
 	updateAmount(data);
-	// wrapKatex(editor, url, editor.selection);
+
+	// let id = v4();
+	// const katex = {
+	// 	type: "katex",
+	// 	url,
+	// 	id,
+	// 	children: [{ text: "", type: "katex" }],
+	// };
+	// Transforms.insertNodes(editor, katex);
+	// const nextNode = Editor.next(editor, {
+	// 	at: editor.selection.anchor,
+	// });
+	// Transforms.select(editor, nextNode[1]);
+
+	// Transforms.move(editor);
+
+	// Transforms.insertText(editor, "\u00a0".toString(), {
+	// 	at: editor.selection.anchor,
+	// });
+
+	// ReactEditor.focus(editor);
+
+	// Display the modal here...
+
+	// When the modal is dismissed, restore the selection range
+
+	// alert(editor.selection.anchor.path);
 };
 
 const withInlines = (editor) => {
@@ -829,6 +861,7 @@ const BlockButton = ({ format, icon }) => {
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
 					event.preventDefault();
+					ReactEditor.blur(editor);
 					insertKatex(editor, "jjk", updateAmount);
 					// getCaretCoordinates();
 				}}>

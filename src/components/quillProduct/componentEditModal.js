@@ -64,7 +64,7 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 			<Dialog
 				onClose={(e) => {
 					// setOpen(e);
-
+					ReactEditor.blur(ModalProps.editor);
 					const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
 
 					if (!ModalProps.edit && text.text.length == 0) {
