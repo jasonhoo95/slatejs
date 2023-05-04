@@ -7,7 +7,7 @@ import { css } from "@emotion/css";
 import { v4 } from "uuid";
 import ComponentEditModal from "./quillProduct/componentEditModal";
 import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from "slate-react";
-import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Node } from "slate";
+import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node } from "slate";
 import { withHistory, HistoryEditor } from "slate-history";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
 
