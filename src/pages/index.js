@@ -1,7 +1,9 @@
 import Head from "next/head";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import SlateMobile from "@/components/slateMobile";
 import SlateReact from "@/components/slateReact";
+
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
 import PlainTextExample from "@/components/slatePlainText";
 // import Editor from "@/components/quillProduct/reactQuill";
@@ -24,7 +26,7 @@ export default function Home() {
 				/>
 			</Head>
 
-			<SlateReact />
+			<SlateMobile />
 			{/* <PlainTextExample /> */}
 		</div>
 	);

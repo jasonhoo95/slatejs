@@ -51,15 +51,15 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 		<Transition.Root
 			appear
 			show={open}
-			afterLeave={(e) => {
-				const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
+			// afterLeave={(e) => {
+			// 	const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
 
-				if (!ModalProps.edit && text.text.length == 0) {
-					Transforms.delete(ModalProps.editor, { at: ModalProps.editor.selection.anchor, unit: "offset", distance: 1 });
-				}
-				updateModal(null);
-				updateClick(null);
-			}}
+			// 	if (!ModalProps.edit && text.text.length == 0) {
+			// 		Transforms.delete(ModalProps.editor, { at: ModalProps.editor.selection.anchor, unit: "offset", distance: 1 });
+			// 	}
+			// 	updateModal(null);
+			// 	updateClick(null);
+			// }}
 			as={Fragment}>
 			<Dialog
 				onClose={(e) => {
@@ -74,6 +74,9 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 						// Transforms.delete(ModalProps.editor, { at: ModalProps.editor.selection.anchor, reverse: true, unit: "offset", distance: 1 });
 
 						Transforms.move(ModalProps.editor, { reverse: true, unit: "offset", distance: 1 });
+						setTimeout(() => {
+							Transforms.delete(ModalProps.editor, { at: ModalProps.editor.selection.anchor, unit: "offset", distance: 1 });
+						}, 10);
 					}
 					let data = {
 						...ModalProps,

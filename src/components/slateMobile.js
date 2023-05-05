@@ -76,7 +76,7 @@ function getCaretCoordinates() {
 	}
 	// return { x, y };
 }
-const SlateReact = () => {
+const SlateMobile = () => {
 	let id = v4();
 	let updateAmount = useModalStore((state) => state.updateModal);
 
@@ -99,42 +99,13 @@ const SlateReact = () => {
 
 	useEffect(() => {
 		window.addEventListener("message", function (event) {
-			if (event.data == "blur") {
-				// let data = {
-				// 	url: url,
-				// 	editor: editor,
-				// 	path: editor.selection.anchor,
-				// 	open: true,
-				// };
-				// updateAmount(data);
-
-				ReactEditor.blur(editor);
-
-				// toggleMark(editor, "bold");
-				// const url = window.prompt("Enter the URL of the link:");
-				// if (!url) return;
-				// insertLink(editor, url);
-
-				// capture port2 coming from the Dart side
+			if (event.data == "bold") {
+				toggleMark(editor, "bold");
 			} else if (event.data == "katex") {
-				event.preventDefault();
-				ReactEditor.blur(editor);
 				insertKatex(editor, "kkasdl", updateAmount);
-			} else if (event.data == "focus") {
-				let data = {
-					type: "focus",
-				};
-				updateAmount(data);
-				ReactEditor.focus(editor);
 			}
 		});
-
-		window.flutter_inappwebview?.callHandler("handlerFoo").then(function (result) {
-			// print to the console the data coming
-			// from the Flutter side.
-			window.flutter_inappwebview.callHandler("handlerFooWithArgs", 1, true, ["bar", 5], { foo: "baz" }, result);
-		});
-	}, [editor]);
+	}, []);
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -306,6 +277,15 @@ const SlateReact = () => {
 		}
 	};
 
+	const handleDialogDismiss = useCallback(() => {
+		// Delay calling the focus function by 100ms
+		setTimeout(() => {
+			if (editor) {
+				ReactEditor.focus(editor);
+			}
+		}, 100);
+	}, []);
+
 	editor.deleteFragment = (...args) => {
 		const firstNode = Editor.fragment(editor, editor.selection.anchor);
 		const lastNode = Editor.fragment(editor, editor.selection.focus);
@@ -476,13 +456,6 @@ const SlateReact = () => {
 					heading one
 				</div>
 
-				<div
-					onClick={(e) => {
-						ReactEditor.focus(editor);
-					}}>
-					focus now
-				</div>
-
 				<Editable
 					renderElement={renderElement}
 					style={{ padding: "10px" }}
@@ -490,16 +463,15 @@ const SlateReact = () => {
 					autoCapitalize="off"
 					spellCheck={false}
 					onFocus={(event) => {
-						console.log("focus");
 						// if (ModalProps && ModalProps.type) {
-						// 	ReactEditor.blur(editor);
+						// 	ReactEditor.focus(editor);
 						// 	updateAmount(null);
 						// }
+
 						window.addEventListener("resize", getCaretCoordinates);
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 					}}
 					onBlur={(e) => {
-						console.log(e, "blur event");
 						window.removeEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
@@ -548,12 +520,6 @@ const SlateReact = () => {
 					}}
 				/>
 			</Slate>
-			<div
-				onClick={(e) => {
-					ReactEditor.blur(editor);
-				}}>
-				blur now
-			</div>
 		</div>
 	);
 };
@@ -1183,4 +1149,4 @@ const Leaf = ({ attributes, children, leaf }) => {
 	);
 };
 
-export default SlateReact;
+export default SlateMobile;
