@@ -10,7 +10,6 @@ import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocu
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node } from "slate";
 import { withHistory, HistoryEditor } from "slate-history";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
-
 import { useModalStore } from "@/globals/zustandGlobal";
 
 import _ from "lodash";
@@ -92,49 +91,10 @@ const SlateReact = () => {
 	const [open, setOpen] = useState(false);
 	const renderElement = useCallback((props) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
-	const editor = useMemo(() => withInlines(withHistory(withReact(createEditor()))), []);
+	const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
 	const { deleteFragment, deleteBackward, onChange } = editor;
 
 	const { insertBreak } = editor;
-
-	useEffect(() => {
-		window.addEventListener("message", function (event) {
-			if (event.data == "blur") {
-				// let data = {
-				// 	url: url,
-				// 	editor: editor,
-				// 	path: editor.selection.anchor,
-				// 	open: true,
-				// };
-				// updateAmount(data);
-
-				ReactEditor.blur(editor);
-
-				// toggleMark(editor, "bold");
-				// const url = window.prompt("Enter the URL of the link:");
-				// if (!url) return;
-				// insertLink(editor, url);
-
-				// capture port2 coming from the Dart side
-			} else if (event.data == "katex") {
-				event.preventDefault();
-				ReactEditor.blur(editor);
-				insertKatex(editor, "kkasdl", updateAmount);
-			} else if (event.data == "focus") {
-				let data = {
-					type: "focus",
-				};
-				updateAmount(data);
-				ReactEditor.focus(editor);
-			}
-		});
-
-		window.flutter_inappwebview?.callHandler("handlerFoo").then(function (result) {
-			// print to the console the data coming
-			// from the Flutter side.
-			window.flutter_inappwebview.callHandler("handlerFooWithArgs", 1, true, ["bar", 5], { foo: "baz" }, result);
-		});
-	}, [editor]);
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -340,7 +300,7 @@ const SlateReact = () => {
 				<ComponentEditModal
 					open={ModalProps?.open ? true : false}
 					// setOpen={setOpen}
-					editor={ModalProps?.editor}
+					editor={editor}
 					element={ModalProps?.element}
 					path={ModalProps?.path}
 				/>
@@ -476,12 +436,7 @@ const SlateReact = () => {
 					heading one
 				</div>
 
-				<div
-					onClick={(e) => {
-						ReactEditor.focus(editor);
-					}}>
-					focus now
-				</div>
+				<div onClick={(e) => {}}>focus now</div>
 
 				<Editable
 					renderElement={renderElement}
@@ -500,6 +455,7 @@ const SlateReact = () => {
 					}}
 					onBlur={(e) => {
 						console.log(e, "blur event");
+						editorNow = editor;
 						window.removeEventListener("resize", getCaretCoordinates);
 
 						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
@@ -644,6 +600,7 @@ const insertKatex = (editor, url, updateAmount) => {
 	let data = {
 		url: url,
 		editor: editor,
+		ReactEditor: ReactEditor,
 		path: editor.selection.anchor,
 		open: true,
 	};

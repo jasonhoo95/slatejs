@@ -92,20 +92,25 @@ const SlateMobile = () => {
 	const [open, setOpen] = useState(false);
 	const renderElement = useCallback((props) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
-	const editor = useMemo(() => withInlines(withHistory(withReact(createEditor()))), []);
+	const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
 	const { deleteFragment, deleteBackward, onChange } = editor;
 
 	const { insertBreak } = editor;
+	const savedSelection = React.useRef(editor.selection);
 
 	useEffect(() => {
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
+			} else if (event.data == "blur") {
+				ReactEditor.blur(editor);
 			} else if (event.data == "katex") {
 				insertKatex(editor, "kkasdl", updateAmount);
+			} else if (event.data == "focus") {
+				ReactEditor.focus(editor);
 			}
 		});
-	}, []);
+	}, [editor]);
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -277,15 +282,6 @@ const SlateMobile = () => {
 		}
 	};
 
-	const handleDialogDismiss = useCallback(() => {
-		// Delay calling the focus function by 100ms
-		setTimeout(() => {
-			if (editor) {
-				ReactEditor.focus(editor);
-			}
-		}, 100);
-	}, []);
-
 	editor.deleteFragment = (...args) => {
 		const firstNode = Editor.fragment(editor, editor.selection.anchor);
 		const lastNode = Editor.fragment(editor, editor.selection.focus);
@@ -313,6 +309,23 @@ const SlateMobile = () => {
 			}
 		}
 	};
+
+	const onFocus = useCallback(() => {
+		setFocus(true);
+		if (!editor.selection) {
+			Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
+		}
+		window.addEventListener("resize", getCaretCoordinates);
+		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
+	}, [editor]);
+
+	const onBlur = useCallback(() => {
+		setFocus(false);
+		savedSelection.current = editor.selection;
+		window.removeEventListener("resize", getCaretCoordinates);
+
+		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
+	}, [editor]);
 
 	return (
 		<div>
@@ -429,6 +442,11 @@ const SlateMobile = () => {
 					icon="format_list_item"
 				/>
 
+				<BlockButton
+					format="focus"
+					icon="format_list_item"
+				/>
+
 				<MarkButton
 					format="bold"
 					icon="format_bold"
@@ -444,6 +462,15 @@ const SlateMobile = () => {
 					}}>
 					insert void123
 				</div>
+
+				{/* <div
+					onClick={(e) => {
+						console.log(editorNow.selection.anchor.path, "focus path");
+						Transforms.select(editorNow, editorNow.selection);
+						ReactEditor.focus(editorNow);
+					}}>
+					focus now
+				</div> */}
 
 				<div
 					onClick={(e) => {
@@ -462,20 +489,8 @@ const SlateMobile = () => {
 					ref={contentEditableRef}
 					autoCapitalize="off"
 					spellCheck={false}
-					onFocus={(event) => {
-						// if (ModalProps && ModalProps.type) {
-						// 	ReactEditor.focus(editor);
-						// 	updateAmount(null);
-						// }
-
-						window.addEventListener("resize", getCaretCoordinates);
-						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
-					}}
-					onBlur={(e) => {
-						window.removeEventListener("resize", getCaretCoordinates);
-
-						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
-					}}
+					onFocus={onFocus}
+					onBlur={onBlur}
 					autoFocus={false}
 					className="editable-slate"
 					id={id}
@@ -607,13 +622,29 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
-	let data = {
-		url: url,
-		editor: editor,
-		path: editor.selection.anchor,
-		open: true,
+	// let data = {
+	// 	url: url,
+	// 	editor: editor,
+	// 	path: editor.selection.anchor,
+	// 	open: true,
+	// };
+	let id = v4();
+	const katex = {
+		type: "katex",
+		url,
+		id,
+		children: [{ text: "", type: "katex" }],
 	};
-	updateAmount(data);
+	Transforms.insertNodes(editor, katex);
+
+	Transforms.move(editor);
+
+	Transforms.insertText(editor, "\u00a0".toString(), {
+		at: editor.selection.anchor,
+	});
+	updateAmount("katex");
+
+	ReactEditor.focus(editor);
 };
 
 const withInlines = (editor) => {
@@ -793,6 +824,15 @@ const BlockButton = ({ format, icon }) => {
 					insertLink(editor, url);
 				}}>
 				URL LINK
+			</div>
+		);
+	} else if (format == "focus") {
+		return (
+			<div
+				onClick={(e) => {
+					ReactEditor.focus(editor);
+				}}>
+				focus now
 			</div>
 		);
 	} else if (format == "banner-red") {

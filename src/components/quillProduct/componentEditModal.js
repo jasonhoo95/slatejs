@@ -64,7 +64,6 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 			<Dialog
 				onClose={(e) => {
 					// setOpen(e);
-					ReactEditor.blur(ModalProps.editor);
 					const text = Node.leaf(ModalProps.editor, ModalProps.editor.selection.anchor.path);
 
 					if (!ModalProps.edit && text.text.length == 0) {
@@ -83,8 +82,10 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 						open: false,
 					};
 					updateModal(data);
+					console.log(ModalProps.editor.selection.anchor, "modal anchir");
+					console.log(editor.selection.anchor, "modal editor");
 
-					ReactEditor.focus(ModalProps.editor);
+					ReactEditor.focus(editor);
 				}}>
 				<Transition.Child
 					as={Fragment}
