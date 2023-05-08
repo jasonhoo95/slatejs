@@ -108,6 +108,7 @@ const SlateMobile = () => {
 				insertKatex(editor, "kkasdl", updateAmount);
 			} else if (event.data == "focus") {
 				ReactEditor.focus(editor);
+				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus ios");
 			}
 		});
 	}, [editor]);
@@ -312,16 +313,16 @@ const SlateMobile = () => {
 
 	const onFocus = useCallback(() => {
 		setFocus(true);
-		if (!editor.selection) {
-			Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
-		}
+		console.log(savedSelection.current, "saved current");
+		// Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
+
 		window.addEventListener("resize", getCaretCoordinates);
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
 	}, [editor]);
 
 	const onBlur = useCallback(() => {
 		setFocus(false);
-		savedSelection.current = editor.selection;
+		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
 
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
@@ -329,7 +330,7 @@ const SlateMobile = () => {
 
 	return (
 		<div>
-			{ModalProps?.open ? (
+			{/* {ModalProps?.open ? (
 				<ComponentEditModal
 					open={ModalProps?.open ? true : false}
 					// setOpen={setOpen}
@@ -337,7 +338,7 @@ const SlateMobile = () => {
 					element={ModalProps?.element}
 					path={ModalProps?.path}
 				/>
-			) : null}
+			) : null} */}
 
 			{state.text}
 			<Slate
@@ -354,79 +355,12 @@ const SlateMobile = () => {
 						});
 
 						// checklist(editor);
+					} else if (ModalProps?.type == "katex") {
+						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", { type: "katex" });
 					}
 					backwardCheck = false;
-
-					// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", { type: "bold", active: isActive });
 				}}
 				value={initialValue}>
-				{/* <div
-					style={{
-						position: "fixed",
-						background: "red",
-						overflowX: "auto",
-						left: 0,
-						top: 0,
-						width: "100%",
-						display: "flex",
-						height: "50px",
-						zIndex: 30,
-						padding: "10px",
-					}}>
-					<BlockButton
-						format="katex-link"
-						icon="format_list_item"
-					/>
-
-					<BlockButton
-						format="bulleted-list"
-						icon="format_list_numbered"
-					/>
-
-					<BlockButton
-						format="numbered-list"
-						icon="format_list_item"
-					/>
-
-					<BlockButton
-						format="banner-red"
-						icon="format_list_item"
-					/>
-				
-
-					<div
-						onClick={(e) => {
-							e.preventDefault();
-
-							const block = { type: "heading-one", children: [{ type: "header-one" }] };
-							Transforms.setNodes(editor, block);
-
-							getCaretCoordinates();
-							ReactEditor.focus(editor);
-						}}>
-						Heading (1-1)
-					</div>
-				</div> */}
-
-				{/* <MarkButton
-					format="bold"
-					icon="format_bold"
-				/>
-				<BlockButton
-					format="bulleted-list"
-					icon="format_list_numbered"
-				/>
-				<BlockButton
-					format="numbered-list"
-					icon="format_list_item"
-				/>
-
-				<BlockButton
-					format="katex-link"
-					icon="format_list_item"
-				/>
- */}
-
 				<BlockButton
 					format="url-link"
 					icon="format_list_item"

@@ -77,15 +77,16 @@ export default function ComponentEditModal({ open, setOpen, path, editor, elemen
 							Transforms.delete(ModalProps.editor, { at: ModalProps.editor.selection.anchor, unit: "offset", distance: 1 });
 						}, 10);
 					}
+
+					console.log(ModalProps.editor.selection.anchor, "modal anchir");
+					console.log(editor.selection.anchor, "modal editor");
+
+					ReactEditor.focus(editor);
 					let data = {
 						...ModalProps,
 						open: false,
 					};
 					updateModal(data);
-					console.log(ModalProps.editor.selection.anchor, "modal anchir");
-					console.log(editor.selection.anchor, "modal editor");
-
-					ReactEditor.focus(editor);
 				}}>
 				<Transition.Child
 					as={Fragment}
