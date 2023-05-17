@@ -80,16 +80,10 @@ const SlateMobile = () => {
 	let id = v4();
 	let updateAmount = useModalStore((state) => state.updateModal);
 
-	const [state, setState] = useState({
-		text: "",
-		numbering: false,
-		backward: false,
-	});
 	const [focus, setFocus] = useState(true);
 	const ModalProps = useModalStore((state) => state.amount);
 	const contentEditableRef = useRef(null);
 
-	const [open, setOpen] = useState(false);
 	const renderElement = useCallback((props) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
 	const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
@@ -104,11 +98,14 @@ const SlateMobile = () => {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
 				ReactEditor.blur(editor);
+				this.window.removeEventListener("message", this);
+				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
 			} else if (event.data == "katex") {
 				insertKatex(editor, "kkasdl", updateAmount);
 			} else if (event.data == "focus") {
 				ReactEditor.focus(editor);
-				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus ios");
+				this.window.removeEventListener("message", this);
+				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus1");
 			}
 		});
 	}, [editor]);
@@ -284,9 +281,6 @@ const SlateMobile = () => {
 	};
 
 	editor.deleteFragment = (...args) => {
-		const firstNode = Editor.fragment(editor, editor.selection.anchor);
-		const lastNode = Editor.fragment(editor, editor.selection.focus);
-
 		deleteFragment(...args);
 
 		const listItems = Editor.nodes(editor, {
@@ -318,7 +312,7 @@ const SlateMobile = () => {
 
 		window.addEventListener("resize", getCaretCoordinates);
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
-	}, [editor]);
+	}, []);
 
 	const onBlur = useCallback(() => {
 		setFocus(false);
@@ -326,21 +320,10 @@ const SlateMobile = () => {
 		window.removeEventListener("resize", getCaretCoordinates);
 
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
-	}, [editor]);
+	}, []);
 
 	return (
 		<div>
-			{/* {ModalProps?.open ? (
-				<ComponentEditModal
-					open={ModalProps?.open ? true : false}
-					// setOpen={setOpen}
-					editor={ModalProps?.editor}
-					element={ModalProps?.element}
-					path={ModalProps?.path}
-				/>
-			) : null} */}
-
-			{state.text}
 			<Slate
 				editor={editor}
 				onChange={(e) => {
