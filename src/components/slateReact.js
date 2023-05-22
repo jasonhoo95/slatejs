@@ -101,19 +101,20 @@ const SlateReact = () => {
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
-			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex",
+			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex" || n.type == "check-list-item",
 		});
 		let currentParent, currentDescendant;
 		for (const listItem of listItems) {
 			currentParent = Editor.node(editor, listItem[1]);
 			currentDescendant = Node.descendant(editor, listItem[1], { match: (n) => n.type == "paragraph" });
 		}
-		const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "paragraph" });
-
-		if (currentParent && ["list-item"].includes(currentParent[0].type) && currentParent[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
-			toggleBlock(editor, currentParent[0].type);
-		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
-			toggleBlock(editor, currentParent[0].type);
+		const parentCheck = Editor.parent(editor, editor.selection.anchor.path);
+		if (currentParent && currentParent[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
+			if (currentParent[0].type == "check-list-item") {
+				Transforms.setNodes(editor, { type: "paragraph" });
+			} else {
+				toggleBlock(editor, currentParent[0].type);
+			}
 		} else {
 			insertBreak();
 			const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
@@ -427,6 +428,16 @@ const SlateReact = () => {
 
 				<div
 					onClick={(e) => {
+						const typeCheckList = { text: "", type: "check-list-item" };
+
+						Transforms.setNodes(editor, typeCheckList);
+						ReactEditor.focus(editor);
+					}}>
+					check list
+				</div>
+
+				<div
+					onClick={(e) => {
 						const text = { text: "", type: "heading-one" };
 						// const block = { type: "editable-void", children: [text] };
 
@@ -475,14 +486,12 @@ const SlateReact = () => {
 						leftCheck = false;
 						rightCheck = false;
 						const [listItems] = Editor.nodes(editor, {
-							match: (n) => n.type === "list-item" || n.type == "inline-bug",
+							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item",
 						});
 						// setState({ text: selectedLeaf.text });
-						if (event.key == "Enter" && event.shiftKey && listItems && listItems[0].type == "list-item") {
+						if (event.key == "Enter" && event.shiftKey && listItems) {
 							event.preventDefault();
-							const nextNode = Editor.next(editor, {
-								at: editor.selection.anchor.path,
-							});
+
 							Transforms.insertNodes(editor, {
 								children: [{ text: "", type: "inline-bug" }],
 								type: "inline-bug",
@@ -696,6 +705,56 @@ const InlineChromiumBugfix = ({ attributes, children, element }) => {
 	);
 };
 
+const CheckListItemElement = ({ attributes, children, element }) => {
+	const editor = useSlate();
+	const { checked } = element;
+	return (
+		<div
+			{...attributes}
+			className={css`
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+
+				& + & {
+					margin-top: 0;
+				}
+			`}>
+			<span
+				contentEditable={false}
+				className={css`
+					margin-right: 0.75em;
+					margin-bottom: auto;
+				`}>
+				<input
+					type="checkbox"
+					checked={checked}
+					onChange={(event) => {
+						const path = ReactEditor.findPath(editor, element);
+						const newProperties = {
+							checked: event.target.checked,
+						};
+						Transforms.setNodes(editor, newProperties, { at: path });
+					}}
+				/>
+			</span>
+			<span
+				contentEditable={true}
+				className={css`
+					flex: 1;
+					opacity: ${checked ? 0.666 : 1};
+					text-decoration: ${!checked ? "none" : "line-through"};
+
+					&:focus {
+						outline: none;
+					}
+				`}>
+				{children}
+			</span>
+		</div>
+	);
+};
+
 const KatexComponent = ({ attributes, children, element }) => {
 	const katextext = katex.renderToString(String.raw`${element.url}`);
 	const editor = useSlate();
@@ -837,9 +896,10 @@ const toggleMark = (editor, format) => {
 };
 
 const toggleBlock = (editor, format, type) => {
+	console.log("toggle block");
 	const isActive = isBlockActive(editor, format, TEXT_ALIGN_TYPES.includes(format) ? "align" : "type");
 	const isList = LIST_TYPES.includes(format) || format == "banner-red-wrapper";
-	let LIST_PARENT = ["numbered-list", "bulleted-list"];
+	let LIST_PARENT = ["numbered-list", "bulleted-list", "check-list-item"];
 	let formatCheck;
 
 	if (format == "list-item") {
@@ -1039,6 +1099,8 @@ const Element = (props) => {
 			return <InlineChromiumBugfix {...props} />;
 		case "inline-wrapper-bug":
 			return <InlineWrapperBug {...props} />;
+		case "check-list-item":
+			return <CheckListItemElement {...props} />;
 		case "editable-void":
 			return <EditableVoid {...props}></EditableVoid>;
 		case "heading-one":

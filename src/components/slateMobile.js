@@ -70,6 +70,7 @@ function getCaretCoordinates() {
 
 		x = position.x;
 		y = position.y + window.scrollY - 100;
+		anchorPoint = y;
 		if (y > 0) {
 			window.scrollTo({ top: y, behavior: "smooth" });
 		}
@@ -97,6 +98,7 @@ const SlateMobile = () => {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
+				window.scrollTo(0, 0);
 				ReactEditor.blur(editor);
 				this.window.removeEventListener("message", this);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
@@ -104,8 +106,6 @@ const SlateMobile = () => {
 				insertKatex(editor, "kkasdl", updateAmount);
 			} else if (event.data == "focus") {
 				ReactEditor.focus(editor);
-				this.window.removeEventListener("message", this);
-				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus1");
 			}
 		});
 	}, [editor]);
@@ -324,6 +324,7 @@ const SlateMobile = () => {
 
 	return (
 		<div>
+			{anchorPoint}
 			<Slate
 				editor={editor}
 				onChange={(e) => {
@@ -338,8 +339,6 @@ const SlateMobile = () => {
 						});
 
 						// checklist(editor);
-					} else if (ModalProps?.type == "katex") {
-						window.flutter_inappwebview?.callHandler("handlerFooWithArgs", { type: "katex" });
 					}
 					backwardCheck = false;
 				}}
