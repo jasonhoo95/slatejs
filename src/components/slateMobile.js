@@ -105,6 +105,10 @@ const SlateMobile = () => {
 			} else if (event.data == "katex") {
 				insertKatex(editor, "kkasdl", updateAmount);
 			} else if (event.data == "focus") {
+				const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
+				if (parentCheck[0].type == "katex") {
+					Transforms.move(editor, { distance: 1, unit: "offset" });
+				}
 				ReactEditor.focus(editor);
 			}
 		});
@@ -324,7 +328,6 @@ const SlateMobile = () => {
 
 	return (
 		<div>
-			{anchorPoint}
 			<Slate
 				editor={editor}
 				onChange={(e) => {
@@ -654,26 +657,14 @@ const InlineChromiumBugfix = ({ attributes, children, element }) => {
 
 const KatexComponent = ({ attributes, children, element }) => {
 	const katextext = katex.renderToString(String.raw`${element.url}`);
-	const editor = useSlate();
 	const selected = useSelected();
 	const focused = useFocused();
-	let updateModal = useModalStore((state) => state.updateModal);
 
 	return (
 		<span
 			onClick={(e) => {
 				if (focused) {
 					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex");
-					let data = {
-						element: element,
-						editor: editor,
-						click: true,
-						type: "katex",
-						edit: true,
-						open: true,
-						path: ReactEditor.findPath(editor, element),
-					};
-					updateModal(data);
 				}
 			}}
 			//
