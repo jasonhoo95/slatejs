@@ -663,6 +663,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 		<span
 			onClick={(e) => {
 				if (focused) {
+					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex");
 					let data = {
 						element: element,
 						editor: editor,
