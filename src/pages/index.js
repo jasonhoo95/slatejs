@@ -3,15 +3,15 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import SlateMobile from "@/components/slateMobile";
 import SlateReact from "@/components/slateReact";
-
+import PlainTextExample from "@/components/plainText";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
-import PlainTextExample from "@/components/slatePlainText";
+import { Slate } from "slate-react";
 // import Editor from "@/components/quillProduct/reactQuill";
 export default function Home() {
 	const BearProps = useBearStore((state) => state.updateBears);
 	const BearValue = useBearStore((state) => state.bears);
 	const AuthProps = useAuthStore((state) => state.increaseAuth);
-
+	const arrayvalue = [1, 2, 3, 4, 5];
 	return (
 		<div className="m-8 main-wrapper">
 			<Head>
@@ -27,6 +27,7 @@ export default function Home() {
 			</Head>
 
 			<SlateMobile />
+
 			{/* <PlainTextExample /> */}
 		</div>
 	);

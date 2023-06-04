@@ -8,13 +8,15 @@ import { v4 } from "uuid";
 import ComponentEditModal from "./quillProduct/componentEditModal";
 import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from "slate-react";
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node } from "slate";
-import { withHistory, HistoryEditor } from "slate-history";
+import { withHistory, HistoryEditor, History } from "slate-history";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
-
+import PlainTextExample from "./plainText";
 import { useModalStore } from "@/globals/zustandGlobal";
-
-import _ from "lodash";
+import EditablePopup from "./editablePopup";
+import _, { keyBy } from "lodash";
 import next from "next";
+import SlateReact from "./slateReact";
+import { Transform } from "stream";
 const HOTKEYS = {
 	"mod+b": "bold",
 	"mod+i": "italic",
@@ -27,6 +29,7 @@ const TEXT_ALIGN_TYPES = ["left", "center", "right", "justify"];
 const FORMAT_TYPES = ["bold", "italic", "underline"];
 const FORMAT_NONE = ["numbered-list", "paragraph"];
 let backwardCheck = false;
+
 let leftCheck = false;
 let rightCheck = false;
 let blurCheck = "false";
@@ -42,10 +45,15 @@ const initialValue = [
 			},
 		],
 	},
-	// {
-	// 	type: "editable-void",
-	// 	children: [{ text: "" }],
-	// },
+
+	{
+		type: "paragraph",
+		children: [
+			{
+				text: "aasd ad asd asd a da",
+			},
+		],
+	},
 ];
 function getCaretCoordinates() {
 	let x = 0,
@@ -110,6 +118,7 @@ const SlateMobile = () => {
 					Transforms.move(editor, { distance: 1, unit: "offset" });
 				}
 				ReactEditor.focus(editor);
+				window.removeEventListener("resize", getCaretCoordinates);
 			}
 		});
 	}, [editor]);
@@ -155,13 +164,13 @@ const SlateMobile = () => {
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["banner-red-wrapper", "paragraph", "list-item"].includes(n.type),
+			match: (n) => ["banner-red-wrapper", "paragraph", "list-item", "editable-void"].includes(n.type),
 		});
-
 		if (listItems) {
 			listItemParent = Editor.node(editor, listItems[1]);
 			previousParent = Editor.previous(editor, {
 				at: listItems[1],
+				match: (n) => ["banner-red-wrapper", "list-item", "editable-void"].includes(n.type),
 			});
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
@@ -270,6 +279,7 @@ const SlateMobile = () => {
 
 				if (!backwardCheck) {
 					backwardCheck = true;
+
 					const currentNode = Editor.node(editor, editor.selection.anchor.path);
 					const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
 					const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
@@ -311,15 +321,16 @@ const SlateMobile = () => {
 
 	const onFocus = useCallback(() => {
 		setFocus(true);
-		console.log(savedSelection.current, "saved current");
+
 		// Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
 		window.addEventListener("resize", getCaretCoordinates);
-		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus");
+		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
 	}, []);
 
 	const onBlur = useCallback(() => {
 		setFocus(false);
+
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
 
@@ -347,14 +358,14 @@ const SlateMobile = () => {
 				}}
 				value={initialValue}>
 				<BlockButton
+					format="katex-link"
+					icon="format_list_item"
+				/>
+				{/* <BlockButton
 					format="url-link"
 					icon="format_list_item"
 				/>
 
-				<BlockButton
-					format="katex-link"
-					icon="format_list_item"
-				/>
 
 				<BlockButton
 					format="banner-red"
@@ -369,22 +380,52 @@ const SlateMobile = () => {
 				<MarkButton
 					format="bold"
 					icon="format_bold"
-				/>
+				/> */}
 
 				<div
 					onClick={(e) => {
-						const text = { text: "", type: "heading-one" };
-						const block = { type: "editable-void", children: [text] };
+						const block = {
+							type: "editable-void",
+							card: [],
+							children: [],
+						};
+						const block1 = {
+							type: "dropdown-content",
+							children: [
+								// {
+								// 	type: "paragraph",
+								// 	children: [
+								// 		{
+								// 			type: "heading-two",
+								// 			children: [{ text: "oklah" }],
+								// 		},
+								// 	],
+								// },
 
-						Transforms.setNodes(editor, block);
-						ReactEditor.focus(editor);
+								{
+									type: "dropdown-inner",
+									children: [
+										{
+											type: "paragraph",
+											children: [
+												{
+													text: "123oklsa",
+												},
+											],
+										},
+									],
+								},
+							],
+						};
+
+						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
 					}}>
 					insert void123
 				</div>
 
 				{/* <div
 					onClick={(e) => {
-						console.log(editorNow.selection.anchor.path, "focus path");
+						
 						Transforms.select(editorNow, editorNow.selection);
 						ReactEditor.focus(editorNow);
 					}}>
@@ -447,6 +488,8 @@ const SlateMobile = () => {
 						} else if (event.metaKey && event.key === "z" && !event.shiftKey) {
 							event.preventDefault();
 							HistoryEditor.undo(editor);
+
+							// document.execCommand("undo");
 						} else if (event.metaKey && event.shiftKey && event.key === "z") {
 							event.preventDefault();
 							HistoryEditor.redo(editor);
@@ -454,6 +497,11 @@ const SlateMobile = () => {
 					}}
 				/>
 			</Slate>
+			<div
+				onInput={(e) => {}}
+				contentEditable="true">
+				asd asdasd asd asd asd asd as
+			</div>
 		</div>
 	);
 };
@@ -571,7 +619,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "editable-void", "inline-bug", "link"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "link", "editable-void"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" ? true : markableVoid(element);
@@ -689,6 +737,16 @@ const isLinkActive = (editor) => {
 		match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === "link",
 	});
 	return !!link;
+};
+
+const DropdownInner = ({ attributes, children, element }) => {
+	return (
+		<div
+			{...attributes}
+			style={{ background: "green" }}>
+			{children}
+		</div>
+	);
 };
 
 const MarkButton = ({ format, icon }) => {
@@ -881,55 +939,170 @@ const isBlockActive = (editor, format, blockType = "type") => {
 	return !!match;
 };
 
+const DropDownList = ({ attributes, children, element }) => {
+	const editor = useSlate();
+	const addMore = () => {
+		const path = ReactEditor.findPath(editor, element);
+
+		let arraynow = [];
+		for (var i = 0; i <= children.length; i++) {
+			let object = {
+				type: "dropdown-inner",
+				children: [
+					{
+						type: "paragraph",
+						children: [
+							{
+								text: i + "ok",
+							},
+						],
+					},
+				],
+			};
+			arraynow.push(object);
+		}
+
+		const block1 = {
+			type: "dropdown-content",
+			children: arraynow,
+		};
+		console.log("block1", block1, children);
+		Transforms.removeNodes(editor, { at: path });
+		Transforms.insertNodes(editor, block1, { at: path });
+	};
+	return (
+		<div
+			{...attributes}
+			style={{ border: "1px solid grey", borderRadius: "10px" }}>
+			<button
+				onClick={(e) => {
+					addMore();
+				}}>
+				click me
+			</button>
+			{/* <div style={{ background: "red" }}>{children[0]}</div> */}
+			<div className="flex justify-between">
+				{children.map((o, key) => {
+					return children[key];
+				})}
+			</div>
+		</div>
+	);
+};
+
 const EditableVoid = ({ attributes, children, element }) => {
 	const editor = useSlate();
+	const { card } = element;
 	const selected = useSelected();
 	const focused = useFocused();
+	let cardnow;
+	let clickKey;
+	const [objCopy, setObj] = useState();
+	const path = ReactEditor.findPath(editor, element);
+	const addCard = () => {
+		let cardObj = { card: "1", id: 0, check: false };
+		cardObj.id = card.length;
+		cardnow = [...card, cardObj];
+
+		setObj(cardnow);
+		Transforms.setNodes(editor, { card: cardnow }, { at: path });
+	};
+
+	const checkInput = (text, key) => {
+		let cardnow = [...objCopy];
+		var index = _.findIndex(cardnow, { id: key });
+		cardnow.splice(index, 1, { card: text, id: key, check: true });
+		console.log(text, cardnow, "text change");
+		Transforms.setNodes(editor, { card: cardnow }, { at: path });
+	};
+
+	const setModal = useCallback((key, card1, check) => {
+		let cardnow = [...card1];
+		var index = _.findIndex(cardnow, { id: key });
+		cardnow.splice(index, 1, { ...cardnow[index], check: check });
+		setObj(cardnow);
+		// Transforms.setNodes(editor, { card: cardnow }, { at: path });
+	}, []);
+
+	const setCheckValidate = useCallback((key, card1) => {
+		let cardnow = [...card1];
+		var index = _.findIndex(cardnow, { id: key });
+		cardnow.splice(index, 1, { ...cardnow[index], check: false });
+		console.log(cardnow, "card done");
+		setObj(cardnow);
+	}, []);
 
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
 			style={{
 				border: "1px solid grey",
-				background: selected && focused ? "green" : "",
+				background: "green",
+				height: "100px",
 			}}
 			{...attributes}
-			contentEditable="false">
-			<div>
-				<div
-					style={{ background: "red" }}
-					onClick={(e) => {
-						const path = ReactEditor.findPath(editor, element);
-						Transforms.removeNodes(editor, { at: path });
-						if (editor.children.length == 0) {
-							Transforms.insertNodes(editor, {
-								type: "paragraph",
-								children: [{ text: "" }],
-							});
-						}
-					}}>
-					DELETE
-				</div>
-				<h4>Name:</h4>
-				<div>{/* <SlateReact /> */}</div>
-				<h4>Left or right handed:</h4>
-				<input
-					type="radio"
-					name="handedness"
-					value="left"
-				/>{" "}
-				Left
-				<br />
-				<input
-					type="radio"
-					name="handedness"
-					value="right"
-				/>{" "}
-				Right
-				<h4>Tell us about yourself:</h4>
-				<div></div>
-			</div>
+			contentEditable="false"
+			// onBlur={(e) => {
+			// 	let cardnow = [...card];
+			// 	if (cardnow.length > 0) {
+			// 		var result = cardnow.map((o, key) => {
+			// 			if (key == clickKey) {
+			// 				o.check = false;
+			// 			}
+			// 		});
+			// 		console.log(result, "result map");
+			// 		setObj(result);
+			// 	}
+			// }}
+		>
+			<button
+				onClick={(e) => {
+					addCard();
+				}}>
+				click here
+			</button>
 			{children}
+
+			{/* <RenderPopup /> */}
+			<div className="flex">
+				{card?.map((o, key) => {
+					return (
+						<div
+							className="mx-3"
+							onClick={(e) => {
+								setModal(key, card, true);
+							}}
+							style={{ height: "100%", width: "100%", background: "red" }}
+							key={key}>
+							{/* {objCopy[key].check ? "true" : "false"} */}
+							{objCopy && objCopy[key].check ? (
+								<>
+									{o.card}
+									<EditablePopup
+										value={o}
+										open={true}
+										setModal={setModal}
+										card={objCopy}
+										id={key}
+										path={path}
+										editor={editor}
+									/>
+								</>
+							) : (
+								// <input
+								// 	value={o.card}
+								// 	onChange={(e) => {
+								// 		checkInput(e.target.value, key);
+								// 		console.log(e.target.value, "value now");
+								// 	}}
+								// 	type="text"
+								// />
+								o.card
+							)}
+						</div>
+					);
+				})}
+			</div>
 		</div>
 	);
 };
@@ -990,6 +1163,8 @@ const Element = (props) => {
 			);
 		case "link":
 			return <LinkComponent {...props} />;
+		case "dropdown-inner":
+			return <DropdownInner {...props} />;
 		case "katex":
 			return <KatexComponent {...props} />;
 		case "inline-bug":
@@ -998,8 +1173,19 @@ const Element = (props) => {
 			return <InlineWrapperBug {...props} />;
 		case "editable-void":
 			return <EditableVoid {...props}></EditableVoid>;
+
+		case "dropdown-content":
+			return <DropDownList {...props} />;
 		case "heading-one":
 			return <Heading1Component {...props}></Heading1Component>;
+		case "text-descrip":
+			return (
+				<div
+					style={{ border: "1px solid black" }}
+					{...attributes}>
+					{children}
+				</div>
+			);
 		case "heading-two":
 			return (
 				<h2
