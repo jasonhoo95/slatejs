@@ -164,16 +164,17 @@ const SlateMobile = () => {
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["banner-red-wrapper", "paragraph", "list-item", "editable-void"].includes(n.type),
+			match: (n) => ["paragraph", "banner-red-wrapper", "list-item"].includes(n.type),
 		});
+
 		if (listItems) {
 			listItemParent = Editor.node(editor, listItems[1]);
 			previousParent = Editor.previous(editor, {
 				at: listItems[1],
-				match: (n) => ["banner-red-wrapper", "list-item", "editable-void"].includes(n.type),
 			});
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
+		console.log(previousParent, "previous parent");
 
 		const currentNodeParent = Editor.node(editor, {
 			at: editor.selection.anchor.path,
@@ -215,6 +216,10 @@ const SlateMobile = () => {
 					});
 				}
 			}
+		} else if (previousParent && previousParent[0].type == "dropdown-content") {
+			Transforms.removeNodes(editor, { at: previousParent[1] });
+
+			deleteBackward(...args);
 		} else if (
 			nextParent &&
 			previousParent &&
@@ -354,6 +359,7 @@ const SlateMobile = () => {
 
 						// checklist(editor);
 					}
+					console.log(backwardCheck, "backward check");
 					backwardCheck = false;
 				}}
 				value={initialValue}>
@@ -417,8 +423,8 @@ const SlateMobile = () => {
 								},
 							],
 						};
-
-						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
+						Editor.deleteBackward(editor, { unit: "block" });
+						Transforms.insertNodes(editor, block1, { mode: "highest" });
 					}}>
 					insert void123
 				</div>
