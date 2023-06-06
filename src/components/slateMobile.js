@@ -7,7 +7,7 @@ import { css } from "@emotion/css";
 import { v4 } from "uuid";
 import ComponentEditModal from "./quillProduct/componentEditModal";
 import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from "slate-react";
-import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node } from "slate";
+import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node, Point } from "slate";
 import { withHistory, HistoryEditor, History } from "slate-history";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
 import PlainTextExample from "./plainText";
@@ -130,10 +130,11 @@ const SlateMobile = () => {
 			at: editor.selection.anchor,
 			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex",
 		});
-		let currentParent, currentDescendant;
+		let currentParent, currentDescendant, previousParent;
 		for (const listItem of listItems) {
 			currentParent = Editor.node(editor, listItem[1]);
 			currentDescendant = Node.descendant(editor, listItem[1], { match: (n) => n.type == "paragraph" });
+			previousParent = Editor.previous(editor, { at: listItem[1] });
 		}
 		const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "paragraph" });
 
@@ -164,7 +165,7 @@ const SlateMobile = () => {
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["paragraph", "banner-red-wrapper", "list-item"].includes(n.type),
+			match: (n) => ["paragraph", "banner-red-wrapper", "list-item", "dropdown-content"].includes(n.type),
 		});
 
 		if (listItems) {
@@ -174,11 +175,11 @@ const SlateMobile = () => {
 			});
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
-		console.log(previousParent, "previous parent");
 
 		const currentNodeParent = Editor.node(editor, {
 			at: editor.selection.anchor.path,
 		});
+
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
 			if (!backwardCheck) {
@@ -216,10 +217,36 @@ const SlateMobile = () => {
 					});
 				}
 			}
-		} else if (previousParent && previousParent[0].type == "dropdown-content") {
-			Transforms.removeNodes(editor, { at: previousParent[1] });
+		} else if (listItemParent[0].type == "dropdown-content") {
+			const [listItems] = Editor.nodes(editor, {
+				at: editor.selection.anchor.path,
+				match: (n) => ["dropdown-inner"].includes(n.type),
+			});
 
-			deleteBackward(...args);
+			const start = Editor.node(editor, editor.selection.anchor.path);
+
+			if (start[0].text.length == 0 && listItems[0].children.length == 1) {
+				return;
+			} else {
+				deleteBackward(...args);
+			}
+		} else if (previousParent && previousParent[0].type == "dropdown-content") {
+			Transforms.move(editor, { reverse: true, unit: "line", distance: 2, mode: "highest" });
+			// Transforms.removeNodes(editor, { at: previousParent[1] });
+			// Transforms.insertNodes(
+			// 	editor,
+			// 	{
+			// 		type: "paragraph",
+			// 		children: [
+			// 			{
+			// 				text: "",
+			// 			},
+			// 		],
+			// 	},
+			// 	{ at: previousParent[1] }
+			// );
+
+			// deleteBackward(...args);
 		} else if (
 			nextParent &&
 			previousParent &&
@@ -359,7 +386,7 @@ const SlateMobile = () => {
 
 						// checklist(editor);
 					}
-					console.log(backwardCheck, "backward check");
+
 					backwardCheck = false;
 				}}
 				value={initialValue}>
@@ -423,8 +450,11 @@ const SlateMobile = () => {
 								},
 							],
 						};
-						Editor.deleteBackward(editor, { unit: "block" });
-						Transforms.insertNodes(editor, block1, { mode: "highest" });
+						// Editor.deleteBackward(editor, { unit: "block" });
+						// Transforms.insertNodes(editor, block1, { mode: "highest" });
+
+						Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
+						Transforms.unwrapNodes(editor, { mode: "highest" });
 					}}>
 					insert void123
 				</div>
@@ -972,7 +1002,7 @@ const DropDownList = ({ attributes, children, element }) => {
 			type: "dropdown-content",
 			children: arraynow,
 		};
-		console.log("block1", block1, children);
+
 		Transforms.removeNodes(editor, { at: path });
 		Transforms.insertNodes(editor, block1, { at: path });
 	};
@@ -1018,7 +1048,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		let cardnow = [...objCopy];
 		var index = _.findIndex(cardnow, { id: key });
 		cardnow.splice(index, 1, { card: text, id: key, check: true });
-		console.log(text, cardnow, "text change");
+
 		Transforms.setNodes(editor, { card: cardnow }, { at: path });
 	};
 
@@ -1034,7 +1064,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		let cardnow = [...card1];
 		var index = _.findIndex(cardnow, { id: key });
 		cardnow.splice(index, 1, { ...cardnow[index], check: false });
-		console.log(cardnow, "card done");
+
 		setObj(cardnow);
 	}, []);
 
@@ -1056,7 +1086,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 			// 				o.check = false;
 			// 			}
 			// 		});
-			// 		console.log(result, "result map");
+			//
 			// 		setObj(result);
 			// 	}
 			// }}
@@ -1099,7 +1129,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 								// 	value={o.card}
 								// 	onChange={(e) => {
 								// 		checkInput(e.target.value, key);
-								// 		console.log(e.target.value, "value now");
+								//
 								// 	}}
 								// 	type="text"
 								// />
