@@ -231,22 +231,22 @@ const SlateMobile = () => {
 				deleteBackward(...args);
 			}
 		} else if (previousParent && previousParent[0].type == "dropdown-content") {
-			Transforms.move(editor, { reverse: true, unit: "line", distance: 2, mode: "highest" });
-			// Transforms.removeNodes(editor, { at: previousParent[1] });
-			// Transforms.insertNodes(
-			// 	editor,
-			// 	{
-			// 		type: "paragraph",
-			// 		children: [
-			// 			{
-			// 				text: "",
-			// 			},
-			// 		],
-			// 	},
-			// 	{ at: previousParent[1] }
-			// );
+			// Transforms.move(editor, { reverse: true, unit: "block", distance: 2 });
+			Transforms.removeNodes(editor, { at: previousParent[1] });
+			Transforms.insertNodes(
+				editor,
+				{
+					type: "paragraph",
+					children: [
+						{
+							text: "",
+						},
+					],
+				},
+				{ at: previousParent[1] }
+			);
 
-			// deleteBackward(...args);
+			deleteBackward(...args);
 		} else if (
 			nextParent &&
 			previousParent &&
@@ -775,16 +775,6 @@ const isLinkActive = (editor) => {
 	return !!link;
 };
 
-const DropdownInner = ({ attributes, children, element }) => {
-	return (
-		<div
-			{...attributes}
-			style={{ background: "green" }}>
-			{children}
-		</div>
-	);
-};
-
 const MarkButton = ({ format, icon }) => {
 	const editor = useSlate();
 	return (
@@ -974,29 +964,50 @@ const isBlockActive = (editor, format, blockType = "type") => {
 
 	return !!match;
 };
+const DropdownInner = ({ attributes, children, element }) => {
+	const editor = useSlate();
+	const selected = useSelected();
+	const focused = useFocused();
+	const path = ReactEditor.findPath(editor, element);
+	if (!selected || !focused) {
+		console.log(path, "path now");
+	}
+
+	return (
+		<div
+			{...attributes}
+			style={{ background: "green" }}>
+			{children}
+		</div>
+	);
+};
 
 const DropDownList = ({ attributes, children, element }) => {
 	const editor = useSlate();
+
 	const addMore = () => {
 		const path = ReactEditor.findPath(editor, element);
+		const [nodes] = Editor.nodes(editor, {
+			at: path,
+			match: (n) => n.type == "dropdown-content",
+		});
 
-		let arraynow = [];
-		for (var i = 0; i <= children.length; i++) {
-			let object = {
-				type: "dropdown-inner",
-				children: [
-					{
-						type: "paragraph",
-						children: [
-							{
-								text: i + "ok",
-							},
-						],
-					},
-				],
-			};
-			arraynow.push(object);
-		}
+		console.log(path, "existing text");
+		let object = {
+			type: "dropdown-inner",
+			children: [
+				{
+					type: "paragraph",
+					children: [
+						{
+							text: "",
+						},
+					],
+				},
+			],
+		};
+		let arraynow = [...nodes[0].children];
+		arraynow.push(object);
 
 		const block1 = {
 			type: "dropdown-content",
@@ -1005,6 +1016,7 @@ const DropDownList = ({ attributes, children, element }) => {
 
 		Transforms.removeNodes(editor, { at: path });
 		Transforms.insertNodes(editor, block1, { at: path });
+		Transforms.select(editor, [1, arraynow.length - 1]);
 	};
 	return (
 		<div
