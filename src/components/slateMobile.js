@@ -165,7 +165,7 @@ const SlateMobile = () => {
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["paragraph", "banner-red-wrapper", "list-item", "dropdown-content"].includes(n.type),
+			match: (n) => ["paragraph", "list-item"].includes(n.type),
 		});
 
 		if (listItems) {
@@ -175,6 +175,7 @@ const SlateMobile = () => {
 			});
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
+		console.log(nextParent, listItems, "list items");
 
 		const currentNodeParent = Editor.node(editor, {
 			at: editor.selection.anchor.path,
@@ -184,7 +185,7 @@ const SlateMobile = () => {
 			deleteBackward(...args);
 			if (!backwardCheck) {
 				backwardCheck = true;
-
+				console.log("banner red merged");
 				const currentNode = Editor.node(editor, editor.selection.anchor.path);
 
 				if (["katex", "inline-bug"].includes(currentNode[0].type)) {
@@ -217,7 +218,7 @@ const SlateMobile = () => {
 					});
 				}
 			}
-		} else if (listItemParent[0].type == "dropdown-content") {
+		} else if (listItemParent && listItemParent[0].type == "dropdown-content") {
 			const [listItems] = Editor.nodes(editor, {
 				at: editor.selection.anchor.path,
 				match: (n) => ["dropdown-inner"].includes(n.type),
@@ -230,8 +231,7 @@ const SlateMobile = () => {
 			} else {
 				deleteBackward(...args);
 			}
-		} else if (previousParent && previousParent[0].type == "dropdown-content") {
-			// Transforms.move(editor, { reverse: true, unit: "block", distance: 2 });
+		} else if (previousParent && previousParent[0].type == "dropdown-content" && editor.selection.anchor.offset == 0) {
 			Transforms.removeNodes(editor, { at: previousParent[1] });
 			Transforms.insertNodes(
 				editor,
@@ -245,7 +245,6 @@ const SlateMobile = () => {
 				},
 				{ at: previousParent[1] }
 			);
-
 			deleteBackward(...args);
 		} else if (
 			nextParent &&
@@ -257,6 +256,8 @@ const SlateMobile = () => {
 			deleteBackward(...args);
 
 			if (!backwardCheck) {
+				console.log("number list merged");
+
 				backwardCheck = true;
 				const currentNode = Editor.node(editor, editor.selection.anchor);
 
@@ -394,16 +395,17 @@ const SlateMobile = () => {
 					format="katex-link"
 					icon="format_list_item"
 				/>
+
+				<BlockButton
+					format="banner-red"
+					icon="format_list_item"
+				/>
 				{/* <BlockButton
 					format="url-link"
 					icon="format_list_item"
 				/>
 
 
-				<BlockButton
-					format="banner-red"
-					icon="format_list_item"
-				/>
 
 				<BlockButton
 					format="focus"
@@ -452,9 +454,16 @@ const SlateMobile = () => {
 						};
 						// Editor.deleteBackward(editor, { unit: "block" });
 						// Transforms.insertNodes(editor, block1, { mode: "highest" });
-
-						Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
-						Transforms.unwrapNodes(editor, { mode: "highest" });
+						const [listItems] = Editor.nodes(editor, {
+							match: (n) => n.type === "paragraph",
+						});
+						if (Editor.isEmpty(editor, listItems[0])) {
+							Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
+							Transforms.unwrapNodes(editor, { mode: "highest" });
+						} else {
+							Transforms.insertNodes(editor, block1, { mode: "highest" });
+							// Transforms.unwrapNodes(editor, { mode: "highest" });
+						}
 					}}>
 					insert void123
 				</div>
@@ -970,7 +979,6 @@ const DropdownInner = ({ attributes, children, element }) => {
 	const focused = useFocused();
 	const path = ReactEditor.findPath(editor, element);
 	if (!selected || !focused) {
-		console.log(path, "path now");
 	}
 
 	return (
@@ -992,7 +1000,6 @@ const DropDownList = ({ attributes, children, element }) => {
 			match: (n) => n.type == "dropdown-content",
 		});
 
-		console.log(path, "existing text");
 		let object = {
 			type: "dropdown-inner",
 			children: [
@@ -1016,7 +1023,7 @@ const DropDownList = ({ attributes, children, element }) => {
 
 		Transforms.removeNodes(editor, { at: path });
 		Transforms.insertNodes(editor, block1, { at: path });
-		Transforms.select(editor, [1, arraynow.length - 1]);
+		Transforms.select(editor, [path[0], arraynow.length - 1]);
 	};
 	return (
 		<div
