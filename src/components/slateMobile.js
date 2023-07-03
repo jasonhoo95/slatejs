@@ -196,22 +196,27 @@ const SlateMobile = () => {
 					at: listItemParent[1],
 					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["banner-red-wrapper"].includes(n.type),
 				});
-				const listItems = Editor.nodes(editor, {
+				const [listItems] = Editor.nodes(editor, {
 					at: editor.selection.anchor.path,
-					match: (n) => ["list-item", "paragraph", "banner-red-wrapper"].includes(n.type),
+					match: (n) => ["numbered-list", "bulleted-list"].includes(n.type),
 				});
 
-				let nextnode;
-				for (const listItem of listItems) {
+				if (listItems) {
+					let nextnode;
 					nextnode = Editor.next(editor, {
-						at: listItem[1],
-						match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list", "paragraph"].includes(n.type),
+						at: listItems[1],
+						match: (n) => ["paragraph", "numbered-list", "bulleted-list"].includes(n.type),
 					});
+
+					console.log(nextnode, "node check");
+
+					if (listItems[0].type == nextnode[0].type) {
+						Transforms.mergeNodes(editor, {
+							at: nextnode[1],
+							match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
+						});
+					}
 				}
-				Transforms.mergeNodes(editor, {
-					at: nextnode[1],
-					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
-				});
 			}
 		} else if (listItemParent && listItemParent[0].type == "dropdown-content") {
 			const [listItems] = Editor.nodes(editor, {
@@ -395,6 +400,12 @@ const SlateMobile = () => {
 					format="banner-red"
 					icon="format_list_item"
 				/>
+
+				<BlockButton
+					icon="format_list_item"
+					format="bulleted-list"
+				/>
+
 				{/* <BlockButton
 					format="url-link"
 					icon="format_list_item"
@@ -402,10 +413,6 @@ const SlateMobile = () => {
 
 
 
-				<BlockButton
-					format="focus"
-					icon="format_list_item"
-				/>
 
 				<MarkButton
 					format="bold"
