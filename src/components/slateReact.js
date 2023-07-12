@@ -23,7 +23,7 @@ const HOTKEYS = {
 	"mod+`": "code",
 };
 
-const LIST_TYPES = ["numbered-list", "bulleted-list", "list-item"];
+const LIST_TYPES = ["numbered-list", "bulleted-list", "list-item", "check-list-item"];
 const TEXT_ALIGN_TYPES = ["left", "center", "right", "justify"];
 const FORMAT_TYPES = ["bold", "italic", "underline"];
 const FORMAT_NONE = ["numbered-list", "paragraph"];
@@ -374,9 +374,9 @@ const SlateMobile = () => {
 		<div>
 			<Slate
 				editor={editor}
-				onChange={(e) => {
+				onChange={(value) => {
 					const string = Node.leaf(editor, editor.selection.anchor.path);
-
+					console.log(value, "value now");
 					if (string.text.startsWith("1. ")) {
 						toggleBlock(editor, "numbered-list", "number");
 						Transforms.delete(editor, {
@@ -897,20 +897,20 @@ const toggleBlock = (editor, format, type) => {
 	let LIST_PARENT = ["numbered-list", "bulleted-list", "check-list-item"];
 	let formatCheck;
 
-	if (format == "list-item") {
+	if (format == "list-item" || format == "check-list-item") {
 		formatCheck = ["numbered-list", "bulleted-list"];
 	} else {
 		formatCheck = format;
 	}
 
-	if (format != "check-list-item") {
-		Transforms.unwrapNodes(editor, {
-			match: (n) => {
-				return !Editor.isEditor(n) && SlateElement.isElement(n) && formatCheck.includes(n.type);
-			},
-			split: true,
-		});
-	}
+	console.log(formatCheck, "format check");
+	Transforms.unwrapNodes(editor, {
+		match: (n) => {
+			console.log(n.type, "types");
+			return !Editor.isEditor(n) && SlateElement.isElement(n) && formatCheck.includes(n.type);
+		},
+		split: true,
+	});
 
 	let newProperties;
 	if (TEXT_ALIGN_TYPES.includes(format)) {
@@ -1363,6 +1363,15 @@ const Element = (props) => {
 					{children}
 				</ol>
 			);
+
+		// case "check-list":
+		// 	return (
+		// 		<ol
+		// 			style={style}
+		// 			{...attributes}>
+		// 			{children}
+		// 		</ol>
+		// 	);
 		case "banner-red":
 			return (
 				<p
