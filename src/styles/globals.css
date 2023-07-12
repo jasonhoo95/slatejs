@@ -81,6 +81,20 @@
 	height: 0;
 }
 
+.check-list {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+ol .check-list:before {
+	content: "" !important;
+}
+
+.check-list {
+	padding-left: 0px !important;
+}
+
 .heightBottom {
 	position: fixed;
 	height: 30px;

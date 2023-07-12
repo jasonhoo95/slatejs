@@ -499,14 +499,14 @@ ol p {
 ol {
 	counter-reset: yourCounter !important;
 }
-ol li {
+ol .list-item {
 	padding-left: 1.5rem;
 }
 
 .ql-tooltip.ql-editing {
 	display: none;
 }
-ol li::before {
+ol .list-item::before {
 	margin-left: -1.5em;
 	margin-right: 0.3em;
 	display: inline-block;
@@ -514,14 +514,14 @@ ol li::before {
 	width: 1.2em;
 	text-align: right;
 }
-ol li:not(.linebreak-unordered) {
+ol .list-item:not(.linebreak-unordered) {
 	counter-increment: yourCounter !important;
 	list-style: none !important;
 }
-ol li:not(.linebreak-unordered):before {
-	content: counter(yourCounter) "." !important;
+ol .list-item:not(.linebreak-unordered):before {
+	content: counter(yourCounter) ".";
 }
-ol li.linebreak-unordered:before {
+ol .list-item.linebreak-unordered:before {
 	content: "\a0\a0\a0" !important;
 }
 

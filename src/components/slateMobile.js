@@ -5,7 +5,6 @@ import isHotkey from "is-hotkey";
 
 import { css } from "@emotion/css";
 import { v4 } from "uuid";
-import ComponentEditModal from "./quillProduct/componentEditModal";
 import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from "slate-react";
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node, Point } from "slate";
 import { withHistory, HistoryEditor, History } from "slate-history";
@@ -128,7 +127,7 @@ const SlateMobile = () => {
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
-			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex",
+			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex" || n.type == "check-list-item",
 		});
 		let currentParent, currentDescendant, previousParent;
 		for (const listItem of listItems) {
@@ -328,10 +327,13 @@ const SlateMobile = () => {
 	};
 
 	editor.deleteFragment = (...args) => {
+		const firstNode = Editor.fragment(editor, editor.selection.anchor);
+		const lastNode = Editor.fragment(editor, editor.selection.focus);
+
 		deleteFragment(...args);
 
 		const listItems = Editor.nodes(editor, {
-			match: (n) => n.type === "list-item",
+			match: (n) => n.type === "list-item" || n.type == "check-list-item",
 		});
 
 		const string = Node.leaf(editor, editor.selection.anchor.path);
@@ -345,13 +347,12 @@ const SlateMobile = () => {
 					{ type: "paragraph" },
 					{
 						at: listItem[1],
-						match: (n) => n.type === "list-item",
+						match: (n) => n.type === "list-item" || n.type == "check-list-item",
 					}
 				);
 			}
 		}
 	};
-
 	const onFocus = useCallback(() => {
 		setFocus(true);
 
@@ -636,12 +637,6 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
-	// let data = {
-	// 	url: url,
-	// 	editor: editor,
-	// 	path: editor.selection.anchor,
-	// 	open: true,
-	// };
 	let id = v4();
 	const katex = {
 		type: "katex",
@@ -1183,8 +1178,54 @@ const Heading1Component = ({ attributes, children, element }) => {
 	);
 };
 
-const ZeroWidthText = () => {
-	return <span dangerouslySetInnerHTML={{ __html: "\u00a0" }}></span>;
+const CheckListItemElement = ({ attributes, children, element }) => {
+	const editor = useSlate();
+	const { checked } = element;
+	return (
+		<div
+			{...attributes}
+			className={css`
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+
+				& + & {
+					margin-top: 0;
+				}
+			`}>
+			<span
+				contentEditable={false}
+				className={css`
+					margin-right: 0.75em;
+					margin-bottom: auto;
+				`}>
+				<input
+					type="checkbox"
+					checked={checked}
+					onChange={(event) => {
+						const path = ReactEditor.findPath(editor, element);
+						const newProperties = {
+							checked: event.target.checked,
+						};
+						Transforms.setNodes(editor, newProperties, { at: path });
+					}}
+				/>
+			</span>
+			<span
+				contentEditable={true}
+				className={css`
+					flex: 1;
+					opacity: ${checked ? 0.666 : 1};
+					text-decoration: ${!checked ? "none" : "line-through"};
+
+					&:focus {
+						outline: none;
+					}
+				`}>
+				{children}
+			</span>
+		</div>
+	);
 };
 
 const BannerRed = ({ attributes, children, element }) => {
@@ -1230,7 +1271,8 @@ const Element = (props) => {
 			return <InlineWrapperBug {...props} />;
 		case "editable-void":
 			return <EditableVoid {...props}></EditableVoid>;
-
+		case "check-list-item":
+			return <CheckListItemElement {...props} />;
 		case "dropdown-content":
 			return <DropDownList {...props} />;
 		case "heading-one":
