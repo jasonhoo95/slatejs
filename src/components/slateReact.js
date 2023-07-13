@@ -340,7 +340,7 @@ const SlateMobile = () => {
 		for (const listItem of listItems) {
 			const parent = Editor.parent(editor, listItem[1]);
 
-			if (parent && !["numbered-list", "bulleted-list"].includes(parent[0].type)) {
+			if (parent && !["numbered-list", "bulleted-list", "check-list"].includes(parent[0].type)) {
 				Transforms.setNodes(
 					editor,
 					{ type: "paragraph" },
@@ -472,7 +472,7 @@ const SlateMobile = () => {
 				<div
 					onClick={(e) => {
 						const typeCheckList = { text: "", type: "check-list-item" };
-						const block = { type: "numbered-list", children: [] };
+						const block = { type: "check-list", children: [] };
 
 						Transforms.wrapNodes(editor, block);
 
@@ -894,7 +894,7 @@ const toggleMark = (editor, format) => {
 const toggleBlock = (editor, format, type) => {
 	const isActive = isBlockActive(editor, format, TEXT_ALIGN_TYPES.includes(format) ? "align" : "type");
 	const isList = LIST_TYPES.includes(format) || format == "banner-red-wrapper";
-	let LIST_PARENT = ["numbered-list", "bulleted-list", "check-list-item"];
+	let LIST_PARENT = ["numbered-list", "bulleted-list", "check-list"];
 	let formatCheck;
 
 	if (format == "list-item" || format == "check-list-item") {
@@ -907,7 +907,7 @@ const toggleBlock = (editor, format, type) => {
 	Transforms.unwrapNodes(editor, {
 		match: (n) => {
 			console.log(n.type, "types");
-			return !Editor.isEditor(n) && SlateElement.isElement(n) && formatCheck.includes(n.type);
+			return !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type);
 		},
 		split: true,
 	});
@@ -1364,14 +1364,14 @@ const Element = (props) => {
 				</ol>
 			);
 
-		// case "check-list":
-		// 	return (
-		// 		<ol
-		// 			style={style}
-		// 			{...attributes}>
-		// 			{children}
-		// 		</ol>
-		// 	);
+		case "check-list":
+			return (
+				<ol
+					style={style}
+					{...attributes}>
+					{children}
+				</ol>
+			);
 		case "banner-red":
 			return (
 				<p
