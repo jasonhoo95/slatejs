@@ -591,14 +591,14 @@ const wrapperCheck = (editor) => {
 				},
 			},
 			match: (n) => {
-				return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "numbered-list" || n.type == "paragraph" || n.type == "bulleted-list");
+				return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "numbered-list" || n.type == "paragraph" || n.type == "bulleted-list" || n.type == "check-list");
 			},
 			split: true,
 		});
 	} else {
 		Transforms.unwrapNodes(editor, {
 			match: (n) => {
-				return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list";
+				return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "numbered-list" || n.type == "check-list");
 			},
 			split: true,
 		});
@@ -894,7 +894,7 @@ const toggleMark = (editor, format) => {
 const toggleBlock = (editor, format, type) => {
 	const isActive = isBlockActive(editor, format, TEXT_ALIGN_TYPES.includes(format) ? "align" : "type");
 	const isList = LIST_TYPES.includes(format) || format == "banner-red-wrapper";
-	let LIST_PARENT = ["numbered-list", "bulleted-list", "check-list"];
+	let LIST_PARENT = ["numbered-list", "bulleted-list", "check-list", "banner-red-wrapper"];
 	let formatCheck;
 
 	if (format == "list-item" || format == "check-list-item") {
