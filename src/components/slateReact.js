@@ -271,7 +271,7 @@ const SlateMobile = () => {
 			}
 		} else if (
 			listItemParent &&
-			listItemParent[0].type == "list-item" &&
+			(listItemParent[0].type == "list-item" || listItemParent[0].type == "check-list-item") &&
 			listItemParent[1][listItemParent[1].length - 1] == 0 &&
 			editor.selection.anchor.offset == 0 &&
 			currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
