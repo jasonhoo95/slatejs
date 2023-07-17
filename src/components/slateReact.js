@@ -1196,12 +1196,18 @@ const CheckList = ({ attributes, children, element }) => {
 			{...attributes}
 			className="check-list">
 			<span
+				style={{ paddingLeft: "20px", cursor: "pointer", userSelect: "none" }}
 				contentEditable={false}
-				className={css`
-					margin-right: 0.75em;
-					margin-bottom: auto;
-				`}>
-				<input
+				onClick={(e) => {
+					e.preventDefault();
+					const path = ReactEditor.findPath(editor, element);
+					const newProperties = {
+						checked: checked ? false : true,
+					};
+					Transforms.setNodes(editor, newProperties, { at: path });
+				}}
+				className="checkbox-ui">
+				{/* <input
 					type="checkbox"
 					checked={checked}
 					onChange={(event) => {
@@ -1211,7 +1217,7 @@ const CheckList = ({ attributes, children, element }) => {
 						};
 						Transforms.setNodes(editor, newProperties, { at: path });
 					}}
-				/>
+				/> */}
 			</span>
 			<span
 				contentEditable={true}
