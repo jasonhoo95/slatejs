@@ -1440,13 +1440,13 @@ const Leaf = ({ attributes, children, leaf }) => {
 
 	return (
 		<span
-			className={
-				leaf.text === ""
-					? css`
-							padding-left: 0.1px;
-					  `
-					: null
-			}
+			// className={
+			// 	leaf.text === ""
+			// 		? css`
+			// 				padding-left: 0.1px;
+			// 		  `
+			// 		: null
+			// }
 			{...attributes}>
 			{children}
 		</span>
