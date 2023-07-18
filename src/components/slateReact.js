@@ -284,6 +284,7 @@ const SlateMobile = () => {
 			//
 			if (string.text.length == 0) {
 				deleteBackward(...args);
+				console.log("inside");
 
 				if (!backwardCheck) {
 					backwardCheck = true;
@@ -308,6 +309,7 @@ const SlateMobile = () => {
 				}
 			} else {
 				deleteBackward(...args);
+				console.log("inside");
 
 				if (!backwardCheck) {
 					backwardCheck = true;
@@ -327,18 +329,20 @@ const SlateMobile = () => {
 	};
 
 	editor.deleteFragment = (...args) => {
-		const firstNode = Editor.fragment(editor, editor.selection.anchor);
-		const lastNode = Editor.fragment(editor, editor.selection.focus);
-
 		const listItems = Editor.nodes(editor, {
 			match: (n) => n.type === "list-item" || n.type == "check-list-item",
 		});
+		console.log(editor.selection, "fragment selection");
 		deleteFragment(...args);
 
 		const string = Node.leaf(editor, editor.selection.anchor.path);
-
+		console.log(string, "fragment");
+		if (string && (string?.type == "inline-bug" || string?.type == "katex")) {
+			Transforms.move(editor, { distance: 1, unit: "offset" });
+		}
 		for (const listItem of listItems) {
 			const parent = Editor.parent(editor, listItem[1]);
+			console.log(string, "fragment");
 
 			if (parent && !["numbered-list", "bulleted-list", "check-list"].includes(parent[0].type)) {
 				Transforms.setNodes(
@@ -656,10 +660,10 @@ const insertKatex = (editor, url, updateAmount) => {
 
 	Transforms.move(editor);
 
-	Transforms.insertText(editor, "\u00a0".toString(), {
-		at: editor.selection.anchor,
-	});
-	updateAmount("katex");
+	// Transforms.insertText(editor, "\u00a0".toString(), {
+	// 	at: editor.selection.anchor,
+	// });
+	// updateAmount("katex");
 
 	ReactEditor.focus(editor);
 };
@@ -671,9 +675,9 @@ const withInlines = (editor) => {
 
 	editor.isVoid = (element) => ["katex", "inline-bug", "link", "editable-void"].includes(element.type) || isVoid(element);
 
-	editor.markableVoid = (element) => {
-		return element.type === "katex" ? true : markableVoid(element);
-	};
+	// editor.markableVoid = (element) => {
+	// 	return element.type === "katex" ? true : markableVoid(element);
+	// };
 
 	return editor;
 };
@@ -770,14 +774,13 @@ const KatexComponent = ({ attributes, children, element }) => {
 				// userSelect: "none",
 				background: selected ? "red" : "",
 			}}
-			contentEditable="false"
 			className="span-katex"
 			{...attributes}>
-			<span
+			<span dangerouslySetInnerHTML={{ __html: katextext }}></span>
+			{/* <span
 				contentEditable="false"
-				dangerouslySetInnerHTML={{ __html: katextext }}></span>
+				className="slite-line-break"></span> */}
 			{children}
-			{/* <RenderModal /> */}
 		</span>
 	);
 };
