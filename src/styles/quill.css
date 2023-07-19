@@ -203,7 +203,7 @@ h2.headerBig::before {
 }
 
 [contenteditable] {
-	outline: 0px solid transparent;
+	/* outline: 0px solid transparent; */
 }
 
 /* .ql-bubble .ql-tooltip {

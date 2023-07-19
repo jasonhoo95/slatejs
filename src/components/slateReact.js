@@ -14,7 +14,6 @@ import { useModalStore } from "@/globals/zustandGlobal";
 import EditablePopup from "./editablePopup";
 import _, { keyBy } from "lodash";
 import next from "next";
-import SlateReact from "./slateReact";
 import { Transform } from "stream";
 const HOTKEYS = {
 	"mod+b": "bold",
@@ -84,7 +83,7 @@ function getCaretCoordinates() {
 	}
 	// return { x, y };
 }
-const SlateMobile = () => {
+const SlateReact = () => {
 	let id = v4();
 	let updateAmount = useModalStore((state) => state.updateModal);
 
@@ -394,7 +393,7 @@ const SlateMobile = () => {
 
 					backwardCheck = false;
 				}}
-				value={initialValue}>
+				initialValue={initialValue}>
 				<BlockButton
 					format="katex-link"
 					icon="format_list_item"
@@ -665,7 +664,7 @@ const insertKatex = (editor, url, updateAmount) => {
 	// });
 	// updateAmount("katex");
 
-	ReactEditor.focus(editor);
+	// ReactEditor.focus(editor);
 };
 
 const withInlines = (editor) => {
@@ -675,9 +674,9 @@ const withInlines = (editor) => {
 
 	editor.isVoid = (element) => ["katex", "inline-bug", "link", "editable-void"].includes(element.type) || isVoid(element);
 
-	// editor.markableVoid = (element) => {
-	// 	return element.type === "katex" ? true : markableVoid(element);
-	// };
+	editor.markableVoid = (element) => {
+		return element.type === "katex" || markableVoid(element);
+	};
 
 	return editor;
 };
@@ -761,9 +760,10 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const katextext = katex.renderToString(String.raw`${element.url}`);
 	const selected = useSelected();
 	const focused = useFocused();
-
+	console.log(focused, selected, "focues now");
 	return (
 		<span
+			contentEditable="false"
 			onClick={(e) => {
 				if (focused) {
 					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex");
@@ -771,15 +771,12 @@ const KatexComponent = ({ attributes, children, element }) => {
 			}}
 			//
 			style={{
-				// userSelect: "none",
-				background: selected ? "red" : "",
+				background: focused && selected ? "red" : "",
 			}}
 			className="span-katex"
 			{...attributes}>
 			<span dangerouslySetInnerHTML={{ __html: katextext }}></span>
-			{/* <span
-				contentEditable="false"
-				className="slite-line-break"></span> */}
+
 			{children}
 		</span>
 	);
@@ -862,7 +859,7 @@ const BlockButton = ({ format, icon }) => {
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
 					event.preventDefault();
-					ReactEditor.blur(editor);
+					// ReactEditor.blur(editor);
 					insertKatex(editor, "jjk", updateAmount);
 					// getCaretCoordinates();
 				}}>
@@ -1453,4 +1450,4 @@ const Leaf = ({ attributes, children, leaf }) => {
 	);
 };
 
-export default SlateMobile;
+export default SlateReact;
