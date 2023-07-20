@@ -84,9 +84,19 @@
 .check-list {
 	display: flex;
 	flex-direction: row;
-	align-items: center;
+	/* align-items: center; */
 	position: relative;
 	margin:10px 0px;
+	
+}
+
+input{
+	font-size: 0.85em;
+    width: 100%;
+    padding: 0.5em;
+    border: 2px solid #ddd;
+    background: #fafafa;
+	margin-right: 15px;
 }
 
 ol .check-list:before {
@@ -99,12 +109,19 @@ ol .check-list:before {
 	border: 1px solid #c1c1c1;
 	width: 17px;
 	height: 17px;
-	margin-top: 2px;
 	margin-left: -22px;
 	position: absolute;
 	top: 5px;
 	padding: 0;
 	border-radius: 50%;
+	-webkit-tap-highlight-color: transparent;
+
+
+}
+
+.checkbox-ui::before:focus{
+	outline: none !important;
+
 }
 
 .span-katex {
