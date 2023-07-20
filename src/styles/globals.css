@@ -114,13 +114,12 @@ ol .check-list:before {
 	top: 5px;
 	padding: 0;
 	border-radius: 50%;
-	-webkit-tap-highlight-color: transparent;
 
 
 }
 
-.checkbox-ui::before:focus{
-	outline: none !important;
+.checkbox-ui{
+	-webkit-tap-highlight-color: transparent;
 
 }
 

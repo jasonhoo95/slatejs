@@ -1213,7 +1213,7 @@ const CheckList = ({ attributes, children, element }) => {
 			</span> */}
 
 			<span
-				style={{ paddingLeft: "20px", marginRight: '8px', cursor: "pointer", userSelect: "none" }}
+				style={{ paddingLeft: "20px", marginRight: '4px', position: 'absolute', cursor: "pointer", userSelect: "none" }}
 				contentEditable={false}
 				onClick={(e) => {
 					e.preventDefault();
@@ -1230,6 +1230,7 @@ const CheckList = ({ attributes, children, element }) => {
 				contentEditable={true}
 				className={css`
 					flex: 1;
+					margin-left:20px;
 					opacity: ${checked ? 0.666 : 1};
 					text-decoration: ${!checked ? "none" : "line-through"};
 
