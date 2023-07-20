@@ -1230,7 +1230,7 @@ const CheckList = ({ attributes, children, element }) => {
 				contentEditable={true}
 				className={css`
 					flex: 1;
-					margin-left:20px;
+					margin-left:25px;
 					opacity: ${checked ? 0.666 : 1};
 					text-decoration: ${!checked ? "none" : "line-through"};
 
