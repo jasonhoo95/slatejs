@@ -775,7 +775,9 @@ const KatexComponent = ({ attributes, children, element }) => {
 			}}
 			className="span-katex"
 			{...attributes}>
-			<span dangerouslySetInnerHTML={{ __html: katextext }}></span>
+			<span
+				contentEditable="false"
+				dangerouslySetInnerHTML={{ __html: katextext }}></span>
 
 			{children}
 		</span>
