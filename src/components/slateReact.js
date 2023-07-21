@@ -1213,7 +1213,7 @@ const CheckList = ({ attributes, children, element }) => {
 			</span> */}
 
 			<span
-				style={{ marginLeft: '-5px', cursor: "pointer", userSelect: "none" }}
+				style={{ marginLeft: '-5px', cursor: "pointer" }}
 				contentEditable={false}
 				onClick={(e) => {
 					e.preventDefault();
@@ -1222,6 +1222,7 @@ const CheckList = ({ attributes, children, element }) => {
 						checked: checked ? false : true,
 					};
 					Transforms.setNodes(editor, newProperties, { at: path });
+					ReactEditor.blur(editor);
 				}}
 				className="checkbox-ui">
 

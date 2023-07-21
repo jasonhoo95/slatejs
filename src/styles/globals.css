@@ -110,19 +110,18 @@ input{
 	width: 17px;
 	height: 17px;
 	margin-left: -25px;
-	margin-right: 20px;
 	position: absolute;
 	top: 5px;
 	padding: 0;
 	border-radius: 50%;
-	margin-right: 20px;
-	user-select: none;
+	/* margin-right: 20px; */
 
 
 }
 
 .checkbox-ui{
 	-webkit-tap-highlight-color: transparent;
+	user-select: none;
 
 }
 
@@ -131,7 +130,7 @@ input{
 }
 
 .check-list {
-	padding-left: 1.8em !important;
+	padding-left: 2.2em !important;
 }
 
 .heightBottom {
