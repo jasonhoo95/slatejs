@@ -99,9 +99,9 @@ input{
 	margin-right: 15px;
 }
 
-ol .check-list:before {
+/* ol .check-list:before {
 	content: "" !important;
-}
+} */
 
 .checkbox-ui::before {
 	content: "";
@@ -110,10 +110,12 @@ ol .check-list:before {
 	width: 17px;
 	height: 17px;
 	margin-left: -22px;
+	margin-right: 20px;
 	position: absolute;
 	top: 5px;
 	padding: 0;
 	border-radius: 50%;
+	margin-right: 20px;
 	user-select: none;
 
 

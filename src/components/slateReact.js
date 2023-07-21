@@ -1213,7 +1213,7 @@ const CheckList = ({ attributes, children, element }) => {
 			</span> */}
 
 			<span
-				style={{ marginLeft: '-5px', marginRight: '4px', cursor: "pointer", userSelect: "none" }}
+				style={{ marginLeft: '-5px', cursor: "pointer", userSelect: "none" }}
 				contentEditable={false}
 				onClick={(e) => {
 					e.preventDefault();
