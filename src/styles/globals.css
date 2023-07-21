@@ -114,6 +114,7 @@ ol .check-list:before {
 	top: 5px;
 	padding: 0;
 	border-radius: 50%;
+	user-select: none;
 
 
 }

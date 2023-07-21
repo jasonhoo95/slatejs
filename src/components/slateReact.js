@@ -1200,7 +1200,7 @@ const CheckList = ({ attributes, children, element }) => {
 			{/* <span style={{ marginLeft: '10px' }}>
 				<input
 					type="checkbox"
-					contentEditable="false"
+					contentEditable="true"
 					checked={checked}
 					onChange={(event) => {
 						const path = ReactEditor.findPath(editor, element);
@@ -1213,7 +1213,7 @@ const CheckList = ({ attributes, children, element }) => {
 			</span> */}
 
 			<span
-				style={{ marginLeft: '-5px', marginRight: '4px', position: 'absolute', cursor: "pointer", userSelect: "none" }}
+				style={{ marginLeft: '-5px', marginRight: '4px', cursor: "pointer", userSelect: "none" }}
 				contentEditable={false}
 				onClick={(e) => {
 					e.preventDefault();
