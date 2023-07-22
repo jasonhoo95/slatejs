@@ -1230,7 +1230,7 @@ const CheckList = ({ attributes, children, element }) => {
 				className="checkbox-ui">
 				<span
 				contentEditable={true}
-					style={{ flex: 1, opacity: checked ? 0.666 : 1, textDecoration: !checked ? "none" : "line-through" }}
+					style={{ flex: 1, paddingRight: '10px', opacity: checked ? 0.666 : 1, textDecoration: !checked ? "none" : "line-through" }}
 
 					className="checkbox-inline">
 				{children}
