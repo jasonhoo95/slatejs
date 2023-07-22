@@ -1196,47 +1196,51 @@ const CheckList = ({ attributes, children, element }) => {
 	return (
 		<li
 			{...attributes}
-			className="check-list">
-			{/* <span style={{ marginLeft: '10px' }}>
-				<input
-					type="checkbox"
-					contentEditable="true"
-					checked={checked}
-					onChange={(event) => {
-						const path = ReactEditor.findPath(editor, element);
-						const newProperties = {
-							checked: event.target.checked,
-						};
-						Transforms.setNodes(editor, newProperties, { at: path });
-					}}
-				/>
-			</span> */}
+			className="check-parent"
+		>
 
-			<div
-				contentEditable="true"
+			<div onClick={e => {
+				if (e.target.parentNode.className == "check-parent") {
+					const path = ReactEditor.findPath(editor, element);
+					const newProperties = {
+						checked: checked ? false : true,
+					};
+					Transforms.setNodes(editor, newProperties, { at: path });
+					ReactEditor.blur(editor);
+				}
+				console.log(e.target.parentNode.className, "target click");
+			}} className="check-list">
+				<div style={{ display: 'flex', width: '100%' }}>
+					<span
+						style={{ cursor: "pointer" }}
+						contentEditable={false}
 				onClick={(e) => {
 					e.preventDefault();
-					if (!e.target.closest('.checkbox-inline')) {
-						console.log(e.target.closest('.checkbox-inline'), "class name");
-						const path = ReactEditor.findPath(editor, element);
-						const newProperties = {
-							checked: checked ? false : true,
-						};
-						Transforms.setNodes(editor, newProperties, { at: path });
-						ReactEditor.blur(editor);
-					}
-
+					const path = ReactEditor.findPath(editor, element);
+					const newProperties = {
+						checked: checked ? false : true,
+					};
+					Transforms.setNodes(editor, newProperties, { at: path });
+					ReactEditor.blur(editor);
 				}}
 				className="checkbox-ui">
+
+					</span>
 				<span
 				contentEditable={true}
-					style={{ flex: 1, paddingRight: '10px', opacity: checked ? 0.666 : 1, textDecoration: !checked ? "none" : "line-through" }}
+						className={css`
+					flex: 1;
+					opacity: ${checked ? 0.666 : 1};
+					text-decoration: ${!checked ? "none" : "line-through"};
 
-					className="checkbox-inline">
+					&:focus {
+						outline: none;
+					}
+				`}>
 				{children}
 			</span>
 			</div>
-
+			</div>
 		</li>
 	);
 };
