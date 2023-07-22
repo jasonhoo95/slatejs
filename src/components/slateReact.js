@@ -1212,34 +1212,31 @@ const CheckList = ({ attributes, children, element }) => {
 				/>
 			</span> */}
 
-			<span
-				style={{ marginLeft: '-5px', cursor: "pointer" }}
-				contentEditable={false}
+			<div
+				contentEditable="true"
 				onClick={(e) => {
 					e.preventDefault();
-					const path = ReactEditor.findPath(editor, element);
-					const newProperties = {
-						checked: checked ? false : true,
-					};
-					Transforms.setNodes(editor, newProperties, { at: path });
-					ReactEditor.blur(editor);
+					if (!e.target.closest('.checkbox-inline')) {
+						console.log(e.target.closest('.checkbox-inline'), "class name");
+						const path = ReactEditor.findPath(editor, element);
+						const newProperties = {
+							checked: checked ? false : true,
+						};
+						Transforms.setNodes(editor, newProperties, { at: path });
+						ReactEditor.blur(editor);
+					}
+
 				}}
 				className="checkbox-ui">
-
-			</span>
-			<span
+				<span
 				contentEditable={true}
-				className={css`
-					flex: 1;
-					opacity: ${checked ? 0.666 : 1};
-					text-decoration: ${!checked ? "none" : "line-through"};
+					style={{ flex: 1, opacity: checked ? 0.666 : 1, textDecoration: !checked ? "none" : "line-through" }}
 
-					&:focus {
-						outline: none;
-					}
-				`}>
+					className="checkbox-inline">
 				{children}
 			</span>
+			</div>
+
 		</li>
 	);
 };
