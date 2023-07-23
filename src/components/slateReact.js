@@ -1206,7 +1206,6 @@ const CheckList = ({ attributes, children, element }) => {
 						checked: checked ? false : true,
 					};
 					Transforms.setNodes(editor, newProperties, { at: path });
-					ReactEditor.blur(editor);
 				}
 				console.log(e.target.parentNode.className, "target click");
 			}} className="check-list">
@@ -1221,7 +1220,6 @@ const CheckList = ({ attributes, children, element }) => {
 						checked: checked ? false : true,
 					};
 					Transforms.setNodes(editor, newProperties, { at: path });
-					ReactEditor.blur(editor);
 				}}
 				className="checkbox-ui">
 
