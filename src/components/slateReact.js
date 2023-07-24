@@ -1206,23 +1206,18 @@ const CheckList = ({ attributes, children, element }) => {
 						checked: checked ? false : true,
 					};
 					Transforms.setNodes(editor, newProperties, { at: path });
-					ReactEditor.blur(editor);
-
 				}
-				console.log(e.target.parentNode.className, "target click");
 			}} className="check-list">
 				<div style={{ display: 'flex', width: '100%' }}>
 					<span
 						style={{ cursor: "pointer" }}
 						contentEditable={false}
-				onClick={(e) => {
-					e.preventDefault();
+						onClick={(e) => {
 					const path = ReactEditor.findPath(editor, element);
 					const newProperties = {
 						checked: checked ? false : true,
 					};
-					Transforms.setNodes(editor, newProperties, { at: path });
-					ReactEditor.blur(editor);
+							Transforms.setNodes(editor, newProperties, { at: path });
 				}}
 				className="checkbox-ui">
 
