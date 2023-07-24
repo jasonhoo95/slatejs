@@ -124,6 +124,8 @@ input{
 
 .checkbox-ui{
 	-webkit-tap-highlight-color: transparent; 
+	user-select: none;
+	position: absolute;
 
 
 }
