@@ -92,11 +92,10 @@
 
 input{
 	font-size: 0.85em;
-    width: 100%;
     padding: 0.5em;
     border: 2px solid #ddd;
     background: #fafafa;
-	margin-right: 15px;
+	margin-right: 5px;
 }
 
 /* ol .check-list:before {

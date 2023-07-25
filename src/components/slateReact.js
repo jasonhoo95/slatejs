@@ -5,11 +5,10 @@ import isHotkey from "is-hotkey";
 
 import { css } from "@emotion/css";
 import { v4 } from "uuid";
-import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from "slate-react";
+import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused, useReadOnly } from "slate-react";
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node, Point } from "slate";
 import { withHistory, HistoryEditor, History } from "slate-history";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
-import PlainTextExample from "./plainText";
 import { useModalStore } from "@/globals/zustandGlobal";
 import EditablePopup from "./editablePopup";
 import _, { keyBy } from "lodash";
@@ -43,6 +42,17 @@ const initialValue = [
 			},
 		],
 	},
+
+	{
+		type: 'check-list',
+		checked: true,
+		children: [{ type: 'check-list-item', children: [{ text: 'asdasd' }] }, { type: 'check-list-item', children: [{ text: 'asdasd' }] }],
+	},
+	// {
+	// 	type: 'check-list',
+	// 	checked: true,
+	// 	children: [{ type: 'check-list-item', children: [{ text: 'asdasd' }] }],
+	// },
 
 	{
 		type: "paragraph",
@@ -378,18 +388,21 @@ const SlateReact = () => {
 			<Slate
 				editor={editor}
 				onChange={(value) => {
-					const string = Node.leaf(editor, editor.selection.anchor.path);
-					console.log(value, "value now");
-					if (string.text.startsWith("1. ")) {
-						toggleBlock(editor, "numbered-list", "number");
-						Transforms.delete(editor, {
-							at: editor.selection.anchor,
-							unit: "word",
-							reverse: true,
-						});
+					if (editor && editor.selection) {
+						const string = Node.leaf(editor, editor.selection.anchor.path);
+						console.log(value, "value now");
+						if (string.text.startsWith("1. ")) {
+							toggleBlock(editor, "numbered-list", "number");
+							Transforms.delete(editor, {
+								at: editor.selection.anchor,
+								unit: "word",
+								reverse: true,
+							});
 
-						// checklist(editor);
+							// checklist(editor);
+						}
 					}
+
 
 					backwardCheck = false;
 				}}
@@ -1199,17 +1212,19 @@ const CheckList = ({ attributes, children, element }) => {
 			className="check-parent"
 		>
 
+
+
 			<div onClick={e => {
-				if (e.target.parentNode.className == "check-parent") {
-					const path = ReactEditor.findPath(editor, element);
-					const newProperties = {
-						checked: checked ? false : true,
-					};
-					Transforms.setNodes(editor, newProperties, { at: path });
-				}
+				// e.preventDefault();
+				// if (e.target.parentNode.className == "check-parent") {
+				// 	const path = ReactEditor.findPath(editor, element);
+				// 	const newProperties = {
+				// 		checked: checked ? false : true,
+				// 	};
+				// 	Transforms.setNodes(editor, newProperties, { at: path });
+				// }
 			}} className="check-list">
-				<div style={{ display: 'flex', width: '100%' }}>
-					<span
+				<span
 						style={{ cursor: "pointer" }}
 						contentEditable={false}
 						onClick={(e) => {
@@ -1218,6 +1233,7 @@ const CheckList = ({ attributes, children, element }) => {
 						checked: checked ? false : true,
 					};
 							Transforms.setNodes(editor, newProperties, { at: path });
+							ReactEditor.blur(editor);
 				}}
 				className="checkbox-ui">
 
@@ -1237,7 +1253,8 @@ const CheckList = ({ attributes, children, element }) => {
 				{children}
 			</span>
 			</div>
-			</div>
+
+
 		</li>
 	);
 };
@@ -1245,6 +1262,8 @@ const CheckList = ({ attributes, children, element }) => {
 const CheckListItemElement = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const { checked } = element;
+	const readOnly = useReadOnly()
+
 	return (
 		<div
 			{...attributes}
@@ -1276,7 +1295,8 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				/>
 			</span>
 			<span
-				contentEditable={true}
+				contentEditable={!readOnly}
+				suppressContentEditableWarning
 				className={css`
 					flex: 1;
 					opacity: ${checked ? 0.666 : 1};
@@ -1336,7 +1356,7 @@ const Element = (props) => {
 		case "editable-void":
 			return <EditableVoid {...props}></EditableVoid>;
 		case "check-list-item":
-			return <CheckList {...props} />;
+			return <CheckListItemElement {...props} />;
 		case "dropdown-content":
 			return <DropDownList {...props} />;
 		case "heading-one":
