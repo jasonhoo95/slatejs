@@ -1206,6 +1206,18 @@ const Heading1Component = ({ attributes, children, element }) => {
 const CheckList = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const { checked } = element;
+	let timeoutRef = React.useRef();
+	let workaroundIOSDblClickBug = () => {
+		// Add touch-action: manipulation on click to workaround https://bugs.webkit.org/show_bug.cgi?id=216681,
+		// and remove after a short delay to prevent double click.
+		let root = document.getElementById("__next");
+		root.style.touchAction = "manipulation";
+
+		clearTimeout(timeoutRef.current);
+		timeoutRef.current = setTimeout(() => {
+			root.style.touchAction = "";
+		}, 500);
+	};
 	return (
 		<li
 			{...attributes}
@@ -1225,9 +1237,11 @@ const CheckList = ({ attributes, children, element }) => {
 				}
 			}} className="check-list">
 				<span
-						style={{ cursor: "pointer" }}
+					style={{ cursor: "pointer" }}
 						contentEditable={false}
 						onClick={(e) => {
+							// and remove after a short delay to prevent double click.
+							workaroundIOSDblClickBug();
 					const path = ReactEditor.findPath(editor, element);
 					const newProperties = {
 						checked: checked ? false : true,
