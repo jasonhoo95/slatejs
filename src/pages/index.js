@@ -6,6 +6,7 @@ import SlateReact from "@/components/slateReact";
 import PlainTextExample from "@/components/plainText";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
 import { Slate } from "slate-react";
+import CheckListsExample from "@/components/checkListExample";
 export default function Home() {
 	return (
 		<div className="m-8 main-wrapper">
@@ -23,6 +24,7 @@ export default function Home() {
 
 			{/* <SlateMobile /> */}
 			<SlateReact />
+
 
 			{/* <PlainTextExample /> */}
 		</div>

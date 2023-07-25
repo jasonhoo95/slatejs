@@ -1215,14 +1215,14 @@ const CheckList = ({ attributes, children, element }) => {
 
 
 			<div onClick={e => {
-				// e.preventDefault();
-				// if (e.target.parentNode.className == "check-parent") {
-				// 	const path = ReactEditor.findPath(editor, element);
-				// 	const newProperties = {
-				// 		checked: checked ? false : true,
-				// 	};
-				// 	Transforms.setNodes(editor, newProperties, { at: path });
-				// }
+				e.preventDefault();
+				if (e.target.parentNode.className == "check-parent") {
+					const path = ReactEditor.findPath(editor, element);
+					const newProperties = {
+						checked: checked ? false : true,
+					};
+					Transforms.setNodes(editor, newProperties, { at: path });
+				}
 			}} className="check-list">
 				<span
 						style={{ cursor: "pointer" }}
@@ -1356,7 +1356,7 @@ const Element = (props) => {
 		case "editable-void":
 			return <EditableVoid {...props}></EditableVoid>;
 		case "check-list-item":
-			return <CheckListItemElement {...props} />;
+			return <CheckList {...props} />;
 		case "dropdown-content":
 			return <DropDownList {...props} />;
 		case "heading-one":
