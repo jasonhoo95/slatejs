@@ -1233,7 +1233,6 @@ const CheckList = ({ attributes, children, element }) => {
 						checked: checked ? false : true,
 					};
 							Transforms.setNodes(editor, newProperties, { at: path });
-							ReactEditor.blur(editor);
 				}}
 				className="checkbox-ui">
 
