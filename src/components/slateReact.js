@@ -5,7 +5,7 @@ import isHotkey from "is-hotkey";
 
 import { css } from "@emotion/css";
 import { v4 } from "uuid";
-import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused, useReadOnly } from "slate-react";
+import { Editable, withReact, useSlate, useSlateStatic, Slate, ReactEditor, useSelected, useFocused, useReadOnly } from "slate-react";
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node, Point } from "slate";
 import { withHistory, HistoryEditor, History } from "slate-history";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
@@ -1204,7 +1204,7 @@ const Heading1Component = ({ attributes, children, element }) => {
 };
 
 const CheckList = ({ attributes, children, element }) => {
-	const editor = useSlate();
+	const editor = useSlateStatic();
 	const { checked } = element;
 	let timeoutRef = React.useRef();
 	let workaroundIOSDblClickBug = () => {
@@ -1216,7 +1216,7 @@ const CheckList = ({ attributes, children, element }) => {
 		clearTimeout(timeoutRef.current);
 		timeoutRef.current = setTimeout(() => {
 			root.style.touchAction = "";
-		}, 500);
+		}, 200);
 	};
 	return (
 		<li
@@ -1227,13 +1227,15 @@ const CheckList = ({ attributes, children, element }) => {
 
 
 			<div onClick={e => {
-				e.preventDefault();
 				if (e.target.parentNode.className == "check-parent") {
+					workaroundIOSDblClickBug();
+
 					const path = ReactEditor.findPath(editor, element);
 					const newProperties = {
 						checked: checked ? false : true,
 					};
 					Transforms.setNodes(editor, newProperties, { at: path });
+					ReactEditor.blur(editor);
 				}
 			}} className="check-list">
 				<span
@@ -1247,13 +1249,17 @@ const CheckList = ({ attributes, children, element }) => {
 						checked: checked ? false : true,
 					};
 							Transforms.setNodes(editor, newProperties, { at: path });
+							ReactEditor.blur(editor);
+
+							// var style = e.target.style;
+							// style.setProperty('--background', checked ? 'white' : 'blue');
 				}}
 				className="checkbox-ui">
 
 					</span>
 				<span
 				contentEditable={true}
-						style={{ paddingLeft: '3px' }}
+					style={{ paddingLeft: '5px' }}
 						className={css`
 					flex: 1;
 					opacity: ${checked ? 0.666 : 1};
