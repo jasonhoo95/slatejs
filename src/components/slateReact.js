@@ -148,8 +148,23 @@ const SlateReact = () => {
 
 		if (currentParent && ["list-item", "check-list-item"].includes(currentParent[0].type) && currentParent[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
+
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
+		} else if (currentParent && ["check-list-item"].includes(currentParent[0].type)) {
+
+			insertBreak();
+			const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "check-list-item" });
+
+			const newProperties = {
+				checked: false,
+				type: 'check-list-item',
+				children: [{ text: parentCheck[0].children[0].text }]
+			};
+			Transforms.setNodes(editor, newProperties, { at: parentCheck[1] });
+			console.log(parentCheck, "parent check");
+
+
 		} else {
 			insertBreak();
 			const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
@@ -1206,6 +1221,10 @@ const Heading1Component = ({ attributes, children, element }) => {
 const CheckList = ({ attributes, children, element }) => {
 	const editor = useSlateStatic();
 	const { checked } = element;
+	// const { insertBreak } = editor
+
+	// console.log(insertBreak(), "insert break");
+
 	let timeoutRef = React.useRef();
 	let workaroundIOSDblClickBug = () => {
 		// Add touch-action: manipulation on click to workaround https://bugs.webkit.org/show_bug.cgi?id=216681,
@@ -1248,11 +1267,14 @@ const CheckList = ({ attributes, children, element }) => {
 					const newProperties = {
 						checked: checked ? false : true,
 					};
+
+
 							Transforms.setNodes(editor, newProperties, { at: path });
+
 							ReactEditor.blur(editor);
 
-							// var style = e.target.style;
-							// style.setProperty('--background', checked ? 'white' : 'blue');
+							var style = e.target.style;
+							style.setProperty('--background', checked ? 'white' : 'blue');
 				}}
 				className="checkbox-ui">
 
