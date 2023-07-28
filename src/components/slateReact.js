@@ -1247,13 +1247,15 @@ const CheckList = ({ attributes, children, element }) => {
 
 			<div onClick={e => {
 				if (e.target.parentNode.className == "check-parent") {
-					workaroundIOSDblClickBug();
+					// workaroundIOSDblClickBug();
 
-					const path = ReactEditor.findPath(editor, element);
-					const newProperties = {
-						checked: checked ? false : true,
-					};
-					Transforms.setNodes(editor, newProperties, { at: path });
+					// const path = ReactEditor.findPath(editor, element);
+					// const newProperties = {
+					// 	checked: checked ? false : true,
+					// };
+					// var style = e.target.style;
+					// style.setProperty('--background', checked ? 'white' : 'blue');
+					// Transforms.setNodes(editor, newProperties, { at: path });
 				}
 			}} className="check-list">
 				<span
