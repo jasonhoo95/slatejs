@@ -1254,7 +1254,6 @@ const CheckList = ({ attributes, children, element }) => {
 						checked: checked ? false : true,
 					};
 					Transforms.setNodes(editor, newProperties, { at: path });
-					ReactEditor.blur(editor);
 				}
 			}} className="check-list">
 				<span
@@ -1271,7 +1270,6 @@ const CheckList = ({ attributes, children, element }) => {
 
 							Transforms.setNodes(editor, newProperties, { at: path });
 
-							ReactEditor.blur(editor);
 
 							var style = e.target.style;
 							style.setProperty('--background', checked ? 'white' : 'blue');
