@@ -1265,6 +1265,7 @@ const CheckList = ({ attributes, children, element }) => {
 
 							var style = e.target.style;
 							style.setProperty('--background', checked ? 'white' : 'blue');
+							ReactEditor.blur(editor);
 				}}
 				className="checkbox-ui">
 
