@@ -1246,24 +1246,14 @@ const CheckList = ({ attributes, children, element }) => {
 
 
 			<div onClick={e => {
-				if (e.target.parentNode.className == "check-parent") {
-					// workaroundIOSDblClickBug();
 
-					// const path = ReactEditor.findPath(editor, element);
-					// const newProperties = {
-					// 	checked: checked ? false : true,
-					// };
-					// Transforms.setNodes(editor, newProperties, { at: path });
-					// var style = e.target.style;
-					// style.setProperty('--background', checked ? 'white' : 'blue');
-				}
 			}} className="check-list">
 				<span
 					style={{ cursor: "pointer" }}
 						contentEditable={false}
 						onClick={(e) => {
 							// and remove after a short delay to prevent double click.
-							workaroundIOSDblClickBug();
+							// workaroundIOSDblClickBug();
 					const path = ReactEditor.findPath(editor, element);
 					const newProperties = {
 						checked: checked ? false : true,
