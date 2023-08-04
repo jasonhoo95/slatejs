@@ -104,7 +104,6 @@ input{
 
 .checkbox-ui::before {
 	content: " ";
-	background-color: var(--background);
     line-height: normal;
     font-size: 16px;
     background-position: 50%;
@@ -118,6 +117,14 @@ input{
     border-radius: 4px;
     border: 1px solid black;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+.checked::before{
+	background-color: blue;
+}
+
+.not-checked::before{
+	background-color: white;
 }
 
 .checkbox-ui::after {

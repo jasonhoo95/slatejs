@@ -1256,17 +1256,13 @@ const CheckList = ({ attributes, children, element }) => {
 						checked: checked ? false : true,
 					};
 
-
 							Transforms.setNodes(editor, newProperties, { at: path });
 
-
-							var style = e.target.style;
-							style.setProperty('--background', checked ? 'white' : 'blue');
 							ReactEditor.blur(editor);
 							workaroundIOSDblClickBug();
 
 				}}
-				className="checkbox-ui">
+					className={`checkbox-ui ${checked ? "checked" : 'not-checked'}`}>
 
 					</span>
 				<span
