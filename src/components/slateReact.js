@@ -1231,12 +1231,6 @@ const CheckList = ({ attributes, children, element }) => {
 		// and remove after a short delay to prevent double click.
 		let root = document.getElementById("__next");
 		root.style.touchAction = "manipulation";
-		const path = ReactEditor.findPath(editor, element);
-		const newProperties = {
-			checked: checked ? false : true,
-		};
-
-		Transforms.setNodes(editor, newProperties, { at: path });
 		clearTimeout(timeoutRef.current);
 		timeoutRef.current = setTimeout(() => {
 			root.style.touchAction = "";
@@ -1256,9 +1250,14 @@ const CheckList = ({ attributes, children, element }) => {
 						contentEditable={false}
 
 						onClick={(e) => {
-							workaroundIOSDblClickBug();
+							// workaroundIOSDblClickBug();
 							// and remove after a short delay to prevent double click.
+							const path = ReactEditor.findPath(editor, element);
+							const newProperties = {
+								checked: checked ? false : true,
+							};
 
+							Transforms.setNodes(editor, newProperties, { at: path });
 
 
 				}}
