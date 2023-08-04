@@ -1266,8 +1266,7 @@ const CheckList = ({ attributes, children, element }) => {
 
 					</span>
 				<span
-				contentEditable={true}
-					style={{ paddingLeft: '2px' }}
+					contentEditable={true}
 						className={css`
 					flex: 1;
 					opacity: ${checked ? 0.666 : 1};
