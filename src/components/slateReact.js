@@ -1231,11 +1231,16 @@ const CheckList = ({ attributes, children, element }) => {
 		// and remove after a short delay to prevent double click.
 		let root = document.getElementById("__next");
 		root.style.touchAction = "manipulation";
+		const path = ReactEditor.findPath(editor, element);
+		const newProperties = {
+			checked: checked ? false : true,
+		};
 
+		Transforms.setNodes(editor, newProperties, { at: path });
 		clearTimeout(timeoutRef.current);
 		timeoutRef.current = setTimeout(() => {
 			root.style.touchAction = "";
-		}, 200);
+		}, 700);
 	};
 	return (
 		<li
@@ -1249,16 +1254,12 @@ const CheckList = ({ attributes, children, element }) => {
 				<span
 					style={{ cursor: "pointer" }}
 						contentEditable={false}
+
 						onClick={(e) => {
-							// and remove after a short delay to prevent double click.
-					const path = ReactEditor.findPath(editor, element);
-					const newProperties = {
-						checked: checked ? false : true,
-					};
-
-							Transforms.setNodes(editor, newProperties, { at: path });
-
 							workaroundIOSDblClickBug();
+							// and remove after a short delay to prevent double click.
+
+
 
 				}}
 					className={`checkbox-ui ${checked ? "checked" : 'not-checked'}`}>
@@ -1290,6 +1291,17 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 	const { checked } = element;
 	const readOnly = useReadOnly()
 
+	let timeoutRef = React.useRef();
+	let workaroundIOSDblClickBug = () => {
+		// Add touch-action: manipulation on click to workaround https://bugs.webkit.org/show_bug.cgi?id=216681,
+		// and remove after a short delay to prevent double click.
+		let root = document.getElementById("__next");
+		root.style.touchAction = "manipulation";
+		clearTimeout(timeoutRef.current);
+		timeoutRef.current = setTimeout(() => {
+			root.style.touchAction = "";
+		}, 500);
+	};
 	return (
 		<div
 			{...attributes}
@@ -1311,12 +1323,14 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				<input
 					type="checkbox"
 					checked={checked}
+					onClick={() => { workaroundIOSDblClickBug() }}
 					onChange={(event) => {
 						const path = ReactEditor.findPath(editor, element);
 						const newProperties = {
 							checked: event.target.checked,
 						};
 						Transforms.setNodes(editor, newProperties, { at: path });
+
 					}}
 				/>
 			</span>
