@@ -162,7 +162,7 @@ const SlateReact = () => {
 				children: [{ text: parentCheck[0].children[0].text }]
 			};
 			Transforms.setNodes(editor, newProperties, { at: parentCheck[1] });
-			console.log(parentCheck, "parent check");
+
 
 
 		} else {
@@ -198,7 +198,7 @@ const SlateReact = () => {
 			});
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
-		console.log(nextParent, listItems, "list items");
+
 
 		const currentNodeParent = Editor.node(editor, {
 			at: editor.selection.anchor.path,
@@ -208,7 +208,7 @@ const SlateReact = () => {
 			deleteBackward(...args);
 			if (!backwardCheck) {
 				backwardCheck = true;
-				console.log("banner red merged");
+
 				const currentNode = Editor.node(editor, editor.selection.anchor.path);
 
 				if (["katex", "inline-bug"].includes(currentNode[0].type)) {
@@ -231,7 +231,7 @@ const SlateReact = () => {
 						match: (n) => ["paragraph", "numbered-list", "bulleted-list"].includes(n.type),
 					});
 
-					console.log(nextnode, "node check");
+
 
 					if (listItems[0].type == nextnode[0].type) {
 						Transforms.mergeNodes(editor, {
@@ -279,7 +279,7 @@ const SlateReact = () => {
 			deleteBackward(...args);
 
 			if (!backwardCheck) {
-				console.log("number list merged");
+
 
 				backwardCheck = true;
 				const currentNode = Editor.node(editor, editor.selection.anchor);
@@ -308,7 +308,7 @@ const SlateReact = () => {
 			//
 			if (string.text.length == 0) {
 				deleteBackward(...args);
-				console.log("inside");
+
 
 				if (!backwardCheck) {
 					backwardCheck = true;
@@ -333,7 +333,7 @@ const SlateReact = () => {
 				}
 			} else {
 				deleteBackward(...args);
-				console.log("inside");
+
 
 				if (!backwardCheck) {
 					backwardCheck = true;
@@ -356,17 +356,17 @@ const SlateReact = () => {
 		const listItems = Editor.nodes(editor, {
 			match: (n) => n.type === "list-item" || n.type == "check-list-item",
 		});
-		console.log(editor.selection, "fragment selection");
+
 		deleteFragment(...args);
 
 		const string = Node.leaf(editor, editor.selection.anchor.path);
-		console.log(string, "fragment");
+
 		if (string && (string?.type == "inline-bug" || string?.type == "katex")) {
 			Transforms.move(editor, { distance: 1, unit: "offset" });
 		}
 		for (const listItem of listItems) {
 			const parent = Editor.parent(editor, listItem[1]);
-			console.log(string, "fragment");
+
 
 			if (parent && !["numbered-list", "bulleted-list", "check-list"].includes(parent[0].type)) {
 				Transforms.setNodes(
@@ -380,7 +380,8 @@ const SlateReact = () => {
 			}
 		}
 	};
-	const onFocus = useCallback(() => {
+	const onFocus = useCallback((e) => {
+		e.preventDefault();
 		setFocus(true);
 
 		// Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
@@ -389,7 +390,7 @@ const SlateReact = () => {
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
 	}, []);
 
-	const onBlur = useCallback(() => {
+	const onBlur = useCallback((e) => {
 		setFocus(false);
 
 		// savedSelection.current = editor.selection;
@@ -402,10 +403,11 @@ const SlateReact = () => {
 		<div>
 			<Slate
 				editor={editor}
+
 				onChange={(value) => {
 					if (editor && editor.selection) {
 						const string = Node.leaf(editor, editor.selection.anchor.path);
-						console.log(value, "value now");
+
 						if (string.text.startsWith("1. ")) {
 							toggleBlock(editor, "numbered-list", "number");
 							Transforms.delete(editor, {
@@ -788,7 +790,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const katextext = katex.renderToString(String.raw`${element.url}`);
 	const selected = useSelected();
 	const focused = useFocused();
-	console.log(focused, selected, "focues now");
+
 	return (
 		<span
 			contentEditable="false"
@@ -933,10 +935,10 @@ const toggleBlock = (editor, format, type) => {
 		formatCheck = format;
 	}
 
-	console.log(formatCheck, "format check");
+
 	Transforms.unwrapNodes(editor, {
 		match: (n) => {
-			console.log(n.type, "types");
+
 			return !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type);
 		},
 		split: true,
@@ -952,7 +954,7 @@ const toggleBlock = (editor, format, type) => {
 			type: isActive ? "paragraph" : isList ? "list-item" : formatCheck,
 		};
 	}
-	console.log(newProperties, "new properties");
+
 	Transforms.setNodes(editor, newProperties);
 
 	if (!isActive && isList) {
@@ -1135,18 +1137,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 			}}
 			{...attributes}
 			contentEditable="false"
-			// onBlur={(e) => {
-			// 	let cardnow = [...card];
-			// 	if (cardnow.length > 0) {
-			// 		var result = cardnow.map((o, key) => {
-			// 			if (key == clickKey) {
-			// 				o.check = false;
-			// 			}
-			// 		});
-			//
-			// 		setObj(result);
-			// 	}
-			// }}
+
 		>
 			<button
 				onClick={(e) => {
@@ -1223,7 +1214,7 @@ const CheckList = ({ attributes, children, element }) => {
 	const { checked } = element;
 	// const { insertBreak } = editor
 
-	// console.log(insertBreak(), "insert break");
+	// 
 
 	let timeoutRef = React.useRef();
 	let workaroundIOSDblClickBug = () => {
@@ -1249,15 +1240,22 @@ const CheckList = ({ attributes, children, element }) => {
 					style={{ cursor: "pointer" }}
 						contentEditable={false}
 
-						onClick={(e) => {
-							// workaroundIOSDblClickBug();
-							// and remove after a short delay to prevent double click.
+					onClick={(e) => {
 							const path = ReactEditor.findPath(editor, element);
 							const newProperties = {
 								checked: checked ? false : true,
 							};
 
+						const [nodes] = Editor.nodes(editor, {
+							at: path,
+							match: (n) => !Editor.isEditor(n) && n.type == "check-list-item",
+						})
+
 							Transforms.setNodes(editor, newProperties, { at: path });
+						ReactEditor.blur(editor);
+
+						e.preventDefault();
+
 
 
 				}}
