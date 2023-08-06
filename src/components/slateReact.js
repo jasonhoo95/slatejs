@@ -1258,7 +1258,6 @@ const CheckList = ({ attributes, children, element }) => {
 							};
 
 							Transforms.setNodes(editor, newProperties, { at: path });
-							ReactEditor.blur(editor);
 
 
 				}}
