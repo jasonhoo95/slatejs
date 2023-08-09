@@ -791,6 +791,8 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const focused = useFocused();
 
+
+	console.log(focused, selected, "focus selected katex component");
 	return (
 		<span
 			contentEditable="false"
@@ -801,7 +803,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 			}}
 			//
 			style={{
-				background: focused && selected ? "red" : "",
+				background: selected ? "red" : "",
 			}}
 			className="span-katex"
 			{...attributes}>
