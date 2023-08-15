@@ -114,6 +114,7 @@ const SlateReact = () => {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
+				this.window.scrollTo(0, 0);
 				ReactEditor.blur(editor);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
 			} else if (event.data == "katex") {
@@ -379,7 +380,6 @@ const SlateReact = () => {
 		}
 	};
 	const onFocus = useCallback((e) => {
-		e.preventDefault();
 		setFocus(true);
 
 		// Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
@@ -389,8 +389,6 @@ const SlateReact = () => {
 	}, []);
 
 	const onBlur = useCallback((e) => {
-		e.preventDefault();
-		e.stopPropagation();
 		setFocus(false);
 
 		// savedSelection.current = editor.selection;
