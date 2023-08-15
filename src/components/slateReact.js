@@ -114,7 +114,6 @@ const SlateReact = () => {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
-				this.window.scrollTo(0, 0);
 				ReactEditor.blur(editor);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
 			} else if (event.data == "katex") {
