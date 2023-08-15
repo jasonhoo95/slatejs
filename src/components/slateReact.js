@@ -114,6 +114,7 @@ const SlateReact = () => {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
+				window.removeEventListener("resize", getCaretCoordinates);
 				this.window.scrollTo(0, 0);
 				ReactEditor.blur(editor);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
@@ -125,7 +126,6 @@ const SlateReact = () => {
 					Transforms.move(editor, { distance: 1, unit: "offset" });
 				}
 				ReactEditor.focus(editor);
-				// window.removeEventListener("resize", getCaretCoordinates);
 			}
 		});
 	}, [editor]);
