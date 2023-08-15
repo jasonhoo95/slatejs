@@ -114,7 +114,6 @@ const SlateReact = () => {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
-				window.scrollTo(0, 0);
 				ReactEditor.blur(editor);
 				this.window.removeEventListener("message", this);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
@@ -391,6 +390,8 @@ const SlateReact = () => {
 	}, []);
 
 	const onBlur = useCallback((e) => {
+		e.preventDefault();
+		e.stopPropagation();
 		setFocus(false);
 
 		// savedSelection.current = editor.selection;
@@ -1248,15 +1249,10 @@ const CheckList = ({ attributes, children, element }) => {
 								checked: checked ? false : true,
 							};
 
-						const [nodes] = Editor.nodes(editor, {
-							at: path,
-							match: (n) => !Editor.isEditor(n) && n.type == "check-list-item",
-						})
-
-							Transforms.setNodes(editor, newProperties, { at: path });
+						Transforms.setNodes(editor, newProperties, { at: path });
 						ReactEditor.blur(editor);
-
 						e.preventDefault();
+						e.stopPropagation();
 
 
 
