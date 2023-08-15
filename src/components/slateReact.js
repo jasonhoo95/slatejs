@@ -115,7 +115,6 @@ const SlateReact = () => {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
 				ReactEditor.blur(editor);
-				this.window.removeEventListener("message", this);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
 			} else if (event.data == "katex") {
 				insertKatex(editor, "kkasdl", updateAmount);
@@ -125,7 +124,7 @@ const SlateReact = () => {
 					Transforms.move(editor, { distance: 1, unit: "offset" });
 				}
 				ReactEditor.focus(editor);
-				window.removeEventListener("resize", getCaretCoordinates);
+				// window.removeEventListener("resize", getCaretCoordinates);
 			}
 		});
 	}, [editor]);
