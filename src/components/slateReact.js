@@ -384,7 +384,7 @@ const SlateReact = () => {
 
 		// Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
-		window.addEventListener("resize", getCaretCoordinates);
+		// window.addEventListener("resize", getCaretCoordinates);
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
 	}, []);
 
@@ -392,7 +392,7 @@ const SlateReact = () => {
 		setFocus(false);
 
 		// savedSelection.current = editor.selection;
-		window.removeEventListener("resize", getCaretCoordinates);
+		// window.removeEventListener("resize", getCaretCoordinates);
 
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 	}, []);
