@@ -118,6 +118,7 @@ const SlateReact = () => {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
 			} else if (event.data == "katex") {
 				insertKatex(editor, "kkasdl", updateAmount);
+				ReactEditor.blur(editor);
 			} else if (event.data == "focus") {
 				const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
 				if (parentCheck[0].type == "katex") {
