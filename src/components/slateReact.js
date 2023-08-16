@@ -6,9 +6,8 @@ import isHotkey from "is-hotkey";
 import { css } from "@emotion/css";
 import { v4 } from "uuid";
 import { Editable, withReact, useSlate, useSlateStatic, Slate, ReactEditor, useSelected, useFocused, useReadOnly } from "slate-react";
-import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node, Point } from "slate";
+import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node, Point, setPoint } from "slate";
 import { withHistory, HistoryEditor, History } from "slate-history";
-import { useBearStore, useAuthStore } from "@/globals/authStorage";
 import { useModalStore } from "@/globals/zustandGlobal";
 import EditablePopup from "./editablePopup";
 import _, { keyBy } from "lodash";
@@ -31,7 +30,7 @@ let leftCheck = false;
 let rightCheck = false;
 let blurCheck = "false";
 let anchorPoint;
-let editorNow;
+let open = false;
 // let focusCheck = false;
 const initialValue = [
 	{
@@ -96,9 +95,9 @@ function getCaretCoordinates() {
 const SlateReact = () => {
 	let id = v4();
 	let updateAmount = useModalStore((state) => state.updateModal);
+	let ModalProps = useModalStore((state) => state.display);
 
 	const [focus, setFocus] = useState(true);
-	const ModalProps = useModalStore((state) => state.amount);
 	const contentEditableRef = useRef(null);
 
 	const renderElement = useCallback((props) => <Element {...props} />, []);
@@ -114,11 +113,21 @@ const SlateReact = () => {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
+				ReactEditor.blur(editor);
 				// this.window.scrollTo(0, 0);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
-			} else if (event.data == "katex") {
+			} else if (event.data == "katexinsert") {
+				Transforms.insertText(editor, "\u00a0".toString(), {
+					at: editor.selection.anchor,
+				});
+
+			}
+			else if (event.data == "katex") {
+				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katexinsertnow");
+				Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, unit: 'offset', reverse: true })
+
 				insertKatex(editor, "kkasdl", updateAmount);
-				ReactEditor.blur(editor);
+
 			} else if (event.data == "focus") {
 				const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
 				if (parentCheck[0].type == "katex") {
@@ -395,8 +404,11 @@ const SlateReact = () => {
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 	}, []);
 
+	console.log(ModalProps, "modal props");
 	return (
 		<div>
+			{ModalProps ? 'true' : 'false'}
+			<EditablePopup editor={editor} open={ModalProps} />
 			<Slate
 				editor={editor}
 
@@ -435,18 +447,6 @@ const SlateReact = () => {
 					format="bulleted-list"
 				/>
 
-				{/* <BlockButton
-					format="url-link"
-					icon="format_list_item"
-				/>
-
-
-
-
-				<MarkButton
-					format="bold"
-					icon="format_bold"
-				/> */}
 
 				<div
 					onClick={(e) => {
@@ -590,6 +590,8 @@ const SlateReact = () => {
 	);
 };
 
+
+
 const wrapperCheck = (editor) => {
 	const block = { type: "banner-red-wrapper", children: [] };
 	const isActive = isBlockActive(editor, "banner-red-wrapper", TEXT_ALIGN_TYPES.includes("banner-red-wrapper") ? "align" : "type");
@@ -674,6 +676,7 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
+
 	let id = v4();
 	const katex = {
 		type: "katex",
@@ -685,9 +688,13 @@ const insertKatex = (editor, url, updateAmount) => {
 
 	Transforms.move(editor);
 
-	// Transforms.insertText(editor, "\u00a0".toString(), {
-	// 	at: editor.selection.anchor,
-	// });
+
+	Transforms.insertText(editor, "\u00a0".toString(), {
+		at: editor.selection.anchor,
+	});
+
+	ReactEditor.focus(editor);
+
 	// updateAmount("katex");
 
 	// ReactEditor.focus(editor);
@@ -837,6 +844,8 @@ const MarkButton = ({ format, icon }) => {
 const BlockButton = ({ format, icon }) => {
 	const editor = useSlate();
 	let updateAmount = useModalStore((state) => state.updateModal);
+	let ModalProps = useModalStore((state) => state.display);
+
 	if (format == "numbered-list") {
 		return (
 			<div
@@ -885,12 +894,14 @@ const BlockButton = ({ format, icon }) => {
 		);
 	} else if (format == "katex-link") {
 		return (
+
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
+					updateAmount(true);
 					event.preventDefault();
 					// ReactEditor.blur(editor);
-					insertKatex(editor, "jjk", updateAmount);
+					// insertKatex(editor, "jjk", updateAmount);
 					// getCaretCoordinates();
 				}}>
 				Katex Link

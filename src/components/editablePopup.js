@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Fragment } from "react";
 import { Dialog, Transition, RadioGroup } from "@headlessui/react";
+import { useModalStore } from "@/globals/zustandGlobal";
 
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Range, Node } from "slate";
-export default function EditablePopup({ open, path, value, card, id, editor, setModal }) {
+export default function EditablePopup({ open, editor, setModal }) {
 	const [openNow, setOpen] = useState(open);
+	let updateAmount = useModalStore((state) => state.updateModal);
+	useEffect(() => {
+		console.log(open, openNow, "open now");
+		setOpen(open)
+	}, [open])
 	return (
 		<Transition.Root
 			appear
@@ -12,8 +18,8 @@ export default function EditablePopup({ open, path, value, card, id, editor, set
 			as={Fragment}>
 			<Dialog
 				onClose={(e) => {
-					setOpen(false);
-					setModal(id, card, false);
+					updateAmount(false)
+					setOpen(false)
 				}}>
 				<Transition.Child
 					as={Fragment}
@@ -45,15 +51,7 @@ export default function EditablePopup({ open, path, value, card, id, editor, set
 									<h1>Edit npw</h1>
 								</div>
 								<div
-									onClick={(e) => {
-										let cardnow = [...card];
-										var index = _.findIndex(cardnow, { id: id });
-										cardnow.splice(index, 1, { card: "oknow", id: id });
-										console.log(cardnow, "inner text changve");
-										setOpen(false);
-										setModal(id, card, false);
-										Transforms.setNodes(editor, { card: cardnow }, { at: path });
-									}}
+
 									className="mt-4">
 									Insert katex
 								</div>

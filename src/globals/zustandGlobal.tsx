@@ -1,16 +1,16 @@
 import create from "zustand";
 
 interface IModal {
-	amount: any;
+	display: any;
 	click: any;
-	updateModal: (newAmount: any) => void;
+	updateModal: (newDisplay: any) => void;
 	updateClick: (newClick: any) => void;
 }
 
 export const useModalStore = create<IModal>((set) => ({
-	amount: "hello",
+	display: false,
 	click: false,
 	updateClick: (newClick: any) => set({ click: newClick }),
-	updateModal: (newAmount: any) => set({ amount: newAmount }),
+	updateModal: (newDisplay: any) => set({ display: newDisplay }),
 	retrieveJSONData: async () => {},
 }));
