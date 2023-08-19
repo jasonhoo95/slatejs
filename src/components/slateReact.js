@@ -113,6 +113,14 @@ const SlateReact = () => {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
+				const string = Node.leaf(editor, editor.selection.anchor.path);
+
+				if (string.text.length == 0) {
+					Transforms.insertText(editor, "\u200b".toString(), {
+						at: editor.selection.anchor,
+					});
+				}
+
 				ReactEditor.blur(editor);
 				// this.window.scrollTo(0, 0);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
@@ -129,6 +137,17 @@ const SlateReact = () => {
 				insertKatex(editor, "kkasdl", updateAmount);
 
 			} else if (event.data == "focus") {
+				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focusnow");
+				ReactEditor.focus(editor);
+
+				if (editor.selection) {
+					this.setTimeout(() => {
+						Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, unit: 'offset', reverse: true })
+
+
+					}, 600)
+				}
+
 				const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
 				if (parentCheck[0].type == "katex") {
 					Transforms.move(editor, { distance: 1, unit: "offset" });
@@ -312,9 +331,11 @@ const SlateReact = () => {
 			const string = Node.leaf(editor, editor.selection.anchor.path);
 
 			//
+
 			if (string.text.length == 0) {
 				deleteBackward(...args);
 
+				console.log(string, "string backward");
 
 				if (!backwardCheck) {
 					backwardCheck = true;
@@ -339,6 +360,8 @@ const SlateReact = () => {
 				}
 			} else {
 				deleteBackward(...args);
+				const string = Node.leaf(editor, editor.selection.anchor.path);
+
 
 
 				if (!backwardCheck) {
@@ -387,17 +410,41 @@ const SlateReact = () => {
 		}
 	};
 	const onFocus = useCallback((e) => {
+
 		setFocus(true);
 
-		// Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
+		setTimeout(() => {
+			if (editor.selection) {
+				console.log(editor.selection, "Selection");
+				const [listItems] = Editor.nodes(editor, {
+					match: (n) => n.type == "check-list",
+				});
+				console.log(listItems, "CHECK LIST")
+				if (listItems && listItems[0].type == "check-list") {
+					console.log("CHECK LIST");
+					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "checklist");
+				} else {
+					console.log("FOCUS NOW");
 
+					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
+
+				}
+
+
+			}
+
+		}, 90)
 		window.addEventListener("resize", getCaretCoordinates);
-		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
+
+
+
+
+
+
 	}, []);
 
 	const onBlur = useCallback((e) => {
 		setFocus(false);
-
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
 
@@ -408,7 +455,7 @@ const SlateReact = () => {
 	return (
 		<div>
 			{ModalProps ? 'true' : 'false'}
-			<EditablePopup editor={editor} open={ModalProps} />
+			{/* <EditablePopup editor={editor} open={ModalProps} /> */}
 			<Slate
 				editor={editor}
 
@@ -898,8 +945,12 @@ const BlockButton = ({ format, icon }) => {
 			<div
 				style={{ padding: "10px" }}
 				onMouseDown={(event) => {
-					updateAmount(true);
-					event.preventDefault();
+					// updateAmount(true);
+					// event.preventDefault();
+					Transforms.insertText(editor, "\u200b".toString(), {
+						at: editor.selection.anchor,
+					});
+					ReactEditor.focus(editor);
 					// ReactEditor.blur(editor);
 					// insertKatex(editor, "jjk", updateAmount);
 					// getCaretCoordinates();
@@ -911,9 +962,9 @@ const BlockButton = ({ format, icon }) => {
 		return (
 			<div
 				onMouseDown={(event) => {
-					getCaretCoordinates();
 
 					toggleBlock(editor, format);
+					ReactEditor.focus(editor);
 				}}>
 				bullet list
 			</div>
@@ -1224,6 +1275,7 @@ const CheckList = ({ attributes, children, element }) => {
 	// const { insertBreak } = editor
 
 	// 
+	let updateAmount = useModalStore((state) => state.updateModal);
 
 	let timeoutRef = React.useRef();
 	let workaroundIOSDblClickBug = () => {
@@ -1247,9 +1299,9 @@ const CheckList = ({ attributes, children, element }) => {
 			<div className="check-list">
 				<span
 					style={{ cursor: "pointer" }}
-						contentEditable={false}
 
 					onClick={(e) => {
+						updateAmount(true)
 							const path = ReactEditor.findPath(editor, element);
 							const newProperties = {
 								checked: checked ? false : true,
