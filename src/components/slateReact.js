@@ -412,12 +412,9 @@ const SlateReact = () => {
 	const onFocus = useCallback((e) => {
 
 		setFocus(true);
-
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
 
-
-
-
+		console.log("focus");
 		window.addEventListener("resize", getCaretCoordinates);
 
 
@@ -429,6 +426,8 @@ const SlateReact = () => {
 
 	const onBlur = useCallback((e) => {
 		setFocus(false);
+		console.log("blur");
+
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
 
@@ -1286,6 +1285,8 @@ const CheckList = ({ attributes, children, element }) => {
 					contentEditable={false}
 
 					onClick={(e) => {
+						e.stopPropagation();
+						e.preventDefault();
 						// updateAmount(true)
 							const path = ReactEditor.findPath(editor, element);
 							const newProperties = {
@@ -1293,8 +1294,8 @@ const CheckList = ({ attributes, children, element }) => {
 							};
 
 						Transforms.setNodes(editor, newProperties, { at: path });
-						e.preventDefault();
-						e.stopPropagation();
+						ReactEditor.blur(editor);
+						// e.stopPropagation();
 
 
 
