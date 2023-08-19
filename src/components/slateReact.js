@@ -413,27 +413,11 @@ const SlateReact = () => {
 
 		setFocus(true);
 
-		setTimeout(() => {
-			if (editor.selection) {
-				console.log(editor.selection, "Selection");
-				const [listItems] = Editor.nodes(editor, {
-					match: (n) => n.type == "check-list",
-				});
-				console.log(listItems, "CHECK LIST")
-				if (listItems && listItems[0].type == "check-list") {
-					console.log("CHECK LIST");
-					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "checklist");
-				} else {
-					console.log("FOCUS NOW");
-
-					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
-
-				}
+		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
 
 
-			}
 
-		}, 90)
+
 		window.addEventListener("resize", getCaretCoordinates);
 
 
@@ -1299,16 +1283,16 @@ const CheckList = ({ attributes, children, element }) => {
 			<div className="check-list">
 				<span
 					style={{ cursor: "pointer" }}
+					contentEditable={false}
 
 					onClick={(e) => {
-						updateAmount(true)
+						// updateAmount(true)
 							const path = ReactEditor.findPath(editor, element);
 							const newProperties = {
 								checked: checked ? false : true,
 							};
 
 						Transforms.setNodes(editor, newProperties, { at: path });
-						ReactEditor.blur(editor);
 						e.preventDefault();
 						e.stopPropagation();
 
