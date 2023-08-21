@@ -419,9 +419,6 @@ const SlateReact = () => {
 
 
 
-
-
-
 	}, []);
 
 	const onBlur = useCallback((e) => {
@@ -1285,6 +1282,7 @@ const CheckList = ({ attributes, children, element }) => {
 					contentEditable={false}
 
 					onClick={(e) => {
+						ReactEditor.blur(editor);
 						e.stopPropagation();
 						e.preventDefault();
 						// updateAmount(true)
@@ -1294,9 +1292,11 @@ const CheckList = ({ attributes, children, element }) => {
 							};
 
 						Transforms.setNodes(editor, newProperties, { at: path });
-						ReactEditor.blur(editor);
-						// e.stopPropagation();
-
+						// // e.stopPropagation();
+						// const domSelection = window.getSelection();
+						// if (domSelection) {
+						// 	domSelection.removeAllRanges();
+						// }
 
 
 				}}
@@ -1354,13 +1354,13 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 			<span
 				contentEditable={false}
 				className={css`
-					margin-right: 0.75em;
 					margin-bottom: auto;
+					user-select: none;
 				`}>
 				<input
 					type="checkbox"
+					readOnly
 					checked={checked}
-					onClick={() => { workaroundIOSDblClickBug() }}
 					onChange={(event) => {
 						const path = ReactEditor.findPath(editor, element);
 						const newProperties = {
@@ -1433,7 +1433,7 @@ const Element = (props) => {
 		case "editable-void":
 			return <EditableVoid {...props}></EditableVoid>;
 		case "check-list-item":
-			return <CheckList {...props} />;
+			return <CheckListItemElement {...props} />;
 		case "dropdown-content":
 			return <DropDownList {...props} />;
 		case "heading-one":
