@@ -1346,6 +1346,7 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
+				margin-bottom: 2px;
 
 				& + & {
 					margin-top: 0;
@@ -1356,9 +1357,11 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				className={css`
 					margin-bottom: auto;
 					user-select: none;
+					margin-right: 6px;
 				`}>
 				<input
 					type="checkbox"
+
 					readOnly
 					checked={checked}
 					onChange={(event) => {

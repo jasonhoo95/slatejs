@@ -96,7 +96,8 @@ input{
     border: 2px solid #ddd;
     background: #fafafa;
 	margin-right: 5px;
-	display: inline-block;
+	width: 100%;
+    height: 16px;
 }
 
 /* ol .check-list:before {
