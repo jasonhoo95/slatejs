@@ -1346,11 +1346,9 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				margin-bottom: 2px;
+				margin:8px 0px;
 
-				& + & {
-					margin-top: 0;
-				}
+			
 			`}>
 			<span
 				contentEditable={false}
@@ -1361,7 +1359,7 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				`}>
 				<input
 					type="checkbox"
-
+					onClick={(e) => { workaroundIOSDblClickBug() }}
 					readOnly
 					checked={checked}
 					onChange={(event) => {
