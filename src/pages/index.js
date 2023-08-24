@@ -7,9 +7,15 @@ import PlainTextExample from "@/components/plainText";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
 import { Slate } from "slate-react";
 import CheckListsExample from "@/components/checkListExample";
+import { useEffect } from "react";
 export default function Home() {
+
+	useEffect(() => {
+
+
+	}, [])
 	return (
-		<div className="m-8 main-wrapper">
+		<div className="m-8 main-wrapper app-container">
 			<Head>
 				<title>Create Next App</title>
 				<meta
@@ -26,7 +32,10 @@ export default function Home() {
 			<SlateReact />
 
 
+
 			{/* <PlainTextExample /> */}
+
+
 		</div>
 	);
 }

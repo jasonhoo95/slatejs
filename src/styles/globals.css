@@ -90,6 +90,51 @@
 	
 }
 
+.keyboard .app-container {
+	bottom: 270px;
+  }
+
+.app-container {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+  }
+
+  footer{
+	bottom: 0;
+  }
+
+
+.container {
+	position: relative;
+	padding: 10px;
+  }
+
+  header, footer, main {
+	position: absolute;
+	left: 0;
+	width: 100%;
+  }
+  
+ 
+  
+  .floating-div {
+	position: fixed;
+	bottom: 100%; /* Initially off the screen */
+	left: 0;
+	width: 100%;
+	padding: 10px;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+	z-index: 1;
+	transition: bottom 0.3s ease-in-out;
+  }
+
+
 input{
 	font-size: 0.85em;
     padding: 0.5em;

@@ -44,8 +44,7 @@ const initialValue = [
 
 	{
 		type: 'check-list',
-		checked: true,
-		children: [{ type: 'check-list-item', children: [{ text: 'asdasd' }] }, { type: 'check-list-item', children: [{ text: 'asdasd' }] }],
+		children: [{ type: 'check-list-item', checked: true, children: [{ text: 'asdasd' }] }, { type: 'check-list-item', children: [{ text: 'asdasd' }] }],
 	},
 	// {
 	// 	type: 'check-list',
@@ -109,6 +108,22 @@ const SlateReact = () => {
 	const savedSelection = React.useRef(editor.selection);
 
 	useEffect(() => {
+		// document.addEventListener('DOMContentLoaded', () => {
+		// 	setPlatformInfo();
+		// 	var inputBox = document.querySelector('#inputBox');
+		// 	if (inputBox) {
+		// 		inputBox.addEventListener('focus', function (e) {
+		// 			document.body.classList.add('keyboard');
+		// 			setTimeout(function () {
+		// 				window.scrollTo(0, 0);
+		// 			}, 200);
+		// 		});
+
+		// 		inputBox.addEventListener('blur', function (e) {
+		// 			document.body.classList.remove('keyboard');
+		// 		});
+		// 	}
+		// });
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
@@ -342,7 +357,7 @@ const SlateReact = () => {
 					const string = Node.leaf(editor, editor.selection.anchor.path);
 					const [listItems] = Editor.nodes(editor, {
 						at: editor.selection.anchor.path,
-						match: (n) => ["list-item", "katex", "inline-bug", "check-list-item"].includes(n.type),
+						match: (n) => ["list-item", "katex", "inline-bug"].includes(n.type),
 					});
 
 					const currentNode = Editor.node(editor, editor.selection.anchor);
@@ -397,6 +412,7 @@ const SlateReact = () => {
 			const parent = Editor.parent(editor, listItem[1]);
 
 
+			console.log(parent, "parent removed");
 			if (parent && !["numbered-list", "bulleted-list", "check-list"].includes(parent[0].type)) {
 				Transforms.setNodes(
 					editor,
@@ -413,7 +429,10 @@ const SlateReact = () => {
 
 		setFocus(true);
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
-
+		document.body.classList.add('keyboard');
+		setTimeout(function () {
+			window.scrollTo(0, 0);
+		}, 200);
 		console.log("focus");
 		window.addEventListener("resize", getCaretCoordinates);
 
@@ -421,12 +440,15 @@ const SlateReact = () => {
 
 	}, []);
 
+
+
 	const onBlur = useCallback((e) => {
 		setFocus(false);
 		console.log("blur");
 
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
+		document.body.classList.remove('keyboard');
 
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 	}, []);
@@ -434,7 +456,9 @@ const SlateReact = () => {
 	console.log(ModalProps, "modal props");
 	return (
 		<div>
-			{ModalProps ? 'true' : 'false'}
+			<footer>
+				<input id="inputBox" type="text" />
+			</footer>
 			{/* <EditablePopup editor={editor} open={ModalProps} /> */}
 			<Slate
 				editor={editor}
