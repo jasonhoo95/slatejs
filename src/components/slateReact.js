@@ -61,7 +61,7 @@ const initialValue = [
 		],
 	},
 ];
-function getCaretCoordinates() {
+function getCaretCoordinates(height) {
 	let x = 0,
 		y = 0;
 	const isSupported = typeof window.getSelection !== "undefined";
@@ -85,9 +85,21 @@ function getCaretCoordinates() {
 		x = position.x;
 		y = position.y + window.scrollY - 100;
 		anchorPoint = y;
+		var inputbox = document.querySelector('#footer')
+
+
+		// if (y > height) {
+		// 	inputbox.style.top =  + 'px'
+
+		// } else {
+		// 	inputbox.style.top = y + 'px'
+
+		// }
 		if (y > 0) {
+			window.flutter_inappwebview?.callHandler("handlerFooWithArgs", y);
 			window.scrollTo({ top: y, behavior: "smooth" });
-		}
+
+		} 
 	}
 	// return { x, y };
 }
@@ -429,12 +441,18 @@ const SlateReact = () => {
 
 		setFocus(true);
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
-		document.body.classList.add('keyboard');
-		setTimeout(function () {
-			window.scrollTo(0, 0);
-		}, 200);
 		console.log("focus");
-		window.addEventListener("resize", getCaretCoordinates);
+		let initialHeight = window.innerHeight;
+
+		window.addEventListener("resize", () => {
+			getCaretCoordinates();
+
+			// if (window.innerHeight < initialHeight) {
+			// 	const keyboardHeight = initialHeight - window.innerHeight;
+
+			// }
+
+		});
 
 
 
@@ -448,7 +466,6 @@ const SlateReact = () => {
 
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
-		document.body.classList.remove('keyboard');
 
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 	}, []);
@@ -456,8 +473,21 @@ const SlateReact = () => {
 	console.log(ModalProps, "modal props");
 	return (
 		<div>
-			<footer>
-				<input id="inputBox" type="text" />
+			<footer id="footer">
+				<div style={{ height: '40px', padding: '10px', background: 'grey' }} contentEditable="true">
+
+					asd asdas
+
+				</div>
+				<button style={{ background: 'red' }} onClick={e => {
+					ReactEditor.focus(editor)
+
+					var inputbox = document.querySelector('#footer')
+					inputbox.style.display = "none"
+
+				}}>
+					click me
+				</button>
 			</footer>
 			{/* <EditablePopup editor={editor} open={ModalProps} /> */}
 			<Slate
@@ -560,6 +590,19 @@ const SlateReact = () => {
 						ReactEditor.focus(editor);
 					}}>
 					check list
+				</div>
+
+				<div
+					onClick={(e) => {
+						var inputbox = document.querySelector('#footer')
+
+						inputbox.style.top = 0
+						inputbox.style.display = "block"
+
+
+						// ReactEditor.blur(editor);
+					}}>
+					TOGGLE KATEX123
 				</div>
 
 				<div

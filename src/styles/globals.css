@@ -95,15 +95,20 @@
   }
 
 .app-container {
-	position: absolute;
+	/* position: absolute;
 	top: 0;
 	bottom: 0;
 	right: 0;
-	left: 0;
+	left: 0; */
   }
 
-  footer{
+  #footer{
+	position: fixed;
+	display: none;
 	bottom: 0;
+	left: 0;
+	width: 100%;
+	z-index: 20;
   }
 
 
@@ -112,11 +117,11 @@
 	padding: 10px;
   }
 
-  header, footer, main {
+  /* header, footer, main {
 	position: absolute;
 	left: 0;
 	width: 100%;
-  }
+  } */
   
  
   
