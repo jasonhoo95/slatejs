@@ -67,9 +67,6 @@
 	/* height: calc(100vh - 150px);
 	overflow-y: auto; */
 	background-color: white;
-	overflow-y: hidden;
-	text-align: left;
-	position: relative;
 	outline: none;
 	white-space: pre-wrap;
 	overflow-wrap: break-word !important;
@@ -92,24 +89,41 @@
 
 .keyboard .app-container {
 	bottom: 270px;
+	height: auto !important;
   }
 
 .app-container {
-	/* position: absolute;
-	top: 0;
-	bottom: 0;
-	right: 0;
-	left: 0; */
+    left: auto;
+     height: 100%;
+    /* overflow: hidden; */
+    padding: 20px;
+    top: auto;
+	overflow:auto;
+    width: 100%;
+	position: relative;
   }
 
-  #footer{
-	position: fixed;
+ footer{
+	bottom:0;
 	display: none;
-	bottom: 0;
-	left: 0;
+	position: absolute;
+ }
+
+ .inner-container{
+	height: calc(100% - 48px);
+    /* position: absolute; */
 	width: 100%;
-	z-index: 20;
-  }
+    top: 48px;
+	
+ }
+
+ .main-wrapper{
+	height: 100%;
+    max-height: none;
+    padding: 0;
+    position: relative;
+    width: 100%;
+ }
 
 
 .container {
@@ -117,11 +131,9 @@
 	padding: 10px;
   }
 
-  /* header, footer, main {
-	position: absolute;
-	left: 0;
+  header, footer, main {
 	width: 100%;
-  } */
+  }
   
  
   
@@ -145,9 +157,9 @@ input{
     padding: 0.5em;
     border: 2px solid #ddd;
     background: #fafafa;
-	margin-right: 5px;
-	width: 100%;
-    height: 16px;
+	/* width: 100%; */
+	height: 15px;
+    width: 15px;
 }
 
 /* ol .check-list:before {

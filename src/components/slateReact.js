@@ -46,11 +46,11 @@ const initialValue = [
 		type: 'check-list',
 		children: [{ type: 'check-list-item', checked: true, children: [{ text: 'asdasd' }] }, { type: 'check-list-item', children: [{ text: 'asdasd' }] }],
 	},
-	// {
-	// 	type: 'check-list',
-	// 	checked: true,
-	// 	children: [{ type: 'check-list-item', children: [{ text: 'asdasd' }] }],
-	// },
+	{
+		type: 'numbered-list',
+		checked: true,
+		children: [{ type: 'list-item', children: [{ text: 'asdasd asdasd' }] }, { type: 'list-item', children: [{ text: 'asdasd asdasd' }] }, { type: 'list-item', children: [{ text: '213 jason' }] }],
+	},
 
 	{
 		type: "paragraph",
@@ -96,7 +96,6 @@ function getCaretCoordinates(height) {
 
 		// }
 		if (y > 0) {
-			window.flutter_inappwebview?.callHandler("handlerFooWithArgs", y);
 			window.scrollTo({ top: y, behavior: "smooth" });
 
 		} 
@@ -148,7 +147,7 @@ const SlateReact = () => {
 					});
 				}
 
-				ReactEditor.blur(editor);
+				// ReactEditor.blur(editor);
 				// this.window.scrollTo(0, 0);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
 			} else if (event.data == "katexinsert") {
@@ -159,22 +158,13 @@ const SlateReact = () => {
 			}
 			else if (event.data == "katex") {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katexinsertnow");
-				Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, unit: 'offset', reverse: true })
+				// Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, unit: 'offset', reverse: true })
 
 				insertKatex(editor, "kkasdl", updateAmount);
 
 			} else if (event.data == "focus") {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focusnow");
 				ReactEditor.focus(editor);
-
-				if (editor.selection) {
-					this.setTimeout(() => {
-						Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, unit: 'offset', reverse: true })
-
-
-					}, 600)
-				}
-
 				const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
 				if (parentCheck[0].type == "katex") {
 					Transforms.move(editor, { distance: 1, unit: "offset" });
@@ -369,7 +359,7 @@ const SlateReact = () => {
 					const string = Node.leaf(editor, editor.selection.anchor.path);
 					const [listItems] = Editor.nodes(editor, {
 						at: editor.selection.anchor.path,
-						match: (n) => ["list-item", "katex", "inline-bug"].includes(n.type),
+						match: (n) => ["list-item", "katex", "inline-bug", "check-list"].includes(n.type),
 					});
 
 					const currentNode = Editor.node(editor, editor.selection.anchor);
@@ -446,12 +436,6 @@ const SlateReact = () => {
 
 		window.addEventListener("resize", () => {
 			getCaretCoordinates();
-
-			// if (window.innerHeight < initialHeight) {
-			// 	const keyboardHeight = initialHeight - window.innerHeight;
-
-			// }
-
 		});
 
 
@@ -473,28 +457,16 @@ const SlateReact = () => {
 	console.log(ModalProps, "modal props");
 	return (
 		<div>
-			<footer id="footer">
-				<div style={{ height: '40px', padding: '10px', background: 'grey' }} contentEditable="true">
 
-					asd asdas
-
-				</div>
-				<button style={{ background: 'red' }} onClick={e => {
-					ReactEditor.focus(editor)
-
-					var inputbox = document.querySelector('#footer')
-					inputbox.style.display = "none"
-
-				}}>
-					click me
-				</button>
-			</footer>
 			{/* <EditablePopup editor={editor} open={ModalProps} /> */}
 			<Slate
 				editor={editor}
 
 				onChange={(value) => {
+
+					console.log(value, "value");
 					if (editor && editor.selection) {
+
 						const string = Node.leaf(editor, editor.selection.anchor.path);
 
 						if (string.text.startsWith("1. ")) {
@@ -592,18 +564,7 @@ const SlateReact = () => {
 					check list
 				</div>
 
-				<div
-					onClick={(e) => {
-						var inputbox = document.querySelector('#footer')
 
-						inputbox.style.top = 0
-						inputbox.style.display = "block"
-
-
-						// ReactEditor.blur(editor);
-					}}>
-					TOGGLE KATEX123
-				</div>
 
 				<div
 					onClick={(e) => {
@@ -676,9 +637,18 @@ const SlateReact = () => {
 				/>
 			</Slate>
 			<div
-				onInput={(e) => {}}
-				contentEditable="true">
-				asd asdasd asd asd asd asd as
+				onClick={(e) => {
+					document.body.style.overflow = "hidden";
+					// document.body.classList.add('keyboard');
+					var queryselector = document.querySelector('#footer');
+					queryselector.style.display = "block";
+					queryselector.style.top = 0;
+					document.getElementById('divedit').focus();
+					updateAmount(editor);
+
+					// ReactEditor.blur(editor);
+				}}>
+				TOGGLE KATEX123
 			</div>
 		</div>
 	);
