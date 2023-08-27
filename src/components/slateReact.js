@@ -283,7 +283,7 @@ const SlateReact = () => {
 					}
 				}
 			}
-		} else if (previousParent && previousParent[0].type == "check-list-item" && previousParent[0].children[0].text.length == 0) {
+		} else if (previousParent && previousParent[0].type == "check-list-item" && previousParent[0].children[0].text.length == 0 && editor.selection.anchor.offset == 0) {
 			deleteBackward(...args);
 			Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
 		}
