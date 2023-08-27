@@ -1383,7 +1383,6 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				margin:8px 0px;
 
 			
 			`}>
@@ -1392,7 +1391,7 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				className={css`
 					margin-bottom: auto;
 					user-select: none;
-					margin-right: 6px;
+					padding-right:6px;
 				`}>
 				<input
 					type="checkbox"
@@ -1413,10 +1412,10 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				contentEditable={!readOnly}
 				suppressContentEditableWarning
 				className={css`
-					flex: 1;
 					opacity: ${checked ? 0.666 : 1};
 					text-decoration: ${!checked ? "none" : "line-through"};
-
+					word-wrap: break-word;
+					flex:1 1 0%;
 					&:focus {
 						outline: none;
 					}
