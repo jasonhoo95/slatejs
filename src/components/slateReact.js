@@ -283,7 +283,11 @@ const SlateReact = () => {
 					}
 				}
 			}
-		} else if (listItemParent && listItemParent[0].type == "dropdown-content") {
+		} else if (previousParent && previousParent[0].type == "check-list-item" && previousParent[0].children[0].text.length == 0) {
+			deleteBackward(...args);
+			Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
+		}
+		else if (listItemParent && listItemParent[0].type == "dropdown-content") {
 			const [listItems] = Editor.nodes(editor, {
 				at: editor.selection.anchor.path,
 				match: (n) => ["dropdown-inner"].includes(n.type),
@@ -352,7 +356,7 @@ const SlateReact = () => {
 			if (string.text.length == 0) {
 				deleteBackward(...args);
 
-				console.log(string, "string backward");
+
 
 				if (!backwardCheck) {
 					backwardCheck = true;
@@ -400,7 +404,7 @@ const SlateReact = () => {
 
 	editor.deleteFragment = (...args) => {
 		const listItems = Editor.nodes(editor, {
-			match: (n) => n.type === "list-item" || n.type == "check-list-item",
+			match: (n) => n.type === "list-item" || n.type == "check-list-item" || n.type == "paragraph",
 		});
 
 		deleteFragment(...args);
@@ -414,7 +418,8 @@ const SlateReact = () => {
 			const parent = Editor.parent(editor, listItem[1]);
 
 
-			console.log(parent, "parent removed");
+
+			console.log(listItem, "parent");
 			if (parent && !["numbered-list", "bulleted-list", "check-list"].includes(parent[0].type)) {
 				Transforms.setNodes(
 					editor,
@@ -424,6 +429,15 @@ const SlateReact = () => {
 						match: (n) => n.type === "list-item" || n.type == "check-list-item",
 					}
 				);
+			} else if (parent[0].type == "check-list") {
+				Transforms.setNodes(
+					editor,
+					{ type: "check-list-item", checked: true },
+					{
+						at: listItem[1],
+					}
+				);
+
 			}
 		}
 	};
@@ -431,7 +445,7 @@ const SlateReact = () => {
 
 		setFocus(true);
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
-		console.log("focus");
+
 		let initialHeight = window.innerHeight;
 
 		window.addEventListener("resize", () => {
@@ -446,7 +460,7 @@ const SlateReact = () => {
 
 	const onBlur = useCallback((e) => {
 		setFocus(false);
-		console.log("blur");
+
 
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
@@ -454,7 +468,7 @@ const SlateReact = () => {
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 	}, []);
 
-	console.log(ModalProps, "modal props");
+
 	return (
 		<div>
 
@@ -464,7 +478,7 @@ const SlateReact = () => {
 
 				onChange={(value) => {
 
-					console.log(value, "value");
+
 					if (editor && editor.selection) {
 
 						const string = Node.leaf(editor, editor.selection.anchor.path);
@@ -859,7 +873,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const focused = useFocused();
 
 
-	console.log(focused, selected, "focus selected katex component");
+
 	return (
 		<span
 			contentEditable="false"
@@ -1391,7 +1405,6 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				className={css`
 					margin-bottom: auto;
 					user-select: none;
-					padding-right:6px;
 				`}>
 				<input
 					type="checkbox"
@@ -1415,6 +1428,7 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 					opacity: ${checked ? 0.666 : 1};
 					text-decoration: ${!checked ? "none" : "line-through"};
 					word-wrap: break-word;
+					padding-left: 6px;
 					flex:1 1 0%;
 					&:focus {
 						outline: none;
