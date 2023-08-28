@@ -19,7 +19,7 @@ export default function Home() {
 
 	}, [])
 	return (
-		<div className="app-container">
+		<div className="m-8">
 			<Head>
 				<title>Create Next App</title>
 				<meta
@@ -36,7 +36,7 @@ export default function Home() {
 			<SlateReact />
 
 
-			<footer id="footer">
+			{/* <footer id="footer">
 				<div id="divedit" style={{ height: '40px', padding: '10px', background: 'grey' }} contentEditable="true">
 
 					asd asdas
@@ -54,7 +54,7 @@ export default function Home() {
 				}}>
 					click me
 				</button>
-			</footer>
+			</footer> */}
 
 
 			{/* <PlainTextExample /> */}

@@ -85,14 +85,8 @@ function getCaretCoordinates(height) {
 		x = position.x;
 		y = position.y + window.scrollY - 100;
 		anchorPoint = y;
-		var inputbox = document.querySelector('#footer')
 
 
-		// if (y > height) {
-		// 	inputbox.style.top =  + 'px'
-
-		// } else {
-		// 	inputbox.style.top = y + 'px'
 
 		// }
 		if (y > 0) {
@@ -454,7 +448,6 @@ const SlateReact = () => {
 		setFocus(true);
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
 
-		let initialHeight = window.innerHeight;
 
 		window.addEventListener("resize", () => {
 			getCaretCoordinates();
@@ -658,7 +651,7 @@ const SlateReact = () => {
 					}}
 				/>
 			</Slate>
-			<div
+			{/* <div
 				onClick={(e) => {
 					document.body.style.overflow = "hidden";
 					// document.body.classList.add('keyboard');
@@ -671,7 +664,7 @@ const SlateReact = () => {
 					// ReactEditor.blur(editor);
 				}}>
 				TOGGLE KATEX123
-			</div>
+			</div> */}
 		</div>
 	);
 };
