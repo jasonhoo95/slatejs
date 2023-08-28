@@ -427,7 +427,7 @@ const SlateReact = () => {
 		// });
 
 		console.log(listItems, "parent");
-		if (checked && !["list-item" && "check-list-item"].includes(checked[0].type)) {
+		if (checked && !["list-item" && "check-list-item"].includes(checked[0].type) && editor.selection.anchor.offset != editor.selection.focus.offset) {
 				Transforms.setNodes(
 					editor,
 					{ type: "paragraph" },
