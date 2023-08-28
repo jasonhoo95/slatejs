@@ -1417,8 +1417,6 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				`}>
 				<input
 					type="checkbox"
-					onClick={(e) => { workaroundIOSDblClickBug() }}
-					readOnly
 					checked={checked}
 					onChange={(event) => {
 						const path = ReactEditor.findPath(editor, element);
@@ -1437,7 +1435,6 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 					opacity: ${checked ? 0.666 : 1};
 					text-decoration: ${!checked ? "none" : "line-through"};
 					word-wrap: break-word;
-					flex:1 1 0%;
 					&:focus {
 						outline: none;
 					}
