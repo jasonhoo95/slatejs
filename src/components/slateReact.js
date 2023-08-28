@@ -283,9 +283,12 @@ const SlateReact = () => {
 					}
 				}
 			}
-		} else if (previousParent && previousParent[0].type == "check-list-item" && previousParent[0].children[0].text.length == 0 && editor.selection.anchor.offset == 0) {
+		} else if (previousParent && previousParent[0].type == "check-list-item" && editor.selection.anchor.offset == 0) {
 			deleteBackward(...args);
-			Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
+			if (previousParent[0].children[0].text.length == 0) {
+				Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
+
+			}
 		}
 		else if (listItemParent && listItemParent[0].type == "dropdown-content") {
 			const [listItems] = Editor.nodes(editor, {
@@ -403,43 +406,48 @@ const SlateReact = () => {
 	};
 
 	editor.deleteFragment = (...args) => {
-		const listItems = Editor.nodes(editor, {
+		console.log(editor.selection.focus.path, "focus path");
+		const [listItems] = Editor.nodes(editor, {
 			match: (n) => n.type === "list-item" || n.type == "check-list-item" || n.type == "paragraph",
 		});
-
+		const string = Node.leaf(editor, editor.selection.anchor.path);
+		console.log(listItems, "string");
+		const checked = listItems;
 		deleteFragment(...args);
 
-		const string = Node.leaf(editor, editor.selection.anchor.path);
 
 		if (string && (string?.type == "inline-bug" || string?.type == "katex")) {
 			Transforms.move(editor, { distance: 1, unit: "offset" });
 		}
-		for (const listItem of listItems) {
-			const parent = Editor.parent(editor, listItem[1]);
+		// const parent = Editor.parent(editor, listItems[1]);
 
+		// const [checkListItem] = Editor.nodes(editor, {
+		// 	at: listItems[1],
+		// 	match: (n) => n.type == "check-list-item",
+		// });
 
-
-			console.log(listItem, "parent");
-			if (parent && !["numbered-list", "bulleted-list", "check-list"].includes(parent[0].type)) {
+		console.log(listItems, "parent");
+		if (checked && !["list-item" && "check-list-item"].includes(checked[0].type)) {
 				Transforms.setNodes(
 					editor,
 					{ type: "paragraph" },
 					{
-						at: listItem[1],
+						at: listItems[1],
 						match: (n) => n.type === "list-item" || n.type == "check-list-item",
 					}
 				);
-			} else if (parent[0].type == "check-list") {
+		}
+		else if (checked[0].type == "check-list-item" && string.text.length > 0) {
 				Transforms.setNodes(
 					editor,
-					{ type: "check-list-item", checked: true },
+					{ type: "check-list-item", checked: checked[0].checked ? true : false },
 					{
-						at: listItem[1],
+						at: checked[1],
 					}
 				);
 
 			}
-		}
+
 	};
 	const onFocus = useCallback((e) => {
 
@@ -562,7 +570,7 @@ const SlateReact = () => {
 							// Transforms.unwrapNodes(editor, { mode: "highest" });
 						}
 					}}>
-					insert void123
+					insert voidnow
 				</div>
 
 				<div
