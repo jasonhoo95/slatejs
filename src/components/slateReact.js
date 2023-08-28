@@ -1413,6 +1413,7 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				className={css`
 					margin-bottom: auto;
 					user-select: none;
+					margin-right: 0.5em;
 				`}>
 				<input
 					type="checkbox"
@@ -1436,7 +1437,6 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 					opacity: ${checked ? 0.666 : 1};
 					text-decoration: ${!checked ? "none" : "line-through"};
 					word-wrap: break-word;
-					padding-left: 6px;
 					flex:1 1 0%;
 					&:focus {
 						outline: none;
