@@ -78,7 +78,6 @@ function getCaretCoordinates(height) {
 				range.selectNodeContents(range.startContainer);
 			}
 		}
-
 		let position = range.getBoundingClientRect();
 		const char_before = range.startContainer.textContent;
 
@@ -89,6 +88,8 @@ function getCaretCoordinates(height) {
 
 
 		// }
+		console.log("caret coordinates", y);
+
 		if (y > 0) {
 			window.scrollTo({ top: y, behavior: "smooth" });
 
@@ -113,22 +114,12 @@ const SlateReact = () => {
 	const savedSelection = React.useRef(editor.selection);
 
 	useEffect(() => {
-		// document.addEventListener('DOMContentLoaded', () => {
-		// 	setPlatformInfo();
-		// 	var inputBox = document.querySelector('#inputBox');
-		// 	if (inputBox) {
-		// 		inputBox.addEventListener('focus', function (e) {
-		// 			document.body.classList.add('keyboard');
-		// 			setTimeout(function () {
-		// 				window.scrollTo(0, 0);
-		// 			}, 200);
-		// 		});
+		window.onscroll = function () {
+			console.log('Scrolled: ');
+			ReactEditor.blur(editor);
+			window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 
-		// 		inputBox.addEventListener('blur', function (e) {
-		// 			document.body.classList.remove('keyboard');
-		// 		});
-		// 	}
-		// });
+		}
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
@@ -168,7 +159,6 @@ const SlateReact = () => {
 	}, [editor]);
 
 	editor.insertBreak = () => {
-		getCaretCoordinates();
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
 
 		const listItems = Editor.nodes(editor, {
