@@ -1397,16 +1397,17 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 			className={css`
 				display: flex;
 				flex-direction: row;
-				align-items: center;
+				align-items: flex-start;
 
 			
 			`}>
 			<span
 				contentEditable={false}
 				className={css`
-					margin-bottom: auto;
 					user-select: none;
 					margin-right: 0.5em;
+                    margin-top: 0.1em;
+					display:block;
 				`}>
 				<input
 					type="checkbox"

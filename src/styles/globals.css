@@ -58,14 +58,10 @@
 	background-color: #e2e8f0;
 }
 .editable-slate {
-	/* height: calc(100vh - 40px);
-	overflow-y: scroll; */
-	/* overflow-x: hidden; */
+
 	border: 1px solid grey;
-	/* min-width: 20em; */
 	min-height: 1.4em;
-	/* height: calc(100vh - 150px);
-	overflow-y: auto; */
+	overflow-y: auto; 
 	background-color: white;
 	outline: none;
 	white-space: pre-wrap;
@@ -157,7 +153,9 @@ input{
     font-size: 0.85em;
 	width: 15px;
 	height: 15px;
-    padding: 0.5em;
+    padding:0;
+	display: block;
+	margin:0;
     border: 2px solid #ddd;
     background: #fafafa;
 }
