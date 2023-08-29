@@ -114,12 +114,7 @@ const SlateReact = () => {
 	const savedSelection = React.useRef(editor.selection);
 
 	useEffect(() => {
-		window.onscroll = function () {
-			console.log('Scrolled: ');
-			ReactEditor.blur(editor);
-			window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 
-		}
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
