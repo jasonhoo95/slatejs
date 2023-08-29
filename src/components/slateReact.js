@@ -155,6 +155,12 @@ const SlateReact = () => {
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
+		// timeset = setTimeout(() => {
+		// 	window.scrollTo({ top: window.scrollY + 200, behavior: "smooth" })
+		// 	console.log(window.scrollY, "scroll y position");
+		// }, 900)
+
+
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
@@ -602,6 +608,11 @@ const SlateReact = () => {
 						}
 						leftCheck = false;
 						rightCheck = false;
+						let timeset;
+						timeset = setTimeout(() => {
+							window.scrollTo({ top: window.scrollY + 1200, behavior: "smooth" })
+							console.log(window.scrollY, "scroll y position");
+						}, 400)
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item",
 						});

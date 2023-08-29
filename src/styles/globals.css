@@ -61,7 +61,7 @@
 
 	border: 1px solid grey;
 	min-height: 1.4em;
-	overflow-y: auto; 
+	overflow-y: hidden; 
 	background-color: white;
 	outline: none;
 	white-space: pre-wrap;
