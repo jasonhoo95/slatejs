@@ -168,6 +168,7 @@ const SlateReact = () => {
 	}, [editor]);
 
 	editor.insertBreak = () => {
+		getCaretCoordinates();
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
 
 		const listItems = Editor.nodes(editor, {
@@ -446,12 +447,9 @@ const SlateReact = () => {
 	const onFocus = useCallback((e) => {
 
 		setFocus(true);
+		window.addEventListener("resize", getCaretCoordinates);
+
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
-
-
-		window.addEventListener("resize", () => {
-			getCaretCoordinates();
-		});
 
 
 
@@ -1412,6 +1410,7 @@ const CheckListItemElement = ({ attributes, children, element }) => {
 				<input
 					type="checkbox"
 					checked={checked}
+
 					onChange={(event) => {
 						const path = ReactEditor.findPath(editor, element);
 						const newProperties = {
