@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import isUrl from "is-url";
 
-import isHotkey from "is-hotkey";
+import isHotkey, { isKeyHotkey } from "is-hotkey";
 
 import { css } from "@emotion/css";
 import { v4 } from "uuid";
@@ -82,13 +82,18 @@ function getCaretCoordinates(height) {
 		const char_before = range.startContainer.textContent;
 
 		x = position.x;
-		y = position.y + window.scrollY - 100;
-		anchorPoint = y;
 
+		if (height) {
+			const heightnow = height - position.y;
+			y = window.scrollY + position.y - 100;
+		} else {
+			y = position.y + window.scrollY - 100;
+
+		}
 
 
 		// }
-		console.log("caret coordinates", y);
+		console.log("caret coordinates", position.y);
 
 		if (y > 0) {
 			window.scrollTo({ top: y, behavior: "smooth" });
@@ -114,7 +119,6 @@ const SlateReact = () => {
 	const savedSelection = React.useRef(editor.selection);
 
 	useEffect(() => {
-
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
@@ -469,6 +473,7 @@ const SlateReact = () => {
 				onChange={(value) => {
 
 
+					console.log(value, "value 123");
 					if (editor && editor.selection) {
 
 						const string = Node.leaf(editor, editor.selection.anchor.path);
@@ -489,7 +494,7 @@ const SlateReact = () => {
 					backwardCheck = false;
 				}}
 				initialValue={initialValue}>
-				<BlockButton
+				{/* <BlockButton
 					format="katex-link"
 					icon="format_list_item"
 				/>
@@ -584,7 +589,7 @@ const SlateReact = () => {
 						ReactEditor.focus(editor);
 					}}>
 					heading one
-				</div>
+				</div> */}
 
 				<Editable
 					renderElement={renderElement}
@@ -599,6 +604,7 @@ const SlateReact = () => {
 					id={id}
 					renderLeaf={renderLeaf}
 					onKeyDown={(event) => {
+
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
 								event.preventDefault();
@@ -609,10 +615,7 @@ const SlateReact = () => {
 						leftCheck = false;
 						rightCheck = false;
 						let timeset;
-						timeset = setTimeout(() => {
-							window.scrollTo({ top: window.scrollY + 1200, behavior: "smooth" })
-							console.log(window.scrollY, "scroll y position");
-						}, 400)
+
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item",
 						});
@@ -641,7 +644,7 @@ const SlateReact = () => {
 						} else if (event.metaKey && event.shiftKey && event.key === "z") {
 							event.preventDefault();
 							HistoryEditor.redo(editor);
-						}
+						} 
 					}}
 				/>
 			</Slate>
@@ -1585,13 +1588,13 @@ const Leaf = ({ attributes, children, leaf }) => {
 
 	return (
 		<span
-			// className={
-			// 	leaf.text === ""
-			// 		? css`
-			// 				padding-left: 0.1px;
-			// 		  `
-			// 		: null
-			// }
+			className={
+				leaf.text === ""
+					? css`
+							padding-left: 0.1px;
+					  `
+					: null
+			}
 			{...attributes}>
 			{children}
 		</span>
