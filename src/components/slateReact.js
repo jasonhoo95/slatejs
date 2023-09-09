@@ -83,17 +83,14 @@ function getCaretCoordinates(height) {
 
 		x = position.x;
 
-		if (height) {
-			const heightnow = height - position.y;
-			y = window.scrollY + position.y - 100;
-		} else {
+
 			y = position.y + window.scrollY - 100;
 
-		}
+
 
 
 		// }
-		console.log("caret coordinates", position.y);
+		console.log("caret coordinates", y);
 
 		if (y > 0) {
 			window.scrollTo({ top: y, behavior: "smooth" });
@@ -462,6 +459,7 @@ const SlateReact = () => {
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 	}, []);
 
+	let prevCaretPosition = null;
 
 	return (
 		<div>
@@ -473,10 +471,10 @@ const SlateReact = () => {
 				onChange={(value) => {
 
 
-					console.log(value, "value 123");
 					if (editor && editor.selection) {
 
 						const string = Node.leaf(editor, editor.selection.anchor.path);
+						console.log(string, backwardCheck, "value 123");
 
 						if (string.text.startsWith("1. ")) {
 							toggleBlock(editor, "numbered-list", "number");
@@ -491,23 +489,8 @@ const SlateReact = () => {
 					}
 
 
-					backwardCheck = false;
 				}}
 				initialValue={initialValue}>
-				{/* <BlockButton
-					format="katex-link"
-					icon="format_list_item"
-				/>
-
-				<BlockButton
-					format="banner-red"
-					icon="format_list_item"
-				/>
-
-				<BlockButton
-					icon="format_list_item"
-					format="bulleted-list"
-				/>
 
 
 				<div
@@ -520,15 +503,15 @@ const SlateReact = () => {
 						const block1 = {
 							type: "dropdown-content",
 							children: [
-								// {
-								// 	type: "paragraph",
-								// 	children: [
-								// 		{
-								// 			type: "heading-two",
-								// 			children: [{ text: "oklah" }],
-								// 		},
-								// 	],
-								// },
+								{
+									type: "paragraph",
+									children: [
+										{
+											type: "heading-two",
+											children: [{ text: "oklah" }],
+										},
+									],
+								},
 
 								{
 									type: "dropdown-inner",
@@ -547,18 +530,57 @@ const SlateReact = () => {
 						};
 
 						const [listItems] = Editor.nodes(editor, {
-							match: (n) => n.type === "paragraph" || n.type == "list-item" || n.type == "banner-red-wrapper",
+							match: (n) => n.type === "paragraph" || n.type == "numbered-list" || n.type == "banner-red-wrapper",
 						});
 						if (Editor.isEmpty(editor, listItems[0])) {
 							Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
 							Transforms.unwrapNodes(editor, { mode: "highest" });
 						} else {
-							Transforms.insertNodes(editor, block1, { mode: "highest" });
-							// Transforms.unwrapNodes(editor, { mode: "highest" });
+							const nextNode = Editor.next(editor, {
+								at: listItems[1],
+							});
+
+							if (listItems[0].type == "numbered-list" || listItems[0].type == "bulleted-list") {
+								Transforms.unwrapNodes(editor, { match: (n) => n.type == listItems[0].type, split: true });
+
+								Transforms.setNodes(editor, { type: 'list-item' });
+								Transforms.wrapNodes(editor, { type: 'numbered-list' });
+
+							}
+
+
+
+							console.log(nextNode, "next node");
+							if (!nextNode) {
+								Editor.insertBreak(editor);
+
+								Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
+							} else {
+								Transforms.insertNodes(editor, block1, { at: nextNode[1] });
+
+							}
+
 						}
 					}}>
 					insert voidnow
 				</div>
+				<BlockButton
+					format="numbered-list"
+					icon="format_list_item"
+				/>
+				{/*
+
+				<BlockButton
+					format="banner-red"
+					icon="format_list_item"
+				/>
+
+				<BlockButton
+					icon="format_list_item"
+					format="bulleted-list"
+				/>
+
+
 
 				<div
 					onClick={(e) => {
@@ -604,7 +626,6 @@ const SlateReact = () => {
 					id={id}
 					renderLeaf={renderLeaf}
 					onKeyDown={(event) => {
-
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
 								event.preventDefault();
@@ -1596,6 +1617,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 					: null
 			}
 			{...attributes}>
+
 			{children}
 		</span>
 	);
