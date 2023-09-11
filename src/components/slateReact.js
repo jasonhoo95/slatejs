@@ -530,7 +530,7 @@ const SlateReact = () => {
 						};
 
 						const [listItems] = Editor.nodes(editor, {
-							match: (n) => n.type === "paragraph" || n.type == "numbered-list" || n.type == "banner-red-wrapper",
+							match: (n) => n.type === "paragraph" || n.type == "list-item" || n.type == "banner-red-wrapper",
 						});
 						if (Editor.isEmpty(editor, listItems[0])) {
 							Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
@@ -540,13 +540,13 @@ const SlateReact = () => {
 								at: listItems[1],
 							});
 
-							if (listItems[0].type == "numbered-list" || listItems[0].type == "bulleted-list") {
-								Transforms.unwrapNodes(editor, { match: (n) => n.type == listItems[0].type, split: true });
+							// if (listItems[0].type == "numbered-list" || listItems[0].type == "bulleted-list") {
+							// 	Transforms.unwrapNodes(editor, { match: (n) => n.type == listItems[0].type, split: true });
 
-								Transforms.setNodes(editor, { type: 'list-item' });
-								Transforms.wrapNodes(editor, { type: 'numbered-list' });
+							// 	// Transforms.setNodes(editor, { type: 'list-item' });
+							// 	// Transforms.wrapNodes(editor, { type: 'numbered-list' });
 
-							}
+							// }
 
 
 
