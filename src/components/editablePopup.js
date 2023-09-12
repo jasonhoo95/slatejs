@@ -4,7 +4,7 @@ import { Dialog, Transition, RadioGroup } from "@headlessui/react";
 import { useModalStore } from "@/globals/zustandGlobal";
 
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Range, Node } from "slate";
-export default function EditablePopup({ open, editor, setModal }) {
+export default function EditablePopup({ open, editor, card, path, setOpenCallback }) {
 	const [openNow, setOpen] = useState(open);
 	let updateAmount = useModalStore((state) => state.updateModal);
 	useEffect(() => {
@@ -20,6 +20,7 @@ export default function EditablePopup({ open, editor, setModal }) {
 				onClose={(e) => {
 					updateAmount(false)
 					setOpen(false)
+					setOpenCallback(false)
 				}}>
 				<Transition.Child
 					as={Fragment}
@@ -47,7 +48,15 @@ export default function EditablePopup({ open, editor, setModal }) {
 									<p className="text-sm text-gray-500">Your payment has been successfully submitted. We’ve sent you an email with all of the details of your order.</p>
 								</div>
 
-								<div>
+								<div onClick={e => {
+									let cardnow = [...card];
+									var index = _.findIndex(cardnow, { check: true });
+									cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
+									Transforms.setNodes(editor, { card: cardnow }, { at: path });
+									setOpen(false)
+									setOpenCallback(false)
+
+								}}>
 									<h1>Edit npw</h1>
 								</div>
 								<div

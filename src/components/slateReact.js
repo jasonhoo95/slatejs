@@ -233,6 +233,8 @@ const SlateReact = () => {
 			at: editor.selection.anchor.path,
 		});
 
+		console.log(listItemParent, previousParent, "previous parent now");
+
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
 			if (!backwardCheck) {
@@ -277,45 +279,18 @@ const SlateReact = () => {
 
 			}
 		}
-		else if (listItemParent && listItemParent[0].type == "dropdown-content") {
-			const [listItems] = Editor.nodes(editor, {
-				at: editor.selection.anchor.path,
-				match: (n) => ["dropdown-inner"].includes(n.type),
-			});
-
-			const start = Editor.node(editor, editor.selection.anchor.path);
-
-			if (start[0].text.length == 0 && listItems[0].children.length == 1) {
-				return;
-			} else {
-				deleteBackward(...args);
-			}
-		} else if (previousParent && previousParent[0].type == "dropdown-content" && editor.selection.anchor.offset == 0) {
-			Transforms.removeNodes(editor, { at: previousParent[1] });
-			Transforms.insertNodes(
-				editor,
-				{
-					type: "paragraph",
-					children: [
-						{
-							text: "",
-						},
-					],
-				},
-				{ at: previousParent[1] }
-			);
-			deleteBackward(...args);
-		} else if (
+		else if (
 			nextParent &&
 			previousParent &&
 			["numbered-list", "bulleted-list"].includes(previousParent[0].type) &&
 			["numbered-list", "bulleted-list"].includes(nextParent[0].type) &&
 			previousParent[0].type == nextParent[0].type
 		) {
+
 			deleteBackward(...args);
 
 			if (!backwardCheck) {
-
+				console.log("numbered");
 
 				backwardCheck = true;
 				const currentNode = Editor.node(editor, editor.selection.anchor);
@@ -337,7 +312,19 @@ const SlateReact = () => {
 			currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
-		} else {
+		} else if (previousParent && previousParent[0].type == "dropdown-content" && editor.selection.anchor.offset == 0) {
+
+			// Transforms.setNodes(editor, { checked: true }, { at: previousParent[1] });
+			// Transforms.select(editor, previousParent[1]);
+			Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 })
+
+			// Highlight the entire parent block
+
+
+			console.log("delete now", previousParent);
+
+		}
+		else {
 			// Editor.deleteBackward(editor, { unit: "word" });
 			const string = Node.leaf(editor, editor.selection.anchor.path);
 
@@ -395,7 +382,7 @@ const SlateReact = () => {
 	editor.deleteFragment = (...args) => {
 		console.log(editor.selection.focus.path, "focus path");
 		const [listItems] = Editor.nodes(editor, {
-			match: (n) => n.type === "list-item" || n.type == "check-list-item" || n.type == "paragraph",
+			match: (n) => n.type === "list-item" || n.type == "check-list-item" || n.type == "paragraph" || n.type == "dropdown-content",
 		});
 		const string = Node.leaf(editor, editor.selection.anchor.path);
 		console.log(listItems, "string");
@@ -423,6 +410,14 @@ const SlateReact = () => {
 						match: (n) => n.type === "list-item" || n.type == "check-list-item",
 					}
 				);
+		} else if (listItems[0].type == "dropdown-content") {
+			Transforms.setNodes(
+				editor,
+				{ type: "paragraph" },
+				{
+					at: listItems[1],
+				}
+			);
 		}
 		else if (checked[0].type == "check-list-item" && string.text.length > 0) {
 				Transforms.setNodes(
@@ -489,6 +484,9 @@ const SlateReact = () => {
 					}
 
 
+					backwardCheck = false;
+
+
 				}}
 				initialValue={initialValue}>
 
@@ -528,39 +526,40 @@ const SlateReact = () => {
 								},
 							],
 						};
+						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
 
-						const [listItems] = Editor.nodes(editor, {
-							match: (n) => n.type === "paragraph" || n.type == "list-item" || n.type == "banner-red-wrapper",
-						});
-						if (Editor.isEmpty(editor, listItems[0])) {
-							Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
-							Transforms.unwrapNodes(editor, { mode: "highest" });
-						} else {
-							const nextNode = Editor.next(editor, {
-								at: listItems[1],
-							});
+						// const [listItems] = Editor.nodes(editor, {
+						// 	match: (n) => n.type === "paragraph" || n.type == "list-item" || n.type == "banner-red-wrapper",
+						// });
+						// if (Editor.isEmpty(editor, listItems[0])) {
+						// 	Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
+						// 	Transforms.unwrapNodes(editor, { mode: "highest" });
+						// } else {
+						// 	const nextNode = Editor.next(editor, {
+						// 		at: listItems[1],
+						// 	});
 
-							// if (listItems[0].type == "numbered-list" || listItems[0].type == "bulleted-list") {
-							// 	Transforms.unwrapNodes(editor, { match: (n) => n.type == listItems[0].type, split: true });
+						// 	// if (listItems[0].type == "numbered-list" || listItems[0].type == "bulleted-list") {
+						// 	// 	Transforms.unwrapNodes(editor, { match: (n) => n.type == listItems[0].type, split: true });
 
-							// 	// Transforms.setNodes(editor, { type: 'list-item' });
-							// 	// Transforms.wrapNodes(editor, { type: 'numbered-list' });
+						// 	// 	// Transforms.setNodes(editor, { type: 'list-item' });
+						// 	// 	// Transforms.wrapNodes(editor, { type: 'numbered-list' });
 
-							// }
+						// 	// }
 
 
 
-							console.log(nextNode, "next node");
-							if (!nextNode) {
-								Editor.insertBreak(editor);
+						// 	console.log(nextNode, "next node");
+						// 	if (!nextNode) {
+						// 		Editor.insertBreak(editor);
 
-								Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
-							} else {
-								Transforms.insertNodes(editor, block1, { at: nextNode[1] });
+						// 		Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
+						// 	} else {
+						// 		Transforms.insertNodes(editor, block1, { at: nextNode[1] });
 
-							}
+						// 	}
 
-						}
+						// }
 					}}>
 					insert voidnow
 				</div>
@@ -568,6 +567,12 @@ const SlateReact = () => {
 					format="numbered-list"
 					icon="format_list_item"
 				/>
+
+				<BlockButton
+					icon="format_list_item"
+					format="katex-link"
+				/>
+
 				{/*
 
 				<BlockButton
@@ -997,12 +1002,12 @@ const BlockButton = ({ format, icon }) => {
 				onMouseDown={(event) => {
 					// updateAmount(true);
 					// event.preventDefault();
-					Transforms.insertText(editor, "\u200b".toString(), {
-						at: editor.selection.anchor,
-					});
+					// Transforms.insertText(editor, "\u200b".toString(), {
+					// 	at: editor.selection.anchor,
+					// });
 					ReactEditor.focus(editor);
 					// ReactEditor.blur(editor);
-					// insertKatex(editor, "jjk", updateAmount);
+					insertKatex(editor, "jjk", updateAmount);
 					// getCaretCoordinates();
 				}}>
 				Katex Link
@@ -1127,14 +1132,13 @@ const DropdownInner = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const selected = useSelected();
 	const focused = useFocused();
-	const path = ReactEditor.findPath(editor, element);
-	if (!selected || !focused) {
-	}
+
+	const { checked } = element;
 
 	return (
 		<div
 			{...attributes}
-			style={{ background: "green" }}>
+			style={{ background: "white" }}>
 			{children}
 		</div>
 	);
@@ -1142,7 +1146,9 @@ const DropdownInner = ({ attributes, children, element }) => {
 
 const DropDownList = ({ attributes, children, element }) => {
 	const editor = useSlate();
-
+	const { checked } = element;
+	const selected = useSelected();
+	const focused = useFocused();
 	const addMore = () => {
 		const path = ReactEditor.findPath(editor, element);
 		const [nodes] = Editor.nodes(editor, {
@@ -1178,7 +1184,7 @@ const DropDownList = ({ attributes, children, element }) => {
 	return (
 		<div
 			{...attributes}
-			style={{ border: "1px solid grey", borderRadius: "10px" }}>
+			style={{ background: selected && focused ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
 			<button
 				onClick={(e) => {
 					addMore();
@@ -1203,9 +1209,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 	let cardnow;
 	let clickKey;
 	const [objCopy, setObj] = useState();
+	const [open, setOpen] = useState(false);
 	const path = ReactEditor.findPath(editor, element);
 	const addCard = () => {
-		let cardObj = { card: "1", id: 0, check: false };
+		let cardObj = { card: card.length + 1, id: 0, check: false };
 		cardObj.id = card.length;
 		cardnow = [...card, cardObj];
 
@@ -1225,7 +1232,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 		let cardnow = [...card1];
 		var index = _.findIndex(cardnow, { id: key });
 		cardnow.splice(index, 1, { ...cardnow[index], check: check });
+		console.log(cardnow, "card now");
 		setObj(cardnow);
+		setOpen(true);
 		// Transforms.setNodes(editor, { card: cardnow }, { at: path });
 	}, []);
 
@@ -1255,7 +1264,14 @@ const EditableVoid = ({ attributes, children, element }) => {
 				}}>
 				click here
 			</button>
-			;{/* <RenderPopup /> */}
+			{children}
+			<EditablePopup
+				open={open}
+				card={objCopy}
+				setOpenCallback={setOpen}
+				path={path}
+				editor={editor}
+			/>
 			<div className="flex">
 				{card?.map((o, key) => {
 					return (
@@ -1270,15 +1286,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 							{objCopy && objCopy[key].check ? (
 								<>
 									{o.card}
-									<EditablePopup
-										value={o}
-										open={true}
-										setModal={setModal}
-										card={objCopy}
-										id={key}
-										path={path}
-										editor={editor}
-									/>
+
 								</>
 							) : (
 								// <input
