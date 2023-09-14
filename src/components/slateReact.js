@@ -224,6 +224,8 @@ const SlateReact = () => {
 			listItemParent = Editor.node(editor, listItems[1]);
 			previousParent = Editor.previous(editor, {
 				at: listItems[1],
+				match: (n) => ["paragraph", "numbered-list", "bulleted-list", "check-list-item", "editable-void"].includes(n.type),
+
 			});
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
@@ -322,6 +324,16 @@ const SlateReact = () => {
 
 
 			console.log("delete now", previousParent);
+
+		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+
+			// Transforms.setNodes(editor, { checked: true }, { at: previousParent[1] });
+			// Transforms.select(editor, previousParent[1]);
+			Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 })
+
+			// Highlight the entire parent block
+
+
 
 		}
 		else {
@@ -526,42 +538,86 @@ const SlateReact = () => {
 								},
 							],
 						};
-						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
+						// Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
 
-						// const [listItems] = Editor.nodes(editor, {
-						// 	match: (n) => n.type === "paragraph" || n.type == "list-item" || n.type == "banner-red-wrapper",
-						// });
-						// if (Editor.isEmpty(editor, listItems[0])) {
-						// 	Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
-						// 	Transforms.unwrapNodes(editor, { mode: "highest" });
-						// } else {
-						// 	const nextNode = Editor.next(editor, {
-						// 		at: listItems[1],
-						// 	});
+						const [listItems] = Editor.nodes(editor, {
+							match: (n) => n.type === "paragraph" || n.type == "list-item" || n.type == "banner-red-wrapper",
+						});
+						if (Editor.isEmpty(editor, listItems[0])) {
+							Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
+							Transforms.unwrapNodes(editor, { mode: "highest" });
+						} else {
+							const nextNode = Editor.next(editor, {
+								at: listItems[1],
+							});
 
-						// 	// if (listItems[0].type == "numbered-list" || listItems[0].type == "bulleted-list") {
-						// 	// 	Transforms.unwrapNodes(editor, { match: (n) => n.type == listItems[0].type, split: true });
+							// if (listItems[0].type == "numbered-list" || listItems[0].type == "bulleted-list") {
+							// 	Transforms.unwrapNodes(editor, { match: (n) => n.type == listItems[0].type, split: true });
 
-						// 	// 	// Transforms.setNodes(editor, { type: 'list-item' });
-						// 	// 	// Transforms.wrapNodes(editor, { type: 'numbered-list' });
+							// 	// Transforms.setNodes(editor, { type: 'list-item' });
+							// 	// Transforms.wrapNodes(editor, { type: 'numbered-list' });
 
-						// 	// }
+							// }
 
 
 
-						// 	console.log(nextNode, "next node");
-						// 	if (!nextNode) {
-						// 		Editor.insertBreak(editor);
+							console.log(nextNode, "next node");
+							if (!nextNode) {
+								Editor.insertBreak(editor);
 
-						// 		Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
-						// 	} else {
-						// 		Transforms.insertNodes(editor, block1, { at: nextNode[1] });
+								Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
+							} else {
+								Transforms.insertNodes(editor, block1, { at: nextNode[1] });
 
-						// 	}
+							}
 
-						// }
+						}
 					}}>
 					insert voidnow
+				</div>
+
+				<div
+					onClick={(e) => {
+						const block = {
+							type: "editable-void",
+							card: [],
+							children: [],
+						};
+						const block1 = {
+							type: "dropdown-content",
+							children: [
+								{
+									type: "paragraph",
+									children: [
+										{
+											type: "heading-two",
+											children: [{ text: "oklah" }],
+										},
+									],
+								},
+
+								{
+									type: "dropdown-inner",
+									children: [
+										{
+											type: "paragraph",
+											children: [
+												{
+													text: "123oklsa",
+												},
+											],
+										},
+									],
+								},
+							],
+						};
+						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
+
+
+
+
+					}}>
+					insert banner void
 				</div>
 				<BlockButton
 					format="numbered-list"
@@ -643,7 +699,12 @@ const SlateReact = () => {
 						let timeset;
 
 						const [listItems] = Editor.nodes(editor, {
-							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item",
+							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph"
+						});
+						const previousParent = Editor.previous(editor, {
+							at: listItems[1],
+							match: (n) => ["editable-void"].includes(n.type),
+
 						});
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
@@ -662,7 +723,8 @@ const SlateReact = () => {
 							leftCheck = true;
 						} else if (event.key == "ArrowRight") {
 							rightCheck = true;
-						} else if (event.metaKey && event.key === "z" && !event.shiftKey) {
+						}
+						else if (event.metaKey && event.key === "z" && !event.shiftKey) {
 							event.preventDefault();
 							HistoryEditor.undo(editor);
 
@@ -1250,21 +1312,22 @@ const EditableVoid = ({ attributes, children, element }) => {
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
 			style={{
-				border: "1px solid grey",
+				border: selected && focused ? "1px solid red" : "1px solid grey",
 				background: "green",
 				height: "100px",
 			}}
 			{...attributes}
-			contentEditable="false"
 
 		>
+			{children}
+
+			<div contentEditable="false">
 			<button
 				onClick={(e) => {
 					addCard();
 				}}>
 				click here
-			</button>
-			{children}
+				</button>
 			<EditablePopup
 				open={open}
 				card={objCopy}
@@ -1272,7 +1335,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 				path={path}
 				editor={editor}
 			/>
-			<div className="flex">
+				<div className="flex">
 				{card?.map((o, key) => {
 					return (
 						<div
@@ -1303,7 +1366,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div>
-			;
+			</div>
 		</div>
 	);
 };

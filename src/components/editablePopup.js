@@ -51,8 +51,12 @@ export default function EditablePopup({ open, editor, card, path, setOpenCallbac
 								<div onClick={e => {
 									let cardnow = [...card];
 									var index = _.findIndex(cardnow, { check: true });
-									cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
-									Transforms.setNodes(editor, { card: cardnow }, { at: path });
+									if (cardnow[index].card != 'hello world') {
+										cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
+										Transforms.setNodes(editor, { card: cardnow }, { at: path });
+
+									}
+
 									setOpen(false)
 									setOpenCallback(false)
 
