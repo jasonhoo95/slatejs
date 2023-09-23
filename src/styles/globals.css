@@ -68,6 +68,8 @@
 	overflow-wrap: break-word !important;
 }
 
+
+
 .slite-line-break::after {
 	content: "";
 	display: block;

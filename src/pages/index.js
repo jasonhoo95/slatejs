@@ -1,25 +1,27 @@
 import Head from "next/head";
 import Image from "next/image";
+import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import SlateMobile from "@/components/slateMobile";
 import SlateReact from "@/components/slateReact";
 import PlainTextExample from "@/components/plainText";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
-import { Slate } from "slate-react";
+import { Slate, useSelected } from "slate-react";
 import CheckListsExample from "@/components/checkListExample";
-import { useEffect } from "react";
 import { useModalStore } from "@/globals/zustandGlobal";
 import { ReactEditor } from "slate-react";
 
 export default function Home() {
 	let ModalProps = useModalStore((state) => state.display);
 
+	const [display, setDisplay] = useState(false);
 	useEffect(() => {
 
 
 	}, [])
 	return (
 		<div className="m-8">
+			<button onClick={e => { setDisplay(true) }}>Click now</button>
 			<Head>
 				<title>Create Next App</title>
 				<meta
@@ -36,7 +38,18 @@ export default function Home() {
 			<SlateReact />
 
 
-			{/* <footer id="footer">
+			{display ? <div>
+
+				asdas dasdadsa
+
+				<div data-tf-live="01HAKETC9DY1QCG4758X267MR7"></div><script src="https://embed.typeform.com/next/embed.js"></script>
+
+
+			</div> : null}
+
+
+
+			<footer id="footer">
 				<div id="divedit" style={{ height: '40px', padding: '10px', background: 'grey' }} contentEditable="true">
 
 					asd asdas
@@ -54,10 +67,9 @@ export default function Home() {
 				}}>
 					click me
 				</button>
-			</footer> */}
+			</footer>
 
 
-			{/* <PlainTextExample /> */}
 
 
 		</div>
