@@ -312,10 +312,10 @@ const SlateReact = () => {
 			toggleBlock(editor, listItemParent[0].type);
 		} else if (previousParent && previousParent[0].type == "dropdown-content" && editor.selection.anchor.offset == 0) {
 
-			Transforms.setNodes(editor, { checked: true }, { at: previousParent[1] });
+			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 			Transforms.move(editor, { offset: 1, reverse: true });
 			undo = true;
-			console.log(undo, "undo now");
+
 			// Highlight the entire parent block
 
 
@@ -1164,15 +1164,22 @@ const DropDownList = ({ attributes, children, element }) => {
 	const focused = useFocused();
 
 	const editor = useSlate();
-	const { checked, selectionChecked } = element;
+	const { checked } = element;
 	const path = ReactEditor.findPath(editor, element);
 	let nodes;
 
-	if (checked && undo) {
-		console.log("checked now");
+	if (checked && undo && selectNode) {
 		Transforms.select(editor, path);
+		Transforms.setNodes(editor, { checked: true }, { at: path })
 		undo = false
+	} else if ((!selected) && checked) {
+
+
+		Transforms.setNodes(editor, { checked: false }, { at: path })
 	}
+
+
+
 	const addMore = () => {
 		const path = ReactEditor.findPath(editor, element);
 		const [nodes] = Editor.nodes(editor, {
