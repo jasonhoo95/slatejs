@@ -1168,12 +1168,11 @@ const DropDownList = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 	let nodes;
 
-	if (checked && undo && selectNode) {
+	if (checked && undo) {
 		Transforms.select(editor, path);
 		Transforms.setNodes(editor, { checked: true }, { at: path })
 		undo = false
 	} else if ((!selected) && checked) {
-
 
 		Transforms.setNodes(editor, { checked: false }, { at: path })
 	}
