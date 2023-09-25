@@ -1164,18 +1164,19 @@ const DropDownList = ({ attributes, children, element }) => {
 	const focused = useFocused();
 
 	const editor = useSlate();
-	const { checked } = element;
+	const { checked, selectNode } = element;
 	const path = ReactEditor.findPath(editor, element);
 
-
-	console.log(checked, selected, "checked now");
+	console.log(undo, "checked now");
 
 	if (checked && undo) {
 		Transforms.select(editor, path);
 		Transforms.setNodes(editor, { checked: true }, { at: path })
 		undo = false
-	} else if ((!selected) && checked) {
+	} else if (!selected && checked) {
+		console.log(checked, selected, "not checked");
 		Transforms.setNodes(editor, { checked: false }, { at: path })
+		undo = false
 	}
 
 
