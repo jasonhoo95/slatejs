@@ -1166,14 +1166,15 @@ const DropDownList = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const { checked } = element;
 	const path = ReactEditor.findPath(editor, element);
-	let nodes;
+
+
+	console.log(checked, selected, "checked now");
 
 	if (checked && undo) {
 		Transforms.select(editor, path);
 		Transforms.setNodes(editor, { checked: true }, { at: path })
 		undo = false
 	} else if ((!selected) && checked) {
-
 		Transforms.setNodes(editor, { checked: false }, { at: path })
 	}
 
@@ -1215,7 +1216,7 @@ const DropDownList = ({ attributes, children, element }) => {
 	return (
 		<div
 			{...attributes}
-			style={{ background: (checked && nodes) || (selected && focused) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
+			style={{ background: (checked) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
 			<div contentEditable="false">
 				<button
 					onClick={(e) => {
