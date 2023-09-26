@@ -1172,12 +1172,12 @@ const DropDownList = ({ attributes, children, element }) => {
 	if (checked && undo) {
 		Transforms.select(editor, path);
 		undo = false
+	} else if (!selected && checked) {
+		// Transforms.setNodes(editor, { checked: false }, { at: path })
+		undo = false;
 	}
 
-	// if (!selected && checked) {
-	// 	Transforms.setNodes(editor, { checked: false }, { at: path })
 
-	// }
 
 
 
