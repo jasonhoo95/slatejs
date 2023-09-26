@@ -1171,13 +1171,13 @@ const DropDownList = ({ attributes, children, element }) => {
 
 	if (checked && undo) {
 		Transforms.select(editor, path);
-		Transforms.setNodes(editor, { checked: true }, { at: path })
-		undo = false
-	} else if (!selected && checked) {
-		console.log(checked, selected, "not checked");
-		Transforms.setNodes(editor, { checked: false }, { at: path })
 		undo = false
 	}
+
+	// if (!selected && checked) {
+	// 	Transforms.setNodes(editor, { checked: false }, { at: path })
+
+	// }
 
 
 
@@ -1217,7 +1217,7 @@ const DropDownList = ({ attributes, children, element }) => {
 	return (
 		<div
 			{...attributes}
-			style={{ background: (checked) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
+			style={{ background: (checked && selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
 			<div contentEditable="false">
 				<button
 					onClick={(e) => {
