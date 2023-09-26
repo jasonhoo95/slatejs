@@ -1169,7 +1169,7 @@ const DropDownList = ({ attributes, children, element }) => {
 
 	console.log(undo, "checked now");
 
-	if (checked && undo && selected) {
+	if (checked && undo) {
 		Transforms.select(editor, path);
 		undo = false
 	} else if (!selected && checked) {
