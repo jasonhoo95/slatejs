@@ -161,14 +161,16 @@ const SlateReact = () => {
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
-			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex" || n.type == "check-list-item",
+			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex" || n.type == "check-list-item" || n.type == "dropdown-content",
 		});
 		let currentParent, currentDescendant, previousParent;
+
 		for (const listItem of listItems) {
 			currentParent = Editor.node(editor, listItem[1]);
 			currentDescendant = Node.descendant(editor, listItem[1], { match: (n) => n.type == "paragraph" });
 			previousParent = Editor.previous(editor, { at: listItem[1] });
 		}
+		console.log(currentParent, "current parent");
 		const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "paragraph" });
 
 		if (currentParent && ["list-item", "check-list-item"].includes(currentParent[0].type) && currentParent[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
@@ -176,7 +178,11 @@ const SlateReact = () => {
 
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
-		} else if (currentParent && ["check-list-item"].includes(currentParent[0].type)) {
+		} else if (currentParent && currentParent[0].type == "dropdown-content") {
+			const nextParent = Editor.next(editor, { at: currentParent[1] });
+			Transforms.select(editor, { anchor: { path: [nextParent[1][0], 0], offset: 0, }, focus: { path: [nextParent[1][0], 0], offset: 0 } })
+		}
+		else if (currentParent && ["check-list-item"].includes(currentParent[0].type)) {
 
 			insertBreak();
 			const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "check-list-item" });
@@ -213,7 +219,7 @@ const SlateReact = () => {
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["paragraph", "list-item", "check-list-item"].includes(n.type),
+			match: (n) => ["paragraph", "list-item", "check-list-item", "katex"].includes(n.type),
 		});
 
 		if (listItems) {
@@ -226,13 +232,20 @@ const SlateReact = () => {
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
 
+		let previousKatex = Editor.previous(editor, {
+			at: editor.selection.anchor.path,
+			match: (n) => ["katex"].includes(n.type),
+			voids: true
+
+		});
+
 
 		const currentNodeParent = Editor.node(editor, {
 			at: editor.selection.anchor.path,
 		});
 
 
-
+		console.log(previousKatex, "previous parent");
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
 			if (!backwardCheck) {
@@ -293,9 +306,9 @@ const SlateReact = () => {
 				backwardCheck = true;
 				const currentNode = Editor.node(editor, editor.selection.anchor);
 
-				if (["katex", "inline-bug"].includes(currentNode[0].type)) {
-					Transforms.move(editor, { distance: 1, unit: "offset" });
-				}
+				// if (["katex", "inline-bug"].includes(currentNode[0].type)) {
+				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+				// }
 
 				Transforms.mergeNodes(editor, {
 					at: listItemParent[1],
@@ -396,9 +409,7 @@ const SlateReact = () => {
 		deleteFragment(...args);
 
 
-		if (string && (string?.type == "inline-bug" || string?.type == "katex")) {
-			Transforms.move(editor, { distance: 1, unit: "offset" });
-		}
+
 		// const parent = Editor.parent(editor, listItems[1]);
 
 		// const [checkListItem] = Editor.nodes(editor, {
@@ -677,11 +688,13 @@ const SlateReact = () => {
 							HistoryEditor.undo(editor);
 							undo = true;
 
-							// document.execCommand("undo");
+
+
 						} else if (event.metaKey && event.shiftKey && event.key === "z") {
 							event.preventDefault();
 							HistoryEditor.redo(editor);
 							undo = true;
+
 
 						}
 					}}
@@ -801,18 +814,20 @@ const insertKatex = (editor, url, updateAmount) => {
 	};
 	Transforms.insertNodes(editor, katex);
 
-	Transforms.move(editor);
+	Transforms.move(editor, { distance: 1, unit: 'offset' });
 
 
 	Transforms.insertText(editor, "\u00a0".toString(), {
-		at: editor.selection.anchor,
+		at: editor.selection.anchor.path,
 	});
 
-	ReactEditor.focus(editor);
+	Transforms.select(editor, editor.selection);
 
-	// updateAmount("katex");
+	console.log(editor.selection.anchor.path, "anchor path");
 
 	// ReactEditor.focus(editor);
+
+
 };
 
 const withInlines = (editor) => {
@@ -905,15 +920,16 @@ const InlineChromiumBugfix = ({ attributes, children, element }) => {
 };
 
 const KatexComponent = ({ attributes, children, element }) => {
+	const editor = useSlate();
 	const katextext = katex.renderToString(String.raw`${element.url}`);
 	const selected = useSelected();
 	const focused = useFocused();
+	const path = ReactEditor.findPath(editor, element);
 
 
 
 	return (
 		<span
-			contentEditable="false"
 			onClick={(e) => {
 				if (focused) {
 					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex");
@@ -1167,13 +1183,13 @@ const DropDownList = ({ attributes, children, element }) => {
 	const { checked, selectNode } = element;
 	const path = ReactEditor.findPath(editor, element);
 
-	console.log(undo, "checked now");
 
-	if (checked && undo) {
+	if ((checked && undo)) {
+		console.log(selected, "selected now");
 		Transforms.select(editor, path);
 		undo = false
 	} else if (!selected && checked) {
-		// Transforms.setNodes(editor, { checked: false }, { at: path })
+		Transforms.setNodes(editor, { checked: false }, { at: path })
 		undo = false;
 	}
 
