@@ -234,7 +234,7 @@ const SlateReact = () => {
 			});
 			previousVoid = Editor.previous(editor, {
 				at: listItems[1],
-				match: (n) => ["editable-void"].includes(n.type),
+				match: (n) => ["paragraph", "editable-void"].includes(n.type),
 
 			});
 			nextParent = Editor.next(editor, { at: listItems[1] });
@@ -577,7 +577,7 @@ const SlateReact = () => {
 							children: [{ text: 'asdasd' }],
 						};
 
-						Transforms.insertNodes(editor, block);
+						Transforms.setNodes(editor, block);
 						const [voidElement] = Editor.nodes(editor, {
 							match: (node) => node.type == "editable-void"
 						});
