@@ -161,7 +161,7 @@ const SlateReact = () => {
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
-			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex" || n.type == "check-list-item" || n.type == "dropdown-content",
+			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex" || n.type == "check-list-item" || n.type == "dropdown-content" || n.type == "editable-void",
 		});
 		let currentParent, currentDescendant, previousParent;
 
@@ -178,7 +178,7 @@ const SlateReact = () => {
 
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
-		} else if (currentParent && currentParent[0].type == "dropdown-content") {
+		} else if (currentParent && (currentParent[0].type == "dropdown-content" || currentParent[0].type == "editable-void")) {
 			const nextParent = Editor.next(editor, { at: currentParent[1] });
 			Transforms.select(editor, { anchor: { path: [nextParent[1][0], 0], offset: 0, }, focus: { path: [nextParent[1][0], 0], offset: 0 } })
 		}
@@ -336,8 +336,9 @@ const SlateReact = () => {
 
 		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 
-			Transforms.setNodes(editor, { checked: true, selectCheck: true }, { at: previousParent[1] });
-
+			Transforms.setNodes(editor, { checked: true }, { at: previousParent[1] });
+			Transforms.move(editor, { offset: 1, reverse: true });
+			undo = true;
 			// Highlight the entire parent block
 
 
@@ -1161,7 +1162,8 @@ const DropdownInner = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const selected = useSelected();
 	const focused = useFocused();
-	const path = ReactEditor.findPath(editor, element);
+	const { checked, selectNode } = element;
+
 
 
 
@@ -1187,6 +1189,8 @@ const DropDownList = ({ attributes, children, element }) => {
 	if ((checked && undo)) {
 		console.log(selected, "selected now");
 		Transforms.select(editor, path);
+		// Transforms.setSelection(editor, leafNode);
+
 		undo = false
 	} else if (!selected && checked) {
 		Transforms.setNodes(editor, { checked: false }, { at: path })
@@ -1265,10 +1269,19 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const [open, setOpen] = useState(false);
 	const path = ReactEditor.findPath(editor, element);
 
-	if (checked) {
-		Transforms.select(editor, path);
 
+
+	if ((checked && undo)) {
+		console.log(selected, "selected now");
+		Transforms.select(editor, path);
+		// Transforms.setSelection(editor, leafNode);
+
+		undo = false
+	} else if (!selected && checked) {
+		Transforms.setNodes(editor, { checked: false }, { at: path })
+		undo = false;
 	}
+
 	const addCard = () => {
 		let cardObj = { card: card.length + 1, id: 0, check: false };
 		cardObj.id = card.length;
