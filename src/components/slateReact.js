@@ -178,9 +178,11 @@ const SlateReact = () => {
 
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
-		} else if (currentParent && (currentParent[0].type == "dropdown-content" || currentParent[0].type == "editable-void")) {
+		} else if (currentParent && currentParent[0].type == "dropdown-content") {
 			const nextParent = Editor.next(editor, { at: currentParent[1] });
 			Transforms.select(editor, { anchor: { path: [nextParent[1][0], 0], offset: 0, }, focus: { path: [nextParent[1][0], 0], offset: 0 } })
+		} else if (currentParent && currentParent[0].type == "editable-void") {
+			Transforms.move(editor, { unit: 'offset', distance: 1 });
 		}
 		else if (currentParent && ["check-list-item"].includes(currentParent[0].type)) {
 
@@ -216,6 +218,7 @@ const SlateReact = () => {
 		// alert("delete");
 		let listItemParent;
 		let previousParent;
+		let previousVoid;
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
@@ -229,6 +232,11 @@ const SlateReact = () => {
 				// match: (n) => ["paragraph", "numbered-list", "bulleted-list", "check-list-item", "editable-void", "dropdown-content"].includes(n.type),
 
 			});
+			previousVoid = Editor.previous(editor, {
+				at: listItems[1],
+				match: (n) => ["editable-void"].includes(n.type),
+
+			});
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
 
@@ -240,12 +248,14 @@ const SlateReact = () => {
 		});
 
 
+
+
 		const currentNodeParent = Editor.node(editor, {
 			at: editor.selection.anchor.path,
 		});
 
 
-		console.log(previousKatex, "previous parent");
+		console.log(previousVoid, "previous void");
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
 			if (!backwardCheck) {
@@ -329,19 +339,12 @@ const SlateReact = () => {
 			Transforms.move(editor, { offset: 1, reverse: true });
 			undo = true;
 
-			// Highlight the entire parent block
 
+		} else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 
-
-
-		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
-
-			Transforms.setNodes(editor, { checked: true }, { at: previousParent[1] });
+			Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
 			Transforms.move(editor, { offset: 1, reverse: true });
 			undo = true;
-			// Highlight the entire parent block
-
-
 
 		}
 		else {
@@ -575,6 +578,12 @@ const SlateReact = () => {
 						};
 
 						Transforms.insertNodes(editor, block);
+						const [voidElement] = Editor.nodes(editor, {
+							match: (node) => node.type == "editable-void"
+						});
+						const block1 = { type: "paragraph", children: [] };
+
+						Transforms.wrapNodes(editor, block1, { at: voidElement[1] });
 
 
 
@@ -1569,6 +1578,7 @@ const Element = (props) => {
 					{children}
 				</ul>
 			);
+
 		case "link":
 			return <LinkComponent {...props} />;
 		case "dropdown-inner":
