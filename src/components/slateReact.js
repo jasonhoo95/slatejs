@@ -822,16 +822,20 @@ const insertKatex = (editor, url, updateAmount) => {
 		id,
 		children: [{ text: "", type: "katex" }],
 	};
-	Transforms.insertNodes(editor, katex);
+
+	const inlineWrapper = {
+		type: "inline-wrapper",
+		children: [katex]
+	}
+	Transforms.insertNodes(editor, inlineWrapper);
 
 	Transforms.move(editor, { distance: 1, unit: 'offset' });
 
 
-	Transforms.insertText(editor, "\u00a0".toString(), {
-		at: editor.selection.anchor.path,
-	});
+	// Transforms.insertText(editor, "\u00a0".toString(), {
+	// 	at: editor.selection.anchor.path,
+	// });
 
-	Transforms.select(editor, editor.selection);
 
 	console.log(editor.selection.anchor.path, "anchor path");
 
@@ -843,7 +847,7 @@ const insertKatex = (editor, url, updateAmount) => {
 const withInlines = (editor) => {
 	const { insertData, insertText, isInline, markableVoid, isVoid } = editor;
 
-	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug"].includes(element.type) || isInline(element);
+	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
 	editor.isVoid = (element) => ["katex", "inline-bug", "link", "editable-void"].includes(element.type) || isVoid(element);
 
@@ -956,6 +960,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 				dangerouslySetInnerHTML={{ __html: katextext }}></span>
 
 			{children}
+			&nbsp;
 		</span>
 	);
 };
@@ -1585,6 +1590,12 @@ const Element = (props) => {
 			return <DropdownInner {...props} />;
 		case "katex":
 			return <KatexComponent {...props} />;
+		case "inline-wrapper":
+			return (
+				<span {...attributes}>
+					{children}
+				</span>
+			)
 		case "inline-bug":
 			return <InlineChromiumBugfix {...props} />;
 		case "inline-wrapper-bug":
