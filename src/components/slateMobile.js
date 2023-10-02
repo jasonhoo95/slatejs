@@ -456,17 +456,17 @@ const SlateMobile = () => {
 							],
 						};
 						// Editor.deleteBackward(editor, { unit: "block" });
-						// Transforms.insertNodes(editor, block1, { mode: "highest" });
-						const [listItems] = Editor.nodes(editor, {
-							match: (n) => n.type === "paragraph",
-						});
-						if (Editor.isEmpty(editor, listItems[0])) {
-							Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
-							Transforms.unwrapNodes(editor, { mode: "highest" });
-						} else {
-							Transforms.insertNodes(editor, block1, { mode: "highest" });
-							// Transforms.unwrapNodes(editor, { mode: "highest" });
-						}
+						Transforms.insertNodes(editor, block, { mode: "highest" });
+						// const [listItems] = Editor.nodes(editor, {
+						// 	match: (n) => n.type === "paragraph",
+						// });
+						// if (Editor.isEmpty(editor, listItems[0])) {
+						// 	Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
+						// 	Transforms.unwrapNodes(editor, { mode: "highest" });
+						// } else {
+						// 	Transforms.insertNodes(editor, block1, { mode: "highest" });
+						// 	// Transforms.unwrapNodes(editor, { mode: "highest" });
+						// }
 					}}>
 					insert void123
 				</div>
@@ -1052,10 +1052,11 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const [objCopy, setObj] = useState();
 	const path = ReactEditor.findPath(editor, element);
 	const addCard = () => {
-		let cardObj = { card: "1", id: 0, check: false };
+		let cardObj = { card: card.length + 1, id: 0, check: false };
 		cardObj.id = card.length;
 		cardnow = [...card, cardObj];
 
+		console.log(cardnow, "card now");
 		setObj(cardnow);
 		Transforms.setNodes(editor, { card: cardnow }, { at: path });
 	};
@@ -1071,8 +1072,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const setModal = useCallback((key, card1, check) => {
 		let cardnow = [...card1];
 		var index = _.findIndex(cardnow, { id: key });
-		cardnow.splice(index, 1, { ...cardnow[index], check: check });
-		setObj(cardnow);
+		console.log(cardnow[index], "card index");
+		// cardnow.splice(index, 1, { ...cardnow[index], check: check });
+		setObj(cardnow[index]);
 		// Transforms.setNodes(editor, { card: cardnow }, { at: path });
 	}, []);
 
@@ -1109,28 +1111,14 @@ const EditableVoid = ({ attributes, children, element }) => {
 		>
 			<button
 				onClick={(e) => {
+					alert("click");
 					addCard();
 				}}>
 				click here
 			</button>
 			{children}
 
-			{/* <RenderPopup /> */}
-			<div className="flex">
-				{card?.map((o, key) => {
-					return (
-						<div
-							className="mx-3"
-							onClick={(e) => {
-								setModal(key, card, true);
-							}}
-							style={{ height: "100%", width: "100%", background: "red" }}
-							key={key}>
-							{/* {objCopy[key].check ? "true" : "false"} */}
-							{objCopy && objCopy[key].check ? (
-								<>
-									{o.card}
-									<EditablePopup
+			{/* <EditablePopup
 										value={o}
 										open={true}
 										setModal={setModal}
@@ -1138,19 +1126,21 @@ const EditableVoid = ({ attributes, children, element }) => {
 										id={key}
 										path={path}
 										editor={editor}
-									/>
-								</>
-							) : (
-								// <input
-								// 	value={o.card}
-								// 	onChange={(e) => {
-								// 		checkInput(e.target.value, key);
-								//
-								// 	}}
-								// 	type="text"
-								// />
-								o.card
-							)}
+									/> */}
+
+			{/* <RenderPopup /> */}
+			<div className="flex">
+				{card?.map((o, key) => {
+					return (
+						<div
+							contentEditable="false"
+							className="mx-3"
+							// onClick={(e) => {
+							// 	setModal(key, card, true);
+							// }}
+							style={{ height: "100%", width: "100%", background: "red" }}
+							key={key}>
+							{o.card}
 						</div>
 					);
 				})}
