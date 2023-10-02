@@ -138,7 +138,7 @@ const SlateReact = () => {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katexinsertnow");
 				// Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, unit: 'offset', reverse: true })
 				ReactEditor.focus(editor);
-				insertKatex(editor, "kkasdl");
+				insertKatex(editor, "flutter");
 
 			} else if (event.data == "focus") {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focusnow");
