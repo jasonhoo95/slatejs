@@ -28,6 +28,7 @@ let backwardCheck = false;
 let leftCheck = false;
 let rightCheck = false;
 let undo = false;
+let numberCheck = false;
 // let focusCheck = false;
 const initialValue = [
 	{
@@ -239,15 +240,6 @@ const SlateReact = () => {
 			});
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
-
-		let previousKatex = Editor.previous(editor, {
-			at: editor.selection.anchor.path,
-			match: (n) => ["katex"].includes(n.type),
-			voids: true
-
-		});
-
-
 
 
 		const currentNodeParent = Editor.node(editor, {
@@ -487,22 +479,23 @@ const SlateReact = () => {
 				onChange={(value) => {
 
 
-					if (editor && editor.selection) {
+					// if (editor && editor.selection) {
 
-						const string = Node.leaf(editor, editor.selection.anchor.path);
+					// 	const string = Node.leaf(editor, editor.selection.anchor.path);
 
 
-						if (string.text.startsWith("1. ")) {
-							toggleBlock(editor, "numbered-list", "number");
-							Transforms.delete(editor, {
-								at: editor.selection.anchor,
-								unit: "word",
-								reverse: true,
-							});
+					// 	if (string.text.startsWith("1. ")) {
+					// 		toggleBlock(editor, "numbered-list", "number");
+					// 		Transforms.delete(editor, {
+					// 			at: editor.selection.anchor,
+					// 			unit: "word",
+					// 			reverse: true,
+					// 		});
 
-							// checklist(editor);
-						}
-					}
+
+					// 		// checklist(editor);
+					// 	}
+					// }
 
 
 					backwardCheck = false;
