@@ -137,8 +137,8 @@ const SlateReact = () => {
 			else if (event.data == "katex") {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katexinsertnow");
 				// Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, unit: 'offset', reverse: true })
-
-				insertKatex(editor, "kkasdl", updateAmount);
+				ReactEditor.focus(editor);
+				insertKatex(editor, "kkasdl");
 
 			} else if (event.data == "focus") {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focusnow");
@@ -569,12 +569,36 @@ const SlateReact = () => {
 					insert voidnow
 				</div>
 
+				<div onClick={e => { ReactEditor.blur(editor) }}>
+					click now123
+				</div>
+
+				<div onClick={e => { ReactEditor.focus(editor) }}>
+					click focus
+				</div>
+
+				<div
+					style={{ padding: "10px" }}
+					onClick={(event) => {
+						// updateAmount(true);
+						// event.preventDefault();
+						// Transforms.insertText(editor, "\u200b".toString(), {
+						// 	at: editor.selection.anchor,
+						// });
+						ReactEditor.focus(editor);
+
+						insertKatex(editor, "jjk", updateAmount);
+						// getCaretCoordinates();
+					}}>
+					Katex Link
+				</div>
+
 				<div
 					onClick={(e) => {
 						const block = {
 							type: "editable-void",
 							card: [],
-							children: [{ text: 'asdasd' }],
+							children: [{ text: '' }],
 						};
 
 						Transforms.setNodes(editor, block);
@@ -814,7 +838,6 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
-
 	let id = v4();
 	const katex = {
 		type: "katex",
@@ -825,11 +848,11 @@ const insertKatex = (editor, url, updateAmount) => {
 
 	const inlineWrapper = {
 		type: "inline-wrapper",
-		children: [katex]
+		children: [{ text: 'asdasd' }]
 	}
 	Transforms.insertNodes(editor, inlineWrapper);
+	Transforms.move(editor, { unit: 'offset', distance: 1 })
 
-	Transforms.move(editor, { distance: 1, unit: 'offset' });
 
 
 	// Transforms.insertText(editor, "\u00a0".toString(), {
@@ -837,9 +860,7 @@ const insertKatex = (editor, url, updateAmount) => {
 	// });
 
 
-	console.log(editor.selection.anchor.path, "anchor path");
 
-	// ReactEditor.focus(editor);
 
 
 };
@@ -1036,25 +1057,6 @@ const BlockButton = ({ format, icon }) => {
 					getCaretCoordinates();
 				}}>
 				Banner red
-			</div>
-		);
-	} else if (format == "katex-link") {
-		return (
-
-			<div
-				style={{ padding: "10px" }}
-				onMouseDown={(event) => {
-					// updateAmount(true);
-					// event.preventDefault();
-					// Transforms.insertText(editor, "\u200b".toString(), {
-					// 	at: editor.selection.anchor,
-					// });
-					ReactEditor.focus(editor);
-					// ReactEditor.blur(editor);
-					insertKatex(editor, "jjk", updateAmount);
-					// getCaretCoordinates();
-				}}>
-				Katex Link
 			</div>
 		);
 	} else {
