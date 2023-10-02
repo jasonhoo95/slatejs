@@ -848,7 +848,7 @@ const insertKatex = (editor, url, updateAmount) => {
 
 	const inlineWrapper = {
 		type: "inline-wrapper",
-		children: [{ text: 'asdasd' }]
+		children: [katex]
 	}
 	Transforms.insertNodes(editor, inlineWrapper);
 	Transforms.move(editor, { unit: 'offset', distance: 1 })

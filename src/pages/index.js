@@ -21,7 +21,6 @@ export default function Home() {
 	}, [])
 	return (
 		<div className="m-8">
-			<button onClick={e => { setDisplay(true) }}>Click now</button>
 			<Head>
 				<title>Create Next App</title>
 				<meta
