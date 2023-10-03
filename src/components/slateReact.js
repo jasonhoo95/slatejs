@@ -175,7 +175,7 @@ const SlateReact = () => {
 		const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "paragraph" });
 
 		if (currentParent && ["list-item", "check-list-item"].includes(currentParent[0].type) && currentParent[0].children.length == 1 && currentParent[0].children[0].text.length == 0) {
-			toggleBlock(editor, currentParent[0].type);
+			toggleBlock(editor, "numbered-list", "number");
 
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
