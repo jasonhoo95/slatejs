@@ -709,7 +709,7 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if (string.text == "1.") {
+						} else if (string.text.startsWith("1.")) {
 							toggleBlock(editor, "numbered-list", "number");
 							Transforms.delete(editor, {
 								at: editor.selection.anchor,
