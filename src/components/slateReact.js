@@ -594,11 +594,12 @@ const SlateReact = () => {
 							children: [{ text: '' }],
 						};
 
+						ReactEditor.focus(editor);
 						Transforms.setNodes(editor, block);
 						const [voidElement] = Editor.nodes(editor, {
 							match: (node) => node.type == "editable-void"
 						});
-						const block1 = { type: "paragraph", children: [] };
+						const block1 = { type: "paragraph", children: [block] };
 
 						Transforms.wrapNodes(editor, block1, { at: voidElement[1] });
 
@@ -845,12 +846,6 @@ const insertKatex = (editor, url, updateAmount) => {
 	}
 	Transforms.insertNodes(editor, inlineWrapper);
 	Transforms.move(editor, { unit: 'offset', distance: 1 })
-
-
-
-	// Transforms.insertText(editor, "\u00a0".toString(), {
-	// 	at: editor.selection.anchor.path,
-	// });
 
 
 
