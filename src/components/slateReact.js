@@ -479,10 +479,7 @@ const SlateReact = () => {
 
 				onChange={(value) => {
 
-
-
-					// backwardCheck = false;
-
+					backwardCheck = false;
 
 				}}
 				initialValue={initialValue}>
@@ -549,7 +546,14 @@ const SlateReact = () => {
 					click now123
 				</div>
 
-				<div onClick={e => { ReactEditor.focus(editor) }}>
+				<div onClick={e => {
+					Transforms.delete(editor, {
+						at: editor.selection.anchor,
+						unit: "character",
+						distance: 3,
+						reverse: true,
+					});
+				}}>
 					click focus
 				</div>
 
@@ -677,7 +681,7 @@ const SlateReact = () => {
 						});
 						const string = Node.leaf(editor, editor.selection.anchor.path);
 
-
+						console.log(string.text, "text");
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
 							event.preventDefault();
@@ -710,12 +714,15 @@ const SlateReact = () => {
 
 
 						} else if (string.text.startsWith("1.")) {
-							toggleBlock(editor, "numbered-list", "number");
 							Transforms.delete(editor, {
 								at: editor.selection.anchor,
-								unit: "word",
+								unit: "character",
+								distance: 2,
 								reverse: true,
 							});
+							toggleBlock(editor, "numbered-list", "number");
+
+
 						}
 					}}
 				/>
