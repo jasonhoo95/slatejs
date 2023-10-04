@@ -714,13 +714,17 @@ const SlateReact = () => {
 
 
 						} else if (string.text.startsWith("1.")) {
-							Transforms.delete(editor, {
-								at: editor.selection.anchor,
-								unit: "character",
-								distance: 2,
-								reverse: true,
-							});
-							toggleBlock(editor, "numbered-list", "number");
+							setTimeout(() => {
+								Transforms.delete(editor, {
+									at: editor.selection.anchor,
+									unit: "character",
+									distance: 3,
+									reverse: true,
+								});
+								toggleBlock(editor, "numbered-list", "number");
+
+							}, 10)
+
 
 
 						}
