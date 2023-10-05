@@ -547,12 +547,8 @@ const SlateReact = () => {
 				</div>
 
 				<div onClick={e => {
-					Transforms.delete(editor, {
-						at: editor.selection.anchor,
-						unit: "character",
-						distance: 3,
-						reverse: true,
-					});
+					Transforms.removeNodes(editor);
+					Transforms.insertNodes(editor, { type: 'paragraph', children: [{ text: 'asd' }] })
 				}}>
 					click focus
 				</div>
@@ -681,7 +677,7 @@ const SlateReact = () => {
 						});
 						const string = Node.leaf(editor, editor.selection.anchor.path);
 
-						console.log(string.text, "text");
+						console.log(string, "text");
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
 							event.preventDefault();
@@ -713,17 +709,19 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if (string.text.startsWith("1.")) {
-							setTimeout(() => {
-								Transforms.delete(editor, {
-									at: editor.selection.anchor,
-									unit: "character",
-									distance: 3,
-									reverse: true,
-								});
-								toggleBlock(editor, "numbered-list", "number");
+						}
+						else if (string.text.startsWith("1.")) {
+							console.log(string.text, "text1");
 
-							}, 10)
+							// toggleBlock(editor, "numbered-list", "number");
+
+							setTimeout(() => {
+								Transforms.removeNodes(editor);
+								const block1 = { type: 'list-item', children: [{ text: '' }] }
+								Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] })
+
+							}, 0)
+
 
 
 
@@ -1104,6 +1102,7 @@ const toggleBlock = (editor, format, type) => {
 	} else {
 		newProperties = {
 			type: isActive ? "paragraph" : isList ? "list-item" : formatCheck,
+			children: [{ text: '' }]
 		};
 	}
 
