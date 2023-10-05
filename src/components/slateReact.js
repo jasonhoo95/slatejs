@@ -547,8 +547,27 @@ const SlateReact = () => {
 				</div>
 
 				<div onClick={e => {
-					Transforms.removeNodes(editor);
-					Transforms.insertNodes(editor, { type: 'paragraph', children: [{ text: 'asd' }] })
+					const { selection } = editor;
+
+					if (selection && Range.isCollapsed(selection)) {
+						ReactEditor.focus(editor);
+
+						const [start] = Editor.edges(editor, selection);
+						const path = start.path;
+
+						// Remove nodes at the current path
+						Transforms.removeNodes(editor, { at: path });
+
+						Transforms.insertNodes(editor, { type: 'paragraph', children: [{ text: 'asd' }] }, { at: path });
+						const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
+						Transforms.select(editor, Editor.range(editor, newPath));
+						Transforms.move(editor, { unit: "offset", distance: 1 });
+
+						// Insert new nodes at the current path
+
+					}
+
+
 				}}>
 					click focus
 				</div>
@@ -716,9 +735,25 @@ const SlateReact = () => {
 							// toggleBlock(editor, "numbered-list", "number");
 
 							setTimeout(() => {
-								Transforms.removeNodes(editor);
-								const block1 = { type: 'list-item', children: [{ text: '' }] }
-								Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] })
+								const { selection } = editor;
+
+								if (selection && Range.isCollapsed(selection)) {
+									ReactEditor.focus(editor);
+
+									const [start] = Editor.edges(editor, selection);
+									const path = start.path;
+
+									// Remove nodes at the current path
+									Transforms.removeNodes(editor, { at: path });
+									const block1 = { type: 'list-item', children: [{ text: '' }] }
+									Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
+									const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
+									Transforms.select(editor, Editor.range(editor, newPath));
+
+									// Insert new nodes at the current path
+
+								}
+
 
 							}, 0)
 
