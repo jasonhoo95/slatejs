@@ -734,10 +734,9 @@ const SlateReact = () => {
 
 							// toggleBlock(editor, "numbered-list", "number");
 
+							const timeoutnow = setTimeout(() => {
 								const { selection } = editor;
 
-								if (selection && Range.isCollapsed(selection)) {
-									ReactEditor.focus(editor);
 
 									const [start] = Editor.edges(editor, selection);
 									const path = start.path;
@@ -757,10 +756,10 @@ const SlateReact = () => {
 
 									// Insert new nodes at the current path
 
-								}
 
 
 
+							}, 0)
 
 
 
