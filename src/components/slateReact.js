@@ -247,7 +247,7 @@ const SlateReact = () => {
 		});
 
 
-		console.log(previousVoid, "previous void");
+		console.log(listItemParent, "previous void");
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
 			if (!backwardCheck) {
@@ -321,8 +321,7 @@ const SlateReact = () => {
 			listItemParent &&
 			(listItemParent[0].type == "list-item" || listItemParent[0].type == "check-list-item") &&
 			listItemParent[1][listItemParent[1].length - 1] == 0 &&
-			editor.selection.anchor.offset == 0 &&
-			currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
+			editor.selection.anchor.offset == 0 
 		) {
 			toggleBlock(editor, listItemParent[0].type);
 		} else if (previousParent && previousParent[0].type == "dropdown-content" && editor.selection.anchor.offset == 0) {
@@ -748,6 +747,12 @@ const SlateReact = () => {
 									Transforms.removeNodes(editor, { at: path });
 									const block1 = { type: 'list-item', children: [{ text: '' }] }
 									Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
+									Transforms.unwrapNodes(editor, {
+										match: (n) => {
+											return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "paragraph");
+										},
+										at: path
+									});
 									const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
 									Transforms.select(editor, Editor.range(editor, newPath));
 
@@ -864,10 +869,10 @@ const insertKatex = (editor, url, updateAmount) => {
 		children: [{ text: "", type: "katex" }],
 	};
 
-	// const inlineWrapper = {
-	// 	type: "inline-wrapper",
-	// 	children: [katex]
-	// }
+	const inlineWrapper = {
+		type: "inline-wrapper",
+		children: [katex]
+	}
 	Transforms.insertNodes(editor, katex);
 	Transforms.move(editor, { unit: 'offset', distance: 1 })
 
@@ -880,7 +885,7 @@ const insertKatex = (editor, url, updateAmount) => {
 const withInlines = (editor) => {
 	const { insertData, insertText, isInline, markableVoid, isVoid } = editor;
 
-	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug"].includes(element.type) || isInline(element);
+	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
 	editor.isVoid = (element) => ["katex", "inline-bug", "link", "editable-void"].includes(element.type) || isVoid(element);
 
@@ -987,6 +992,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 				background: selected ? "red" : "",
 			}}
 			className="span-katex"
+			contentEditable="false"
 			{...attributes}>
 			<span
 				contentEditable="false"
@@ -1607,7 +1613,7 @@ const Element = (props) => {
 			return <KatexComponent {...props} />;
 		case "inline-wrapper":
 			return (
-				<span {...attributes}>
+				<span contentEditable="false" {...attributes}>
 					{children}
 				</span>
 			)
