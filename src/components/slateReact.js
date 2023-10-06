@@ -734,7 +734,6 @@ const SlateReact = () => {
 
 							// toggleBlock(editor, "numbered-list", "number");
 
-							const timeoutnow = setTimeout(() => {
 								const { selection } = editor;
 
 								if (selection && Range.isCollapsed(selection)) {
@@ -755,14 +754,13 @@ const SlateReact = () => {
 									});
 									const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
 									Transforms.select(editor, Editor.range(editor, newPath));
-									clearTimeout(timeoutnow);
 
 									// Insert new nodes at the current path
 
 								}
 
 
-							}, 0)
+
 
 
 
