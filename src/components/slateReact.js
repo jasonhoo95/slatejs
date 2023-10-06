@@ -731,6 +731,7 @@ const SlateReact = () => {
 
 						}
 						else if (string.text.startsWith("1.")) {
+
 							console.log(string.text, "text1");
 
 							// toggleBlock(editor, "numbered-list", "number");
@@ -760,6 +761,8 @@ const SlateReact = () => {
 
 
 								clearTimeout(timeoutnow);
+								event.preventDefault();
+
 							}, 0)
 
 
