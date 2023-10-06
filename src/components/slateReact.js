@@ -695,8 +695,9 @@ const SlateReact = () => {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph"
 						});
 						const string = Node.leaf(editor, editor.selection.anchor.path);
+						const parent = Editor.parent(editor, editor.selection.anchor.path);
 
-						console.log(string, "text");
+						console.log(parent, "text");
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
 							event.preventDefault();
@@ -758,7 +759,7 @@ const SlateReact = () => {
 
 
 
-
+								clearTimeout(timeoutnow);
 							}, 0)
 
 
