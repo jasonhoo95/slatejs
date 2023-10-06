@@ -171,7 +171,7 @@ const SlateReact = () => {
 			currentDescendant = Node.descendant(editor, listItem[1], { match: (n) => n.type == "paragraph" });
 			previousParent = Editor.previous(editor, { at: listItem[1] });
 		}
-		console.log(currentParent, "current parent");
+		console.log(currentParent, selectedLeaf, "current parent");
 		const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "paragraph" });
 
 		if (currentParent && ["list-item", "check-list-item"].includes(currentParent[0].type) && currentParent[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
@@ -360,9 +360,9 @@ const SlateReact = () => {
 
 					const currentNode = Editor.node(editor, editor.selection.anchor);
 
-					if (currentNode && (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug")) {
-						Transforms.move(editor, { distance: 1, unit: "offset" });
-					}
+					// if (currentNode && (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug")) {
+					// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+					// }
 
 					if (string.text.length == 0 && !listItems) {
 						Transforms.setNodes(editor, { type: "paragraph" });
@@ -384,9 +384,10 @@ const SlateReact = () => {
 					const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
 					const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
 
-					if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
-						Transforms.move(editor, { distance: 1, unit: "offset" });
-					} else if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
+					// if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
+					// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+					// }
+					if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
 						Transforms.delete(editor, { at: editor.selection.anchor.path });
 					}
 				}
@@ -764,20 +765,7 @@ const SlateReact = () => {
 					}}
 				/>
 			</Slate>
-			{/* <div
-				onClick={(e) => {
-					document.body.style.overflow = "hidden";
-					// document.body.classList.add('keyboard');
-					var queryselector = document.querySelector('#footer');
-					queryselector.style.display = "block";
-					queryselector.style.top = 0;
-					document.getElementById('divedit').focus();
-					updateAmount(editor);
 
-					// ReactEditor.blur(editor);
-				}}>
-				TOGGLE KATEX123
-			</div> */}
 		</div>
 	);
 };
@@ -876,11 +864,11 @@ const insertKatex = (editor, url, updateAmount) => {
 		children: [{ text: "", type: "katex" }],
 	};
 
-	const inlineWrapper = {
-		type: "inline-wrapper",
-		children: [katex]
-	}
-	Transforms.insertNodes(editor, inlineWrapper);
+	// const inlineWrapper = {
+	// 	type: "inline-wrapper",
+	// 	children: [katex]
+	// }
+	Transforms.insertNodes(editor, katex);
 	Transforms.move(editor, { unit: 'offset', distance: 1 })
 
 
@@ -892,7 +880,7 @@ const insertKatex = (editor, url, updateAmount) => {
 const withInlines = (editor) => {
 	const { insertData, insertText, isInline, markableVoid, isVoid } = editor;
 
-	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
+	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug"].includes(element.type) || isInline(element);
 
 	editor.isVoid = (element) => ["katex", "inline-bug", "link", "editable-void"].includes(element.type) || isVoid(element);
 
