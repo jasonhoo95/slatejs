@@ -752,9 +752,10 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if (string.text.startsWith("1.")) {
+						} else if (string.text.startsWith("1.") && parent && parent[0].type != 'list-item') {
 
 							setTimeout(() => {
+
 									Editor.withoutNormalizing(editor, () => {
 
 										console.log(string.text, "text1");
@@ -775,18 +776,15 @@ const SlateReact = () => {
 										at: path
 									});
 									const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
-									Transforms.select(editor, Editor.range(editor, newPath));
+										Transforms.select(editor, Editor.range(editor, newPath));
+
+
+
+
 									})
 
 
-								}, 10)
-
-
-
-
-
-
-
+							})
 
 						}
 					}}
