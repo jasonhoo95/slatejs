@@ -680,6 +680,49 @@ const SlateReact = () => {
 					id={id}
 					renderLeaf={renderLeaf}
 
+					// onKeyUp={() => {
+					// 	const string = Node.leaf(editor, editor.selection.anchor.path);
+
+					// 	if (string.text.startsWith("1. ")) {
+
+
+					// 		// toggleBlock(editor, "numbered-list", "number");
+
+					// 		const timeoutnow = setTimeout(() => {
+					// 			const { selection } = editor;
+
+
+					// 			const [start] = Editor.edges(editor, selection);
+					// 			const path = start.path;
+
+					// 			// Remove nodes at the current path
+					// 			Transforms.removeNodes(editor, { at: path });
+					// 			const block1 = { type: 'list-item', children: [{ text: '' }] }
+					// 			Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
+					// 			Transforms.unwrapNodes(editor, {
+					// 				match: (n) => {
+					// 					return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "paragraph");
+					// 				},
+					// 				at: path
+					// 			});
+					// 			const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
+					// 			Transforms.select(editor, Editor.range(editor, newPath));
+
+					// 			// Insert new nodes at the current path
+
+
+
+					// 			clearTimeout(timeoutnow);
+
+					// 		}, 0)
+
+
+
+
+					// 	}
+
+					// }}
+
 					onKeyDown={(event) => {
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
@@ -694,8 +737,8 @@ const SlateReact = () => {
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph"
 						});
-						const string = Node.leaf(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
+						const string = Node.leaf(editor, editor.selection.anchor.path);
 
 						console.log(parent, "text");
 						// setState({ text: selectedLeaf.text });
@@ -732,13 +775,11 @@ const SlateReact = () => {
 						}
 						else if (string.text.startsWith("1.")) {
 
-							console.log(string.text, "text1");
+							Editor.withoutNormalizing(editor, () => {
+								console.log(string.text, "text1");
 
-							// toggleBlock(editor, "numbered-list", "number");
-
-							const timeoutnow = setTimeout(() => {
-								const { selection } = editor;
-
+								setTimeout(() => {
+									const { selection } = editor;
 
 									const [start] = Editor.edges(editor, selection);
 									const path = start.path;
@@ -756,15 +797,11 @@ const SlateReact = () => {
 									const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
 									Transforms.select(editor, Editor.range(editor, newPath));
 
-									// Insert new nodes at the current path
+
+								}, 0)
 
 
-
-								clearTimeout(timeoutnow);
-								event.preventDefault();
-
-							}, 0)
-
+							})
 
 
 
