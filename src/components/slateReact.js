@@ -686,35 +686,15 @@ const SlateReact = () => {
 					// 	if (string.text.startsWith("1. ")) {
 
 
-					// 		// toggleBlock(editor, "numbered-list", "number");
 
-					// 		const timeoutnow = setTimeout(() => {
-					// 			const { selection } = editor;
-
-
-					// 			const [start] = Editor.edges(editor, selection);
-					// 			const path = start.path;
-
-					// 			// Remove nodes at the current path
-					// 			Transforms.removeNodes(editor, { at: path });
-					// 			const block1 = { type: 'list-item', children: [{ text: '' }] }
-					// 			Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
-					// 			Transforms.unwrapNodes(editor, {
-					// 				match: (n) => {
-					// 					return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "paragraph");
-					// 				},
-					// 				at: path
-					// 			});
-					// 			const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
-					// 			Transforms.select(editor, Editor.range(editor, newPath));
-
-					// 			// Insert new nodes at the current path
+					// 		Editor.withoutNormalizing(editor, () => {
+					// 			toggleBlock(editor, "numbered-list", "number");
+					// 			Transforms.delete(editor, { unit: 'offset', distance: 3, reverse: true })
+					// 			console.log(string.text, "text1");
 
 
+					// 			})
 
-					// 			clearTimeout(timeoutnow);
-
-					// 		}, 0)
 
 
 
@@ -772,13 +752,13 @@ const SlateReact = () => {
 							undo = true;
 
 
-						}
-						else if (string.text.startsWith("1.")) {
+						} else if (string.text.startsWith("1.")) {
 
-							Editor.withoutNormalizing(editor, () => {
-								console.log(string.text, "text1");
+							setTimeout(() => {
+									Editor.withoutNormalizing(editor, () => {
 
-								setTimeout(() => {
+										console.log(string.text, "text1");
+
 									const { selection } = editor;
 
 									const [start] = Editor.edges(editor, selection);
@@ -796,12 +776,15 @@ const SlateReact = () => {
 									});
 									const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
 									Transforms.select(editor, Editor.range(editor, newPath));
+									})
 
 
-								}, 0)
+								}, 10)
 
 
-							})
+
+
+
 
 
 
