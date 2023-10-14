@@ -720,7 +720,7 @@ const SlateReact = () => {
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
 						const string = Node.leaf(editor, editor.selection.anchor.path);
 
-						console.log(parent, "text");
+						console.log(string.text, "text");
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
 							event.preventDefault();
@@ -752,9 +752,10 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if (string.text.startsWith("1.") && parent && parent[0].type != 'list-item') {
+						} else if (string.text.startsWith("1.")) {
 
-							setTimeout(() => {
+
+
 
 									Editor.withoutNormalizing(editor, () => {
 
@@ -767,7 +768,7 @@ const SlateReact = () => {
 
 									// Remove nodes at the current path
 									Transforms.removeNodes(editor, { at: path });
-									const block1 = { type: 'list-item', children: [{ text: '' }] }
+										const block1 = { type: 'list-item', children: [{ text: '' }] }
 									Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
 									Transforms.unwrapNodes(editor, {
 										match: (n) => {
@@ -780,13 +781,13 @@ const SlateReact = () => {
 
 
 
-
 									})
 
 
-							})
 
 						}
+
+
 					}}
 				/>
 			</Slate>
