@@ -680,28 +680,53 @@ const SlateReact = () => {
 					id={id}
 					renderLeaf={renderLeaf}
 
-					// onKeyUp={() => {
-					// 	const string = Node.leaf(editor, editor.selection.anchor.path);
-
-					// 	if (string.text.startsWith("1. ")) {
 
 
+					onKeyUp={() => {
+						const string = Node.leaf(editor, editor.selection.anchor.path);
 
-					// 		Editor.withoutNormalizing(editor, () => {
-					// 			toggleBlock(editor, "numbered-list", "number");
-					// 			Transforms.delete(editor, { unit: 'offset', distance: 3, reverse: true })
-					// 			console.log(string.text, "text1");
-
-
-					// 			})
+						console.log(string.text, "string text");
+						if (string.text.startsWith("1. ")) {
 
 
 
 
+							Editor.withoutNormalizing(editor, () => {
 
-					// 	}
+								console.log(string.text, "text1");
 
-					// }}
+								const { selection } = editor;
+								const [start] = Editor.edges(editor, selection);
+								const path = start.path;
+
+								// Remove nodes at the current path
+								Transforms.removeNodes(editor, { at: path });
+								const block1 = { type: 'list-item', children: [{ text: '' }] }
+								Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
+								Transforms.unwrapNodes(editor, {
+									match: (n) => {
+										return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "paragraph");
+									},
+									at: path
+								});
+								const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
+								Transforms.select(editor, Editor.range(editor, newPath));
+
+
+
+							})
+
+
+
+
+
+
+
+
+
+						 }
+
+					}}
 
 					onKeyDown={(event) => {
 						for (const hotkey in HOTKEYS) {
@@ -752,43 +777,7 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if (string.text.startsWith("1.")) {
-
-
-
-							setTimeout(() => {
-								Editor.withoutNormalizing(editor, () => {
-									console.log(string.text, "text1");
-
-									const { selection } = editor;
-
-									const [start] = Editor.edges(editor, selection);
-									const path = start.path;
-
-									// Remove nodes at the current path
-									Transforms.removeNodes(editor, { at: path });
-									const block1 = { type: 'list-item', children: [{ text: '' }] }
-									Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
-									Transforms.unwrapNodes(editor, {
-										match: (n) => {
-											return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "paragraph");
-										},
-										at: path
-									});
-									const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
-									Transforms.select(editor, Editor.range(editor, newPath));
-
-
-
-								})
-
-
-							}, 0)
-
-
-
-
-						}
+						} 
 
 
 					}}
