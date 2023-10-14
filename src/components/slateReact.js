@@ -755,8 +755,10 @@ const SlateReact = () => {
 						} else if (string.text.startsWith("1.")) {
 
 
-							Editor.withoutNormalizing(editor, () => {
-										console.log(string.text, "text1");
+
+							setTimeout(() => {
+								Editor.withoutNormalizing(editor, () => {
+									console.log(string.text, "text1");
 
 									const { selection } = editor;
 
@@ -765,7 +767,7 @@ const SlateReact = () => {
 
 									// Remove nodes at the current path
 									Transforms.removeNodes(editor, { at: path });
-										const block1 = { type: 'list-item', children: [{ text: '' }] }
+									const block1 = { type: 'list-item', children: [{ text: '' }] }
 									Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
 									Transforms.unwrapNodes(editor, {
 										match: (n) => {
@@ -774,11 +776,15 @@ const SlateReact = () => {
 										at: path
 									});
 									const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
-										Transforms.select(editor, Editor.range(editor, newPath));
+									Transforms.select(editor, Editor.range(editor, newPath));
 
 
 
-									})
+								})
+
+
+							}, 0)
+
 
 
 
