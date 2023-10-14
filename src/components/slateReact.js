@@ -755,10 +755,7 @@ const SlateReact = () => {
 						} else if (string.text.startsWith("1.")) {
 
 
-
-
-									Editor.withoutNormalizing(editor, () => {
-
+							Editor.withoutNormalizing(editor, () => {
 										console.log(string.text, "text1");
 
 									const { selection } = editor;
