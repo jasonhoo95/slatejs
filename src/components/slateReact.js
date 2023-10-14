@@ -684,7 +684,6 @@ const SlateReact = () => {
 
 					onKeyUp={() => {
 						const string = Node.leaf(editor, editor.selection.anchor.path);
-						const ua = navigator.userAgent
 
 						console.log(string.text, "string text");
 						if (string.text.startsWith("1. ")) {
@@ -731,6 +730,8 @@ const SlateReact = () => {
 					}}
 
 					onKeyDown={(event) => {
+						const ua = navigator.userAgent
+
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
 								event.preventDefault();
