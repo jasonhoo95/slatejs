@@ -789,7 +789,7 @@ const SlateReact = () => {
 							const string1 = Node.leaf(editor, editor.selection.anchor.path);
 							numberCheck = true;
 
-							if (string1.text.startsWith("1. ") && !/ios/i.test(ua) && parent[0].type != "list-item" && numberCheck) {
+							if (string1.text.startsWith("1.") && !/ios/i.test(ua) && parent[0].type != "list-item" && numberCheck) {
 
 								Editor.withoutNormalizing(editor, () => {
 
