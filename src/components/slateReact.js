@@ -787,9 +787,9 @@ const SlateReact = () => {
 
 						setTimeout(() => {
 							const string1 = Node.leaf(editor, editor.selection.anchor.path);
+							numberCheck = true;
 
-
-							if (string1.text.startsWith("1.") && !/ios/i.test(ua) && parent[0].type != "list-item") {
+							if (string1.text.startsWith("1. ") && !/ios/i.test(ua) && parent[0].type != "list-item" && numberCheck) {
 
 								Editor.withoutNormalizing(editor, () => {
 
@@ -812,14 +812,9 @@ const SlateReact = () => {
 									const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
 									Transforms.select(editor, Editor.range(editor, newPath));
 
-
+									numberCheck = false;
 
 								})
-
-
-
-
-
 
 
 							}
