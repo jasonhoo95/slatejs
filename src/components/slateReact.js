@@ -479,6 +479,33 @@ const SlateReact = () => {
 
 				onChange={(value) => {
 
+					if (editor.selection) {
+						const string = Node.leaf(editor, editor.selection.anchor.path);
+						const parent = Editor.parent(editor, editor.selection.anchor.path);
+
+
+
+
+						if (string.text.startsWith("1. ") && parent[0].type != "list-item") {
+							Editor.withoutNormalizing(editor, () => {
+								toggleBlock(editor, "numbered-list", "number");
+								Transforms.delete(editor, {
+									at: editor.selection.anchor,
+									unit: "word",
+									reverse: true,
+								});
+
+							})
+
+
+
+							// checklist(editor);
+						}
+					}
+
+
+
+
 					backwardCheck = false;
 
 				}}
@@ -682,40 +709,38 @@ const SlateReact = () => {
 
 
 
-					onKeyUp={() => {
-						const ua = navigator.userAgent
+					// onKeyUp={() => {
+					// 	const ua = navigator.userAgent
 
-						const string = Node.leaf(editor, editor.selection.anchor.path);
+					// 	const string = Node.leaf(editor, editor.selection.anchor.path);
 
-						console.log(string.text, "string text");
-						if (/ios/i.test(ua) && string.text.startsWith("1. ")) {
+					// 	console.log(string.text, "string text");
+					// 	if (/ios/i.test(ua) && string.text.startsWith("1. ")) {
 
-							Editor.withoutNormalizing(editor, () => {
+					// 		Editor.withoutNormalizing(editor, () => {
 
-								console.log(string.text, "text1");
+					// 			console.log(string.text, "text1");
 
-								const { selection } = editor;
-								const [start] = Editor.edges(editor, selection);
-								const path = start.path;
+					// 			const { selection } = editor;
+					// 			const [start] = Editor.edges(editor, selection);
+					// 			const path = start.path;
 
-								// Remove nodes at the current path
-								Transforms.removeNodes(editor, { at: path });
-								const block1 = { type: 'list-item', children: [{ text: '' }] }
-								Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
-								Transforms.unwrapNodes(editor, {
-									match: (n) => {
-										return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "paragraph");
-									},
-									at: path
-								});
-								const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
-								Transforms.select(editor, Editor.range(editor, newPath));
-
-
-
-							})
+					// 			// Remove nodes at the current path
+					// 			Transforms.removeNodes(editor, { at: path });
+					// 			const block1 = { type: 'list-item', children: [{ text: '' }] }
+					// 			Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
+					// 			Transforms.unwrapNodes(editor, {
+					// 				match: (n) => {
+					// 					return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "paragraph");
+					// 				},
+					// 				at: path
+					// 			});
+					// 			const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
+					// 			Transforms.select(editor, Editor.range(editor, newPath));
 
 
+
+					// 		})
 
 
 
@@ -723,13 +748,15 @@ const SlateReact = () => {
 
 
 
-						}
+
+
+					// 	}
 
 
 
 
 
-					}}
+					// }}
 
 					onKeyDown={(event) => {
 						const ua = navigator.userAgent
@@ -747,7 +774,6 @@ const SlateReact = () => {
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph"
 						});
-						const parent = Editor.parent(editor, editor.selection.anchor.path);
 						const string = Node.leaf(editor, editor.selection.anchor.path);
 
 						console.log(string.text, "text");
@@ -784,44 +810,45 @@ const SlateReact = () => {
 
 						}
 
+						// if (string.text.startsWith("1.") && !/ios/i.test(ua)) {
 
-						setTimeout(() => {
-							const string1 = Node.leaf(editor, editor.selection.anchor.path);
-							numberCheck = true;
-
-							if (string1.text.startsWith("1.") && !/ios/i.test(ua) && parent[0].type != "list-item" && numberCheck) {
-
-								Editor.withoutNormalizing(editor, () => {
-
-									console.log(string1.text, "text1");
-
-									const { selection } = editor;
-									const [start] = Editor.edges(editor, selection);
-									const path = start.path;
-
-									// Remove nodes at the current path
-									Transforms.removeNodes(editor, { at: path });
-									const block1 = { type: 'list-item', children: [{ text: '' }] }
-									Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
-									Transforms.unwrapNodes(editor, {
-										match: (n) => {
-											return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "paragraph");
-										},
-										at: path
-									});
-									const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
-									Transforms.select(editor, Editor.range(editor, newPath));
-
-									numberCheck = false;
-
-								})
+						// 		Editor.withoutNormalizing(editor, () => {
 
 
-							}
+						// 			const { selection } = editor;
+						// 			const [start] = Editor.edges(editor, selection);
+						// 			const path = start.path;
+
+						// 			// Remove nodes at the current path
+						// 			Transforms.removeNodes(editor, { at: path });
+						// 			const block1 = { type: 'list-item', children: [{ text: '' }] }
+						// 			Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
+						// 			Transforms.unwrapNodes(editor, {
+						// 				match: (n) => {
+						// 					return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "paragraph");
+						// 				},
+						// 				at: path
+						// 			});
+						// 			const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
+						// 			Transforms.select(editor, Editor.range(editor, newPath));
+						// 			const parent = Editor.parent(editor, editor.selection.anchor.path);
+
+						// 			setTimeout(() => {
+						// 				Editor.deleteBackward(editor, { unit: 'character' })
+
+
+						// 			}, 0)
 
 
 
-						}, 0)
+
+						// 		})
+
+
+						// 	}
+
+
+
 
 
 
