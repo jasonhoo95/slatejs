@@ -4,13 +4,16 @@ import { Dialog, Transition, RadioGroup } from "@headlessui/react";
 import { useModalStore } from "@/globals/zustandGlobal";
 
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Range, Node } from "slate";
-export default function EditablePopup({ open, editor, card, path, setOpenCallback }) {
-	const [openNow, setOpen] = useState(open);
+export default function EditablePopup({ ModalProps }) {
+	const [openNow, setOpen] = useState(false);
 	let updateAmount = useModalStore((state) => state.updateModal);
 	useEffect(() => {
-		console.log(open, openNow, "open now");
-		setOpen(open)
-	}, [open])
+		console.log(ModalProps, openNow, "open now");
+		if (ModalProps) {
+			setOpen(ModalProps.open)
+
+		}
+	}, [ModalProps])
 	return (
 		<Transition.Root
 			appear
@@ -20,7 +23,7 @@ export default function EditablePopup({ open, editor, card, path, setOpenCallbac
 				onClose={(e) => {
 					updateAmount(false)
 					setOpen(false)
-					setOpenCallback(false)
+					// setOpenCallback(false)
 				}}>
 				<Transition.Child
 					as={Fragment}
@@ -58,7 +61,7 @@ export default function EditablePopup({ open, editor, card, path, setOpenCallbac
 									}
 
 									setOpen(false)
-									setOpenCallback(false)
+									// setOpenCallback(false)
 
 								}}>
 									<h1>Edit npw</h1>

@@ -30,6 +30,8 @@ let rightCheck = false;
 let undo = false;
 let numberCheck = false;
 // let focusCheck = false;
+
+
 const initialValue = [
 	{
 		type: "paragraph",
@@ -99,8 +101,8 @@ function getCaretCoordinates(height) {
 }
 const SlateReact = () => {
 	let id = v4();
-	let updateAmount = useModalStore((state) => state.updateModal);
 	let ModalProps = useModalStore((state) => state.display);
+	let updateAmount = useModalStore((state) => state.updateModal);
 
 	const [focus, setFocus] = useState(true);
 	const contentEditableRef = useRef(null);
@@ -111,7 +113,12 @@ const SlateReact = () => {
 	const { deleteFragment, deleteBackward, onChange } = editor;
 
 	const { insertBreak } = editor;
-	const savedSelection = React.useRef(editor.selection);
+
+
+	useEffect(() => {
+		console.log(ModalProps, "modal props");
+
+	}, [ModalProps])
 
 	useEffect(() => {
 		window.addEventListener("message", function (event) {
@@ -321,7 +328,7 @@ const SlateReact = () => {
 			listItemParent &&
 			(listItemParent[0].type == "list-item" || listItemParent[0].type == "check-list-item") &&
 			listItemParent[1][listItemParent[1].length - 1] == 0 &&
-			editor.selection.anchor.offset == 0 
+			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
 		} else if (previousParent && previousParent[0].type == "dropdown-content" && editor.selection.anchor.offset == 0) {
@@ -473,20 +480,21 @@ const SlateReact = () => {
 	return (
 		<div>
 
-			{/* <EditablePopup editor={editor} open={ModalProps} /> */}
+			<EditablePopup editor={editor} ModalProps={ModalProps} />
 			<Slate
 				editor={editor}
 
 				onChange={(value) => {
-
+					const ua = navigator.userAgent
 					if (editor.selection) {
-						const string = Node.leaf(editor, editor.selection.anchor.path);
+						console.log(value[editor.selection.anchor.path[0]])
+						const string = Node.get(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
 
 
 
 
-						if (string.text.startsWith("1. ") && parent[0].type != "list-item") {
+						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
 							Editor.withoutNormalizing(editor, () => {
 								toggleBlock(editor, "numbered-list", "number");
 								Transforms.delete(editor, {
@@ -496,7 +504,7 @@ const SlateReact = () => {
 								});
 
 							})
-
+							return false;
 
 
 							// checklist(editor);
@@ -648,13 +656,15 @@ const SlateReact = () => {
 					format="katex-link"
 				/>
 
-				{/*
-
 				<BlockButton
-					format="banner-red"
+					format="url-link"
 					icon="format_list_item"
 				/>
 
+
+				{/*
+
+			
 				<BlockButton
 					icon="format_list_item"
 					format="bulleted-list"
@@ -776,7 +786,6 @@ const SlateReact = () => {
 						});
 						const string = Node.leaf(editor, editor.selection.anchor.path);
 
-						console.log(string.text, "text");
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
 							event.preventDefault();
@@ -794,7 +803,7 @@ const SlateReact = () => {
 							leftCheck = true;
 						} else if (event.key == "ArrowRight") {
 							rightCheck = true;
-						} 
+						}
 						else if (event.metaKey && event.key === "z" && !event.shiftKey) {
 							event.preventDefault();
 							HistoryEditor.undo(editor);
@@ -806,6 +815,27 @@ const SlateReact = () => {
 							event.preventDefault();
 							HistoryEditor.redo(editor);
 							undo = true;
+
+
+						}
+						else if (string.text.startsWith("1.") && /android/i.test(ua)) {
+
+							Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
+							// Transforms.wrapNodes(editor, { type: 'numbered-list' });
+							// Transforms.setNodes(editor, { type: 'list-item' });
+
+							// const [listItems] = Editor.nodes(editor, {
+							// 	match: (n) => n.type === "list-item"
+							// });
+
+							// if (listItems) {
+
+							// }
+
+
+
+
+
 
 
 						}
@@ -984,9 +1014,10 @@ const withInlines = (editor) => {
 const LinkComponent = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const editor = useSlate();
-
-	let updateModal = useModalStore((state) => state.updateModal);
+	console.log("link now");
 	const focused = useFocused();
+	let updateAmount = useModalStore((state) => state.updateModal);
+
 	return (
 		<a
 			{...attributes}
@@ -1009,7 +1040,7 @@ const LinkComponent = ({ attributes, children, element }) => {
 					open: true,
 					path: ReactEditor.findPath(editor, element),
 				};
-				updateModal(data);
+				updateAmount(data);
 			}}>
 			<span>{element.children[0].text}</span>
 			{children}
@@ -1739,7 +1770,6 @@ const Element = (props) => {
 					{children}
 				</li>
 			);
-
 		case "numbered-list":
 			return (
 				<ol
