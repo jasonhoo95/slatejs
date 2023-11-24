@@ -1233,22 +1233,26 @@ const toggleBlock = (editor, format, type) => {
 		match: (n) => LIST_PARENT.includes(n.type),
 	});
 
-
+	let prevParent;
 	if (currentNode) {
+		prevParent = Editor.previous(editor, { at: currentNode[1], match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && (LIST_PARENT.includes(n.type) || n.type == "paragraph") })
+
+	}
+	console.log(currentNode, prevParent, "parent check");
+
+
+	if (currentNode && prevParent && currentNode[0].type == prevParent[0].type) {
 		const [parent, parentPath] = currentNode;
 
-		if (parent.type === 'numbered-list') {
-			console.log(parent, parentPath, "parent check");
-			// Merge current node with the one above
-			Transforms.mergeNodes(editor, { at: parentPath });
+		// Merge current node with the one above
+		Transforms.mergeNodes(editor, { at: parentPath, match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type) });
 
-			// Merge the newly merged node with the one below
-			Transforms.mergeNodes(editor, { at: parentPath, match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type), });
+		// Merge the newly merged node with the one below
+		Transforms.mergeNodes(editor, { at: parentPath, match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type), });
 
-			// // Wrap the merged content into a new numbered list
-			// const newList = { type: 'numbered-list', children: [] };
-			// Transforms.wrapNodes(editor, newList, { at: parentPath });
-		}
+		// // Wrap the merged content into a new numbered list
+		// const newList = { type: 'numbered-list', children: [] };
+		// Transforms.wrapNodes(editor, newList, { at: parentPath });
 	}
 
 
