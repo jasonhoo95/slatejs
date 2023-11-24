@@ -474,7 +474,6 @@ const SlateReact = () => {
 		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 	}, []);
 
-	let prevCaretPosition = null;
 
 
 	return (
@@ -583,24 +582,25 @@ const SlateReact = () => {
 
 				<div onClick={e => {
 					const { selection } = editor;
+					ReactEditor.focus(editor);
 
-					if (selection && Range.isCollapsed(selection)) {
-						ReactEditor.focus(editor);
+					// if (selection && Range.isCollapsed(selection)) {
+					// 	ReactEditor.focus(editor);
 
-						const [start] = Editor.edges(editor, selection);
-						const path = start.path;
+					// 	const [start] = Editor.edges(editor, selection);
+					// 	const path = start.path;
 
-						// Remove nodes at the current path
-						Transforms.removeNodes(editor, { at: path });
+					// 	// Remove nodes at the current path
+					// 	Transforms.removeNodes(editor, { at: path });
 
-						Transforms.insertNodes(editor, { type: 'paragraph', children: [{ text: 'asd' }] }, { at: path });
-						const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
-						Transforms.select(editor, Editor.range(editor, newPath));
-						Transforms.move(editor, { unit: "offset", distance: 1 });
+					// 	Transforms.insertNodes(editor, { type: 'paragraph', children: [{ text: 'asd' }] }, { at: path });
+					// 	const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
+					// 	Transforms.select(editor, Editor.range(editor, newPath));
+					// 	Transforms.move(editor, { unit: "offset", distance: 1 });
 
-						// Insert new nodes at the current path
+					// 	// Insert new nodes at the current path
 
-					}
+					// }
 
 
 				}}>
@@ -840,46 +840,6 @@ const SlateReact = () => {
 
 						}
 
-						// if (string.text.startsWith("1.") && !/ios/i.test(ua)) {
-
-						// 		Editor.withoutNormalizing(editor, () => {
-
-
-						// 			const { selection } = editor;
-						// 			const [start] = Editor.edges(editor, selection);
-						// 			const path = start.path;
-
-						// 			// Remove nodes at the current path
-						// 			Transforms.removeNodes(editor, { at: path });
-						// 			const block1 = { type: 'list-item', children: [{ text: '' }] }
-						// 			Transforms.insertNodes(editor, { type: 'numbered-list', children: [block1] }, { at: path })
-						// 			Transforms.unwrapNodes(editor, {
-						// 				match: (n) => {
-						// 					return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "paragraph");
-						// 				},
-						// 				at: path
-						// 			});
-						// 			const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
-						// 			Transforms.select(editor, Editor.range(editor, newPath));
-						// 			const parent = Editor.parent(editor, editor.selection.anchor.path);
-
-						// 			setTimeout(() => {
-						// 				Editor.deleteBackward(editor, { unit: 'character' })
-
-
-						// 			}, 0)
-
-
-
-
-						// 		})
-
-
-						// 	}
-
-
-
-
 
 
 					}}
@@ -1002,7 +962,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "link", "editable-void"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1042,7 +1002,6 @@ const LinkComponent = ({ attributes, children, element }) => {
 				};
 				updateAmount(data);
 			}}>
-			<span>{element.children[0].text}</span>
 			{children}
 		</a>
 	);
@@ -1196,12 +1155,16 @@ const BlockButton = ({ format, icon }) => {
 	} else {
 		return (
 			<div
-				onMouseDown={(event) => {
+				onClick={(event) => {
 
-					toggleBlock(editor, format);
+
+					HistoryEditor.undo(editor);
+					undo = true;
 					ReactEditor.focus(editor);
+
+
 				}}>
-				bullet list
+				undo
 			</div>
 		);
 	}
