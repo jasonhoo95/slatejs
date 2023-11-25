@@ -1072,16 +1072,16 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const { checked } = element;
 
 
-	if ((checked && undo)) {
-		console.log(selected, "selected now");
-		Transforms.select(editor, path);
-		// Transforms.setSelection(editor, leafNode);
+	// if ((checked && undo)) {
+	// 	console.log(selected, "selected now");
+	// 	Transforms.select(editor, path);
+	// 	// Transforms.setSelection(editor, leafNode);
 
-		undo = false
-	} else if (!selected && checked) {
-		Transforms.setNodes(editor, { checked: false }, { at: path })
-		undo = false;
-	}
+	// 	undo = false
+	// } else if (!selected && checked) {
+	// 	Transforms.setNodes(editor, { checked: false }, { at: path })
+	// 	undo = false;
+	// }
 
 
 	return (
@@ -1093,7 +1093,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 			}}
 			//
 			style={{
-				background: selected && checked ? "red" : "",
+				background: selected ? "red" : "",
 			}}
 			className="span-katex"
 			contentEditable="false"
