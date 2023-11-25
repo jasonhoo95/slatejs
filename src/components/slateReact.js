@@ -646,6 +646,31 @@ const SlateReact = () => {
 					}}>
 					insert banner void
 				</div>
+
+				<div
+					onClick={(e) => {
+						toggleBlock(editor, "numbered-list", "number");
+						ReactEditor.focus(editor);
+
+
+					}}>
+					insert numbered list
+				</div>
+
+				<div onClick={(e) => {
+					wrapperCheck(editor);
+					ReactEditor.focus(editor);
+
+				}}>
+					insert banner red
+				</div>
+
+				<div onClick={(e) => {
+					insertKatex(editor, "flutter");
+
+				}}>
+					insert katex
+				</div>
 				{/* <BlockButton
 					format="numbered-list"
 					icon="format_list_item"
@@ -809,8 +834,6 @@ const SlateReact = () => {
 							HistoryEditor.undo(editor);
 							undo = true;
 
-
-
 						} else if (event.metaKey && event.shiftKey && event.key === "z") {
 							event.preventDefault();
 							HistoryEditor.redo(editor);
@@ -819,30 +842,9 @@ const SlateReact = () => {
 
 						}
 						else if (string.text.startsWith("1.") && /android/i.test(ua)) {
-							setTimeout(() => {
-								toggleBlock(editor, "numbered-list", "number");
-								Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
-
-
-							}, 2)
-
-
-							// Transforms.wrapNodes(editor, { type: 'numbered-list' });
-							// Transforms.setNodes(editor, { type: 'list-item' });
-
-							// const [listItems] = Editor.nodes(editor, {
-							// 	match: (n) => n.type === "list-item"
-							// });
-
-							// if (listItems) {
-
-							// }
-
-
-
-
-
-
+							toggleBlock(editor, "numbered-list", "number");
+							Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
+							return false;
 
 						}
 
@@ -878,6 +880,8 @@ const wrapperCheck = (editor) => {
 		focusPath = lastnode;
 	}
 
+	// Transforms.wrapNodes(editor, block, { split: true });
+
 	if (!isActive) {
 		Transforms.wrapNodes(editor, block, {
 			at: {
@@ -893,14 +897,15 @@ const wrapperCheck = (editor) => {
 			split: true,
 		});
 	} else {
+
+
 		Transforms.unwrapNodes(editor, {
 			match: (n) => {
-				return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == "numbered-list" || n.type == "check-list");
+				return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "numbered-list";
 			},
 			split: true,
 		});
 
-		Transforms.setNodes(editor, { type: "paragraph" });
 
 		Transforms.unwrapNodes(editor, {
 			match: (n) => {
@@ -908,10 +913,16 @@ const wrapperCheck = (editor) => {
 			},
 			split: true,
 		});
-		// Transforms.setNodes(editor, { type: "paragraph" });
+		Transforms.setNodes(editor, { type: "list-item" });
+		const block = { type: "numbered-list", children: [] };
+
+		Transforms.wrapNodes(editor, block);
+
+
+		// toggleBlock(editor, "numbered-list", "number");
 	}
 
-	// ReactEditor.focus(editor);
+	ReactEditor.focus(editor);
 };
 
 const wrapLink = (editor, url) => {
@@ -947,7 +958,7 @@ const insertKatex = (editor, url, updateAmount) => {
 		type: "katex",
 		url,
 		id,
-		children: [{ text: "", type: "katex" }],
+		children: [{ text: "", type: "katex", checked: true }],
 	};
 
 	const inlineWrapper = {
@@ -1058,7 +1069,19 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const focused = useFocused();
 	const path = ReactEditor.findPath(editor, element);
+	const { checked } = element;
 
+
+	if ((checked && undo)) {
+		console.log(selected, "selected now");
+		Transforms.select(editor, path);
+		// Transforms.setSelection(editor, leafNode);
+
+		undo = false
+	} else if (!selected && checked) {
+		Transforms.setNodes(editor, { checked: false }, { at: path })
+		undo = false;
+	}
 
 
 	return (
@@ -1070,7 +1093,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 			}}
 			//
 			style={{
-				background: selected ? "red" : "",
+				background: selected && checked ? "red" : "",
 			}}
 			className="span-katex"
 			contentEditable="false"
@@ -1233,15 +1256,17 @@ const toggleBlock = (editor, format, type) => {
 		match: (n) => LIST_PARENT.includes(n.type),
 	});
 
-	let prevParent;
+	let prevParent, nextParent;
 	if (currentNode) {
 		prevParent = Editor.previous(editor, { at: currentNode[1], match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && (LIST_PARENT.includes(n.type) || n.type == "paragraph") })
+		nextParent = Editor.next(editor, { at: currentNode[1], match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type) })
+
 
 	}
-	console.log(currentNode, prevParent, "parent check");
+	console.log(nextParent, "next parent");
 
 
-	if (currentNode && prevParent && currentNode[0].type == prevParent[0].type) {
+	if (currentNode && prevParent && currentNode[0].type == prevParent[0].type && currentNode[0].type != 'banner-red-wrapper') {
 		const [parent, parentPath] = currentNode;
 
 		// Merge current node with the one above
@@ -1253,6 +1278,9 @@ const toggleBlock = (editor, format, type) => {
 		// // Wrap the merged content into a new numbered list
 		// const newList = { type: 'numbered-list', children: [] };
 		// Transforms.wrapNodes(editor, newList, { at: parentPath });
+	} else if (nextParent && currentNode && currentNode[0].type != 'banner-red-wrapper') {
+		Transforms.mergeNodes(editor, { at: nextParent[1], match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type) });
+
 	}
 
 
