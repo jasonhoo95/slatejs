@@ -970,15 +970,6 @@ const insertKatex = (editor, url, updateAmount) => {
 
 	Transforms.move(editor);
 
-	Transforms.insertText(editor, "\u00a0".toString(), {
-		at: editor.selection.anchor,
-	});
-
-
-
-
-
-
 
 };
 
@@ -1098,7 +1089,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 				dangerouslySetInnerHTML={{ __html: katextext }}></span>
 
 			{children}
-			{/* &nbsp; */}
+			&nbsp;
 		</span>
 	);
 };
