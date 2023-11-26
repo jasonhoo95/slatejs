@@ -28,7 +28,6 @@ let backwardCheck = false;
 let leftCheck = false;
 let rightCheck = false;
 let undo = false;
-let backKatex = false;
 // let focusCheck = false;
 
 
@@ -223,8 +222,7 @@ const SlateReact = () => {
 	};
 
 	editor.deleteBackward = (...args) => {
-		backKatex = true;
-		// alert("delete");
+
 		let listItemParent;
 		let previousParent;
 		let previousVoid;
@@ -828,10 +826,8 @@ const SlateReact = () => {
 							// Transforms.wrapNodes(editor, block);
 							Transforms.move(editor, { unit: "offset", distance: 1 });
 						} else if (event.key == "ArrowLeft") {
-							backKatex = false
 							leftCheck = true;
 						} else if (event.key == "ArrowRight") {
-							backKatex = false
 							rightCheck = true;
 						}
 						else if (event.metaKey && event.key === "z" && !event.shiftKey) {
@@ -1080,7 +1076,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 			}}
 			//
 			style={{
-				background: selected && !backKatex ? "red" : "",
+				background: selected ? "red" : "",
 			}}
 			className="span-katex"
 			contentEditable="false"
