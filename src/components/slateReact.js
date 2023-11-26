@@ -124,15 +124,8 @@ const SlateReact = () => {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
-				const string = Node.leaf(editor, editor.selection.anchor.path);
 
-				if (string.text.length == 0) {
-					Transforms.insertText(editor, "\u200b".toString(), {
-						at: editor.selection.anchor,
-					});
-				}
-
-				// ReactEditor.blur(editor);
+				ReactEditor.blur(editor);
 				// this.window.scrollTo(0, 0);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
 			} else if (event.data == "katexinsert") {
@@ -143,17 +136,15 @@ const SlateReact = () => {
 			}
 			else if (event.data == "katex") {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katexinsertnow");
-				// Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, unit: 'offset', reverse: true })
-				ReactEditor.focus(editor);
 				insertKatex(editor, "flutter");
 
 			} else if (event.data == "focus") {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focusnow");
 				ReactEditor.focus(editor);
-				const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
-				if (parentCheck[0].type == "katex") {
-					Transforms.move(editor, { distance: 1, unit: "offset" });
-				}
+				// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
+				// if (parentCheck[0].type == "katex") {
+				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+				// }
 			}
 		});
 	}, [editor]);
@@ -740,7 +731,7 @@ const SlateReact = () => {
 					autoFocus={false}
 					className="editable-slate"
 
-					id={id}
+					id={'asd'}
 					renderLeaf={renderLeaf}
 
 
