@@ -660,13 +660,14 @@ const SlateReact = () => {
 
 				<div onClick={(e) => {
 					wrapperCheck(editor);
-					ReactEditor.focus(editor);
+					// ReactEditor.focus(editor);
 
 				}}>
 					insert banner red
 				</div>
 
 				<div onClick={(e) => {
+					ReactEditor.focus(editor);
 					insertKatex(editor, "flutter");
 
 				}}>
@@ -964,12 +965,16 @@ const insertKatex = (editor, url, updateAmount) => {
 		children: [{ text: "", type: "katex", checked: true }],
 	};
 
-	const inlineWrapper = {
-		type: "inline-wrapper",
-		children: [katex]
-	}
+
 	Transforms.insertNodes(editor, katex);
-	Transforms.move(editor, { unit: 'offset', distance: 1 })
+
+	Transforms.move(editor);
+
+	Transforms.insertText(editor, "\u00a0".toString(), {
+		at: editor.selection.anchor,
+	});
+
+
 
 
 
@@ -1074,18 +1079,6 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 
 
-	// if ((checked && undo)) {
-	// 	console.log(selected, "selected now");
-	// 	Transforms.select(editor, path);
-	// 	// Transforms.setSelection(editor, leafNode);
-
-	// 	undo = false
-	// } else if (!selected && checked) {
-	// 	Transforms.setNodes(editor, { checked: false }, { at: path })
-	// 	undo = false;
-	// }
-
-
 	return (
 		<span
 			onClick={(e) => {
@@ -1105,7 +1098,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 				dangerouslySetInnerHTML={{ __html: katextext }}></span>
 
 			{children}
-			&nbsp;
+			{/* &nbsp; */}
 		</span>
 	);
 };
