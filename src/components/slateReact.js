@@ -367,9 +367,9 @@ const SlateReact = () => {
 
 					const currentNode = Editor.node(editor, editor.selection.anchor);
 
-					// if (currentNode && (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug")) {
-					// 	Transforms.move(editor, { distance: 1, unit: "offset" });
-					// }
+					if (currentNode && (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug")) {
+						Transforms.move(editor, { distance: 1, unit: "offset" });
+					}
 
 					if (string.text.length == 0 && !listItems) {
 						Transforms.setNodes(editor, { type: "paragraph" });
@@ -392,6 +392,7 @@ const SlateReact = () => {
 					const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
 
 					// if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
+					// 	alert("here");
 					// 	Transforms.move(editor, { distance: 1, unit: "offset" });
 					// }
 					if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
