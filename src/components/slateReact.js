@@ -1099,11 +1099,15 @@ const BlockButton = ({ format, icon }) => {
 		return (
 			<div
 				style={{ padding: "10px" }}
-				onMouseDown={(event) => {
-					event.preventDefault();
-					const url = window.prompt("Enter the URL of the link:");
-					if (!url) return;
-					insertLink(editor, url);
+				onClick={(event) => {
+					Swal.fire({
+						title: "Good job!",
+						text: "You clicked the button!",
+						icon: "success"
+					});
+					// const url = window.prompt("Enter the URL of the link:");
+					// if (!url) return;
+					// insertLink(editor, url);
 				}}>
 				URL LINK
 			</div>
