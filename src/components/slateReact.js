@@ -677,6 +677,11 @@ const SlateReact = () => {
 				}}>
 					insert katex
 				</div>
+
+				<BlockButton
+					format="url-link"
+					icon="format_list_item"
+				/>
 				{/* <BlockButton
 					format="numbered-list"
 					icon="format_list_item"
@@ -687,10 +692,7 @@ const SlateReact = () => {
 					format="katex-link"
 				/>
 
-				<BlockButton
-					format="url-link"
-					icon="format_list_item"
-				/> */}
+			 */}
 
 
 				{/*
@@ -751,7 +753,6 @@ const SlateReact = () => {
 
 					onKeyDown={(event) => {
 						const ua = navigator.userAgent
-
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
 								event.preventDefault();
@@ -765,8 +766,12 @@ const SlateReact = () => {
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph"
 						});
+						const previousKatex = Editor.previous(editor, {
+							at: editor.selection.anchor.path,
+							match: (n) => n.type == "katex"
+						});
 						const string = Node.leaf(editor, editor.selection.anchor.path);
-
+						console.log(previousKatex, "list item");
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
 							event.preventDefault();
@@ -958,7 +963,6 @@ const LinkComponent = ({ attributes, children, element }) => {
 			}
 			href={element.url}
 			onClick={(e) => {
-				e.preventDefault();
 				let data = {
 					element: element,
 					editor: editor,
@@ -1022,6 +1026,11 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 
 
+	if (selected) {
+		ReactEditor.focus(editor);
+	}
+
+
 	return (
 		<span
 			onClick={(e) => {
@@ -1030,13 +1039,14 @@ const KatexComponent = ({ attributes, children, element }) => {
 				}
 			}}
 			//
-			style={{
-				background: selected ? "red" : "",
-			}}
+
 			className="span-katex"
 			contentEditable="false"
 			{...attributes}>
 			<span
+				style={{
+					background: selected ? "red" : "",
+				}}
 				contentEditable="false"
 				dangerouslySetInnerHTML={{ __html: katextext }}></span>
 
