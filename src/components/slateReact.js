@@ -223,6 +223,11 @@ const SlateReact = () => {
 			match: (n) => ["paragraph", "list-item", "check-list-item", "katex"].includes(n.type),
 		});
 
+		const previousKatex = Editor.previous(editor, {
+			at: editor.selection.anchor.path,
+			match: (n) => n.type == "katex"
+		});
+
 		if (listItems) {
 			listItemParent = Editor.node(editor, listItems[1]);
 			previousParent = Editor.previous(editor, {
@@ -239,12 +244,8 @@ const SlateReact = () => {
 		}
 
 
-		const currentNodeParent = Editor.node(editor, {
-			at: editor.selection.anchor.path,
-		});
 
-
-		console.log(listItemParent, "previous void");
+		console.log(previousKatex, "previous void");
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
 			if (!backwardCheck) {
@@ -317,7 +318,7 @@ const SlateReact = () => {
 		} else if (
 			listItemParent &&
 			(listItemParent[0].type == "list-item" || listItemParent[0].type == "check-list-item") &&
-			listItemParent[1][listItemParent[1].length - 1] == 0 &&
+			!previousKatex &&
 			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
@@ -443,20 +444,7 @@ const SlateReact = () => {
 
 	};
 	const onFocus = useCallback((e) => {
-		// if (editor.selection) {
-		// 	const text = Node.leaf(editor, editor.selection.anchor.path);
-		// 	console.log(text, "text now");
-		// 	if (text.text.length == 0) {
-		// 		Transforms.insertText(editor, "\u00a0".toString(), {
-		// 			at: editor.selection.anchor,
-		// 		});
-		// 		setTimeout(() => {
-		// 			Editor.deleteBackward(editor, { unit: 'word' })
 
-
-		// 		}, 1000)
-		// 	}
-		// }
 
 		setFocus(true);
 		window.addEventListener("resize", getCaretCoordinates);
@@ -483,6 +471,7 @@ const SlateReact = () => {
 
 	return (
 		<div>
+
 
 			<EditablePopup editor={editor} ModalProps={ModalProps} />
 			<Slate
@@ -766,12 +755,7 @@ const SlateReact = () => {
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph"
 						});
-						const previousKatex = Editor.previous(editor, {
-							at: editor.selection.anchor.path,
-							match: (n) => n.type == "katex"
-						});
-						const string = Node.leaf(editor, editor.selection.anchor.path);
-						console.log(previousKatex, "list item");
+
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
 							event.preventDefault();
@@ -802,12 +786,12 @@ const SlateReact = () => {
 
 
 						}
-						else if (string.text.startsWith("1.") && /android/i.test(ua)) {
-							toggleBlock(editor, "numbered-list", "number");
-							Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
-							return false;
+						// else if (string.text.startsWith("1.") && /android/i.test(ua)) {
+						// 	toggleBlock(editor, "numbered-list", "number");
+						// 	Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
+						// 	return false;
 
-						}
+						// }
 
 
 
@@ -963,6 +947,8 @@ const LinkComponent = ({ attributes, children, element }) => {
 			}
 			href={element.url}
 			onClick={(e) => {
+				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
+
 				let data = {
 					element: element,
 					editor: editor,
@@ -973,6 +959,7 @@ const LinkComponent = ({ attributes, children, element }) => {
 					path: ReactEditor.findPath(editor, element),
 				};
 				updateAmount(data);
+
 			}}>
 			{children}
 		</a>
@@ -1026,9 +1013,6 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 
 
-	if (selected) {
-		ReactEditor.focus(editor);
-	}
 
 
 	return (
@@ -1047,7 +1031,6 @@ const KatexComponent = ({ attributes, children, element }) => {
 				style={{
 					background: selected ? "red" : "",
 				}}
-				contentEditable="false"
 				dangerouslySetInnerHTML={{ __html: katextext }}></span>
 
 			{children}

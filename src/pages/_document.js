@@ -15,8 +15,8 @@ export default function Document() {
 					rel="stylesheet"
 					href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/atom-one-dark.min.css"
 				/>
-				<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+				<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+				<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 				<script
 					defer
 					src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>

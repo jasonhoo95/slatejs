@@ -66,6 +66,8 @@ export default function EditablePopup({ ModalProps }) {
 								}}>
 									<h1>Edit npw</h1>
 								</div>
+								<input className="w-full" type="text"></input>
+
 								<div
 
 									className="mt-4">
