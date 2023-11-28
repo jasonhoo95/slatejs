@@ -488,6 +488,7 @@ const SlateReact = () => {
 
 
 
+
 						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
 							Editor.withoutNormalizing(editor, () => {
 								toggleBlock(editor, "numbered-list", "number");
@@ -502,6 +503,13 @@ const SlateReact = () => {
 
 
 							// checklist(editor);
+						} else if (parent[0].type == "link" && parent[0].children[0].text.length <= 0) {
+							console.log(parent, "link now");
+
+							Transforms.removeNodes(editor, {
+								at: parent[1]
+							})
+
 						}
 					}
 
@@ -886,14 +894,23 @@ const wrapLink = (editor, url) => {
 
 	if (isCollapsed) {
 		Transforms.insertNodes(editor, link);
+		Transforms.move(editor, { unit: "offset", distance: 1 });
+
+
 	} else {
 		Transforms.wrapNodes(editor, link, { split: true });
+		Transforms.move(editor, { unit: "offset", distance: 1 });
+
 		ReactEditor.focus(editor);
 	}
+
+
+
 };
 
 const insertLink = (editor, url) => {
 	if (editor.selection) {
+		ReactEditor.focus(editor);
 		wrapLink(editor, url);
 	}
 };
@@ -918,7 +935,7 @@ const insertKatex = (editor, url, updateAmount) => {
 const withInlines = (editor) => {
 	const { insertData, insertText, isInline, markableVoid, isVoid } = editor;
 
-	editor.isInline = (element) => ["link", "button", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
+	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
 	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void"].includes(element.type) || isVoid(element);
 
@@ -936,36 +953,48 @@ const LinkComponent = ({ attributes, children, element }) => {
 	const focused = useFocused();
 	let updateAmount = useModalStore((state) => state.updateModal);
 
+
 	return (
-		<a
-			{...attributes}
-			className={
-				selected
-					? css`
+		<span {...attributes}>
+			<a
+
+				className={
+					selected && focused
+						? css`
 							box-shadow: 0 0 0 3px #ddd;
 					  `
-					: ""
-			}
-			href={element.url}
-			onClick={(e) => {
-				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
+						: ""
+				}
+				href={element.url}
+				onClick={(e) => {
+					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 
-				let data = {
-					element: element,
-					editor: editor,
-					click: true,
-					type: "link",
-					edit: true,
-					open: true,
-					path: ReactEditor.findPath(editor, element),
-				};
-				updateAmount(data);
+					let data = {
+						element: element,
+						editor: editor,
+						click: true,
+						type: "link",
+						edit: true,
+						open: true,
+						path: ReactEditor.findPath(editor, element),
+					};
+					updateAmount(data);
 
-			}}>
-			{children}
-		</a>
+				}}>
+
+
+				<span>
+					{children}
+				</span>
+
+
+			</a>
+		</span>
+
 	);
-};
+
+}
+
 
 const InlineWrapperBug = ({ attributes, children }) => {
 	return (
