@@ -115,7 +115,7 @@ const SlateReact = () => {
 
 
 	useEffect(() => {
-		console.log(ModalProps, "modal props");
+
 
 	}, [ModalProps])
 
@@ -168,7 +168,7 @@ const SlateReact = () => {
 			currentDescendant = Node.descendant(editor, listItem[1], { match: (n) => n.type == "paragraph" });
 			previousParent = Editor.previous(editor, { at: listItem[1] });
 		}
-		console.log(currentParent, selectedLeaf, "current parent");
+
 		const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "paragraph" });
 
 		if (currentParent && ["list-item", "check-list-item"].includes(currentParent[0].type) && currentParent[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
@@ -245,7 +245,7 @@ const SlateReact = () => {
 
 
 
-		console.log(previousKatex, "previous void");
+
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
 			if (!backwardCheck) {
@@ -481,7 +481,7 @@ const SlateReact = () => {
 				onChange={(value) => {
 					const ua = navigator.userAgent
 					if (editor.selection) {
-						console.log(value[editor.selection.anchor.path[0]])
+
 						const string = Node.get(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
 
@@ -932,7 +932,7 @@ const withInlines = (editor) => {
 const LinkComponent = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const editor = useSlate();
-	console.log("link now");
+
 	const focused = useFocused();
 	let updateAmount = useModalStore((state) => state.updateModal);
 
@@ -1176,7 +1176,7 @@ const toggleBlock = (editor, format, type) => {
 			children: [{ text: '' }]
 		};
 	}
-	console.log(newProperties, "new properties")
+
 	Transforms.setNodes(editor, newProperties);
 
 	if (!isActive && isList) {
@@ -1196,11 +1196,11 @@ const toggleBlock = (editor, format, type) => {
 
 	}
 
-	console.log(currentNode, prevParent, "next parent");
+
 
 	if (currentNode && prevParent && currentNode[0].type == prevParent[0].type) {
 		const [parent, parentPath] = currentNode;
-		console.log(currentNode, prevParent, "next parent");
+
 
 		// Merge current node with the one above
 		Transforms.mergeNodes(editor, { at: parentPath, match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type });
@@ -1261,7 +1261,7 @@ const DropDownList = ({ attributes, children, element }) => {
 
 
 	if ((checked && undo)) {
-		console.log(selected, "selected now");
+
 		Transforms.select(editor, path);
 		// Transforms.setSelection(editor, leafNode);
 
@@ -1346,7 +1346,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 	if ((checked && undo)) {
-		console.log(selected, "selected now");
+
 		Transforms.select(editor, path);
 		// Transforms.setSelection(editor, leafNode);
 
