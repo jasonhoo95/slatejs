@@ -485,10 +485,6 @@ const SlateReact = () => {
 						const string = Node.get(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
 
-
-
-
-
 						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
 							Editor.withoutNormalizing(editor, () => {
 								toggleBlock(editor, "numbered-list", "number");
@@ -500,9 +496,6 @@ const SlateReact = () => {
 
 							})
 							return false;
-
-
-							// checklist(editor);
 						} else if (parent[0].type == "link" && parent[0].children[0].text.length <= 0) {
 							console.log(parent, "link now");
 
@@ -946,6 +939,17 @@ const withInlines = (editor) => {
 	return editor;
 };
 
+const ChromiumBugfix = () => (
+	<span
+		contentEditable={false}
+		className={css`
+		font-size: 0;
+	  `}
+	>
+		{String.fromCodePoint(160) /* Non-breaking space */}
+	</span>
+)
+
 const LinkComponent = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const editor = useSlate();
@@ -955,41 +959,38 @@ const LinkComponent = ({ attributes, children, element }) => {
 
 
 	return (
-		<span {...attributes}>
-			<a
+		<a
 
-				className={
-					selected && focused
-						? css`
+			className={
+				selected
+					? css`
 							box-shadow: 0 0 0 3px #ddd;
 					  `
-						: ""
-				}
-				href={element.url}
-				onClick={(e) => {
-					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
+					: ""
+			}
+			href={element.url}
+			onClick={(e) => {
+				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 
-					let data = {
-						element: element,
-						editor: editor,
-						click: true,
-						type: "link",
-						edit: true,
-						open: true,
-						path: ReactEditor.findPath(editor, element),
-					};
-					updateAmount(data);
+				let data = {
+					element: element,
+					editor: editor,
+					click: true,
+					type: "link",
+					edit: true,
+					open: true,
+					path: ReactEditor.findPath(editor, element),
+				};
+				updateAmount(data);
 
-				}}>
+			}}>
+
+			<ChromiumBugfix />
+			{children}
+			<ChromiumBugfix />
 
 
-				<span>
-					{children}
-				</span>
-
-
-			</a>
-		</span>
+		</a>
 
 	);
 
