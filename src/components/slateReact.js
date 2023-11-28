@@ -654,8 +654,9 @@ const SlateReact = () => {
 				</div>
 
 				<div onClick={(e) => {
+					ReactEditor.focus(editor);
+
 					wrapperCheck(editor);
-					// ReactEditor.focus(editor);
 
 				}}>
 					insert banner red
@@ -1058,7 +1059,9 @@ const KatexComponent = ({ attributes, children, element }) => {
 			className="span-katex"
 			contentEditable="false"
 			{...attributes}>
+
 			<span
+				contentEditable="false"
 				style={{
 					background: selected ? "red" : "",
 				}}
@@ -1066,6 +1069,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 
 			{children}
 			&nbsp;
+
 		</span>
 	);
 };
