@@ -645,8 +645,8 @@ const SlateReact = () => {
 
 				<div
 					onClick={(e) => {
-						toggleBlock(editor, "numbered-list", "number");
 						ReactEditor.focus(editor);
+						toggleBlock(editor, "numbered-list", "number");
 
 
 					}}>
@@ -1050,9 +1050,8 @@ const KatexComponent = ({ attributes, children, element }) => {
 	return (
 		<span
 			onClick={(e) => {
-				if (focused) {
-					window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex");
-				}
+				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex");
+
 			}}
 			//
 
