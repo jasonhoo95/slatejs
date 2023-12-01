@@ -135,6 +135,7 @@ const SlateReact = () => {
 
 			}
 			else if (event.data == "katex") {
+				ReactEditor.focus(editor);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katexinsertnow");
 				insertKatex(editor, "flutter");
 
