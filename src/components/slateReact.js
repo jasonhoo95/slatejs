@@ -129,15 +129,18 @@ const SlateReact = () => {
 				// this.window.scrollTo(0, 0);
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
 			} else if (event.data == "katexinsert") {
-				Transforms.insertText(editor, "\u00a0".toString(), {
+				Transforms.insertText(editor, "\u200B".toString(), {
 					at: editor.selection.anchor,
 				});
 
 			}
 			else if (event.data == "katex") {
 				ReactEditor.focus(editor);
-				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katexinsertnow");
-				insertKatex(editor, "flutter");
+				Transforms.insertText(editor, "\u200B".toString(), {
+					at: editor.selection.anchor,
+				});
+				insertKatex(editor, "flutter123");
+
 
 			} else if (event.data == "focus") {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focusnow");
@@ -199,6 +202,7 @@ const SlateReact = () => {
 
 		} else {
 			insertBreak();
+
 			const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
 
 			if (selectedLeaf1.text.length == 0) {
@@ -358,17 +362,21 @@ const SlateReact = () => {
 					});
 
 					const currentNode = Editor.node(editor, editor.selection.anchor);
+					console.log(string.text.length, "list items");
 
 					if (currentNode && (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug")) {
 						Transforms.move(editor, { distance: 1, unit: "offset" });
+					} else if (string.text.length == 1) {
+						console.log(string.text.length, "list items");
+						Editor.deleteBackward(editor, { unit: 'character', distance: 1 })
 					}
-
-					if (string.text.length == 0 && !listItems) {
-						Transforms.setNodes(editor, { type: "paragraph" });
-						FORMAT_TYPES.map((o) => {
-							Editor.removeMark(editor, o);
-						});
-					}
+					// if (string.text.length == 0 && !listItems) {
+					// 	Editor.deleteBackward(editor, { unit: 'character', distance: 1 })
+					// 	Transforms.setNodes(editor, { type: "paragraph" });
+					// 	FORMAT_TYPES.map((o) => {
+					// 		Editor.removeMark(editor, o);
+					// 	});
+					// }
 				}
 			} else {
 				deleteBackward(...args);
@@ -486,6 +494,7 @@ const SlateReact = () => {
 						const string = Node.get(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
 
+						console.log(string, "String now");
 						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
 							Editor.withoutNormalizing(editor, () => {
 								toggleBlock(editor, "numbered-list", "number");
@@ -665,6 +674,9 @@ const SlateReact = () => {
 
 				<div onClick={(e) => {
 					ReactEditor.focus(editor);
+					Transforms.insertText(editor, "\u200B".toString(), {
+						at: editor.selection.anchor,
+					});
 					insertKatex(editor, "flutter");
 
 				}}>
@@ -1769,10 +1781,10 @@ const Element = (props) => {
 		case "paragraph":
 			return (
 				<p
-					style={{ marginTop: "5px" }}
+					style={{ marginTop: "5px", display: 'flex' }}
 					{...attributes}>
 					{children}
-					{/* <ZeroWidthText /> */}
+
 				</p>
 			);
 		default:
