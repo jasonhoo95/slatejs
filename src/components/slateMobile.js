@@ -391,7 +391,7 @@ const SlateMobile = () => {
 
 					backwardCheck = false;
 				}}
-				value={initialValue}>
+				initialValue={initialValue}>
 				<BlockButton
 					format="katex-link"
 					icon="format_list_item"
@@ -546,7 +546,7 @@ const SlateMobile = () => {
 				/>
 			</Slate>
 			<div
-				onInput={(e) => {}}
+				onInput={(e) => { }}
 				contentEditable="true">
 				asd asdasd asd asd asd asd as
 			</div>
@@ -653,7 +653,6 @@ const insertKatex = (editor, url, updateAmount) => {
 	});
 	updateAmount("katex");
 
-	ReactEditor.focus(editor);
 };
 
 const withInlines = (editor) => {
@@ -1096,18 +1095,18 @@ const EditableVoid = ({ attributes, children, element }) => {
 			}}
 			{...attributes}
 			contentEditable="false"
-			// onBlur={(e) => {
-			// 	let cardnow = [...card];
-			// 	if (cardnow.length > 0) {
-			// 		var result = cardnow.map((o, key) => {
-			// 			if (key == clickKey) {
-			// 				o.check = false;
-			// 			}
-			// 		});
-			//
-			// 		setObj(result);
-			// 	}
-			// }}
+		// onBlur={(e) => {
+		// 	let cardnow = [...card];
+		// 	if (cardnow.length > 0) {
+		// 		var result = cardnow.map((o, key) => {
+		// 			if (key == clickKey) {
+		// 				o.check = false;
+		// 			}
+		// 		});
+		//
+		// 		setObj(result);
+		// 	}
+		// }}
 		>
 			<button
 				onClick={(e) => {

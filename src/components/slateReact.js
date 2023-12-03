@@ -345,29 +345,30 @@ const SlateReact = () => {
 		else {
 			// Editor.deleteBackward(editor, { unit: "word" });
 			const string = Node.leaf(editor, editor.selection.anchor.path);
+			const listItems1 = Editor.previous(editor, {
+				at: editor.selection.anchor.path,
+			});
+
 
 			//
 
 			if (string.text.length == 0) {
+
+
 				deleteBackward(...args);
+
 
 
 
 				if (!backwardCheck) {
 					backwardCheck = true;
+
+
 					const string = Node.leaf(editor, editor.selection.anchor.path);
-					const [listItems] = Editor.nodes(editor, {
-						at: editor.selection.anchor.path,
-						match: (n) => ["list-item", "katex", "inline-bug", "check-list"].includes(n.type),
-					});
 
-					const currentNode = Editor.node(editor, editor.selection.anchor);
-					console.log(string.text.length, "list items");
 
-					if (currentNode && (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug")) {
-						Transforms.move(editor, { distance: 1, unit: "offset" });
-					} else if (string.text.length == 1) {
-						console.log(string.text.length, "list items");
+					if (listItems1) {
+
 						Editor.deleteBackward(editor, { unit: 'character', distance: 1 })
 					}
 					// if (string.text.length == 0 && !listItems) {
@@ -494,7 +495,7 @@ const SlateReact = () => {
 						const string = Node.get(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
 
-						console.log(string, "String now");
+
 						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
 							Editor.withoutNormalizing(editor, () => {
 								toggleBlock(editor, "numbered-list", "number");
@@ -507,11 +508,14 @@ const SlateReact = () => {
 							})
 							return false;
 						} else if (parent[0].type == "link" && parent[0].children[0].text.length <= 0) {
-							console.log(parent, "link now");
+
 
 							Transforms.removeNodes(editor, {
 								at: parent[1]
 							})
+
+						} else if (string.type == "katex") {
+							Transforms.move(editor, { distance: 1, unit: "offset" });
 
 						}
 					}
