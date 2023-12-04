@@ -222,6 +222,7 @@ const SlateReact = () => {
 			at: editor.selection.anchor.path,
 			match: (n) => ["paragraph", "list-item", "check-list-item", "katex"].includes(n.type),
 		});
+		const ua = navigator.userAgent
 
 		const previousKatex = Editor.previous(editor, {
 			at: editor.selection.anchor.path,
@@ -359,11 +360,7 @@ const SlateReact = () => {
 					backwardCheck = true;
 
 
-					const string = Node.leaf(editor, editor.selection.anchor.path);
-
-
-					if (listItems1) {
-
+					if (listItems1 && /android/i.test(ua)) {
 						Editor.deleteBackward(editor, { unit: 'character', distance: 1 })
 					}
 
@@ -666,9 +663,9 @@ const SlateReact = () => {
 
 				<div onClick={(e) => {
 					ReactEditor.focus(editor);
-					Transforms.insertText(editor, "\u200B".toString(), {
-						at: editor.selection.anchor,
-					});
+					// Transforms.insertText(editor, "\u200B".toString(), {
+					// 	at: editor.selection.anchor,
+					// });
 					insertKatex(editor, "flutter");
 
 				}}>
