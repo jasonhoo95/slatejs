@@ -115,11 +115,6 @@ const SlateReact = () => {
 
 
 	useEffect(() => {
-
-
-	}, [ModalProps])
-
-	useEffect(() => {
 		window.addEventListener("message", function (event) {
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
@@ -343,7 +338,7 @@ const SlateReact = () => {
 
 		}
 		else {
-			// Editor.deleteBackward(editor, { unit: "word" });
+			console.log(editor.selection, "editor selection");
 			const string = Node.leaf(editor, editor.selection.anchor.path);
 			const listItems1 = Editor.previous(editor, {
 				at: editor.selection.anchor.path,
@@ -371,15 +366,11 @@ const SlateReact = () => {
 
 						Editor.deleteBackward(editor, { unit: 'character', distance: 1 })
 					}
-					// if (string.text.length == 0 && !listItems) {
-					// 	Editor.deleteBackward(editor, { unit: 'character', distance: 1 })
-					// 	Transforms.setNodes(editor, { type: "paragraph" });
-					// 	FORMAT_TYPES.map((o) => {
-					// 		Editor.removeMark(editor, o);
-					// 	});
-					// }
+
 				}
-			} else {
+			}
+
+			else {
 				deleteBackward(...args);
 				const string = Node.leaf(editor, editor.selection.anchor.path);
 
@@ -513,9 +504,6 @@ const SlateReact = () => {
 							Transforms.removeNodes(editor, {
 								at: parent[1]
 							})
-
-						} else if (string.type == "katex") {
-							Transforms.move(editor, { distance: 1, unit: "offset" });
 
 						}
 					}
@@ -1061,7 +1049,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const focused = useFocused();
 	const path = ReactEditor.findPath(editor, element);
 
-
+	console.log(selected, "selected element");
 
 
 	return (
@@ -1070,17 +1058,15 @@ const KatexComponent = ({ attributes, children, element }) => {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex");
 
 			}}
-			//
-
+			style={{
+				background: selected ? "red" : "",
+			}}
 			className="span-katex"
-			contentEditable="false"
 			{...attributes}>
 
 			<span
 				contentEditable="false"
-				style={{
-					background: selected ? "red" : "",
-				}}
+
 				dangerouslySetInnerHTML={{ __html: katextext }}></span>
 
 			{children}
