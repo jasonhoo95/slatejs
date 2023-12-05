@@ -130,10 +130,9 @@ const SlateReact = () => {
 
 			}
 			else if (event.data == "katex") {
-				Transforms.insertText(editor, "\u200B".toString(), {
-					at: editor.selection.anchor,
-				});
 				ReactEditor.focus(editor);
+
+
 				insertKatex(editor, "flutter123");
 
 
@@ -890,7 +889,9 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
-
+	Transforms.insertText(editor, "\u200B".toString(), {
+		at: editor.selection.anchor,
+	});
 
 	let id = v4();
 	const katex = {
