@@ -130,9 +130,10 @@ const SlateReact = () => {
 
 			}
 			else if (event.data == "katex") {
+				Transforms.insertText(editor, "\u200B".toString(), {
+					at: editor.selection.anchor,
+				});
 				ReactEditor.focus(editor);
-
-
 				insertKatex(editor, "flutter123");
 
 
@@ -361,6 +362,7 @@ const SlateReact = () => {
 					Transforms.delete(editor, { at: editor.selection.anchor.path });
 				}
 				else if (/\u200B/.test(currentNode[0].text)) {
+					console.log("katex insert");
 
 					Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
 				}
@@ -888,9 +890,7 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
-	Transforms.insertText(editor, "\u200B".toString(), {
-		at: editor.selection.anchor,
-	});
+
 
 	let id = v4();
 	const katex = {
