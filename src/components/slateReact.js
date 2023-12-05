@@ -347,8 +347,6 @@ const SlateReact = () => {
 			if (!backwardCheck) {
 				backwardCheck = true;
 
-
-
 				const currentNode = Editor.node(editor, editor.selection.anchor.path);
 				const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
 				const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
@@ -364,6 +362,7 @@ const SlateReact = () => {
 					console.log("katex insert");
 
 					Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
+					// Transforms.move(editor, { distance: 1, unit: "offset" });
 				}
 			}
 		}
@@ -1749,7 +1748,7 @@ const Element = (props) => {
 		case "paragraph":
 			return (
 				<p
-					style={{ marginTop: "5px", display: 'flex' }}
+					style={{ marginTop: "5px", display: 'inline-block' }}
 					{...attributes}>
 					{children}
 
