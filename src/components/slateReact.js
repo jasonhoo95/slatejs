@@ -1748,7 +1748,7 @@ const Element = (props) => {
 		case "paragraph":
 			return (
 				<p
-					style={{ marginTop: "5px", display: 'inline-block' }}
+					style={{ marginTop: "5px" }}
 					{...attributes}>
 					{children}
 
