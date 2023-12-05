@@ -131,9 +131,8 @@ const SlateReact = () => {
 			}
 			else if (event.data == "katex") {
 				ReactEditor.focus(editor);
-				Transforms.insertText(editor, "\u200B".toString(), {
-					at: editor.selection.anchor,
-				});
+
+
 				insertKatex(editor, "flutter123");
 
 
@@ -231,6 +230,7 @@ const SlateReact = () => {
 
 		if (listItems) {
 			listItemParent = Editor.node(editor, listItems[1]);
+
 			previousParent = Editor.previous(editor, {
 				at: listItems[1],
 				// match: (n) => ["paragraph", "numbered-list", "bulleted-list", "check-list-item", "editable-void", "dropdown-content"].includes(n.type),
@@ -338,61 +338,35 @@ const SlateReact = () => {
 			undo = true;
 
 		}
+
 		else {
-			console.log(editor.selection, "editor selection");
-			const string = Node.leaf(editor, editor.selection.anchor.path);
-			const listItems1 = Editor.previous(editor, {
-				at: editor.selection.anchor.path,
-
-			});
-
-
-			//
-
-			console.log(listItems1, "list items 1");
-			if (string.text.length == 0) {
-
-
-				deleteBackward(...args);
+			deleteBackward(...args);
 
 
 
+			if (!backwardCheck) {
+				backwardCheck = true;
 
-				if (!backwardCheck) {
-					backwardCheck = true;
 
 
-					if (listItems1) {
-						Editor.deleteBackward(editor, { unit: 'character', distance: 1 })
-					}
+				const currentNode = Editor.node(editor, editor.selection.anchor.path);
+				const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
+				const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
 
+				// if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
+				// 	alert("here");
+				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+				// }
+				if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
+					Transforms.delete(editor, { at: editor.selection.anchor.path });
 				}
-			}
+				else if (/\u200B/.test(currentNode[0].text)) {
 
-			else {
-				deleteBackward(...args);
-				const string = Node.leaf(editor, editor.selection.anchor.path);
-
-
-
-				if (!backwardCheck) {
-					backwardCheck = true;
-
-					const currentNode = Editor.node(editor, editor.selection.anchor.path);
-					const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
-					const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
-
-					// if (currentNode[0].type == "katex" || currentNode[0].type == "inline-bug") {
-					// 	alert("here");
-					// 	Transforms.move(editor, { distance: 1, unit: "offset" });
-					// }
-					if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
-						Transforms.delete(editor, { at: editor.selection.anchor.path });
-					}
+					Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
 				}
 			}
 		}
-	};
+	}
 
 	editor.deleteFragment = (...args) => {
 
@@ -914,6 +888,9 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
+	Transforms.insertText(editor, "\u200B".toString(), {
+		at: editor.selection.anchor,
+	});
 
 	let id = v4();
 	const katex = {
@@ -1049,7 +1026,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 	const focused = useFocused();
 	const path = ReactEditor.findPath(editor, element);
 
-	console.log(selected, "selected element");
+
 
 
 	return (
