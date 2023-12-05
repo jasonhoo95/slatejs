@@ -343,7 +343,6 @@ const SlateReact = () => {
 			const string = Node.leaf(editor, editor.selection.anchor.path);
 			const listItems1 = Editor.previous(editor, {
 				at: editor.selection.anchor.path,
-				match: (n) => n.type == "katex"
 
 			});
 
