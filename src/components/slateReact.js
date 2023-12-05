@@ -343,11 +343,14 @@ const SlateReact = () => {
 			const string = Node.leaf(editor, editor.selection.anchor.path);
 			const listItems1 = Editor.previous(editor, {
 				at: editor.selection.anchor.path,
+				match: (n) => n.type == "katex"
+
 			});
 
 
 			//
 
+			console.log(listItems1, "list items 1");
 			if (string.text.length == 0) {
 
 
@@ -360,7 +363,7 @@ const SlateReact = () => {
 					backwardCheck = true;
 
 
-					if (listItems1 && /android/i.test(ua)) {
+					if (listItems1) {
 						Editor.deleteBackward(editor, { unit: 'character', distance: 1 })
 					}
 
@@ -912,6 +915,7 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
+
 	let id = v4();
 	const katex = {
 		type: "katex",
