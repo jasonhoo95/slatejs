@@ -359,7 +359,7 @@ const SlateReact = () => {
 					Transforms.delete(editor, { at: editor.selection.anchor.path });
 				}
 				else if (/\u200B/.test(currentNode[0].text)) {
-					console.log("katex insert");
+
 
 					Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
 					// Transforms.move(editor, { distance: 1, unit: "offset" });
@@ -490,6 +490,62 @@ const SlateReact = () => {
 				initialValue={initialValue}>
 
 
+				<div
+					onClick={(e) => {
+						const block = {
+							type: "editable-void",
+							card: [],
+							children: [{ text: '' }],
+						};
+						const block1 = {
+							type: "dropdown-content",
+							children: [
+
+								{
+									type: "dropdown-inner",
+									children: [
+										{
+											type: "paragraph",
+											children: [
+												{
+													text: "",
+												},
+											],
+										},
+									],
+								},
+							],
+						};
+						// Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
+
+						const [listItems] = Editor.nodes(editor, {
+							match: (n) => n.type === "paragraph" || n.type == "list-item" || n.type == "banner-red-wrapper",
+						});
+						if (Editor.isEmpty(editor, listItems[0])) {
+							Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
+							Transforms.unwrapNodes(editor, { mode: "highest" });
+						} else {
+							const nextNode = Editor.next(editor, {
+								at: listItems[1],
+							});
+
+
+
+
+							if (!nextNode) {
+								Editor.insertBreak(editor);
+
+								Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
+							} else {
+								Transforms.insertNodes(editor, block1, { at: nextNode[1] });
+
+							}
+							undo = true;
+
+						}
+					}}>
+					insert voidnow
+				</div>
 				{/* <div
 					onClick={(e) => {
 						const block = {
@@ -755,18 +811,18 @@ const SlateReact = () => {
 						} else if (event.key == "ArrowRight") {
 							rightCheck = true;
 						}
-						else if (event.metaKey && event.key === "z" && !event.shiftKey) {
-							event.preventDefault();
-							HistoryEditor.undo(editor);
-							undo = true;
+						// else if (event.metaKey && event.key === "z" && !event.shiftKey) {
+						// 	event.preventDefault();
+						// 	HistoryEditor.undo(editor);
+						// 	undo = true;
 
-						} else if (event.metaKey && event.shiftKey && event.key === "z") {
-							event.preventDefault();
-							HistoryEditor.redo(editor);
-							undo = true;
+						// } else if (event.metaKey && event.shiftKey && event.key === "z") {
+						// 	event.preventDefault();
+						// 	HistoryEditor.redo(editor);
+						// 	undo = true;
 
 
-						}
+						// }
 						// else if (string.text.startsWith("1.") && /android/i.test(ua)) {
 						// 	toggleBlock(editor, "numbered-list", "number");
 						// 	Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
@@ -1351,20 +1407,23 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const focused = useFocused();
 	let cardnow;
-	let clickKey;
+	let focusCheck;
 	const [objCopy, setObj] = useState();
 	const [open, setOpen] = useState(false);
 	const path = ReactEditor.findPath(editor, element);
 
-
-
-	if ((checked && undo)) {
+	const [inputValue, setInputValue] = useState('');
+	console.log(inputValue, "input value");
+	if (checked && undo) {
+		console.log(card.length, "card length")
 
 		Transforms.select(editor, path);
 		// Transforms.setSelection(editor, leafNode);
 
 		undo = false
 	} else if (!selected && checked) {
+		console.log("checked length")
+
 		Transforms.setNodes(editor, { checked: false }, { at: path })
 		undo = false;
 	}
@@ -1378,12 +1437,13 @@ const EditableVoid = ({ attributes, children, element }) => {
 		Transforms.setNodes(editor, { card: cardnow }, { at: path });
 	};
 
-	const checkInput = (text, key) => {
-		let cardnow = [...objCopy];
+	const checkInput = (text, key, card) => {
+		let cardnow = [...card];
 		var index = _.findIndex(cardnow, { id: key });
 		cardnow.splice(index, 1, { card: text, id: key, check: true });
 
 		Transforms.setNodes(editor, { card: cardnow }, { at: path });
+
 	};
 
 	const setModal = useCallback((key, card1, check) => {
@@ -1396,10 +1456,40 @@ const EditableVoid = ({ attributes, children, element }) => {
 		// Transforms.setNodes(editor, { card: cardnow }, { at: path });
 	}, []);
 
-	const setCheckValidate = useCallback((key, card1) => {
+
+
+
+	useEffect(() => {
+
+
+		window.addEventListener("message", function (event) {
+
+			if (typeof event.data == "string") {
+				let value = JSON.parse(event.data);
+
+				if (value && value.id == "katex") {
+					let cardnow = [...value.card];
+					var index = _.findIndex(cardnow, { id: value.key });
+					if (cardnow[index].card != 'hello world') {
+						cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
+						Transforms.setNodes(editor, { card: cardnow }, { at: path });
+
+					}
+
+				}
+			}
+
+
+
+		})
+
+
+	}, [card])
+
+	const setCheckValidate = useCallback((key, card1, check) => {
 		let cardnow = [...card1];
 		var index = _.findIndex(cardnow, { id: key });
-		cardnow.splice(index, 1, { ...cardnow[index], check: false });
+		cardnow.splice(index, 1, { ...cardnow[index], check: check });
 
 		setObj(cardnow);
 	}, []);
@@ -1437,27 +1527,55 @@ const EditableVoid = ({ attributes, children, element }) => {
 							<div
 								className="mx-3"
 								onClick={(e) => {
-									setModal(key, card, true);
+									// setModal(key, card, true);
+									setCheckValidate(key, card, false)
+									window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex", key, card);
+
 								}}
 								style={{ height: "100%", width: "100%", background: "red" }}
 								key={key}>
-								{/* {objCopy[key].check ? "true" : "false"} */}
-								{objCopy && objCopy[key].check ? (
-									<>
-										{o.card}
 
-									</>
-								) : (
-									// <input
-									// 	value={o.card}
-									// 	onChange={(e) => {
-									// 		checkInput(e.target.value, key);
-									//
-									// 	}}
-									// 	type="text"
-									// />
-									o.card
-								)}
+								{/* <InputComponent id={key} cardObj={card} card={o.card} /> */}
+
+								<input
+									value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
+									className="w-full"
+									onChange={(e) => {
+										checkInput(e.target.value, key, card);
+
+										setInputValue({ id: key, txt: e.target.value });
+
+
+									}}
+
+									onBlur={e => {
+										setInputValue('');
+
+
+									}}
+									type="text"
+								/>
+								{/* <input
+									value={o.card}
+									className="w-full"
+									onChange={(e) => {
+										checkInput(e.target.value, key);
+
+									}}
+									type="text"
+
+													onBlur={e => {
+
+										setCheckValidate(key, card, false)
+
+									}}
+								/> */}
+
+
+
+
+
+
 							</div>
 						);
 					})}
