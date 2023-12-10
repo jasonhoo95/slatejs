@@ -1413,6 +1413,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 
 	const [inputValue, setInputValue] = useState('');
+
 	console.log(inputValue, "input value");
 	if (checked && undo) {
 		console.log(card.length, "card length")
@@ -1529,23 +1530,19 @@ const EditableVoid = ({ attributes, children, element }) => {
 								onClick={(e) => {
 									// setModal(key, card, true);
 									setCheckValidate(key, card, false)
-									window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex", key, card);
+									// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex", key, card);
 
 								}}
 								style={{ height: "100%", width: "100%", background: "red" }}
 								key={key}>
 
-								{/* <InputComponent id={key} cardObj={card} card={o.card} /> */}
 
-								<input
+								<textarea
 									value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
 									className="w-full"
 									onChange={(e) => {
 										checkInput(e.target.value, key, card);
-
 										setInputValue({ id: key, txt: e.target.value });
-
-
 									}}
 
 									onBlur={e => {
@@ -1553,23 +1550,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 									}}
-									type="text"
 								/>
-								{/* <input
-									value={o.card}
-									className="w-full"
-									onChange={(e) => {
-										checkInput(e.target.value, key);
-
-									}}
-									type="text"
-
-													onBlur={e => {
-
-										setCheckValidate(key, card, false)
-
-									}}
-								/> */}
 
 
 
