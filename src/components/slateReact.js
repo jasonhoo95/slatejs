@@ -174,9 +174,6 @@ const SlateReact = () => {
 
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
-		} else if (currentParent && currentParent[0].type == "dropdown-content") {
-			const nextParent = Editor.next(editor, { at: currentParent[1] });
-			Transforms.select(editor, { anchor: { path: [nextParent[1][0], 0], offset: 0, }, focus: { path: [nextParent[1][0], 0], offset: 0 } })
 		} else if (currentParent && currentParent[0].type == "editable-void") {
 			Transforms.move(editor, { unit: 'offset', distance: 1 });
 		}
@@ -395,14 +392,6 @@ const SlateReact = () => {
 				{
 					at: listItems[1],
 					match: (n) => n.type === "list-item" || n.type == "check-list-item",
-				}
-			);
-		} else if (listItems[0].type == "dropdown-content") {
-			Transforms.setNodes(
-				editor,
-				{ type: "paragraph" },
-				{
-					at: listItems[1],
 				}
 			);
 		}
