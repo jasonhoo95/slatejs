@@ -811,18 +811,18 @@ const SlateReact = () => {
 						} else if (event.key == "ArrowRight") {
 							rightCheck = true;
 						}
-						// else if (event.metaKey && event.key === "z" && !event.shiftKey) {
-						// 	event.preventDefault();
-						// 	HistoryEditor.undo(editor);
-						// 	undo = true;
+						else if (event.metaKey && event.key === "z" && !event.shiftKey) {
+							event.preventDefault();
+							HistoryEditor.undo(editor);
+							undo = true;
 
-						// } else if (event.metaKey && event.shiftKey && event.key === "z") {
-						// 	event.preventDefault();
-						// 	HistoryEditor.redo(editor);
-						// 	undo = true;
+						} else if (event.metaKey && event.shiftKey && event.key === "z") {
+							event.preventDefault();
+							HistoryEditor.redo(editor);
+							undo = true;
 
 
-						// }
+						}
 						// else if (string.text.startsWith("1.") && /android/i.test(ua)) {
 						// 	toggleBlock(editor, "numbered-list", "number");
 						// 	Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
@@ -1462,7 +1462,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 	useEffect(() => {
 
-
+		console.log(card, "input value");
 		window.addEventListener("message", function (event) {
 
 			if (typeof event.data == "string") {
@@ -1536,21 +1536,23 @@ const EditableVoid = ({ attributes, children, element }) => {
 								style={{ height: "100%", width: "100%", background: "red" }}
 								key={key}>
 
-
-								<textarea
-									value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
-									className="w-full"
+								<textarea className="w-full h-[100px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
 									onChange={(e) => {
-										checkInput(e.target.value, key, card);
 										setInputValue({ id: key, txt: e.target.value });
-									}}
+										checkInput(e.target.value, key, card);
 
+									}}
+									onFocus={e => {
+										setInputValue({ id: key, txt: e.target.value });
+
+									}}
 									onBlur={e => {
-										setInputValue('');
+										setInputValue(null);
 
 
 									}}
-								/>
+									type="text"></textarea>
+
 
 
 
