@@ -1340,19 +1340,19 @@ const DropDownList = ({ attributes, children, element }) => {
 
 
 	if ((checked && undo)) {
-		console.log(path, "path");
-		// Transforms.select(editor, path);
+		console.log(path, "checked now");
+		Transforms.select(editor, path);
 		// Transforms.setSelection(editor, leafNode);
 
 		undo = false
 	} else if (!selected && checked) {
+		console.log("checked")
 		Transforms.setNodes(editor, { checked: false }, { at: path })
 		undo = false;
 	}
 
 
 
-	console.log(checked, selected, "checked selected");
 
 	const addMore = () => {
 		const path = ReactEditor.findPath(editor, element);
@@ -1362,19 +1362,32 @@ const DropDownList = ({ attributes, children, element }) => {
 		});
 
 
+		// let object = {
+		// 	type: "dropdown-inner",
+		// 	children: [
+		// 		{
+		// 			type: "paragraph",
+		// 			children: [
+		// 				{
+		// 					text: "",
+		// 				},
+		// 			],
+		// 		},
+		// 	],
+		// };
+
 		let object = {
-			type: "dropdown-inner",
+
+
+			type: "paragraph",
 			children: [
 				{
-					type: "paragraph",
-					children: [
-						{
-							text: "",
-						},
-					],
+					text: "",
 				},
 			],
 		};
+
+
 		let arraynow = [...nodes[0].children];
 		arraynow.push(object);
 
