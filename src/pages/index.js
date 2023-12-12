@@ -37,15 +37,6 @@ export default function Home() {
 			<SlateReact />
 
 
-			{display ? <div>
-
-				asdas dasdadsa
-
-				<div data-tf-live="01HAKETC9DY1QCG4758X267MR7"></div><script src="https://embed.typeform.com/next/embed.js"></script>
-
-
-			</div> : null}
-
 
 
 			<footer id="footer">
