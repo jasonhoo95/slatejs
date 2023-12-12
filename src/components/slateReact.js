@@ -377,20 +377,21 @@ const SlateReact = () => {
 
 
 
-		// const parent = Editor.parent(editor, listItems[1]);
 
-		// const [checkListItem] = Editor.nodes(editor, {
-		// 	at: listItems[1],
-		// 	match: (n) => n.type == "check-list-item",
-		// });
+		const [checkListItem] = Editor.nodes(editor, {
+			at: listItems[1],
+			match: (n) => n.type == "list-item",
+		});
+
+		console.log(checkListItem)
 
 
-		if (checked && !["list-item" && "check-list-item"].includes(checked[0].type) && editor.selection.anchor.offset != editor.selection.focus.offset) {
+		if (checkListItem && ["list-item", "check-list-item"].includes(checkListItem[0].type)) {
 			Transforms.setNodes(
 				editor,
 				{ type: "paragraph" },
 				{
-					at: listItems[1],
+					at: checkListItem[1],
 					match: (n) => n.type === "list-item" || n.type == "check-list-item",
 				}
 			);
