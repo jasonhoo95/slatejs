@@ -38,6 +38,17 @@ export default function Home() {
 
 
 
+			<div className="relative">
+				<div contentEditable="true">
+					asd asda
+
+				</div>
+				<div style={{ border: '1px solid grey' }} className="absolute left-0 top-0 w-full h-full">
+
+				</div>
+
+			</div>
+
 
 			<footer id="footer">
 				<div id="divedit" style={{ height: '40px', padding: '10px', background: 'grey' }} contentEditable="true">

@@ -68,9 +68,10 @@
 	overflow-wrap: break-word !important;
 }
 
-.selected::after{
+.selected::before{
 	content: "";
     position: absolute;
+	display: block;
     left: 0;
     right: 0;
     top: 0;

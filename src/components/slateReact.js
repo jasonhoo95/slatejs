@@ -159,13 +159,15 @@ const SlateReact = () => {
 			at: editor.selection.anchor,
 			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex" || n.type == "check-list-item" || n.type == "dropdown-content" || n.type == "editable-void",
 		});
-		let currentParent, currentDescendant, previousParent;
+		let currentParent, currentDescendant, previousParent, voidCheck;
 
 		for (const listItem of listItems) {
 			currentParent = Editor.node(editor, listItem[1]);
+			voidCheck = Editor.node(editor, listItem[1], { match: (n) => n.type == "dropdown-content" })
 			currentDescendant = Node.descendant(editor, listItem[1], { match: (n) => n.type == "paragraph" });
 			previousParent = Editor.previous(editor, { at: listItem[1] });
 		}
+
 
 		const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "paragraph" });
 
@@ -194,7 +196,6 @@ const SlateReact = () => {
 
 		} else {
 			insertBreak();
-
 			const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
 
 			if (selectedLeaf1.text.length == 0) {
@@ -384,7 +385,7 @@ const SlateReact = () => {
 			match: (n) => n.type == "list-item",
 		});
 
-		console.log(checkListItem)
+
 
 
 		if (checkListItem && ["list-item", "check-list-item"].includes(checkListItem[0].type)) {
@@ -425,7 +426,7 @@ const SlateReact = () => {
 
 	const onBlur = useCallback((e) => {
 		setFocus(false);
-		console.log("blur");
+
 
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
@@ -491,34 +492,34 @@ const SlateReact = () => {
 						const block1 = {
 							type: "dropdown-content",
 							checked: true,
-							children: [
-								{
-									type: "paragraph",
-									children: [
-										{
-											text: "",
-										},
-									],
-								},
-							],
-
-
 							// children: [
-
 							// 	{
-							// 		type: "dropdown-inner",
+							// 		type: "paragraph",
 							// 		children: [
 							// 			{
-							// 				type: "paragraph",
-							// 				children: [
-							// 					{
-							// 						text: "",
-							// 					},
-							// 				],
+							// 				text: "",
 							// 			},
 							// 		],
 							// 	},
 							// ],
+
+
+							children: [
+
+								{
+									type: "dropdown-inner",
+									children: [
+										{
+											type: "paragraph",
+											children: [
+												{
+													text: "",
+												},
+											],
+										},
+									],
+								},
+							],
 						};
 						// Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
 
@@ -782,7 +783,7 @@ const SlateReact = () => {
 
 
 					onKeyDown={(event) => {
-						console.log(event.key, "key now");
+
 						const ua = navigator.userAgent
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
@@ -797,6 +798,8 @@ const SlateReact = () => {
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph" || n.type == "dropdown-content"
 						});
+						const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "dropdown-inner" });
+
 
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
@@ -827,7 +830,7 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if ((event.key == 'Enter' || event.key == "ArrowDown") && listItems && listItems[0].type == "dropdown-content") {
+						} else if ((event.key == 'Enter' || event.key == "ArrowDown") && listItems && listItems[0].type == "dropdown-content" && listItems[0].checked) {
 							event.preventDefault();
 							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
 							Transforms.move(editor, { unit: "offset", distance: 1 });
@@ -1323,7 +1326,7 @@ const DropdownInner = ({ attributes, children, element }) => {
 	return (
 		<div
 			{...attributes}
-			className="dropdown-content"
+			className="dropdown-content h-full"
 			style={{ background: "red", border: '1px soild grey' }}>
 			{children}
 		</div>
@@ -1339,17 +1342,7 @@ const DropDownList = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 
 
-	if ((checked && undo)) {
-		console.log(path, "checked now");
-		Transforms.select(editor, path);
-		// Transforms.setSelection(editor, leafNode);
 
-		undo = false
-	} else if (!selected && checked) {
-		console.log("checked")
-		Transforms.setNodes(editor, { checked: false }, { at: path })
-		undo = false;
-	}
 
 
 
@@ -1362,30 +1355,30 @@ const DropDownList = ({ attributes, children, element }) => {
 		});
 
 
-		// let object = {
-		// 	type: "dropdown-inner",
-		// 	children: [
-		// 		{
-		// 			type: "paragraph",
-		// 			children: [
-		// 				{
-		// 					text: "",
-		// 				},
-		// 			],
-		// 		},
-		// 	],
-		// };
-
 		let object = {
-
-
-			type: "paragraph",
+			type: "dropdown-inner",
 			children: [
 				{
-					text: "",
+					type: "paragraph",
+					children: [
+						{
+							text: "",
+						},
+					],
 				},
 			],
 		};
+
+		// let object = {
+
+
+		// 	type: "paragraph",
+		// 	children: [
+		// 		{
+		// 			text: "",
+		// 		},
+		// 	],
+		// };
 
 
 		let arraynow = [...nodes[0].children];
@@ -1418,13 +1411,18 @@ const DropDownList = ({ attributes, children, element }) => {
 
 			<div
 
-				className="flex justify-between relative h-[30px] w-full">
+				className="flex z-[1] justify-between relative h-full w-full">
 				{children}
 
-				{/* <div className="absolute left-0 top-0 w-full h-full">
 
-				</div> */}
 			</div>
+
+
+			{/* {checked && selected ? <div style={{ border: '1px solid grey' }} className="absolute z-[10] left-0 top-0 w-full h-full">
+
+			</div> : null} */}
+
+
 
 
 
@@ -1446,16 +1444,16 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 	const [inputValue, setInputValue] = useState('');
 
-	console.log(inputValue, "input value");
+
 	if (checked && undo) {
-		console.log(card.length, "card length")
+
 
 		Transforms.select(editor, path);
 		// Transforms.setSelection(editor, leafNode);
 
 		undo = false
 	} else if (!selected && checked) {
-		console.log("checked length")
+
 
 		Transforms.setNodes(editor, { checked: false }, { at: path })
 		undo = false;
@@ -1494,7 +1492,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 	useEffect(() => {
 
-		console.log(card, "input value");
+
 		window.addEventListener("message", function (event) {
 
 			if (typeof event.data == "string") {
