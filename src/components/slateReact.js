@@ -496,17 +496,6 @@ const SlateReact = () => {
 						const block1 = {
 							type: "dropdown-content",
 							checked: true,
-							// children: [
-							// 	{
-							// 		type: "paragraph",
-							// 		children: [
-							// 			{
-							// 				text: "",
-							// 			},
-							// 		],
-							// 	},
-							// ],
-
 
 							children: [
 								{
@@ -673,18 +662,11 @@ const SlateReact = () => {
 
 				<div
 					onClick={(e) => {
-						// const block = {
-						// 	type: "editable-void",
-						// 	card: [],
-						// 	children: [{ text: '' }],
-						// };
-
 						const block = {
-							type: "span-txt",
+							type: "editable-void",
 							card: [],
 							children: [{ text: '' }],
 						};
-
 
 						ReactEditor.focus(editor);
 						Transforms.insertNodes(editor, block);
@@ -1119,7 +1101,7 @@ const SpanTxt = ({ attributes, children, element }) => {
 	const focused = useFocused();
 
 	return (
-		<div   {...attributes}>
+		<div  {...attributes}>
 			{children}
 		</div>
 
@@ -1380,18 +1362,19 @@ const DropDownList = ({ attributes, children, element }) => {
 	const { checked, selectNode } = element;
 	const path = ReactEditor.findPath(editor, element);
 
+	const [nodes] = Editor.nodes(editor, {
+		at: path,
+		match: (n) => n.type == "dropdown-content",
+	});
 
 
-
+	console.log(children, "array now");
 
 
 
 	const addMore = () => {
 		const path = ReactEditor.findPath(editor, element);
-		const [nodes] = Editor.nodes(editor, {
-			at: path,
-			match: (n) => n.type == "dropdown-content",
-		});
+
 
 
 		let object = {
@@ -1420,12 +1403,22 @@ const DropDownList = ({ attributes, children, element }) => {
 		// };
 
 
-		let arraynow = [...nodes[0].children];
+		let arraynow = [...nodes[0].children.filter((o) => {
+			return o.type == "dropdown-inner"
+
+		})];
 		arraynow.push(object);
 
 		const block1 = {
 			type: "dropdown-content",
-			children: arraynow,
+			children: [{
+				type: "span-txt",
+				children: [
+					{
+						text: "",
+					},
+				],
+			}, ...arraynow],
 		};
 
 		Transforms.removeNodes(editor, { at: path });
@@ -1441,7 +1434,7 @@ const DropDownList = ({ attributes, children, element }) => {
 				{children[0]}
 
 			</div>
-
+			<br />
 			<button
 				contentEditable="false"
 				onClick={(e) => {
@@ -1453,7 +1446,18 @@ const DropDownList = ({ attributes, children, element }) => {
 				// contentEditable={checked && selected ? false : true}
 				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
 				className="flex z-[1] justify-between relative h-full w-full">
-				{children[1]}
+				<>
+					{nodes[0].children.map((o, key) => {
+						console.log(o.type, "type");
+						if (o.type == "dropdown-inner") {
+							return (
+								children[key]
+							)
+						}
+
+
+					})}
+				</>
 
 
 			</div>
