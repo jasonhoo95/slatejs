@@ -32,6 +32,7 @@ let undo = false;
 
 
 const initialValue = [
+
 	{
 		type: "paragraph",
 		children: [
@@ -178,7 +179,8 @@ const SlateReact = () => {
 			toggleBlock(editor, currentParent[0].type);
 		} else if (currentParent && ['editable-void'].includes(currentParent[0].type)) {
 
-			insertBreak();
+			Transforms.move(editor, { unit: "offset", distance: 1 });
+
 		}
 		else if (currentParent && ["check-list-item"].includes(currentParent[0].type)) {
 
@@ -237,7 +239,7 @@ const SlateReact = () => {
 			});
 			previousVoid = Editor.previous(editor, {
 				at: listItems[1],
-				match: (n) => ["paragraph", "editable-void"].includes(n.type),
+				match: (n) => ["editable-void", "span-txt"].includes(n.type),
 
 			});
 			nextParent = Editor.next(editor, { at: listItems[1] });
@@ -245,7 +247,7 @@ const SlateReact = () => {
 
 
 
-
+		console.log(previousVoid, "previous void");
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
 			if (!backwardCheck) {
@@ -323,18 +325,20 @@ const SlateReact = () => {
 			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
-		} else if (previousParent && previousParent[0].type == "dropdown-content" && editor.selection.anchor.offset == 0) {
+		} else if (previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0) {
+			console.log(previousParent, "previous parent");
+			if (previousParent[0].type == "dropdown-content") {
+				Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
-			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
-			Transforms.move(editor, { distance: 1, unit: 'word', reverse: true, });
-			undo = true;
+			}
+			// Transforms.move(editor, { distance: 2, reverse: true, });
+			Transforms.select(editor, previousVoid[1]);
 
 
 		} else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 
 			Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
 			Transforms.move(editor, { offset: 1, reverse: true });
-			undo = true;
 
 		}
 
@@ -505,6 +509,14 @@ const SlateReact = () => {
 
 
 							children: [
+								{
+									type: "span-txt",
+									children: [
+										{
+											text: "",
+										},
+									],
+								},
 
 								{
 									type: "dropdown-inner",
@@ -526,16 +538,15 @@ const SlateReact = () => {
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "paragraph" || n.type == "list-item" || n.type == "banner-red-wrapper",
 						});
+
 						if (Editor.isEmpty(editor, listItems[0])) {
 							Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
 							Transforms.unwrapNodes(editor, { mode: "highest" });
+							Transforms.move(editor, { reverse: true, distance: 1, unit: 'offset' })
 						} else {
 							const nextNode = Editor.next(editor, {
 								at: listItems[1],
 							});
-
-
-
 
 							if (!nextNode) {
 								Editor.insertBreak(editor);
@@ -545,6 +556,11 @@ const SlateReact = () => {
 								Transforms.insertNodes(editor, block1, { at: nextNode[1] });
 
 							}
+							const parentCheck = Editor.node(editor, editor.selection.anchor.path, { match: (n) => n.type == "dropdown-content" });
+
+							console.log(parentCheck, "parent check");
+
+							// Transforms.select(editor, [editor.selection.anchor.path, 0])
 							undo = true;
 
 						}
@@ -657,20 +673,27 @@ const SlateReact = () => {
 
 				<div
 					onClick={(e) => {
+						// const block = {
+						// 	type: "editable-void",
+						// 	card: [],
+						// 	children: [{ text: '' }],
+						// };
+
 						const block = {
-							type: "editable-void",
+							type: "span-txt",
 							card: [],
 							children: [{ text: '' }],
 						};
 
-						ReactEditor.focus(editor);
-						Transforms.setNodes(editor, block);
-						const [voidElement] = Editor.nodes(editor, {
-							match: (node) => node.type == "editable-void"
-						});
-						const block1 = { type: "paragraph", children: [block] };
 
-						Transforms.wrapNodes(editor, block1, { at: voidElement[1] });
+						ReactEditor.focus(editor);
+						Transforms.insertNodes(editor, block);
+						// const [voidElement] = Editor.nodes(editor, {
+						// 	match: (node) => node.type == "editable-void"
+						// });
+						// const block1 = { type: "paragraph", children: [block] };
+
+						// Transforms.wrapNodes(editor, block1, { at: voidElement[1] });
 
 
 
@@ -796,10 +819,11 @@ const SlateReact = () => {
 						rightCheck = false;
 						let timeset;
 						const [listItems] = Editor.nodes(editor, {
-							match: (n) => n.type === "list-item" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph" || n.type == "dropdown-content"
+							match: (n) => n.type === "list-item" || n.type == "span-txt" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph" || n.type == "dropdown-content"
 						});
 						const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "dropdown-inner" });
 
+						console.log(listItems, "list items");
 
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
@@ -832,8 +856,10 @@ const SlateReact = () => {
 
 						} else if ((event.key == 'Enter' || event.key == "ArrowDown") && listItems && listItems[0].type == "dropdown-content" && listItems[0].checked) {
 							event.preventDefault();
+							console.log("checked now");
 							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
-							Transforms.move(editor, { unit: "offset", distance: 1 });
+							Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
+
 
 						}
 						// else if (string.text.startsWith("1.") && /android/i.test(ua)) {
@@ -982,7 +1008,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void", "span-txt"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1087,6 +1113,19 @@ const InlineChromiumBugfix = ({ attributes, children, element }) => {
 		</span>
 	);
 };
+
+const SpanTxt = ({ attributes, children, element }) => {
+	const selected = useSelected();
+	const focused = useFocused();
+
+	return (
+		<div   {...attributes}>
+			{children}
+		</div>
+
+	)
+
+}
 
 const KatexComponent = ({ attributes, children, element }) => {
 	const editor = useSlate();
@@ -1397,22 +1436,24 @@ const DropDownList = ({ attributes, children, element }) => {
 		<div
 			{...attributes}
 			className="relative"
-			contentEditable={checked && selected ? false : true}
-			onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
-			style={{ background: (checked && selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
-			<div contentEditable="true">
-				<button
-					onClick={(e) => {
-						addMore();
-					}}>
-					click me
-				</button>
+			style={{ background: (checked || selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
+			<div>
+				{children[0]}
+
 			</div>
 
+			<button
+				contentEditable="false"
+				onClick={(e) => {
+					addMore();
+				}}>
+				click me
+			</button>
 			<div
-
+				// contentEditable={checked && selected ? false : true}
+				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
 				className="flex z-[1] justify-between relative h-full w-full">
-				{children}
+				{children[1]}
 
 
 			</div>
@@ -1812,6 +1853,10 @@ const Element = (props) => {
 			return <DropDownList {...props} />;
 		case "heading-one":
 			return <Heading1Component {...props}></Heading1Component>;
+		case "span-txt":
+			return (
+				<SpanTxt {...props}></SpanTxt>
+			)
 		case "text-descrip":
 			return (
 				<div
