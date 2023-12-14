@@ -1428,13 +1428,13 @@ const DropDownList = ({ attributes, children, element }) => {
 	return (
 		<div
 			{...attributes}
-			className="relative"
+			className="relative p-[10px]"
 			style={{ background: (checked || selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
-			<div>
+			<div
+			>
 				{children[0]}
 
 			</div>
-			<br />
 			<button
 				contentEditable="false"
 				onClick={(e) => {
@@ -1445,6 +1445,7 @@ const DropDownList = ({ attributes, children, element }) => {
 			<div
 				// contentEditable={checked && selected ? false : true}
 				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
+
 				className="flex z-[1] justify-between relative h-full w-full">
 				<>
 					{nodes[0].children.map((o, key) => {
