@@ -325,12 +325,11 @@ const SlateReact = () => {
 			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
-		} else if (previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0) {
-			console.log(previousParent, "previous parent");
-			if (previousParent[0].type == "dropdown-content") {
-				Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
+		} else if (previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && previousParent[0].type == "dropdown-content" && !previousParent[0].checked) {
+			console.log(previousParent, "list item parent");
 
-			}
+			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
+
 			// Transforms.move(editor, { distance: 2, reverse: true, });
 			Transforms.select(editor, previousVoid[1]);
 
