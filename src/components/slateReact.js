@@ -220,7 +220,7 @@ const SlateReact = () => {
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["paragraph", "list-item", "check-list-item", "katex"].includes(n.type),
+			match: (n) => ["paragraph", "list-item", "dropdown-content", "check-list-item", "katex"].includes(n.type),
 		});
 		const ua = navigator.userAgent
 
@@ -247,7 +247,7 @@ const SlateReact = () => {
 
 
 
-		console.log(previousVoid, "previous void");
+
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
 			if (!backwardCheck) {
@@ -325,8 +325,8 @@ const SlateReact = () => {
 			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
-		} else if (previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && previousParent[0].type == "dropdown-content" && !previousParent[0].checked) {
-			console.log(previousParent, "list item parent");
+		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && previousParent[0].type == "dropdown-content" && !previousParent[0].checked && listItemParent[0].type != "dropdown-content") {
+
 
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
@@ -334,7 +334,11 @@ const SlateReact = () => {
 			Transforms.select(editor, previousVoid[1]);
 
 
-		} else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+		} else if (listItemParent[0].type == "dropdown-content") {
+			console.log("remove txt",);
+			Transforms.removeNodes(editor, { at: listItemParent[1] });
+		}
+		else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 
 			Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
 			Transforms.move(editor, { offset: 1, reverse: true });
@@ -546,7 +550,7 @@ const SlateReact = () => {
 							}
 							const parentCheck = Editor.node(editor, editor.selection.anchor.path, { match: (n) => n.type == "dropdown-content" });
 
-							console.log(parentCheck, "parent check");
+
 
 							// Transforms.select(editor, [editor.selection.anchor.path, 0])
 							undo = true;
@@ -804,7 +808,7 @@ const SlateReact = () => {
 						});
 						const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "dropdown-inner" });
 
-						console.log(listItems, "list items");
+
 
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
@@ -837,7 +841,7 @@ const SlateReact = () => {
 
 						} else if ((event.key == 'Enter' || event.key == "ArrowDown") && listItems && listItems[0].type == "dropdown-content" && listItems[0].checked) {
 							event.preventDefault();
-							console.log("checked now");
+
 							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
 							Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
 
@@ -1367,7 +1371,7 @@ const DropDownList = ({ attributes, children, element }) => {
 	});
 
 
-	console.log(children, "array now");
+
 
 
 
@@ -1448,7 +1452,7 @@ const DropDownList = ({ attributes, children, element }) => {
 				className="flex z-[1] justify-between relative h-full w-full">
 				<>
 					{nodes[0].children.map((o, key) => {
-						console.log(o.type, "type");
+
 						if (o.type == "dropdown-inner") {
 							return (
 								children[key]
