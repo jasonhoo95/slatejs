@@ -334,7 +334,7 @@ const SlateReact = () => {
 			Transforms.select(editor, previousVoid[1]);
 
 
-		} else if (listItemParent[0].type == "dropdown-content") {
+		} else if (listItemParent[0].type == "dropdown-content" && listItemParent[0].checked) {
 			console.log("remove txt",);
 			Transforms.removeNodes(editor, { at: listItemParent[1] });
 		}
