@@ -182,6 +182,21 @@ const SlateReact = () => {
 			Transforms.move(editor, { unit: "offset", distance: 1 });
 
 		}
+		// else if(currentParent && currentParent[0].type == "dropdown-content" && parentCheck){
+		//   let block1 = 
+		//   {
+		// 	  type: "paragraph",
+		// 	  children: [
+		// 		  {
+		// 			  text: "a",
+		// 		  },
+		// 	  ],
+		//   },
+
+		//   Transforms.insertNodes(editor,)
+
+
+		// }
 		else if (currentParent && ["check-list-item"].includes(currentParent[0].type)) {
 
 			insertBreak();
@@ -245,8 +260,9 @@ const SlateReact = () => {
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
 
+		const nodeText = Node.leaf(editor, editor.selection.anchor.path);
 
-
+		console.log(nodeText, "node text");
 
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
@@ -334,9 +350,22 @@ const SlateReact = () => {
 			Transforms.select(editor, previousVoid[1]);
 
 
-		} else if (listItemParent[0].type == "dropdown-content" && listItemParent[0].checked) {
-			console.log("remove txt",);
-			Transforms.removeNodes(editor, { at: listItemParent[1] });
+		} else if (listItemParent[0].type == "dropdown-content") {
+			const listItems = Editor.above(editor, {
+				match: n => n.type === 'dropdown-inner',
+			});
+			console.log(listItems, Editor.node(editor, editor.selection.anchor.path), "list items");
+			const string = Editor.string(editor, editor.selection.anchor.path);
+			if (listItemParent[0].checked) {
+				Transforms.removeNodes(editor, { at: listItemParent[1] });
+
+			} else if (listItems[0].children.length >= 1 && (!string || editor.selection.anchor.offset == 0)) {
+				return;
+			} else {
+				deleteBackward(...args);
+
+			}
+
 		}
 		else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 
@@ -346,7 +375,12 @@ const SlateReact = () => {
 		}
 
 		else {
+
+
+
 			deleteBackward(...args);
+
+
 
 
 
@@ -517,6 +551,7 @@ const SlateReact = () => {
 											type: "paragraph",
 											children: [
 												{
+													id: 0,
 													text: "",
 												},
 											],
@@ -1380,19 +1415,7 @@ const DropDownList = ({ attributes, children, element }) => {
 
 
 
-		let object = {
-			type: "dropdown-inner",
-			children: [
-				{
-					type: "paragraph",
-					children: [
-						{
-							text: "",
-						},
-					],
-				},
-			],
-		};
+
 
 		// let object = {
 
@@ -1410,6 +1433,20 @@ const DropDownList = ({ attributes, children, element }) => {
 			return o.type == "dropdown-inner"
 
 		})];
+		let object = {
+			type: "dropdown-inner",
+			children: [
+				{
+					type: "paragraph",
+					id: arraynow.length + 1,
+					children: [
+						{
+							text: "",
+						},
+					],
+				},
+			],
+		};
 		arraynow.push(object);
 
 		const block1 = {
