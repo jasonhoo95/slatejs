@@ -429,7 +429,7 @@ const SlateReact = () => {
 
 
 
-		if (checkListItem && ["list-item", "check-list-item"].includes(checkListItem[0].type)) {
+		if (checkListItem && !["list-item", "check-list-item"].includes(checkListItem[0].type)) {
 			Transforms.setNodes(
 				editor,
 				{ type: "paragraph" },
