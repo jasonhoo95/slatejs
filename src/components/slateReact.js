@@ -158,7 +158,7 @@ const SlateReact = () => {
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
-			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex" || n.type == "check-list-item" || n.type == "dropdown-content" || n.type == "editable-void",
+			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex" || n.type == "check-list-item" || n.type == "dropdown-inner" || n.type == "editable-void",
 		});
 		let currentParent, currentDescendant, previousParent, voidCheck;
 
@@ -182,18 +182,23 @@ const SlateReact = () => {
 			Transforms.move(editor, { unit: "offset", distance: 1 });
 
 		}
-		// else if(currentParent && currentParent[0].type == "dropdown-content" && parentCheck){
-		//   let block1 = 
-		//   {
-		// 	  type: "paragraph",
-		// 	  children: [
-		// 		  {
-		// 			  text: "a",
-		// 		  },
-		// 	  ],
-		//   },
+		// else if (currentParent && currentParent[0].type == "dropdown-inner" && parentCheck) {
 
-		//   Transforms.insertNodes(editor,)
+
+		// 	// let block1 =
+		// 	// {
+		// 	// 	type: "paragraph",
+		// 	// 	children: [
+		// 	// 		{
+		// 	// 			id: currentParent[0].children.length + 1,
+		// 	// 			text: "",
+		// 	// 		},
+		// 	// 	],
+		// 	// }
+
+
+		// 	// Transforms.insertNodes(editor, block1);
+
 
 
 		// }
@@ -262,7 +267,9 @@ const SlateReact = () => {
 
 		const nodeText = Node.leaf(editor, editor.selection.anchor.path);
 
-		console.log(nodeText, "node text");
+		console.log(Editor.above(editor, {
+			match: n => n.type === 'numbered-list',
+		}), "node text");
 
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			deleteBackward(...args);
@@ -354,12 +361,14 @@ const SlateReact = () => {
 			const listItems = Editor.above(editor, {
 				match: n => n.type === 'dropdown-inner',
 			});
-			console.log(listItems, Editor.node(editor, editor.selection.anchor.path), "list items");
+			const parent = Editor.parent(editor, editor.selection.anchor.path);
+			console.log(Editor.path(editor, parent[1], { edge: 'start' }), parent, "parent check");
+
 			const string = Editor.string(editor, editor.selection.anchor.path);
 			if (listItemParent[0].checked) {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
 
-			} else if (listItems[0].children.length >= 1 && (!string || editor.selection.anchor.offset == 0)) {
+			} else if (parent[1][parent[1].length - 1] == 0 && (!string || editor.selection.anchor.offset == 0)) {
 				return;
 			} else {
 				deleteBackward(...args);
@@ -551,7 +560,7 @@ const SlateReact = () => {
 											type: "paragraph",
 											children: [
 												{
-													id: 0,
+													id: 1,
 													text: "",
 												},
 											],
