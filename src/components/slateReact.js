@@ -376,6 +376,8 @@ const SlateReact = () => {
 			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
 				// ReactEditor.focus(editor);
 				return;
+			} else {
+				deleteBackward(...args);
 			}
 
 		}
@@ -1427,20 +1429,6 @@ const DropDownList = ({ attributes, children, element }) => {
 
 
 
-
-
-		// let object = {
-
-
-		// 	type: "paragraph",
-		// 	children: [
-		// 		{
-		// 			text: "",
-		// 		},
-		// 	],
-		// };
-
-
 		let arraynow = [...nodes[0].children.filter((o) => {
 			return o.type == "dropdown-inner"
 
@@ -1495,7 +1483,7 @@ const DropDownList = ({ attributes, children, element }) => {
 				click me
 			</button>
 			{/* <div
-				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
+				
 
 				className="flex z-[1] justify-between relative h-full w-full">
 				<>
@@ -1516,7 +1504,7 @@ const DropDownList = ({ attributes, children, element }) => {
 
 			<table>
 				<tbody>
-					<tr>
+					<tr onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}>
 						{nodes[0].children.map((o, key) => {
 
 							if (o.type == "dropdown-inner") {
