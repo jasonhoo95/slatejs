@@ -232,6 +232,8 @@ const SlateReact = () => {
 		}
 	};
 
+
+
 	editor.deleteBackward = (...args) => {
 
 		let listItemParent;
@@ -357,22 +359,23 @@ const SlateReact = () => {
 			Transforms.select(editor, previousVoid[1]);
 
 
-		} else if (listItemParent[0].type == "dropdown-content") {
+		} else if (listItemParent && listItemParent[0].type == "dropdown-content") {
+
+
+
+
 			const listItems = Editor.above(editor, {
 				match: n => n.type === 'dropdown-inner',
 			});
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
 			console.log(Editor.path(editor, parent[1], { edge: 'start' }), parent, "parent check");
 
-			const string = Editor.string(editor, editor.selection.anchor.path);
 			if (listItemParent[0].checked) {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
 
-			} else if (parent[1][parent[1].length - 1] == 0 && (!string || editor.selection.anchor.offset == 0)) {
+			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
+				// ReactEditor.focus(editor);
 				return;
-			} else {
-				deleteBackward(...args);
-
 			}
 
 		}
@@ -835,7 +838,6 @@ const SlateReact = () => {
 
 
 					onKeyDown={(event) => {
-
 						const ua = navigator.userAgent
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
@@ -1146,9 +1148,10 @@ const InlineChromiumBugfix = ({ attributes, children, element }) => {
 const SpanTxt = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const focused = useFocused();
+	const ua = navigator.userAgent
 
 	return (
-		<div  {...attributes}>
+		<div contentEditable={!/android/i.test(ua) ? false : true} {...attributes}>
 			{children}
 		</div>
 
@@ -1392,12 +1395,12 @@ const DropdownInner = ({ attributes, children, element }) => {
 
 
 	return (
-		<div
+		<td
 			{...attributes}
 			className="dropdown-content h-full"
-			style={{ background: "red", border: '1px soild grey' }}>
+		>
 			{children}
-		</div>
+		</td>
 	);
 };
 
@@ -1491,8 +1494,7 @@ const DropDownList = ({ attributes, children, element }) => {
 				}}>
 				click me
 			</button>
-			<div
-				// contentEditable={checked && selected ? false : true}
+			{/* <div
 				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
 
 				className="flex z-[1] justify-between relative h-full w-full">
@@ -1510,7 +1512,24 @@ const DropDownList = ({ attributes, children, element }) => {
 				</>
 
 
-			</div>
+			</div> */}
+
+			<table>
+				<tbody>
+					<tr>
+						{nodes[0].children.map((o, key) => {
+
+							if (o.type == "dropdown-inner") {
+								return (
+									children[key]
+								)
+							}
+
+
+						})}
+					</tr>
+				</tbody>
+			</table>
 
 
 			{/* {checked && selected ? <div style={{ border: '1px solid grey' }} className="absolute z-[10] left-0 top-0 w-full h-full">
@@ -1626,6 +1645,8 @@ const EditableVoid = ({ attributes, children, element }) => {
 			style={{
 				border: checked || (selected && focused) ? "1px solid red" : "1px solid grey",
 				background: "green",
+				userSelect: "none",
+				pointerEvents: "none",
 				height: "100px",
 			}}
 			{...attributes}

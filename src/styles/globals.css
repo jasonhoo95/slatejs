@@ -79,6 +79,11 @@
 	z-index: 5;
 }
 
+td, th{
+	border: 1px solid #ddd;
+  padding: 8px;
+}
+
 
 .slite-line-break::after {
 	content: "";
