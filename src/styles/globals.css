@@ -87,8 +87,14 @@ td, th, .dropdown-content{
 
 
 .grid-container{
-	display: grid;
-	grid-template-columns: auto auto auto;
+	display: table;
+	border-collapse: separate;
+	border-spacing: 10px;
+	/* grid-template-columns: auto auto auto; */
+}
+
+.dropdown-content{
+	display: table-cell;
 }
 
 table{

@@ -1397,12 +1397,12 @@ const DropdownInner = ({ attributes, children, element }) => {
 
 
 	return (
-		<div
+		<span
 			{...attributes}
 			className="dropdown-content  mx-3"
 		>
 			{children}
-		</div>
+		</span>
 	);
 };
 
@@ -1483,7 +1483,7 @@ const DropDownList = ({ attributes, children, element }) => {
 			</button>
 			<div
 				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
-				className="flex grid-container">
+				className="grid-container">
 				<>
 					{nodes[0].children.map((o, key) => {
 
