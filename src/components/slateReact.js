@@ -1397,12 +1397,12 @@ const DropdownInner = ({ attributes, children, element }) => {
 
 
 	return (
-		<td
+		<div
 			{...attributes}
-			className="dropdown-content h-full"
+			className="dropdown-content  mx-3"
 		>
 			{children}
-		</td>
+		</div>
 	);
 };
 
@@ -1470,8 +1470,7 @@ const DropDownList = ({ attributes, children, element }) => {
 			{...attributes}
 			className="relative p-[10px]"
 			style={{ background: (checked || selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
-			<div
-			>
+			<div>
 				{children[0]}
 
 			</div>
@@ -1482,10 +1481,9 @@ const DropDownList = ({ attributes, children, element }) => {
 				}}>
 				click me
 			</button>
-			{/* <div
-				
-
-				className="flex z-[1] justify-between relative h-full w-full">
+			<div
+				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
+				className="flex grid-container">
 				<>
 					{nodes[0].children.map((o, key) => {
 
@@ -1500,9 +1498,9 @@ const DropDownList = ({ attributes, children, element }) => {
 				</>
 
 
-			</div> */}
+			</div>
 
-			<table>
+			{/* <table>
 				<tbody>
 					<tr onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}>
 						{nodes[0].children.map((o, key) => {
@@ -1517,7 +1515,7 @@ const DropDownList = ({ attributes, children, element }) => {
 						})}
 					</tr>
 				</tbody>
-			</table>
+			</table> */}
 
 
 			{/* {checked && selected ? <div style={{ border: '1px solid grey' }} className="absolute z-[10] left-0 top-0 w-full h-full">

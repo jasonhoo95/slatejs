@@ -79,10 +79,23 @@
 	z-index: 5;
 }
 
-td, th{
+td, th, .dropdown-content{
 	border: 1px solid #ddd;
+	width: 90px;
   padding: 8px;
 }
+
+
+.grid-container{
+	display: grid;
+	grid-template-columns: auto auto auto;
+}
+
+table{
+	border-collapse: separate;
+	border-spacing: 20px 0;
+}
+
 
 
 .slite-line-break::after {
