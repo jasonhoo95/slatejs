@@ -382,7 +382,6 @@ const SlateReact = () => {
 
 		}
 		else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
-
 			Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
 			Transforms.move(editor, { offset: 1, reverse: true });
 
@@ -482,7 +481,7 @@ const SlateReact = () => {
 	const onBlur = useCallback((e) => {
 		setFocus(false);
 
-
+		console.log("blur");
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
 
@@ -1543,12 +1542,11 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 
 	const [inputValue, setInputValue] = useState('');
-
+	console.log(card, children, "card now main");
 
 	if (checked && undo) {
 
 
-		Transforms.select(editor, path);
 		// Transforms.setSelection(editor, leafNode);
 
 		undo = false
@@ -1564,6 +1562,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		cardObj.id = card.length;
 		cardnow = [...card, cardObj];
 
+		console.log(cardnow, "add card now");
 		setObj(cardnow);
 		Transforms.setNodes(editor, { card: cardnow }, { at: path });
 	};
@@ -1572,7 +1571,8 @@ const EditableVoid = ({ attributes, children, element }) => {
 		let cardnow = [...card];
 		var index = _.findIndex(cardnow, { id: key });
 		cardnow.splice(index, 1, { card: text, id: key, check: true });
-
+		console.log(cardnow, "card now");
+		setObj(cardnow);
 		Transforms.setNodes(editor, { card: cardnow }, { at: path });
 
 	};
@@ -1631,21 +1631,24 @@ const EditableVoid = ({ attributes, children, element }) => {
 			style={{
 				border: checked || (selected && focused) ? "1px solid red" : "1px solid grey",
 				background: "green",
-				userSelect: "none",
-				pointerEvents: "none",
 				height: "100px",
 			}}
 			{...attributes}
 
 		>
+
 			{children}
 
-			<div contentEditable="false">
-				<button
+
+
+			<div >
+				<button contentEditable="false"
+					style={{ cursor: 'pointer' }}
 					onClick={(e) => {
 						addCard();
 					}}>
-					click here
+					click here123
+
 				</button>
 				<EditablePopup
 					open={open}
@@ -1654,14 +1657,14 @@ const EditableVoid = ({ attributes, children, element }) => {
 					path={path}
 					editor={editor}
 				/>
-				<div className="flex">
+				<div className="flex" contentEditable="false">
 					{card?.map((o, key) => {
 						return (
 							<div
 								className="mx-3"
 								onClick={(e) => {
 									// setModal(key, card, true);
-									setCheckValidate(key, card, false)
+									// setCheckValidate(key, card, false)
 									// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex", key, card);
 
 								}}
