@@ -178,6 +178,7 @@ const SlateReact = () => {
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
 		} else if (currentParent && ['editable-void'].includes(currentParent[0].type)) {
+			Transforms.setNodes(editor, { checked: false }, { at: currentParent[1] });
 
 			Transforms.move(editor, { unit: "offset", distance: 1 });
 
@@ -381,9 +382,9 @@ const SlateReact = () => {
 			}
 
 		}
-		else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+		else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 			Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
-			Transforms.move(editor, { offset: 1, reverse: true });
+			Transforms.select(editor, previousVoid[1]);
 
 		}
 
@@ -481,7 +482,7 @@ const SlateReact = () => {
 	const onBlur = useCallback((e) => {
 		setFocus(false);
 
-		console.log("blur");
+
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
 
@@ -1544,18 +1545,18 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const [inputValue, setInputValue] = useState('');
 	console.log(card, children, "card now main");
 
-	if (checked && undo) {
+	// if (checked && undo) {
 
 
-		// Transforms.setSelection(editor, leafNode);
+	// 	// Transforms.setSelection(editor, leafNode);
 
-		undo = false
-	} else if (!selected && checked) {
+	// 	undo = false
+	// } else if (!selected && checked) {
 
 
-		Transforms.setNodes(editor, { checked: false }, { at: path })
-		undo = false;
-	}
+	// 	Transforms.setNodes(editor, { checked: false }, { at: path })
+	// 	undo = false;
+	// }
 
 	const addCard = () => {
 		let cardObj = { card: card.length + 1, id: 0, check: false };
@@ -1628,8 +1629,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
+			onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
 			style={{
-				border: checked || (selected && focused) ? "1px solid red" : "1px solid grey",
+				border: checked && selected ? "1px solid red" : "1px solid grey",
 				background: "green",
 				height: "100px",
 			}}
@@ -1637,12 +1639,16 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		>
 
-			{children}
 
 
 
-			<div >
-				<button contentEditable="false"
+
+
+			<div contentEditable="false">
+
+
+
+				<button
 					style={{ cursor: 'pointer' }}
 					onClick={(e) => {
 						addCard();
@@ -1657,7 +1663,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					path={path}
 					editor={editor}
 				/>
-				<div className="flex" contentEditable="false">
+				<div className="flex">
 					{card?.map((o, key) => {
 						return (
 							<div
@@ -1671,7 +1677,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 								style={{ height: "100%", width: "100%", background: "red" }}
 								key={key}>
 
-								<textarea className="w-full h-[100px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
+								<input className="w-full h-[30px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
 									onChange={(e) => {
 										setInputValue({ id: key, txt: e.target.value });
 										checkInput(e.target.value, key, card);
@@ -1686,7 +1692,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 									}}
-									type="text"></textarea>
+									type="text"></input>
 
 
 
@@ -1698,6 +1704,11 @@ const EditableVoid = ({ attributes, children, element }) => {
 						);
 					})}
 				</div>
+			</div>
+
+			<div>
+				{children}
+
 			</div>
 		</div>
 	);
