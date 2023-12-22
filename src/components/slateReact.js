@@ -1425,6 +1425,8 @@ const DropDownList = ({ attributes, children, element }) => {
 
 
 	const addMore = () => {
+
+		ReactEditor.focus(editor);
 		const path = ReactEditor.findPath(editor, element);
 
 
@@ -1468,7 +1470,7 @@ const DropDownList = ({ attributes, children, element }) => {
 	return (
 		<div
 			{...attributes}
-			className="relative p-[10px]"
+			className="relative p-[10px] w-[300px]"
 			style={{ background: (checked || selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
 			<div>
 				{children[0]}
@@ -1484,18 +1486,16 @@ const DropDownList = ({ attributes, children, element }) => {
 			<div
 				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
 				className="grid-container">
-				<>
-					{nodes[0].children.map((o, key) => {
+				{nodes[0].children.map((o, key) => {
 
-						if (o.type == "dropdown-inner") {
-							return (
-								children[key]
-							)
-						}
+					if (o.type == "dropdown-inner") {
+						return (
+							children[key]
+						)
+					}
 
 
-					})}
-				</>
+				})}
 
 
 			</div>
