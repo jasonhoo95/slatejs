@@ -374,10 +374,12 @@ const SlateReact = () => {
 			if (listItemParent[0].checked) {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
 
-			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
-				// ReactEditor.focus(editor);
-				return;
-			} else {
+			}
+			//  else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
+			// 	// ReactEditor.focus(editor);
+			// 	return;
+			// }
+			else {
 				deleteBackward(...args);
 			}
 
