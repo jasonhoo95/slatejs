@@ -369,11 +369,13 @@ const SlateReact = () => {
 				match: n => n.type === 'dropdown-inner',
 			});
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
-			console.log(Editor.path(editor, parent[1], { edge: 'start' }), parent, "parent check");
+			console.log(listItems, "parent check");
 
 			if (listItemParent[0].checked) {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
 
+			} else if (listItems[1][listItems[1].length - 1] == 1) {
+				return;
 			}
 			//  else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
 			// 	// ReactEditor.focus(editor);
