@@ -1542,12 +1542,13 @@ const DropDownList = ({ attributes, children, element }) => {
 
 
 const TableList = ({ attributes, children, element }) => {
-
+	const selected = useSelected();
+	const focused = useFocused();
 
 	return (
 		<>
 			{children}
-			<table {...attributes} contentEditable="false">
+			<table style={{ background: selected ? 'blue' : '' }} {...attributes} contentEditable="false">
 
 				<tr>
 					<td>
