@@ -101,8 +101,8 @@ td, th, .dropdown-content{
 }
 
 table{
-	border-collapse: separate;
-	border-spacing: 20px 0;
+	border-collapse: collapse;
+	/* border-spacing: 20px 0; */
 }
 
 

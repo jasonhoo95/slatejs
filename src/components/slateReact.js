@@ -10,9 +10,8 @@ import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateEle
 import { withHistory, HistoryEditor, History } from "slate-history";
 import { useModalStore } from "@/globals/zustandGlobal";
 import EditablePopup from "./editablePopup";
-import _, { keyBy } from "lodash";
-import next from "next";
-import { Transform } from "stream";
+import HoveringMenuExample from "./hovering-toolbar";
+
 const HOTKEYS = {
 	"mod+b": "bold",
 	"mod+i": "italic",
@@ -374,13 +373,14 @@ const SlateReact = () => {
 			if (listItemParent[0].checked) {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
 
-			} else if (listItems[1][listItems[1].length - 1] == 1 && parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
-				return;
+				// } else if (listItems[1][listItems[1].length - 1] == 1 && parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
+				// 	return;
+				// }
+			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
+				// ReactEditor.focus(editor);
+
+				return false;
 			}
-			//  else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
-			// 	// ReactEditor.focus(editor);
-			// 	return;
-			// }
 			else {
 				deleteBackward(...args);
 			}
@@ -770,21 +770,25 @@ const SlateReact = () => {
 					insert katex
 				</div>
 
+
+				<div onClick={(e) => {
+					ReactEditor.focus(editor);
+					const block = {
+						type: "table-list",
+						children: [{ text: '' }],
+					};
+					Transforms.insertNodes(editor, block)
+
+
+				}}>
+					insert table
+				</div>
+
 				<BlockButton
 					format="url-link"
 					icon="format_list_item"
 				/>
-				{/* <BlockButton
-					format="numbered-list"
-					icon="format_list_item"
-				/>
 
-				<BlockButton
-					icon="format_list_item"
-					format="katex-link"
-				/>
-
-			 */}
 
 
 				{/*
@@ -1045,7 +1049,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void", "span-txt"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void", "span-txt", "table-list"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1401,12 +1405,13 @@ const DropdownInner = ({ attributes, children, element }) => {
 
 
 	return (
-		<span
+		<td
 			{...attributes}
 			className="dropdown-content  mx-3"
 		>
 			{children}
-		</span>
+			<HoveringMenuExample />
+		</td>
 	);
 };
 
@@ -1487,7 +1492,7 @@ const DropDownList = ({ attributes, children, element }) => {
 				}}>
 				click me
 			</button>
-			<div
+			{/* <div
 				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
 				className="grid-container">
 				{nodes[0].children.map((o, key) => {
@@ -1502,9 +1507,9 @@ const DropDownList = ({ attributes, children, element }) => {
 				})}
 
 
-			</div>
+			</div> */}
 
-			{/* <table>
+			<table>
 				<tbody>
 					<tr onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}>
 						{nodes[0].children.map((o, key) => {
@@ -1519,7 +1524,7 @@ const DropDownList = ({ attributes, children, element }) => {
 						})}
 					</tr>
 				</tbody>
-			</table> */}
+			</table>
 
 
 			{/* {checked && selected ? <div style={{ border: '1px solid grey' }} className="absolute z-[10] left-0 top-0 w-full h-full">
@@ -1534,6 +1539,37 @@ const DropDownList = ({ attributes, children, element }) => {
 		</div>
 	);
 };
+
+
+const TableList = ({ attributes, children, element }) => {
+
+
+	return (
+		<>
+			{children}
+			<table {...attributes} contentEditable="false">
+
+				<tr>
+					<td>
+						<HoveringMenuExample />
+					</td>
+					<td>
+						<HoveringMenuExample />
+					</td>
+					<td>
+						<HoveringMenuExample />
+					</td>
+				</tr>
+
+			</table>
+			{children}
+
+		</>
+
+	)
+
+
+}
 
 const EditableVoid = ({ attributes, children, element }) => {
 	const editor = useSlate();
@@ -1683,6 +1719,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 								<input className="w-full h-[30px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
 									onChange={(e) => {
+										e.preventDefault();
 										setInputValue({ id: key, txt: e.target.value });
 										checkInput(e.target.value, key, card);
 
@@ -1930,6 +1967,8 @@ const Element = (props) => {
 			return <CheckListItemElement {...props} />;
 		case "dropdown-content":
 			return <DropDownList {...props} />;
+		case "table-list":
+			return <TableList {...props} />;
 		case "heading-one":
 			return <Heading1Component {...props}></Heading1Component>;
 		case "span-txt":
