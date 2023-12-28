@@ -40,7 +40,7 @@ const HoveringMenuExample = ({ callback, focus, editor1, children, setFocusCallb
             window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
           }}
           onKeyDown={e => {
-            if (editor.selection.anchor.offset == 0) {
+            if (editor.selection.anchor.offset == 0 && (event.key == "ArrowLeft" || event.key == "ArrowRight")) {
               ReactEditor.blur(editor);
               callback(editor.selection.anchor)
               console.log(editor.selection, "change anchor1");
