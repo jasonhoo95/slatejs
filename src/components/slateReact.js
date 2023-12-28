@@ -368,19 +368,21 @@ const SlateReact = () => {
 				match: n => n.type === 'dropdown-inner',
 			});
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
-			console.log(listItems, "parent check");
+
 
 			if (listItemParent[0].checked) {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
 
-				// } else if (listItems[1][listItems[1].length - 1] == 1 && parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
-				// 	return;
-				// }
-			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
-				// ReactEditor.focus(editor);
 
-				return false;
+
+			} else if (listItems[1][listItems[1].length - 1] == 1 && parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
+				return;
 			}
+			//  else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
+			// 	// ReactEditor.focus(editor);
+
+			// 	return false;
+			// }
 			else {
 				deleteBackward(...args);
 			}
@@ -509,6 +511,7 @@ const SlateReact = () => {
 
 						const string = Node.get(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
+
 
 
 						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
@@ -775,6 +778,7 @@ const SlateReact = () => {
 					ReactEditor.focus(editor);
 					const block = {
 						type: "table-list",
+						card: [1, 2, 3, 4],
 						children: [{ text: '' }],
 					};
 					Transforms.insertNodes(editor, block)
@@ -1410,7 +1414,6 @@ const DropdownInner = ({ attributes, children, element }) => {
 			className="dropdown-content  mx-3"
 		>
 			{children}
-			<HoveringMenuExample />
 		</td>
 	);
 };
@@ -1492,7 +1495,7 @@ const DropDownList = ({ attributes, children, element }) => {
 				}}>
 				click me
 			</button>
-			{/* <div
+			<div
 				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
 				className="grid-container">
 				{nodes[0].children.map((o, key) => {
@@ -1507,9 +1510,9 @@ const DropDownList = ({ attributes, children, element }) => {
 				})}
 
 
-			</div> */}
+			</div>
 
-			<table>
+			{/* <table>
 				<tbody>
 					<tr onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}>
 						{nodes[0].children.map((o, key) => {
@@ -1524,7 +1527,7 @@ const DropDownList = ({ attributes, children, element }) => {
 						})}
 					</tr>
 				</tbody>
-			</table>
+			</table> */}
 
 
 			{/* {checked && selected ? <div style={{ border: '1px solid grey' }} className="absolute z-[10] left-0 top-0 w-full h-full">
@@ -1544,23 +1547,49 @@ const DropDownList = ({ attributes, children, element }) => {
 const TableList = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const focused = useFocused();
+	const { card } = element;
+	const editor = useSlate();
 
+	const [change, setChange] = useState();
+
+
+	const onCallback = (change) => {
+		setChange(change)
+	}
+
+
+	useEffect(() => {
+
+
+
+		if (change && change.offset == 0) {
+			console.log(editor.selection.anchor.path, "change table list");
+		}
+
+
+
+	}, [change])
 	return (
 		<>
 			{children}
 			<table style={{ background: selected ? 'blue' : '' }} {...attributes} contentEditable="false">
 
 				<tr>
-					<td>
-						<HoveringMenuExample />
-					</td>
-					<td>
-						<HoveringMenuExample />
-					</td>
-					<td>
-						<HoveringMenuExample />
-					</td>
+					{card.map((o, key) => {
+						return (
+							<td key={key}>
+								<HoveringMenuExample key={key} callback={onCallback} />
+							</td>
+						)
+
+
+					})}
+
+
+
 				</tr>
+
+
 
 			</table>
 			{children}
@@ -1584,7 +1613,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 
 	const [inputValue, setInputValue] = useState('');
-	console.log(card, children, "card now main");
+
 
 	// if (checked && undo) {
 
@@ -1604,7 +1633,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		cardObj.id = card.length;
 		cardnow = [...card, cardObj];
 
-		console.log(cardnow, "add card now");
+
 		setObj(cardnow);
 		Transforms.setNodes(editor, { card: cardnow }, { at: path });
 	};
@@ -1613,7 +1642,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		let cardnow = [...card];
 		var index = _.findIndex(cardnow, { id: key });
 		cardnow.splice(index, 1, { card: text, id: key, check: true });
-		console.log(cardnow, "card now");
+
 		setObj(cardnow);
 		Transforms.setNodes(editor, { card: cardnow }, { at: path });
 

@@ -12,15 +12,20 @@ import { css } from '@emotion/css'
 import { withHistory } from 'slate-history'
 
 
-const HoveringMenuExample = () => {
+const HoveringMenuExample = ({callback}) => {
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
 
   return (
-    <Slate editor={editor} initialValue={initialValue}>
+    <Slate   onChange={(value) =>{
+        console.log(editor.selection.anchor,"change anchor");
+        callback(editor.selection.anchor)
+
+      }} editor={editor} initialValue={initialValue}>
       <HoveringToolbar />
       <Editable
         renderLeaf={props => <Leaf {...props} />}
         placeholder="Enter some text..."
+      
         onDOMBeforeInput={(event: InputEvent) => {
           switch (event.inputType) {
             case 'formatBold':
