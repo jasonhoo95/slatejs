@@ -12,21 +12,24 @@ import { css } from '@emotion/css'
 import { withHistory } from 'slate-history'
 
 
-const HoveringMenuExample = ({callback}) => {
+const HoveringMenuExample = ({ callback }) => {
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
-
   return (
-    <Slate   onChange={(value) =>{
-        console.log(editor.selection.anchor,"change anchor");
-        callback(editor.selection.anchor)
+    <Slate onChange={(value) => {
+      console.log(editor.selection.anchor, "change anchor");
+      callback(editor.selection.anchor)
 
-      }} editor={editor} initialValue={initialValue}>
+    }} editor={editor} initialValue={initialValue}>
       <HoveringToolbar />
       <Editable
+
         renderLeaf={props => <Leaf {...props} />}
         placeholder="Enter some text..."
-      
-        onDOMBeforeInput={(event: InputEvent) => {
+        onFocus={e => {
+          window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
+
+        }}
+        onDOMBeforeInput={(event) => {
           switch (event.inputType) {
             case 'formatBold':
               event.preventDefault()
@@ -76,7 +79,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 }
 
 const HoveringToolbar = () => {
-  const ref = useRef<HTMLDivElement | null>()
+  const ref = useRef()
   const editor = useSlate()
   const inFocus = useFocused()
 
@@ -103,15 +106,14 @@ const HoveringToolbar = () => {
     const rect = domRange.getBoundingClientRect()
     el.style.opacity = '1'
     el.style.top = `${rect.top + window.pageYOffset - el.offsetHeight}px`
-    el.style.left = `${
-      rect.left + window.pageXOffset - el.offsetWidth / 2 + rect.width / 2
-    }px`
+    el.style.left = `${rect.left + window.pageXOffset - el.offsetWidth / 2 + rect.width / 2
+      }px`
   })
 
   return (
-      <div
-        ref={ref}
-        className={css`
+    <div
+      ref={ref}
+      className={css`
           padding: 8px 7px 6px;
           position: absolute;
           z-index: 1;
@@ -123,15 +125,15 @@ const HoveringToolbar = () => {
           border-radius: 4px;
           transition: opacity 0.75s;
         `}
-        onMouseDown={e => {
-          // prevent toolbar from taking focus away from editor
-          e.preventDefault()
-        }}
-      >
-        <FormatButton format="bold" icon="format_bold" />
-        <FormatButton format="italic" icon="format_italic" />
-        <FormatButton format="underlined" icon="format_underlined" />
-      </div>
+      onMouseDown={e => {
+        // prevent toolbar from taking focus away from editor
+        e.preventDefault()
+      }}
+    >
+      <FormatButton format="bold" icon="format_bold" />
+      <FormatButton format="italic" icon="format_italic" />
+      <FormatButton format="underlined" icon="format_underlined" />
+    </div>
   )
 }
 
@@ -153,7 +155,7 @@ const initialValue = [
       {
         text: 'asd',
       },
-    
+
     ],
   },
 
