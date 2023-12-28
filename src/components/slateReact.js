@@ -775,11 +775,10 @@ const SlateReact = () => {
 
 
 				<div onClick={(e) => {
-					ReactEditor.focus(editor);
 					const block = {
 						type: "table-list",
-						card: [1, 2, 3, 4],
-						children: [{ text: '' }],
+						card: [],
+						children: [{ type: 'table-cell', children: [{ id: 0, text: '' }] }, { type: 'table-cell', children: [{ id: 1, text: '' }] }],
 					};
 					Transforms.insertNodes(editor, block)
 
@@ -1053,7 +1052,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void", "span-txt", "table-list"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void", "span-txt"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1548,38 +1547,16 @@ const TableList = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const focused = useFocused();
 	const { card } = element;
-	const editor = useSlate();
 
-	const [change, setChange] = useState();
-
-
-	const onCallback = (change) => {
-		setChange(change)
-	}
-
-
-	useEffect(() => {
-
-
-
-		if (change && change.offset == 0) {
-			console.log(editor.selection.anchor.path, "change table list");
-		}
-
-
-
-	}, [change])
 	return (
 		<>
-			{children}
-			<table style={{ background: selected ? 'blue' : '' }} {...attributes} contentEditable="false">
+			<table  {...attributes} contentEditable="false">
 
 				<tr>
-					{card.map((o, key) => {
+					{children.map((o, key) => {
 						return (
-							<td key={key}>
-								<HoveringMenuExample key={key} callback={onCallback} />
-							</td>
+							children[key]
+
 						)
 
 
@@ -1592,7 +1569,6 @@ const TableList = ({ attributes, children, element }) => {
 
 
 			</table>
-			{children}
 
 		</>
 
@@ -1792,6 +1768,51 @@ const isMarkActive = (editor, format) => {
 
 const removeFormats = (editor, format) => {
 	Editor.removeMark(editor, format);
+};
+
+const CellElement = ({ attributes, children, element }) => {
+	const editor = useSlate();
+	const selected = useSelected();
+	const focused = useFocused();
+
+	const [change, setChange] = useState();
+	const [focus, setFocus] = useState(false);
+	let id = element.children[0].id;
+	console.log(editor.selection, id, "children12");
+	const onCallback = (change) => {
+		setChange(change)
+	}
+
+
+	useEffect(() => {
+		console.log(editor.selection, "selection now");
+		// Transforms.select(editor, [editor.selection.anchor.path[0], element.children[0].id])
+		if (selected && change && change.offset == 0) {
+			console.log(change, "change now");
+			const previous = Editor.previous(editor, { at: editor.selection.anchor.path, match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "table-cell" });
+			console.log(editor.selection, "selected");
+			if (previous) {
+				const start = Editor.start(editor, previous[1]);
+				const end = Editor.end(editor, previous[1]);
+				console.log(previous, start, end, "previous 1");
+				ReactEditor.focus(editor);
+				Transforms.setSelection(editor, { anchor: start, focus: end });
+			}
+
+
+
+			// setFocus(true)
+			// Transforms.select(editor, [0, 0]);
+
+		}
+
+
+
+	}, [change])
+	return <td onClick={e => { setFocus(true); Transforms.select(editor, [editor.selection.anchor.path[0], id, 0]) }} style={{ background: selected ? 'blue' : '' }} {...attributes}>
+		<span style={{ display: 'none' }}>{children}</span>
+		<HoveringMenuExample focus={selected} setFocusCallback={setFocus} editor1={editor} callback={onCallback} />
+	</td>;
 };
 
 const Heading1Component = ({ attributes, children, element }) => {
@@ -1999,6 +2020,8 @@ const Element = (props) => {
 			return <DropDownList {...props} />;
 		case "table-list":
 			return <TableList {...props} />;
+		case "table-cell":
+			return <CellElement {...props} />
 		case "heading-one":
 			return <Heading1Component {...props}></Heading1Component>;
 		case "span-txt":

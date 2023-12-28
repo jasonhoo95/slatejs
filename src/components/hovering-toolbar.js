@@ -1,5 +1,5 @@
-import React, { useMemo, useRef, useEffect } from 'react'
-import { Slate, Editable, withReact, useSlate, useFocused } from 'slate-react'
+import React, { useMemo, useState, useRef, useEffect } from 'react'
+import { Slate, Editable, withReact, useSlate, useFocused, ReactEditor } from 'slate-react'
 import {
   Editor,
   Transforms,
@@ -12,38 +12,63 @@ import { css } from '@emotion/css'
 import { withHistory } from 'slate-history'
 
 
-const HoveringMenuExample = ({ callback }) => {
+const HoveringMenuExample = ({ callback, focus, editor1, children, setFocusCallback }) => {
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
+  // const [focusnow, setFocus] = useState(false);
+  useEffect(() => {
+    if (focus) {
+      ReactEditor.focus(editor);
+      Transforms.select(editor, { path: [0, 0], offset: 1 })
+    }
+    console.log("focus now", focus);
+
+
+  }, [focus])
+  let focusnow;
   return (
-    <Slate onChange={(value) => {
-      console.log(editor.selection.anchor, "change anchor");
-      callback(editor.selection.anchor)
+    <>
+      {children}
 
-    }} editor={editor} initialValue={initialValue}>
-      <HoveringToolbar />
-      <Editable
+      <Slate editor={editor} initialValue={initialValue}>
+        <HoveringToolbar />
+        <Editable
+          style={{ padding: '8px' }}
+          renderLeaf={props => <Leaf {...props} />}
+          placeholder="Enter some text..."
+          onFocus={e => {
 
-        renderLeaf={props => <Leaf {...props} />}
-        placeholder="Enter some text..."
-        onFocus={e => {
-          window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
+            window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
+          }}
+          onKeyDown={e => {
+            if (editor.selection.anchor.offset == 0) {
+              ReactEditor.blur(editor);
+              callback(editor.selection.anchor)
+              console.log(editor.selection, "change anchor1");
 
-        }}
-        onDOMBeforeInput={(event) => {
-          switch (event.inputType) {
-            case 'formatBold':
-              event.preventDefault()
-              return toggleMark(editor, 'bold')
-            case 'formatItalic':
-              event.preventDefault()
-              return toggleMark(editor, 'italic')
-            case 'formatUnderline':
-              event.preventDefault()
-              return toggleMark(editor, 'underlined')
-          }
-        }}
-      />
-    </Slate>
+            }
+
+          }}
+
+          onBlur={e => {
+            setFocusCallback(false)
+          }}
+          onDOMBeforeInput={(event) => {
+            switch (event.inputType) {
+              case 'formatBold':
+                event.preventDefault()
+                return toggleMark(editor, 'bold')
+              case 'formatItalic':
+                event.preventDefault()
+                return toggleMark(editor, 'italic')
+              case 'formatUnderline':
+                event.preventDefault()
+                return toggleMark(editor, 'underlined')
+            }
+          }}
+        />
+
+      </Slate>
+    </>
   )
 }
 
