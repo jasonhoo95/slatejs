@@ -12,21 +12,21 @@ import { css } from '@emotion/css'
 import { withHistory } from 'slate-history'
 
 
-const HoveringMenuExample = ({ callback, focus, click, children, setFocusCallback }) => {
+const HoveringMenuExample = ({ callback, focus, click, id, setFocusCallback }) => {
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
-  // const [focusnow, setFocus] = useState(false);
+  const [clickKey, setClick] = useState(click);
   useEffect(() => {
-    if (focus) {
+    console.log(click, "click key")
+    if (click) {
       ReactEditor.focus(editor);
+
       Transforms.select(editor, { path: [0, 0], offset: 0 })
     }
-    console.log("focus now", focus);
 
 
-  }, [focus])
+  }, [click])
   return (
     <>
-      {children}
 
       <Slate editor={editor} initialValue={initialValue}>
         <HoveringToolbar />
@@ -38,9 +38,9 @@ const HoveringMenuExample = ({ callback, focus, click, children, setFocusCallbac
             window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
           }}
           onKeyDown={e => {
-            if (editor.selection.anchor.offset == 0 && (event.key == "ArrowLeft" || event.key == "ArrowRight")) {
+            if (editor.selection.anchor.offset == 0 && (event.key == "ArrowLeft")) {
               ReactEditor.blur(editor);
-              callback(editor.selection.anchor)
+              callback(editor.selection.anchor, id)
               console.log(editor.selection, "change anchor1");
 
             }
@@ -48,7 +48,7 @@ const HoveringMenuExample = ({ callback, focus, click, children, setFocusCallbac
           }}
 
           onBlur={e => {
-            setFocusCallback(false)
+            setClick(false);
           }}
           onDOMBeforeInput={(event) => {
             switch (event.inputType) {

@@ -777,8 +777,8 @@ const SlateReact = () => {
 				<div onClick={(e) => {
 					const block = {
 						type: "table-list",
-						card: [],
-						children: [{ type: 'table-cell', children: [{ id: 0, text: '' }] }, { type: 'table-cell', children: [{ id: 1, text: '' }] }],
+						card: [{ type: 'table-cell', id: 0, selected: false }, { type: 'table-cell', id: 1, selected: false }],
+						children: [{ text: '' }]
 					};
 					Transforms.insertNodes(editor, block)
 
@@ -1052,7 +1052,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void", "span-txt"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void", "span-txt", "table-list"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1546,16 +1546,40 @@ const DropDownList = ({ attributes, children, element }) => {
 const TableList = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const focused = useFocused();
+	const editor = useSlate();
 	const { card } = element;
+	const path = ReactEditor.findPath(editor, element);
+	const [selectArray, setArray] = useState([false, false]);
 
+	const arrayCheck = (check, id) => {
+		let arraynow;
+		if (check) {
+			arraynow = selectArray.map((o, key) => {
+				if (key == id && check) {
+					console.log("check id", id, key)
+					return o = true;
+				} else {
+					console.log("not check id", o, id)
+					return o = false;
+				}
+
+			})
+		} else {
+			arraynow = [false, false];
+		}
+		setArray(arraynow);
+
+		console.log(arraynow, check, id, "select array");
+
+	}
 	return (
 		<>
 			<table  {...attributes} contentEditable="false">
 
 				<tr>
-					{children.map((o, key) => {
+					{card.map((o, key) => {
 						return (
-							children[key]
+							<CellElement setCallback={arrayCheck} select={selectArray[key]} path={path} card={card} data={o} key={key} />
 
 						)
 
@@ -1569,7 +1593,7 @@ const TableList = ({ attributes, children, element }) => {
 
 
 			</table>
-
+			{children}
 		</>
 
 	)
@@ -1770,48 +1794,45 @@ const removeFormats = (editor, format) => {
 	Editor.removeMark(editor, format);
 };
 
-const CellElement = ({ attributes, children, element }) => {
+const CellElement = ({ data, card, path, select, setCallback }) => {
 	const editor = useSlate();
-	const selected = useSelected();
-	const focused = useFocused();
 
-	const [change, setChange] = useState();
-	const [focus, setFocus] = useState(false);
-	let id = element.children[0].id;
-	console.log(editor.selection, id, "children12");
-	const onCallback = (change) => {
-		setChange(change)
+	let cardnow = [...card];
+	const [change, setChange] = useState(select);
+	const [focus, setFocus] = useState(true);
+	let id = data.id;
+
+	const setCard = () => {
+		// let cardmap = cardnow.map((o) => {
+		// 	return { ...o, selected: false };
+
+		// })
+		// Transforms.setNodes(editor, { card: cardmap }, { at: path });
+		setCallback(false)
+
+	}
+	const onCallback = (change, id) => {
+		if (change && change.offset == 0) {
+
+
+			// var index = _.findIndex(cardnow, { id: id - 1 });
+			// cardnow.splice(index, 1, { type: 'table-cell', id: id - 1, selected: true, text: '123' });
+			// console.log(cardnow, "card check");
+
+			// Transforms.setNodes(editor, { card: cardnow }, { at: path });
+			setCallback(true, id - 1)
+
+		}
 	}
 
 
-	useEffect(() => {
-		console.log(editor.selection, "selection now");
-		// Transforms.select(editor, [editor.selection.anchor.path[0], element.children[0].id])
-		if (selected && change && change.offset == 0) {
-			console.log(change, "change now");
-			const previous = Editor.previous(editor, { at: editor.selection.anchor.path, match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == "table-cell" });
-			console.log(editor.selection, "selected");
-			if (previous) {
-				const start = Editor.start(editor, previous[1]);
-				const end = Editor.end(editor, previous[1]);
-				console.log(previous, start, end, "previous 1");
-				ReactEditor.focus(editor);
-				Transforms.setSelection(editor, { anchor: start, focus: end });
-			}
-
-
-
-			// setFocus(true)
-			// Transforms.select(editor, [0, 0]);
-
-		}
-
-
-
-	}, [change])
-	return <td onClick={e => { setFocus(true); Transforms.select(editor, [editor.selection.anchor.path[0], id, 0]) }} style={{ background: selected ? 'blue' : '' }} {...attributes}>
-		<span style={{ display: 'none' }}>{children}</span>
-		<HoveringMenuExample focus={selected} click={focus} setFocusCallback={setFocus} editor1={editor} callback={onCallback} />
+	return <td
+		onClick={e => {
+			setCard()
+		}}
+	>
+		{data.text}
+		<HoveringMenuExample click={select} setFocusCallback={setFocus} id={id} callback={onCallback} />
 	</td>;
 };
 
