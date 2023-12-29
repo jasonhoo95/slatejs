@@ -12,19 +12,18 @@ import { css } from '@emotion/css'
 import { withHistory } from 'slate-history'
 
 
-const HoveringMenuExample = ({ callback, focus, editor1, children, setFocusCallback }) => {
+const HoveringMenuExample = ({ callback, focus, click, children, setFocusCallback }) => {
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
   // const [focusnow, setFocus] = useState(false);
   useEffect(() => {
-    if (focus) {
+    if (focus && !click) {
       ReactEditor.focus(editor);
-      Transforms.select(editor, { path: [0, 0], offset: 1 })
+      Transforms.select(editor, { path: [0, 0], offset: 0 })
     }
     console.log("focus now", focus);
 
 
-  }, [focus])
-  let focusnow;
+  }, [focus, click])
   return (
     <>
       {children}
@@ -36,7 +35,6 @@ const HoveringMenuExample = ({ callback, focus, editor1, children, setFocusCallb
           renderLeaf={props => <Leaf {...props} />}
           placeholder="Enter some text..."
           onFocus={e => {
-
             window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
           }}
           onKeyDown={e => {

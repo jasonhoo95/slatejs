@@ -1811,7 +1811,7 @@ const CellElement = ({ attributes, children, element }) => {
 	}, [change])
 	return <td onClick={e => { setFocus(true); Transforms.select(editor, [editor.selection.anchor.path[0], id, 0]) }} style={{ background: selected ? 'blue' : '' }} {...attributes}>
 		<span style={{ display: 'none' }}>{children}</span>
-		<HoveringMenuExample focus={selected} setFocusCallback={setFocus} editor1={editor} callback={onCallback} />
+		<HoveringMenuExample focus={selected} click={focus} setFocusCallback={setFocus} editor1={editor} callback={onCallback} />
 	</td>;
 };
 
