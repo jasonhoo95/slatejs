@@ -16,14 +16,14 @@ const HoveringMenuExample = ({ callback, focus, click, children, setFocusCallbac
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
   // const [focusnow, setFocus] = useState(false);
   useEffect(() => {
-    if (focus && !click) {
+    if (focus) {
       ReactEditor.focus(editor);
       Transforms.select(editor, { path: [0, 0], offset: 0 })
     }
     console.log("focus now", focus);
 
 
-  }, [focus, click])
+  }, [focus])
   return (
     <>
       {children}
