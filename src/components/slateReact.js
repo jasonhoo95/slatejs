@@ -11,6 +11,7 @@ import { withHistory, HistoryEditor, History } from "slate-history";
 import { useModalStore } from "@/globals/zustandGlobal";
 import EditablePopup from "./editablePopup";
 import HoveringMenuExample from "./hovering-toolbar";
+import { at } from "lodash";
 
 const HOTKEYS = {
 	"mod+b": "bold",
@@ -242,7 +243,7 @@ const SlateReact = () => {
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["paragraph", "list-item", "dropdown-content", "check-list-item", "katex"].includes(n.type),
+			match: (n) => ["paragraph", "list-item", "dropdown-content", "check-list-item", "katex", "table-cell1"].includes(n.type),
 		});
 		const ua = navigator.userAgent
 
@@ -359,7 +360,11 @@ const SlateReact = () => {
 			Transforms.select(editor, previousVoid[1]);
 
 
-		} else if (listItemParent && listItemParent[0].type == "dropdown-content") {
+		} else if (listItemParent && listItemParent[0].type == "table-cell1" && editor.selection.anchor.offset == 0) {
+			return;
+		}
+
+		else if (listItemParent && listItemParent[0].type == "dropdown-content") {
 
 
 
@@ -775,36 +780,23 @@ const SlateReact = () => {
 
 
 				<div onClick={(e) => {
+					// const block = {
+					// 	type: "table-list",
+					// 	card: [{
+					// 		type: 'table-cell', id: 0, selected: false, text: null
+					// 	}, {
+					// 		type: 'table-cell', id: 1, selected: false, text: null
+					// 	}],
+					// 	children: [{ text: '' }]
+					// };
+
 					const block = {
 						type: "table-list",
-						card: [{
-							type: 'table-cell', id: 0, selected: false, text: [
-								{
-									type: 'paragraph',
-									children: [
-										{
-											text: 'asd',
-										},
-
-									],
-								},
-
-							]
+						children: [{
+							type: 'table-cell1', id: 0, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
 						}, {
-							type: 'table-cell', id: 1, selected: false, text: [
-								{
-									type: 'paragraph',
-									children: [
-										{
-											text: 'asd',
-										},
-
-									],
-								},
-
-							]
-						}],
-						children: [{ text: '' }]
+							type: 'table-cell1', id: 1, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
+						}]
 					};
 					Transforms.insertNodes(editor, block)
 
@@ -1078,7 +1070,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void", "span-txt", "table-list"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "editable-void", "span-txt"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1600,17 +1592,22 @@ const TableList = ({ attributes, children, element }) => {
 	}
 	return (
 		<>
-			<table  {...attributes} contentEditable="false">
+			<table  {...attributes}>
 
 				<tr>
-					{card.map((o, key) => {
+
+					{children.map((o, key) => {
+						return children[key]
+
+					})}
+					{/* {card.map((o, key) => {
 						return (
 							<CellElement setCallback={arrayCheck} select={selectArray[key]} path={path} card={card} data={o} key={key} />
 
 						)
 
 
-					})}
+					})} */}
 
 
 
@@ -1619,7 +1616,6 @@ const TableList = ({ attributes, children, element }) => {
 
 
 			</table>
-			{children}
 		</>
 
 	)
@@ -1824,8 +1820,10 @@ const CellElement = ({ data, card, path, select, setCallback }) => {
 	const editor = useSlate();
 
 	let cardnow = [...card];
-	const [change, setChange] = useState(select);
+	const [change, setChange] = useState(false);
 	let id = data.id;
+
+
 
 	const setCard = () => {
 		// let cardmap = cardnow.map((o) => {
@@ -1837,12 +1835,22 @@ const CellElement = ({ data, card, path, select, setCallback }) => {
 
 	}
 
-	const dataCallback = (value) => {
+	const dataCallback = (value, check) => {
 
-		var index = _.findIndex(cardnow, { id: id });
-		cardnow.splice(index, 1, { type: 'table-cell', id: id, text: value });
-		Transforms.setNodes(editor, { card: cardnow }, { at: path });
-		console.log(cardnow, "card check");
+		var checkCard = cardnow.map((o, key) => {
+			if (id == key) {
+				return { type: 'table-cell', id: key, text: value, checkClick: check }
+			} else {
+				return { type: 'table-cell', id: key, text: false, checkClick: false }
+			}
+
+		})
+
+		// var index = _.findIndex(cardnow, { id: id });
+		// cardnow.splice(index, 1, { type: 'table-cell', id: id, text: true });
+		Transforms.setNodes(editor, { card: checkCard }, { at: path });
+
+		console.log(checkCard, "card check");
 
 
 	}
@@ -1865,7 +1873,7 @@ const CellElement = ({ data, card, path, select, setCallback }) => {
 			setCard()
 		}}
 	>
-		<HoveringMenuExample text={data.text} click={select.check} setDataCallback={dataCallback} id={id} callback={onCallback} />
+		<HoveringMenuExample data={data} click={select.check} setDataCallback={dataCallback} id={id} callback={onCallback} />
 	</td>;
 };
 
@@ -1952,6 +1960,14 @@ const CheckList = ({ attributes, children, element }) => {
 		</li>
 	);
 };
+
+const TableCell1 = ({ attributes, children, element }) => {
+	return (
+		<td {...attributes}>
+			{children}
+		</td>
+	)
+}
 
 const CheckListItemElement = ({ attributes, children, element }) => {
 	const editor = useSlate();
@@ -2076,6 +2092,8 @@ const Element = (props) => {
 			return <TableList {...props} />;
 		case "table-cell":
 			return <CellElement {...props} />
+		case "table-cell1":
+			return <TableCell1 {...props} />;
 		case "heading-one":
 			return <Heading1Component {...props}></Heading1Component>;
 		case "span-txt":

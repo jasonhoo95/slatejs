@@ -12,14 +12,20 @@ import { css } from '@emotion/css'
 import { withHistory } from 'slate-history'
 
 
-const HoveringMenuExample = ({ text, callback, focus, click, id, setDataCallback }) => {
+const HoveringMenuExample = ({ change, data, callback, focus, click, id, setDataCallback }) => {
 
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
-  const [clickKey, setClick] = useState(click);
-  const [value, setValue] = useState(text);
-  const initialValue = text;
+  const [clickKey, setClick] = useState(false);
+  // const [value, setValue] = useState(text);
+  let selection;
+  const initialValue = [{
+    type: 'paragraph', children: [
+      {
+        text: "a",
+      },
+    ],
+  }];
   useEffect(() => {
-    console.log(click, "click key")
     if (click) {
       ReactEditor.focus(editor);
 
@@ -30,29 +36,24 @@ const HoveringMenuExample = ({ text, callback, focus, click, id, setDataCallback
   }, [click])
 
   useEffect(() => {
-    Editor.withoutNormalizing(editor, () => {
-      // const path = [0, 0];
-      // const range = { anchor: { path, offset: 0 }, focus: { path, offset: Editor.length(editor, path) } };
-      // Transforms.select(editor, range);
-      // Transforms.delete(editor, { at: range });
-      // Transforms.insertText(editor, text);
-      // editor.children = text
-      console.log(text, editor.children, "value text");
+    if (data.text && data.checkClick) {
+      console.log(data.text.anchor.offset, "offset")
 
-    });
+      ReactEditor.focus(editor);
 
-    setValue(text)
+      Transforms.select(editor, data.text)
+    }
 
-  }, [text])
+
+  }, [data])
   return (
     <>
 
-      <Slate onChange={value => {
-
-        setDataCallback(value)
-
-
-      }} editor={editor} key={JSON.stringify(value)} initialValue={value}>
+      <Slate onChange={e => {
+        selection = editor.selection;
+        setDataCallback(selection, true)
+        console.log(selection.anchor.offset, "offset");
+      }} editor={editor} initialValue={initialValue}>
         <HoveringToolbar />
         <Editable
           style={{ padding: '8px' }}
@@ -62,7 +63,12 @@ const HoveringMenuExample = ({ text, callback, focus, click, id, setDataCallback
             window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
           }}
 
+
+
           onKeyDown={e => {
+            setClick(true)
+
+
             if (editor.selection.anchor.offset == 0 && (event.key == "ArrowLeft")) {
               ReactEditor.blur(editor);
               callback(editor.selection.anchor, id)
@@ -73,7 +79,14 @@ const HoveringMenuExample = ({ text, callback, focus, click, id, setDataCallback
           }}
 
           onBlur={e => {
-            setClick(false);
+            if (clickKey) {
+              setDataCallback(selection, false)
+
+              setClick(false)
+              console.log("offset", selection);
+
+            }
+
           }}
           onDOMBeforeInput={(event) => {
             switch (event.inputType) {
