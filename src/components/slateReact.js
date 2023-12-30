@@ -796,7 +796,14 @@ const SlateReact = () => {
 							type: 'table-cell1', id: 0, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
 						}, {
 							type: 'table-cell1', id: 1, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
-						}]
+						},
+						{
+							type: 'table-cell1', id: 2, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
+						},
+						{
+							type: 'table-cell1', id: 3, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
+						}
+						]
 					};
 					Transforms.insertNodes(editor, block)
 
@@ -1597,7 +1604,10 @@ const TableList = ({ attributes, children, element }) => {
 				<tr>
 
 					{children.map((o, key) => {
-						return children[key]
+						if (key <= 1) {
+							return children[key]
+
+						}
 
 					})}
 					{/* {card.map((o, key) => {
@@ -1611,6 +1621,16 @@ const TableList = ({ attributes, children, element }) => {
 
 
 
+				</tr>
+
+				<tr>
+					{children.map((o, key) => {
+						if (key >= 2) {
+							return children[key]
+
+						}
+
+					})}
 				</tr>
 
 
