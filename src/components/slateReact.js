@@ -777,7 +777,33 @@ const SlateReact = () => {
 				<div onClick={(e) => {
 					const block = {
 						type: "table-list",
-						card: [{ type: 'table-cell', id: 0, selected: false }, { type: 'table-cell', id: 1, selected: false }],
+						card: [{
+							type: 'table-cell', id: 0, selected: false, text: [
+								{
+									type: 'paragraph',
+									children: [
+										{
+											text: 'asd',
+										},
+
+									],
+								},
+
+							]
+						}, {
+							type: 'table-cell', id: 1, selected: false, text: [
+								{
+									type: 'paragraph',
+									children: [
+										{
+											text: 'asd',
+										},
+
+									],
+								},
+
+							]
+						}],
 						children: [{ text: '' }]
 					};
 					Transforms.insertNodes(editor, block)
@@ -1549,7 +1575,7 @@ const TableList = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const { card } = element;
 	const path = ReactEditor.findPath(editor, element);
-	const [selectArray, setArray] = useState([false, false]);
+	const [selectArray, setArray] = useState([{ check: false }, { check: false }]);
 
 	const arrayCheck = (check, id) => {
 		let arraynow;
@@ -1557,10 +1583,10 @@ const TableList = ({ attributes, children, element }) => {
 			arraynow = selectArray.map((o, key) => {
 				if (key == id && check) {
 					console.log("check id", id, key)
-					return o = true;
+					return { check: true }
 				} else {
 					console.log("not check id", o, id)
-					return o = false;
+					return { check: false }
 				}
 
 			})
@@ -1799,7 +1825,6 @@ const CellElement = ({ data, card, path, select, setCallback }) => {
 
 	let cardnow = [...card];
 	const [change, setChange] = useState(select);
-	const [focus, setFocus] = useState(true);
 	let id = data.id;
 
 	const setCard = () => {
@@ -1811,13 +1836,22 @@ const CellElement = ({ data, card, path, select, setCallback }) => {
 		setCallback(false)
 
 	}
+
+	const dataCallback = (value) => {
+
+		var index = _.findIndex(cardnow, { id: id });
+		cardnow.splice(index, 1, { type: 'table-cell', id: id, text: value });
+		Transforms.setNodes(editor, { card: cardnow }, { at: path });
+		console.log(cardnow, "card check");
+
+
+	}
 	const onCallback = (change, id) => {
 		if (change && change.offset == 0) {
 
 
 			// var index = _.findIndex(cardnow, { id: id - 1 });
 			// cardnow.splice(index, 1, { type: 'table-cell', id: id - 1, selected: true, text: '123' });
-			// console.log(cardnow, "card check");
 
 			// Transforms.setNodes(editor, { card: cardnow }, { at: path });
 			setCallback(true, id - 1)
@@ -1831,8 +1865,7 @@ const CellElement = ({ data, card, path, select, setCallback }) => {
 			setCard()
 		}}
 	>
-		{data.text}
-		<HoveringMenuExample click={select} setFocusCallback={setFocus} id={id} callback={onCallback} />
+		<HoveringMenuExample text={data.text} click={select.check} setDataCallback={dataCallback} id={id} callback={onCallback} />
 	</td>;
 };
 

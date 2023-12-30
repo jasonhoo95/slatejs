@@ -12,9 +12,12 @@ import { css } from '@emotion/css'
 import { withHistory } from 'slate-history'
 
 
-const HoveringMenuExample = ({ callback, focus, click, id, setFocusCallback }) => {
+const HoveringMenuExample = ({ text, callback, focus, click, id, setDataCallback }) => {
+
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
   const [clickKey, setClick] = useState(click);
+  const [value, setValue] = useState(text);
+  const initialValue = text;
   useEffect(() => {
     console.log(click, "click key")
     if (click) {
@@ -25,10 +28,31 @@ const HoveringMenuExample = ({ callback, focus, click, id, setFocusCallback }) =
 
 
   }, [click])
+
+  useEffect(() => {
+    Editor.withoutNormalizing(editor, () => {
+      // const path = [0, 0];
+      // const range = { anchor: { path, offset: 0 }, focus: { path, offset: Editor.length(editor, path) } };
+      // Transforms.select(editor, range);
+      // Transforms.delete(editor, { at: range });
+      // Transforms.insertText(editor, text);
+      // editor.children = text
+      console.log(text, editor.children, "value text");
+
+    });
+
+    setValue(text)
+
+  }, [text])
   return (
     <>
 
-      <Slate editor={editor} initialValue={initialValue}>
+      <Slate onChange={value => {
+
+        setDataCallback(value)
+
+
+      }} editor={editor} key={JSON.stringify(value)} initialValue={value}>
         <HoveringToolbar />
         <Editable
           style={{ padding: '8px' }}
@@ -37,6 +61,7 @@ const HoveringMenuExample = ({ callback, focus, click, id, setFocusCallback }) =
           onFocus={e => {
             window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
           }}
+
           onKeyDown={e => {
             if (editor.selection.anchor.offset == 0 && (event.key == "ArrowLeft")) {
               ReactEditor.blur(editor);
@@ -170,18 +195,5 @@ const FormatButton = ({ format, icon }) => {
     </div>
   )
 }
-
-const initialValue = [
-  {
-    type: 'paragraph',
-    children: [
-      {
-        text: 'asd',
-      },
-
-    ],
-  },
-
-]
 
 export default HoveringMenuExample
