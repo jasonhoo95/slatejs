@@ -360,8 +360,17 @@ const SlateReact = () => {
 			Transforms.select(editor, previousVoid[1]);
 
 
-		} else if (listItemParent && listItemParent[0].type == "table-cell1" && editor.selection.anchor.offset == 0) {
-			return;
+		}
+		else if (listItemParent && listItemParent[0].type == "table-cell1") {
+			const parent = Editor.parent(editor, editor.selection.anchor.path);
+			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
+				console.log(parent, "list item parent");
+				return;
+			} else {
+				deleteBackward(...args);
+
+			}
+
 		}
 
 		else if (listItemParent && listItemParent[0].type == "dropdown-content") {
@@ -394,6 +403,7 @@ const SlateReact = () => {
 
 		}
 		else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+
 			Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
 			Transforms.select(editor, previousVoid[1]);
 
