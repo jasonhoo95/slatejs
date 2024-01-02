@@ -372,12 +372,20 @@ const SlateReact = () => {
 				match: n => ['table-cell1'].includes(n.type),
 			});
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
+			const nodeParent = Editor.node(editor, editor.selection.anchor.path);
 
 
-			if (listItemParent[0].checked) {
+
+
+			if (listItemParent[0].checked && !listItems) {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
-			} else if (listItems && parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
-				return;
+			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
+				if (listItems[1][listItems[1].length - 1] == 1) {
+					Transforms.move(editor, { distance: 2, unit: 'offset', reverse: true })
+				} else {
+					return;
+
+				}
 			}
 			else {
 				backwardCheck = true;
@@ -793,7 +801,7 @@ const SlateReact = () => {
 						type: "table-list",
 						selected: false,
 						children: [
-							{ type: 'span-txt', children: [{ text: '' }] },
+							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
 								type: 'table-cell1', id: 0, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
 							}, {
@@ -925,7 +933,7 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if ((event.key == 'Enter' || event.key == "ArrowDown") && listItems && ["dropdown-content", "table-list"].includes(listItems[0].type) && listItems[0].checked) {
+						} else if ((event.key == 'Enter') && listItems && ["dropdown-content", "table-list"].includes(listItems[0].type) && listItems[0].checked) {
 							event.preventDefault();
 
 							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
@@ -1191,7 +1199,7 @@ const SpanTxt = ({ attributes, children, element }) => {
 	const ua = navigator.userAgent
 
 	return (
-		<div contentEditable={!/android/i.test(ua) ? false : true} {...attributes}>
+		<div {...attributes}>
 			{children}
 		</div>
 
@@ -1571,7 +1579,7 @@ const DropDownList = ({ attributes, children, element }) => {
 
 
 const TableList = ({ attributes, children, element }) => {
-	// const selected = useSelected();
+	const selected = useSelected();
 	// const focused = useFocused();
 	const editor = useSlate();
 	const { card, checked } = element;
@@ -1599,10 +1607,16 @@ const TableList = ({ attributes, children, element }) => {
 
 
 	}
+
+	// if (!selected) {
+	// 	Transforms.setNodes(editor, { checked: false }, { at: path })
+	// }
+
+
 	return (
 		<>
 
-			<table style={{ background: checked ? 'blue' : '' }} className="relative"  {...attributes}>
+			<table style={{ background: checked && selected ? 'blue' : '' }} className="relative"  {...attributes}>
 				{children[0]}
 				<tr>
 
