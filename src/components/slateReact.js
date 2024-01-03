@@ -12,6 +12,7 @@ import { useModalStore } from "@/globals/zustandGlobal";
 import EditablePopup from "./editablePopup";
 import HoveringMenuExample from "./hovering-toolbar";
 import { at } from "lodash";
+import { ifError } from "assert";
 
 const HOTKEYS = {
 	"mod+b": "bold",
@@ -158,7 +159,7 @@ const SlateReact = () => {
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
-			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "katex" || n.type == "check-list-item" || n.type == "dropdown-inner" || n.type == "editable-void",
+			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "table-list" || n.type == "katex" || n.type == "check-list-item" || n.type == "dropdown-inner" || n.type == "editable-void",
 		});
 		let currentParent, currentDescendant, previousParent, voidCheck;
 
@@ -177,7 +178,8 @@ const SlateReact = () => {
 
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
-		} else if (currentParent && ['editable-void'].includes(currentParent[0].type)) {
+		}
+		else if (currentParent && ['editable-void'].includes(currentParent[0].type)) {
 			Transforms.setNodes(editor, { checked: false }, { at: currentParent[1] });
 
 			Transforms.move(editor, { unit: "offset", distance: 1 });
@@ -369,7 +371,7 @@ const SlateReact = () => {
 
 
 			const listItems = Editor.above(editor, {
-				match: n => ['table-cell1'].includes(n.type),
+				match: n => ['span-txt', 'table-cell1'].includes(n.type),
 			});
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
 			const nodeParent = Editor.node(editor, editor.selection.anchor.path);
@@ -377,7 +379,7 @@ const SlateReact = () => {
 
 
 
-			if (listItemParent[0].checked && !listItems) {
+			if (listItems && listItems[0].type == "span-txt") {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
 			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
 				if (listItems[1][listItems[1].length - 1] == 1) {
@@ -411,13 +413,7 @@ const SlateReact = () => {
 
 		else {
 
-
-
 			deleteBackward(...args);
-
-
-
-
 
 			if (!backwardCheck) {
 				backwardCheck = true;
@@ -621,7 +617,6 @@ const SlateReact = () => {
 
 
 							// Transforms.select(editor, [editor.selection.anchor.path, 0])
-							undo = true;
 
 						}
 					}}>
@@ -735,6 +730,7 @@ const SlateReact = () => {
 					onClick={(e) => {
 						const block = {
 							type: "editable-void",
+							checked: true,
 							card: [],
 							children: [{ text: '' }],
 						};
@@ -799,7 +795,7 @@ const SlateReact = () => {
 
 					const block = {
 						type: "table-list",
-						selected: false,
+						checked: true,
 						children: [
 							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
@@ -900,7 +896,7 @@ const SlateReact = () => {
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "span-txt" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph" || n.type == "table-list" || n.type == "dropdown-content"
 						});
-						const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "dropdown-inner" });
+						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" });
 
 
 
@@ -933,7 +929,7 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if ((event.key == 'Enter') && listItems && ["dropdown-content", "table-list"].includes(listItems[0].type) && listItems[0].checked) {
+						} else if ((event.key == 'Enter') && listItems && ["dropdown-content", "table-list"].includes(listItems[0].type) && !parentCheck) {
 							event.preventDefault();
 
 							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
@@ -1583,7 +1579,7 @@ const TableList = ({ attributes, children, element }) => {
 	// const focused = useFocused();
 	const editor = useSlate();
 	const { card, checked } = element;
-	const path = ReactEditor.findPath(editor, element);
+	const path = Editor.previous(editor, { at: editor.selection.anchor.path, match: (n) => n.type == "span-txt" })
 	const [selectArray, setArray] = useState([{ check: false }, { check: false }]);
 
 	const arrayCheck = (check, id) => {
@@ -1608,15 +1604,24 @@ const TableList = ({ attributes, children, element }) => {
 
 	}
 
-	// if (!selected) {
-	// 	Transforms.setNodes(editor, { checked: false }, { at: path })
+
+	// if (checked && !selected && undo) {
+	// 	Transforms.select(editor, path[1]);
+	// 	undo = false;
+	// } else if (!checked && undo) {
+	// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
+	// 	undo = false;
 	// }
+
+
+
+
 
 
 	return (
 		<>
 
-			<table style={{ background: checked && selected ? 'blue' : '' }} className="relative"  {...attributes}>
+			<table style={{ border: selected ? '1px solid red' : '' }} className="relative"  {...attributes}>
 				{children[0]}
 				<tr>
 
@@ -1678,18 +1683,8 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const [inputValue, setInputValue] = useState('');
 
 
-	// if (checked && undo) {
 
 
-	// 	// Transforms.setSelection(editor, leafNode);
-
-	// 	undo = false
-	// } else if (!selected && checked) {
-
-
-	// 	Transforms.setNodes(editor, { checked: false }, { at: path })
-	// 	undo = false;
-	// }
 
 	const addCard = () => {
 		let cardObj = { card: card.length + 1, id: 0, check: false };
@@ -1764,7 +1759,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		<div
 			onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
 			style={{
-				border: checked && selected ? "1px solid red" : "1px solid grey",
+				border: selected ? "1px solid red" : "1px solid grey",
 				background: "green",
 				height: "100px",
 			}}
