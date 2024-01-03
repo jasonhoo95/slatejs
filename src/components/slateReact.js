@@ -792,14 +792,13 @@ const SlateReact = () => {
 					// 	}],
 					// 	children: [{ text: '' }]
 					// };
-
 					const block = {
 						type: "table-list",
 						checked: true,
 						children: [
 							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
-								type: 'table-cell1', id: 0, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
+								type: 'table-cell1', id: 0, selected: true, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							}, {
 								type: 'table-cell1', id: 1, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
 							},
@@ -811,7 +810,10 @@ const SlateReact = () => {
 							}
 						]
 					};
+					ReactEditor.focus(editor);
+
 					Transforms.insertNodes(editor, block)
+					Transforms.select(editor, [editor.selection.anchor.path[0], 1, 0])
 
 
 				}}>
@@ -899,7 +901,7 @@ const SlateReact = () => {
 						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" });
 
 
-
+						console.log(listItems[0].type, parentCheck, "parent check");
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
 							event.preventDefault();
@@ -1998,6 +2000,11 @@ const CheckList = ({ attributes, children, element }) => {
 };
 
 const TableCell1 = ({ attributes, children, element }) => {
+	const { selected } = element;
+	const editor = useSlate();
+	const path = ReactEditor.findPath(editor, element);
+
+
 	return (
 		<td {...attributes}>
 			{children}
