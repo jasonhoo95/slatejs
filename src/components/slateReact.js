@@ -903,7 +903,6 @@ const SlateReact = () => {
 						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" });
 
 
-						console.log(listItems[0].type, parentCheck, "parent check");
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
 							event.preventDefault();
@@ -1583,7 +1582,9 @@ const TableList = ({ attributes, children, element }) => {
 	// const focused = useFocused();
 	const editor = useSlate();
 	const { card, checked } = element;
-	const path = Editor.previous(editor, { at: editor.selection.anchor.path, match: (n) => n.type == "span-txt" })
+	const path = ReactEditor.findPath(editor, element);
+
+	const pathSpan = Editor.above(editor, { match: (n) => n.type == "span-txt" })
 	const [selectArray, setArray] = useState([{ check: false }, { check: false }]);
 
 	const arrayCheck = (check, id) => {
@@ -1609,15 +1610,18 @@ const TableList = ({ attributes, children, element }) => {
 	}
 
 
-	// if (checked && !selected && undo) {
-	// 	Transforms.select(editor, path[1]);
-	// 	undo = false;
-	// } else if (!checked && undo) {
-	// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
-	// 	undo = false;
-	// }
 
 
+	if (checked && undo) {
+		Transforms.select(editor, [path[0], 0]);
+		// Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true })
+		undo = false;
+	}
+	else if (!checked && selected && undo) {
+		Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0]);
+
+		undo = false;
+	}
 
 
 
@@ -1625,7 +1629,7 @@ const TableList = ({ attributes, children, element }) => {
 	return (
 		<>
 
-			<table style={{ border: selected ? '1px solid red' : '' }} className="relative"  {...attributes}>
+			<table style={{ border: selected && checked ? '1px solid red' : '' }} className="relative"  {...attributes}>
 				{children[0]}
 				<tr>
 
@@ -1686,6 +1690,14 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 	const [inputValue, setInputValue] = useState('');
 
+
+	if (checked && undo) {
+		Transforms.select(editor, path);
+		undo = false;
+	} else if (!checked && selected && undo) {
+		Transforms.move(editor, { distance: 1, unit: 'offset' });
+		undo = false;
+	}
 
 
 
@@ -1763,7 +1775,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		<div
 			onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
 			style={{
-				border: selected ? "1px solid red" : "1px solid grey",
+				border: selected && checked ? "1px solid red" : "1px solid grey",
 				background: "green",
 				height: "100px",
 			}}
