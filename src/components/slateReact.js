@@ -1584,30 +1584,6 @@ const TableList = ({ attributes, children, element }) => {
 	const { card, checked } = element;
 	const path = ReactEditor.findPath(editor, element);
 
-	const pathSpan = Editor.above(editor, { match: (n) => n.type == "span-txt" })
-	const [selectArray, setArray] = useState([{ check: false }, { check: false }]);
-
-	const arrayCheck = (check, id) => {
-		let arraynow;
-		if (check) {
-			arraynow = selectArray.map((o, key) => {
-				if (key == id && check) {
-
-					return { check: true }
-				} else {
-
-					return { check: false }
-				}
-
-			})
-		} else {
-			arraynow = [false, false];
-		}
-		setArray(arraynow);
-
-
-
-	}
 
 
 
