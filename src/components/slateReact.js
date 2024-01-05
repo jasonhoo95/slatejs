@@ -796,6 +796,7 @@ const SlateReact = () => {
 					// };
 					const block = {
 						type: "table-list",
+						insert: true,
 						checked: true,
 						children: [
 							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
@@ -815,9 +816,9 @@ const SlateReact = () => {
 					ReactEditor.focus(editor);
 
 					Transforms.insertNodes(editor, block)
+
 					Transforms.select(editor, [editor.selection.anchor.path[0], 1, 0])
-
-
+					undo = false;
 				}}>
 					insert table
 				</div>
@@ -900,7 +901,7 @@ const SlateReact = () => {
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "span-txt" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph" || n.type == "table-list" || n.type == "dropdown-content"
 						});
-						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" });
+						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" || n.type == "dropdown-inner" });
 
 
 						// setState({ text: selectedLeaf.text });
@@ -1557,25 +1558,26 @@ const DropDownList = ({ attributes, children, element }) => {
 
 const TableList = ({ attributes, children, element }) => {
 	const selected = useSelected();
-	// const focused = useFocused();
+	const focused = useFocused();
 	const editor = useSlate();
-	const { card, checked } = element;
+	const { card, checked, insert } = element;
 	const path = ReactEditor.findPath(editor, element);
 
+	const pathCheck = Editor.above(editor, { match: (n) => n.type == "span-txt" })
 
+	console.log(selected, focused);
+	// if (checked && undo) {
 
+	// 	Transforms.select(editor, [path[0], 0]);
+	// 	// Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true })
+	// 	undo = false;
+	// }
+	// else if (!checked && selected && undo) {
 
+	// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0]);
 
-	if (checked && undo) {
-		Transforms.select(editor, [path[0], 0]);
-		// Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true })
-		undo = false;
-	}
-	else if (!checked && selected && undo) {
-		Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0]);
-
-		undo = false;
-	}
+	// 	undo = false;
+	// }
 
 
 
@@ -1583,7 +1585,7 @@ const TableList = ({ attributes, children, element }) => {
 	return (
 		<>
 
-			<table style={{ border: selected && checked ? '1px solid red' : '' }} className="relative"  {...attributes}>
+			<table style={{ border: selected ? '1px solid red' : '' }} className="relative"  {...attributes}>
 				{children[0]}
 				<tr>
 
@@ -1891,79 +1893,7 @@ const Heading1Component = ({ attributes, children, element }) => {
 	);
 };
 
-const CheckList = ({ attributes, children, element }) => {
-	const editor = useSlateStatic();
-	const { checked } = element;
-	// const { insertBreak } = editor
 
-	// 
-	let updateAmount = useModalStore((state) => state.updateModal);
-
-	let timeoutRef = React.useRef();
-	let workaroundIOSDblClickBug = () => {
-		// Add touch-action: manipulation on click to workaround https://bugs.webkit.org/show_bug.cgi?id=216681,
-		// and remove after a short delay to prevent double click.
-		let root = document.getElementById("__next");
-		root.style.touchAction = "manipulation";
-		clearTimeout(timeoutRef.current);
-		timeoutRef.current = setTimeout(() => {
-			root.style.touchAction = "";
-		}, 700);
-	};
-	return (
-		<li
-			{...attributes}
-			className="check-parent"
-		>
-
-
-
-			<div className="check-list">
-				<span
-					style={{ cursor: "pointer" }}
-					contentEditable={false}
-
-					onClick={(e) => {
-						ReactEditor.blur(editor);
-						e.stopPropagation();
-						e.preventDefault();
-						// updateAmount(true)
-						const path = ReactEditor.findPath(editor, element);
-						const newProperties = {
-							checked: checked ? false : true,
-						};
-
-						Transforms.setNodes(editor, newProperties, { at: path });
-						// // e.stopPropagation();
-						// const domSelection = window.getSelection();
-						// if (domSelection) {
-						// 	domSelection.removeAllRanges();
-						// }
-
-
-					}}
-					className={`checkbox-ui ${checked ? "checked" : 'not-checked'}`}>
-
-				</span>
-				<span
-					contentEditable={true}
-					className={css`
-					flex: 1;
-					opacity: ${checked ? 0.666 : 1};
-					text-decoration: ${!checked ? "none" : "line-through"};
-
-					&:focus {
-						outline: none;
-					}
-				`}>
-					{children}
-				</span>
-			</div>
-
-
-		</li>
-	);
-};
 
 const TableCell1 = ({ attributes, children, element }) => {
 	const selected = useSelected();
