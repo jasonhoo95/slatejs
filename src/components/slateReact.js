@@ -1545,28 +1545,6 @@ const DropDownList = ({ attributes, children, element }) => {
 
 			</div>
 
-			{/* <table>
-				<tbody>
-					<tr onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}>
-						{nodes[0].children.map((o, key) => {
-
-							if (o.type == "dropdown-inner") {
-								return (
-									children[key]
-								)
-							}
-
-
-						})}
-					</tr>
-				</tbody>
-			</table> */}
-
-
-			{/* {checked && selected ? <div style={{ border: '1px solid grey' }} className="absolute z-[10] left-0 top-0 w-full h-full">
-
-			</div> : null} */}
-
 
 
 
@@ -1630,19 +1608,6 @@ const TableList = ({ attributes, children, element }) => {
 
 				</tr>
 
-				{/* <tr>
-					{children.map((o, key) => {
-						if (key >= 2) {
-							return children[key]
-
-						}
-
-					})}
-				</tr> */}
-
-				{/* <div style={{ border: '1px solid grey' }} className="absolute z-[10] left-0 top-0 w-full h-full">
-
-				</div> */}
 
 			</table>
 
@@ -1791,13 +1756,24 @@ const EditableVoid = ({ attributes, children, element }) => {
 								onClick={(e) => {
 									// setModal(key, card, true);
 									// setCheckValidate(key, card, false)
-									// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex", key, card);
+									window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex", key, card);
 
 								}}
 								style={{ height: "100%", width: "100%", background: "red" }}
 								key={key}>
 
-								<input className="w-full h-[30px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
+								<div
+									contentEditable="false"
+									className="mx-3"
+									// onClick={(e) => {
+									// 	setModal(key, card, true);
+									// }}
+									style={{ height: "100%", width: "100%", background: "red" }}
+									key={key}>
+									{o.card}
+								</div>
+
+								{/* <input className="w-full h-[30px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
 									onChange={(e) => {
 										e.preventDefault();
 										setInputValue({ id: key, txt: e.target.value });
@@ -1813,7 +1789,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 									}}
-									type="text"></input>
+									type="text"></input> */}
 
 
 
