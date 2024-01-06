@@ -1566,7 +1566,7 @@ const TableList = ({ attributes, children, element }) => {
 
 	// const pathCheck = Editor.next(editor, { at: [editor.selection.anchor.path[0] + 1, 0] })
 
-	console.log(element, "pathc check");
+
 
 
 
@@ -1921,8 +1921,7 @@ const TableCell1 = ({ attributes, children, element }) => {
 	const focused = useFocused();
 	const editor = useSlate();
 	const path = ReactEditor.findPath(editor, element);
-	let checknow = false;
-	console.log(editor.selection.anchor.path[1], element.id);
+
 	if (element.selected && undo) {
 		Transforms.select(editor, path);
 		undo = false
