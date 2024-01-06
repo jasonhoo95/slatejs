@@ -1923,17 +1923,14 @@ const TableCell1 = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 	let checknow = false;
 	console.log(editor.selection.anchor.path[1], element.id);
-	// if (selected && !element.selected && !undo) {
-	// 	Transforms.setNodes(editor, { selected: true }, { at: path })
-	// } else if (!selected && !undo) {
-	// 	Transforms.setNodes(editor, { selected: false }, { at: path })
+	if (element.selected && undo) {
+		Transforms.select(editor, path);
+		undo = false
+	} else if (element.selected && !selected) {
+		Transforms.setNodes(editor, { selected: false }, { at: path })
+		undo = false
 
-	// }
-	// else if (element.selected && !selected && editor.selection.anchor.path[1] != element.id && undo) {
-	// 	Transforms.select(editor, path);
-	// 	// Transforms.setNodes(editor, { selected: false }, { at: path })
-
-	// }
+	}
 
 
 	return (
