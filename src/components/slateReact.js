@@ -815,7 +815,9 @@ const SlateReact = () => {
 					};
 					ReactEditor.focus(editor);
 
-					Transforms.insertNodes(editor, block)
+					Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
+					Transforms.unwrapNodes(editor, { mode: "highest" });
+
 
 					Transforms.select(editor, [editor.selection.anchor.path[0], 1, 0])
 					undo = false;
@@ -1563,15 +1565,15 @@ const TableList = ({ attributes, children, element }) => {
 	const { card, checked, insert } = element;
 	const path = ReactEditor.findPath(editor, element);
 
-	const pathCheck = Editor.next(editor, { at: [editor.selection.anchor.path[0] + 1, 0] })
+	// const pathCheck = Editor.next(editor, { at: [editor.selection.anchor.path[0] + 1, 0] })
 
-	console.log(selected, focused, pathCheck, "pathc check");
+	// console.log(selected, focused, pathCheck, "pathc check");
 
 
-	if (!selected && pathCheck && pathCheck[0].type == "table-cell1" && undo) {
-		Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 1, 0]);
-		undo = false;
-	}
+	// if (!selected && pathCheck && pathCheck[0].type == "table-cell1" && undo) {
+	// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 1, 0]);
+	// 	undo = false;
+	// }
 
 	// if (checked && undo) {
 
@@ -1597,7 +1599,7 @@ const TableList = ({ attributes, children, element }) => {
 				<tr>
 
 					{children.map((o, key) => {
-						if (key >= 1) {
+						if (1 <= key && key <= 2) {
 
 							return children[key]
 
@@ -1615,6 +1617,17 @@ const TableList = ({ attributes, children, element }) => {
 
 
 
+				</tr>
+
+				<tr>
+					{children.map((o, key) => {
+						if (3 <= key && key <= 4) {
+
+							return children[key]
+
+						}
+
+					})}
 				</tr>
 
 
