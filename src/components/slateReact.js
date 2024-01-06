@@ -1926,7 +1926,7 @@ const TableCell1 = ({ attributes, children, element }) => {
 	if (element.selected && undo && parent[0].children[0].children[0].text.length <= 0) {
 		Transforms.select(editor, path);
 		undo = false
-	} else if (element.selected && !selected) {
+	} else if (element.selected && !selected && element.id != 1) {
 		Transforms.setNodes(editor, { selected: false }, { at: path })
 		undo = false
 
