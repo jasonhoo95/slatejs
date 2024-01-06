@@ -818,7 +818,6 @@ const SlateReact = () => {
 					Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
 					Transforms.unwrapNodes(editor, { mode: "highest" });
 
-
 					Transforms.select(editor, [editor.selection.anchor.path[0], 1, 0])
 					undo = false;
 				}}>
@@ -1567,7 +1566,9 @@ const TableList = ({ attributes, children, element }) => {
 
 	// const pathCheck = Editor.next(editor, { at: [editor.selection.anchor.path[0] + 1, 0] })
 
-	// console.log(selected, focused, pathCheck, "pathc check");
+	console.log(selected, focused, "pathc check");
+
+
 
 
 	// if (!selected && pathCheck && pathCheck[0].type == "table-cell1" && undo) {
