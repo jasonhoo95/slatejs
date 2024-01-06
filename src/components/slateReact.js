@@ -1563,9 +1563,15 @@ const TableList = ({ attributes, children, element }) => {
 	const { card, checked, insert } = element;
 	const path = ReactEditor.findPath(editor, element);
 
-	const pathCheck = Editor.above(editor, { match: (n) => n.type == "span-txt" })
+	const pathCheck = Editor.next(editor, { at: editor.selection.anchor.path, match: (n) => n.type == "span-txt" })
 
-	console.log(selected, focused);
+	console.log(selected, focused, pathCheck, "pathc check");
+
+
+	if (!selected && pathCheck) {
+		Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 1, 0]);
+	}
+
 	// if (checked && undo) {
 
 	// 	Transforms.select(editor, [path[0], 0]);
