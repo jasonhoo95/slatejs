@@ -1566,7 +1566,7 @@ const TableList = ({ attributes, children, element }) => {
 
 	// const pathCheck = Editor.next(editor, { at: [editor.selection.anchor.path[0] + 1, 0] })
 
-	console.log(selected, focused, "pathc check");
+	console.log(element, "pathc check");
 
 
 
@@ -1918,9 +1918,22 @@ const Heading1Component = ({ attributes, children, element }) => {
 
 const TableCell1 = ({ attributes, children, element }) => {
 	const selected = useSelected();
+	const focused = useFocused();
 	const editor = useSlate();
 	const path = ReactEditor.findPath(editor, element);
 	let checknow = false;
+	console.log(editor.selection.anchor.path[1], element.id);
+	// if (selected && !element.selected && !undo) {
+	// 	Transforms.setNodes(editor, { selected: true }, { at: path })
+	// } else if (!selected && !undo) {
+	// 	Transforms.setNodes(editor, { selected: false }, { at: path })
+
+	// }
+	// else if (element.selected && !selected && editor.selection.anchor.path[1] != element.id && undo) {
+	// 	Transforms.select(editor, path);
+	// 	// Transforms.setNodes(editor, { selected: false }, { at: path })
+
+	// }
 
 
 	return (
