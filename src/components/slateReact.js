@@ -253,7 +253,6 @@ const SlateReact = () => {
 			at: editor.selection.anchor.path,
 			match: (n) => n.type == "katex"
 		});
-
 		if (listItems) {
 			listItemParent = Editor.node(editor, listItems[1]);
 
@@ -382,7 +381,15 @@ const SlateReact = () => {
 			if (listItems && listItems[0].type == "span-txt") {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
 			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
-				return;
+				if (/android/i.test(ua)) {
+					Transforms.insertText(editor, "\u200B".toString(), {
+						at: editor.selection.anchor,
+					});
+				} else {
+					return;
+
+				}
+
 
 				// if (listItems[1][listItems[1].length - 1] == 1) {
 				// 	Transforms.move(editor, { distance: 2, unit: 'offset', reverse: true })
@@ -801,15 +808,15 @@ const SlateReact = () => {
 						children: [
 							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
-								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: '' }] }]
+								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: "\u200B".toString() }] }]
 							}, {
-								type: 'table-cell1', id: 2, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
+								type: 'table-cell1', id: 2, selected: false, children: [{ type: 'paragraph', children: [{ text: "\u200B".toString() }] }]
 							},
 							{
-								type: 'table-cell1', id: 3, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
+								type: 'table-cell1', id: 3, selected: false, children: [{ type: 'paragraph', children: [{ text: "\u200B".toString() }] }]
 							},
 							{
-								type: 'table-cell1', id: 4, selected: false, children: [{ type: 'paragraph', children: [{ text: 'asd' }] }]
+								type: 'table-cell1', id: 4, selected: false, children: [{ type: 'paragraph', children: [{ text: "\u200B".toString() }] }]
 							}
 						]
 					};
@@ -1923,14 +1930,14 @@ const TableCell1 = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 	const parent = Editor.node(editor, path);
 
-	if (element.selected && undo && parent[0].children[0].children[0].text.length <= 0) {
-		Transforms.select(editor, path);
-		undo = false
-	} else if (element.selected && !selected && element.id != 1) {
-		Transforms.setNodes(editor, { selected: false }, { at: path })
-		undo = false
+	// if (element.selected && undo && parent[0].children[0].children[0].text.length <= 0) {
 
-	}
+	// 	Transforms.select(editor, path);
+	// 	undo = false
+	// } else if (element.selected && !selected && !undo) {
+	// 	Transforms.setNodes(editor, { selected: false }, { at: path })
+
+	// }
 
 
 	return (
