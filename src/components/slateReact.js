@@ -792,15 +792,8 @@ const SlateReact = () => {
 
 
 				<div onClick={(e) => {
-					// const block = {
-					// 	type: "table-list",
-					// 	card: [{
-					// 		type: 'table-cell', id: 0, selected: false, text: null
-					// 	}, {
-					// 		type: 'table-cell', id: 1, selected: false, text: null
-					// 	}],
-					// 	children: [{ text: '' }]
-					// };
+					const ua = navigator.userAgent
+
 					const block = {
 						type: "table-list",
 						insert: true,
@@ -808,15 +801,15 @@ const SlateReact = () => {
 						children: [
 							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
-								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: "\u200B".toString() }] }]
+								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: /android/i.test(ua) ? "\u200B".toString() : '' }] }]
 							}, {
-								type: 'table-cell1', id: 2, selected: false, children: [{ type: 'paragraph', children: [{ text: "\u200B".toString() }] }]
+								type: 'table-cell1', id: 2, selected: false, children: [{ type: 'paragraph', children: [{ text: /android/i.test(ua) ? "\u200B".toString() : '' }] }]
 							},
 							{
-								type: 'table-cell1', id: 3, selected: false, children: [{ type: 'paragraph', children: [{ text: "\u200B".toString() }] }]
+								type: 'table-cell1', id: 3, selected: false, children: [{ type: 'paragraph', children: [{ text: /android/i.test(ua) ? "\u200B".toString() : '' }] }]
 							},
 							{
-								type: 'table-cell1', id: 4, selected: false, children: [{ type: 'paragraph', children: [{ text: "\u200B".toString() }] }]
+								type: 'table-cell1', id: 4, selected: false, children: [{ type: 'paragraph', children: [{ text: /android/i.test(ua) ? "\u200B".toString() : '' }] }]
 							}
 						]
 					};
