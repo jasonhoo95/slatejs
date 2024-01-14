@@ -390,6 +390,9 @@ const SlateReact = () => {
 
 				}
 
+				return;
+
+
 
 				// if (listItems[1][listItems[1].length - 1] == 1) {
 				// 	Transforms.move(editor, { distance: 2, unit: 'offset', reverse: true })
@@ -801,15 +804,15 @@ const SlateReact = () => {
 						children: [
 							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
-								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: /android/i.test(ua) ? "\u200B".toString() : '' }] }]
+								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							}, {
-								type: 'table-cell1', id: 2, selected: false, children: [{ type: 'paragraph', children: [{ text: /android/i.test(ua) ? "\u200B".toString() : '' }] }]
+								type: 'table-cell1', id: 2, selected: false, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							},
 							{
-								type: 'table-cell1', id: 3, selected: false, children: [{ type: 'paragraph', children: [{ text: /android/i.test(ua) ? "\u200B".toString() : '' }] }]
+								type: 'table-cell1', id: 3, selected: false, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							},
 							{
-								type: 'table-cell1', id: 4, selected: false, children: [{ type: 'paragraph', children: [{ text: /android/i.test(ua) ? "\u200B".toString() : '' }] }]
+								type: 'table-cell1', id: 4, selected: false, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							}
 						]
 					};
@@ -818,7 +821,7 @@ const SlateReact = () => {
 					Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
 					Transforms.unwrapNodes(editor, { mode: "highest" });
 
-					Transforms.select(editor, [editor.selection.anchor.path[0], 1, 0])
+					Transforms.select(editor, [editor.selection.anchor.path[0], 1]);
 					undo = false;
 				}}>
 					insert table
@@ -1785,7 +1788,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 								style={{ height: "100%", width: "100%", background: "red" }}
 								key={key}>
 
-								<div
+								{/* <div
 									contentEditable="false"
 									className="mx-3"
 									// onClick={(e) => {
@@ -1794,9 +1797,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 									style={{ height: "100%", width: "100%", background: "red" }}
 									key={key}>
 									{o.card}
-								</div>
+								</div> */}
 
-								{/* <input className="w-full h-[30px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
+								<input className="w-full h-[30px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
 									onChange={(e) => {
 										e.preventDefault();
 										setInputValue({ id: key, txt: e.target.value });
@@ -1812,7 +1815,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 									}}
-									type="text"></input> */}
+									type="text"></input>
 
 
 
