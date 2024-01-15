@@ -29,7 +29,7 @@ let backwardCheck = false;
 let leftCheck = false;
 let rightCheck = false;
 let undo = false;
-// let focusCheck = false;
+let focusCheck = false;
 
 
 const initialValue = [
@@ -947,9 +947,11 @@ const SlateReact = () => {
 
 
 						}
-						else if (stringText[0].text.startsWith("1.") && /android/i.test(ua) && !parentCheck) {
+						else if (stringText[0].text.startsWith("1.") && /android/i.test(ua) && !focusCheck) {
+							focusCheck = true;
 							toggleBlock(editor, "numbered-list", "number");
 							Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
+
 
 						}
 
@@ -1422,7 +1424,7 @@ const toggleBlock = (editor, format, type) => {
 
 	}
 
-
+	focusCheck = false;
 };
 
 const isBlockActive = (editor, format, blockType = "type") => {
