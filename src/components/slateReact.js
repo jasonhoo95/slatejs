@@ -905,8 +905,10 @@ const SlateReact = () => {
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == "span-txt" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph" || n.type == "table-list" || n.type == "dropdown-content"
 						});
-						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" || n.type == "dropdown-inner" });
+						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" || n.type == "dropdown-inner" || n.type == "numbered-list" });
+						const stringText = Editor.node(editor, editor.selection.anchor.path);
 
+						console.log(stringText, "string text");
 
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
@@ -945,12 +947,11 @@ const SlateReact = () => {
 
 
 						}
-						// else if (string.text.startsWith("1.") && /android/i.test(ua)) {
-						// 	toggleBlock(editor, "numbered-list", "number");
-						// 	Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
-						// 	return false;
+						else if (stringText[0].text.startsWith("1.") && /android/i.test(ua) && !parentCheck) {
+							toggleBlock(editor, "numbered-list", "number");
+							Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
 
-						// }
+						}
 
 
 
