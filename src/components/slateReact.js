@@ -947,13 +947,14 @@ const SlateReact = () => {
 
 
 						}
-						else if (stringText[0].text.startsWith("1.") && /android/i.test(ua) && !focusCheck) {
-							focusCheck = true;
-							toggleBlock(editor, "numbered-list", "number");
-							Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
+						// else if (stringText[0].text.startsWith("1.") && /android/i.test(ua) && !focusCheck) {
+						// 	focusCheck = true;
+						// 	toggleBlock(editor, "numbered-list", "number");
+						// 	setTimeout
+						// 	Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
 
 
-						}
+						// }
 
 
 
