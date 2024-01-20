@@ -269,11 +269,6 @@ const SlateReact = () => {
 			nextParent = Editor.next(editor, { at: listItems[1] });
 		}
 
-		const nodeText = Node.leaf(editor, editor.selection.anchor.path);
-
-		const editorAbove = Editor.above(editor, {
-			match: n => n.type === 'table-cell1',
-		});
 
 
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
@@ -373,14 +368,13 @@ const SlateReact = () => {
 				match: n => ['span-txt', 'table-cell1'].includes(n.type),
 			});
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
-			const nodeParent = Editor.node(editor, editor.selection.anchor.path);
-
 
 
 
 			if (listItems && listItems[0].type == "span-txt") {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
-			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
+			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && editor.selection.anchor.path[editor.selection.anchor.path.length - 1] == 0) {
+
 				if (/android/i.test(ua)) {
 					Transforms.insertText(editor, "\u200B".toString(), {
 						at: editor.selection.anchor,
@@ -390,18 +384,9 @@ const SlateReact = () => {
 
 				}
 
-				return;
-
-
-
-				// if (listItems[1][listItems[1].length - 1] == 1) {
-				// 	Transforms.move(editor, { distance: 2, unit: 'offset', reverse: true })
-				// } else {
-				// 	return;
-
-				// }
 			}
 			else {
+
 				backwardCheck = true;
 				deleteBackward(...args);
 				const node = Editor.node(editor, editor.selection.anchor.path);
@@ -433,7 +418,6 @@ const SlateReact = () => {
 				const currentNode = Editor.parent(editor, editor.selection.anchor.path);
 				const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
 				const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
-
 
 				if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
 					Transforms.delete(editor, { at: editor.selection.anchor.path });
@@ -908,7 +892,7 @@ const SlateReact = () => {
 						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" || n.type == "dropdown-inner" || n.type == "numbered-list" });
 						const stringText = Editor.node(editor, editor.selection.anchor.path);
 
-						console.log(stringText, "string text");
+
 
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
@@ -947,11 +931,14 @@ const SlateReact = () => {
 
 
 						}
-						// else if (stringText[0].text.startsWith("1.") && /android/i.test(ua) && !focusCheck) {
-						// 	focusCheck = true;
-						// 	toggleBlock(editor, "numbered-list", "number");
-						// 	setTimeout
-						// 	Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
+						// else if (stringText[0].text.startsWith("1.") && /android/i.test(ua)) {
+						// 	setTimeout(() => {
+						// 		Editor.withoutNormalizing(editor, () => {
+
+						// 			toggleBlock(editor, "numbered-list", "number");
+						// 			Transforms.delete(editor, { at: editor.selection.anchor, distance: 2, reverse: true, unit: 'word' })
+						// 		})
+						// 	}, 0)
 
 
 						// }
@@ -1070,9 +1057,14 @@ const insertLink = (editor, url) => {
 };
 
 const insertKatex = (editor, url, updateAmount) => {
-	Transforms.insertText(editor, "\u200B".toString(), {
-		at: editor.selection.anchor,
-	});
+	const ua = navigator.userAgent
+
+	if (/android/i.test(ua)) {
+		Transforms.insertText(editor, "\u200B".toString(), {
+			at: editor.selection.anchor,
+		});
+	}
+
 
 	let id = v4();
 	const katex = {
