@@ -1594,7 +1594,7 @@ const TableList = ({ attributes, children, element }) => {
 	return (
 		<>
 
-			<table style={{ border: selected ? '1px solid red' : '' }} className="relative"  {...attributes}>
+			<table style={{ background: selected ? 'green' : '' }} className="relative"  {...attributes}>
 				{children[0]}
 				<tr>
 
