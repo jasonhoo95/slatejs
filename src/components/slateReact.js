@@ -1199,7 +1199,7 @@ const SpanTxt = ({ attributes, children, element }) => {
 	const ua = navigator.userAgent
 
 	return (
-		<div {...attributes}>
+		<div contentEditable={/android/i.test(ua) ? true : false} {...attributes}>
 			{children}
 		</div>
 
@@ -1748,9 +1748,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
-
-
-
 			<div contentEditable="false">
 
 
@@ -1825,7 +1822,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
-			<div>
+			<div style={{ cursor: 'none', userSelect: 'none' }}>
 				{children}
 
 			</div>
