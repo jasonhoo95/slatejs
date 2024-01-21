@@ -1823,8 +1823,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
-			<div style={{ cursor: 'none', caretColor: 'transparent' }}>
+			<div style={{ position: 'fixed', top: 0, opacity: 0 }}>
 				{children}
+
 
 			</div>
 		</div>
