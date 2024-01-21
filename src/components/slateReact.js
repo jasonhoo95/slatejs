@@ -735,6 +735,7 @@ const SlateReact = () => {
 
 						ReactEditor.focus(editor);
 						Transforms.insertNodes(editor, block);
+						getCaretCoordinates();
 						// const [voidElement] = Editor.nodes(editor, {
 						// 	match: (node) => node.type == "editable-void"
 						// });
