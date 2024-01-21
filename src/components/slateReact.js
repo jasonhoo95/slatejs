@@ -809,6 +809,8 @@ const SlateReact = () => {
 					Transforms.unwrapNodes(editor, { mode: "highest" });
 
 					Transforms.select(editor, [editor.selection.anchor.path[0], 1]);
+					getCaretCoordinates();
+
 					undo = false;
 				}}>
 					insert table
