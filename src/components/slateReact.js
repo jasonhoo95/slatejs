@@ -513,11 +513,11 @@ const SlateReact = () => {
 					const ua = navigator.userAgent
 					if (editor.selection) {
 
-						const string = Node.get(editor, editor.selection.anchor.path);
+						const string = Node.leaf(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
 
 
-
+						console.log(string, editor.selection.anchor.path, "string text")
 						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
 							Editor.withoutNormalizing(editor, () => {
 								toggleBlock(editor, "numbered-list", "number");
@@ -1219,6 +1219,7 @@ const KatexComponent = ({ attributes, children, element }) => {
 
 	return (
 		<span
+
 			onClick={(e) => {
 				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex");
 
@@ -1822,7 +1823,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
-			<div style={{ cursor: 'none', userSelect: 'none' }}>
+			<div style={{ cursor: 'none', caretColor: 'transparent' }}>
 				{children}
 
 			</div>
