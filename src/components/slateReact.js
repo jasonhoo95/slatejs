@@ -179,12 +179,7 @@ const SlateReact = () => {
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
 		}
-		else if (currentParent && ['editable-void'].includes(currentParent[0].type)) {
-			Transforms.setNodes(editor, { checked: false }, { at: currentParent[1] });
-
-			Transforms.move(editor, { unit: "offset", distance: 1 });
-
-		}
+		
 		// else if (currentParent && currentParent[0].type == "dropdown-inner" && parentCheck) {
 
 
@@ -1834,11 +1829,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
-			<div >
 				{children}
 
 
-			</div>
 		</div>
 	);
 };
