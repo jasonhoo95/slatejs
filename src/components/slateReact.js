@@ -369,12 +369,13 @@ const SlateReact = () => {
 			if (listItems && listItems[0].type == "span-txt") {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
 			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && editor.selection.anchor.path[editor.selection.anchor.path.length - 1] == 0) {
-
+            
 				if (/android/i.test(ua)) {
 					Transforms.insertText(editor, "\u200B".toString(), {
 						at: editor.selection.anchor,
 					});
 				} else {
+
 					return;
 
 				}
@@ -721,6 +722,8 @@ const SlateReact = () => {
 
 				<div
 					onClick={(e) => {
+            ReactEditor.focus(editor);
+
 						const block = {
 							type: "editable-void",
 							checked: true,
@@ -728,7 +731,6 @@ const SlateReact = () => {
 							children: [{ type: 'span-txt', children: [{ text: '' }] }],
 						};
 
-						ReactEditor.focus(editor);
 						Transforms.insertNodes(editor, block);
 						getCaretCoordinates();
 						// const [voidElement] = Editor.nodes(editor, {
@@ -1448,12 +1450,12 @@ const DropdownInner = ({ attributes, children, element }) => {
 
 
 	return (
-		<td
+		<div
 			{...attributes}
 			className="dropdown-content  mx-3"
 		>
 			{children}
-		</td>
+		</div>
 	);
 };
 
@@ -1516,19 +1518,18 @@ const DropDownList = ({ attributes, children, element }) => {
 
 		Transforms.removeNodes(editor, { at: path });
 		Transforms.insertNodes(editor, block1, { at: path });
-		Transforms.select(editor, [path[0], arraynow.length - 1]);
+		// Transforms.select(editor, [path[0], arraynow.length - 1]);
 	};
 	return (
 		<div
 			{...attributes}
-			className="relative p-[10px] w-[300px]"
-			style={{ background: (checked || selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
+			className="p-[10px] w-[300px]"
+			style={{ background: ( selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
 			<div>
 				{children[0]}
 
 			</div>
 			<button
-				contentEditable="false"
 				onClick={(e) => {
 					addMore();
 				}}>
@@ -1752,6 +1753,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		>
 
+{children}
 
 
 			<div contentEditable="false">
@@ -1829,7 +1831,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
-				{children}
 
 
 		</div>
