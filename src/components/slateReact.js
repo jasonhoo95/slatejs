@@ -1536,7 +1536,7 @@ const DropDownList = ({ attributes, children, element }) => {
 				click me
 			</button>
 			<div
-				onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
+				// onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
 				className="grid-container">
 				{nodes[0].children.map((o, key) => {
 
