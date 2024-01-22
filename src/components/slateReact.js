@@ -1748,7 +1748,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		<div
 			onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
 			style={{
-				border: selected && checked ? "1px solid red" : "1px solid grey",
+				border: selected ? "1px solid red" : "1px solid grey",
 				background: "green",
 				position: 'relative',
 				height: "100px",
