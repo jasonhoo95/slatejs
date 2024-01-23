@@ -179,7 +179,7 @@ const SlateReact = () => {
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
 		}
-		
+
 		// else if (currentParent && currentParent[0].type == "dropdown-inner" && parentCheck) {
 
 
@@ -369,7 +369,7 @@ const SlateReact = () => {
 			if (listItems && listItems[0].type == "span-txt") {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
 			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && editor.selection.anchor.path[editor.selection.anchor.path.length - 1] == 0) {
-            
+
 				if (/android/i.test(ua)) {
 					Transforms.insertText(editor, "\u200B".toString(), {
 						at: editor.selection.anchor,
@@ -722,7 +722,7 @@ const SlateReact = () => {
 
 				<div
 					onClick={(e) => {
-            ReactEditor.focus(editor);
+						ReactEditor.focus(editor);
 
 						const block = {
 							type: "editable-void",
@@ -1524,7 +1524,7 @@ const DropDownList = ({ attributes, children, element }) => {
 		<div
 			{...attributes}
 			className="p-[10px] w-[300px]"
-			style={{ background: ( selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
+			style={{ background: (selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
 			<div>
 				{children[0]}
 
@@ -1753,7 +1753,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		>
 
-{children}
+			<div>
+				{children}
+
+			</div>
 
 
 			<div>
