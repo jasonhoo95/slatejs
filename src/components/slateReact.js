@@ -1756,13 +1756,12 @@ const EditableVoid = ({ attributes, children, element }) => {
 {children}
 
 
-			<div contentEditable="false">
+			<div>
 
 
 
 				<button
 					style={{ cursor: 'pointer' }}
-					contentEditable="false"
 					onClick={(e) => {
 						addCard();
 					}}>
