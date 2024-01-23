@@ -343,7 +343,7 @@ const SlateReact = () => {
 			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
-		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type)) {
+		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type)) {
 
 
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
@@ -399,12 +399,12 @@ const SlateReact = () => {
 		}
 
 
-		// else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+		else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 
-		// 	Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
-		// 	Transforms.select(editor, previousVoid[1]);
+			Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
+			Transforms.select(editor, previousVoid[1]);
 
-		// }
+		}
 
 		else {
 
@@ -728,7 +728,7 @@ const SlateReact = () => {
 							type: "editable-void",
 							checked: true,
 							card: [],
-							children: [{ type: 'span-txt', children: [{ text: '' }] }],
+							children: [{ text: '' }],
 						};
 
 						Transforms.insertNodes(editor, block);
@@ -1093,7 +1093,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "editable-void"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1753,13 +1753,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		>
 
-			<div>
-				{children}
-
-			</div>
 
 
-			<div contentEditable="true">
+
+			<div contentEditable="false">
 
 
 
@@ -1833,7 +1830,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
+			<div>
+				{children}
 
+			</div>
 
 		</div>
 	);
