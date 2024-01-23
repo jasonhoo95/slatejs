@@ -1658,6 +1658,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const path = ReactEditor.findPath(editor, element);
 
 	const [inputValue, setInputValue] = useState('');
+	const ua = navigator.userAgent
 
 
 	if (checked && undo) {
@@ -1830,7 +1831,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
-			<div>
+			<div contentEditable={/android/i.test(ua) ? true : false}>
 				{children}
 
 			</div>
