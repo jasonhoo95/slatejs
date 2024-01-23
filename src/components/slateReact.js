@@ -1742,10 +1742,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
-			// onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
+			onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
 			style={{
 				border: selected ? "1px solid red" : "1px solid grey",
-				background: selected ? 'red': 'green',
+				background: "green",
 				position: 'relative',
 				height: "100px",
 			}}
@@ -1753,10 +1753,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		>
 
-			
+		
 
-
-			<div>
+			<div contentEditable="false">
 				<button
 					style={{ cursor: 'pointer' }}
 					onClick={(e) => {
@@ -1827,10 +1826,11 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
-               <div>
+	           <div>
 				{children}
 
 			</div>
+
 
 		</div>
 	);
