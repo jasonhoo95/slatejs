@@ -178,10 +178,28 @@ const SlateReact = () => {
 
 		} else if (currentParent && ["banner-red-wrapper"].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
 			toggleBlock(editor, currentParent[0].type);
-		}else if(currentParent && ["editable-void"].includes(currentParent[0].type)){
-			Transforms.move(editor,{distance:1,unit:'offset'})
 		}
 
+		// else if (currentParent && currentParent[0].type == "dropdown-inner" && parentCheck) {
+
+
+		// 	// let block1 =
+		// 	// {
+		// 	// 	type: "paragraph",
+		// 	// 	children: [
+		// 	// 		{
+		// 	// 			id: currentParent[0].children.length + 1,
+		// 	// 			text: "",
+		// 	// 		},
+		// 	// 	],
+		// 	// }
+
+
+		// 	// Transforms.insertNodes(editor, block1);
+
+
+
+		// }
 		else if (currentParent && ["check-list-item"].includes(currentParent[0].type)) {
 
 			insertBreak();
@@ -291,8 +309,6 @@ const SlateReact = () => {
 				Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
 
 			}
-		} else if(previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0){
-			Transforms.move(editor,{distance:1,unit:'offset',reverse:true})
 		}
 		else if (
 			nextParent &&
@@ -327,7 +343,7 @@ const SlateReact = () => {
 			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
-		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type)) {
+		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type)) {
 
 
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
@@ -339,7 +355,7 @@ const SlateReact = () => {
 		}
 
 
-		else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type) && !backwardCheck) {
+		else if (listItemParent && ["dropdown-content", "table-list", "editable-void"].includes(listItemParent[0].type) && !backwardCheck) {
 
 
 
@@ -712,7 +728,7 @@ const SlateReact = () => {
 							type: "editable-void",
 							checked: true,
 							card: [],
-							children: [{ text: '' }],
+							children: [{ type: 'span-txt', children: [{ text: '' }] }],
 						};
 
 						Transforms.insertNodes(editor, block);
@@ -875,7 +891,7 @@ const SlateReact = () => {
 						const [listItems] = Editor.nodes(editor, {
 							match: (n) => n.type === "list-item" || n.type == 'editable-void' || n.type == "span-txt" || n.type == "inline-bug" || n.type == "check-list-item" || n.type == "paragraph" || n.type == "table-list" || n.type == "dropdown-content"
 						});
-						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" || n.type == "editable-void" || n.type == "dropdown-inner" || n.type == "numbered-list" });
+						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" || n.type == "dropdown-inner" || n.type == "numbered-list" });
 						const stringText = Editor.node(editor, editor.selection.anchor.path);
 
 
@@ -897,9 +913,6 @@ const SlateReact = () => {
 							leftCheck = true;
 						} else if (event.key == "ArrowRight") {
 							rightCheck = true;
-						}else if(event.key == "ArrowUp" && parentCheck && parentCheck[0].type == "editable-void"){
-							Transforms.select(editor,parentCheck[1]);
-
 						}
 						else if (event.metaKey && event.key === "z" && !event.shiftKey) {
 							event.preventDefault();
@@ -914,7 +927,7 @@ const SlateReact = () => {
 
 						}
 
-						else if ((event.key == 'Enter') && listItems && ["dropdown-content", "table-list"].includes(listItems[0].type) && !parentCheck) {
+						else if ((event.key == 'Enter') && listItems && ["dropdown-content", "table-list", "editable-void"].includes(listItems[0].type) && !parentCheck) {
 							event.preventDefault();
 
 							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
@@ -1080,7 +1093,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "editable-void"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1729,10 +1742,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
-			onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
+			// onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
 			style={{
 				border: selected ? "1px solid red" : "1px solid grey",
-				background: "green",
+				background: selected ? 'red': 'green',
 				position: 'relative',
 				height: "100px",
 			}}
@@ -1740,13 +1753,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		>
 
+			
+
+
 			<div>
-				{children}
-
-			</div>
-
-
-			<div contentEditable="false">
 				<button
 					style={{ cursor: 'pointer' }}
 					onClick={(e) => {
@@ -1817,7 +1827,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
+               <div>
+				{children}
 
+			</div>
 
 		</div>
 	);
