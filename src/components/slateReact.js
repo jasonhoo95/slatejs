@@ -1661,13 +1661,13 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const ua = navigator.userAgent
 
 
-	if (checked && undo) {
-		Transforms.select(editor, path);
-		undo = false;
-	} else if (!checked && selected && undo) {
-		Transforms.move(editor, { distance: 1, unit: 'offset' });
-		undo = false;
-	}
+	// if (checked && undo) {
+	// 	Transforms.select(editor, path);
+	// 	undo = false;
+	// } else if (!checked && selected && undo) {
+	// 	Transforms.move(editor, { distance: 1, unit: 'offset' });
+	// 	undo = false;
+	// }
 
 
 
@@ -1790,7 +1790,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 								style={{ height: "100%", width: "100%", background: "red" }}
 								key={key}>
 
-								{/* <div
+								<div
 									contentEditable="false"
 									className="mx-3"
 									// onClick={(e) => {
@@ -1799,9 +1799,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 									style={{ height: "100%", width: "100%", background: "red" }}
 									key={key}>
 									{o.card}
-								</div> */}
+								</div>
 
-								<input className="w-full h-[30px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
+								{/* <input className="w-full h-[30px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
 									onChange={(e) => {
 										e.preventDefault();
 										setInputValue({ id: key, txt: e.target.value });
@@ -1817,7 +1817,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 									}}
-									type="text"></input>
+									type="text"></input> */}
 
 
 
