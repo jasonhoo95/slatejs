@@ -227,6 +227,7 @@ const SlateReact = () => {
 					Editor.removeMark(editor, o);
 				});
 			}
+			getCaretCoordinates();
 		}
 	};
 
