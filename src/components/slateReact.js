@@ -1781,19 +1781,18 @@ const EditableVoid = ({ attributes, children, element }) => {
 					{card?.map((o, key) => {
 						return (
 							<div
-								className="mx-3"
+								className="m-3"
 								onClick={(e) => {
 									// setModal(key, card, true);
 									// setCheckValidate(key, card, false)
 									window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex", key, card);
 
 								}}
-								style={{ height: "100%", width: "100%", background: "red" }}
+								style={{ height: "100%", width: "50%", background: "red" }}
 								key={key}>
 
 								<div
 									contentEditable="false"
-									className="mx-3"
 									// onClick={(e) => {
 									// 	setModal(key, card, true);
 									// }}
