@@ -1704,7 +1704,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 		window.addEventListener("message", function (event) {
-
+			alert("go");
 			if (typeof event.data == "string") {
 				let value = JSON.parse(event.data);
 
@@ -1726,7 +1726,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		})
 
 
-	}, [card])
+	}, [])
 
 	const setCheckValidate = useCallback((key, card1, check) => {
 		let cardnow = [...card1];
