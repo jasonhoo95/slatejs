@@ -1709,9 +1709,8 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 				if (value && value.id == "katex") {
 					ReactEditor.focus(editor);
-					let cardnow = [...value.card];
 					var index = _.findIndex(cardnow, { id: value.key });
-					Transforms.setNodes(editor, { card: cardnow }, { at: path });
+					Transforms.setNodes(editor, { card: [{ card: value.card, id: value.cardId, check: false }] }, { at: path });
 
 					// if (cardnow[index].card != 'hello world') {
 					// 	cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
