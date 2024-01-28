@@ -730,14 +730,10 @@ const SlateReact = () => {
 							children: [{ type: 'span-txt', children: [{ text: '' }] }],
 						};
 
-						Transforms.insertNodes(editor, block);
+						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
+						Transforms.unwrapNodes(editor, { mode: "highest" });
 						getCaretCoordinates();
-						// const [voidElement] = Editor.nodes(editor, {
-						// 	match: (node) => node.type == "editable-void"
-						// });
-						// const block1 = { type: "paragraph", children: [block] };
 
-						// Transforms.wrapNodes(editor, block1, { at: voidElement[1] });
 
 
 
@@ -1522,7 +1518,7 @@ const DropDownList = ({ attributes, children, element }) => {
 	return (
 		<div
 			{...attributes}
-			className="p-[10px] w-[300px]"
+			className="p-[10px] w-full"
 			style={{ background: (selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
 			<div>
 				{children[0]}
@@ -1743,12 +1739,14 @@ const EditableVoid = ({ attributes, children, element }) => {
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
-			onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
+			// onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
 			style={{
 				border: selected ? "1px solid red" : "1px solid grey",
-				background: "green",
+				background: selected ? 'green' : '',
 				position: 'relative',
+				overflow: 'hidden',
 				height: "100px",
+				width: "100%"
 			}}
 			{...attributes}
 
@@ -1756,19 +1754,27 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
+			<div>
+				{children}
+
+
+			</div>
+
+
+			<button
+				style={{ cursor: 'pointer' }}
+				onClick={(e) => {
+					addCard();
+				}}>
+				click here123
+
+			</button>
+
 
 			<div contentEditable="false">
 
 
 
-				<button
-					style={{ cursor: 'pointer' }}
-					onClick={(e) => {
-						addCard();
-					}}>
-					click here123
-
-				</button>
 				<EditablePopup
 					open={open}
 					card={objCopy}
@@ -1831,10 +1837,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</div>
 
 			<div>
-				{children}
-
-
+				&nbsp;
 			</div>
+
 
 		</div>
 	);
