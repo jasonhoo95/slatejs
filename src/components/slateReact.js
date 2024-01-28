@@ -1770,7 +1770,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</button> */}
 
 
-			<div contentEditable="false">
+			<div>
 
 
 
