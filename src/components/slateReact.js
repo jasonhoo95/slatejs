@@ -217,8 +217,8 @@ const SlateReact = () => {
 		} else {
 			insertBreak();
 			const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
-
 			if (selectedLeaf1.text.length == 0) {
+
 				const isActive = isBlockActive(editor, "heading-one", TEXT_ALIGN_TYPES.includes("heading-one") ? "align" : "type");
 				if (isActive) {
 					Transforms.setNodes(editor, { type: "paragraph" });
@@ -227,7 +227,6 @@ const SlateReact = () => {
 					Editor.removeMark(editor, o);
 				});
 			}
-			getCaretCoordinates();
 		}
 	};
 
@@ -514,7 +513,6 @@ const SlateReact = () => {
 
 						const string = Node.leaf(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
-
 
 						console.log(string, editor.selection.anchor.path, "string text")
 						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
