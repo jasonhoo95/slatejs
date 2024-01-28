@@ -1789,7 +1789,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 								onClick={(e) => {
 									// setModal(key, card, true);
 									// setCheckValidate(key, card, false)
-									window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "katex", key, card);
 
 								}}
 								style={{ height: "100%", width: "50%", background: "red" }}
