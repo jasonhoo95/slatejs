@@ -1708,7 +1708,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 				let value = JSON.parse(event.data);
 
 				if (value && value.id == "katex") {
-					alert("go");
 					ReactEditor.focus(editor);
 					let cardnow = [...value.card];
 					var index = _.findIndex(cardnow, { id: value.key });
