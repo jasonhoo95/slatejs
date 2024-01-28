@@ -1711,11 +1711,12 @@ const EditableVoid = ({ attributes, children, element }) => {
 					ReactEditor.focus(editor);
 					let cardnow = [...value.card];
 					var index = _.findIndex(cardnow, { id: value.key });
-					if (cardnow[index].card != 'hello world') {
-						cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
-						Transforms.setNodes(editor, { card: cardnow }, { at: path });
+					Transforms.setNodes(editor, { card: cardnow }, { at: path });
 
-					}
+					// if (cardnow[index].card != 'hello world') {
+					// 	cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
+
+					// }
 
 				}
 			}
@@ -1760,14 +1761,14 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</div>
 
 
-			<button
+			{/* <button
 				style={{ cursor: 'pointer' }}
 				onClick={(e) => {
 					addCard();
 				}}>
 				click here123
 
-			</button>
+			</button> */}
 
 
 			<div contentEditable="false">
