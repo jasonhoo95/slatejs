@@ -1769,15 +1769,13 @@ const EditableVoid = ({ attributes, children, element }) => {
 					click here123
 
 				</button>
-
-				{/* <EditablePopup
+				<EditablePopup
 					open={open}
 					card={objCopy}
 					setOpenCallback={setOpen}
 					path={path}
 					editor={editor}
-				/> */}
-
+				/>
 				<div className="flex">
 					{card?.map((o, key) => {
 						return (
@@ -1832,7 +1830,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
-			<div contentEditable={/android/i.test(ua) ? true : false}>
+			<div>
 				{children}
 
 
