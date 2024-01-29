@@ -1774,13 +1774,13 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
-				<EditablePopup
+				{/* <EditablePopup
 					open={open}
 					card={objCopy}
 					setOpenCallback={setOpen}
 					path={path}
 					editor={editor}
-				/>
+				/> */}
 				<div className="flex">
 					{card?.map((o, key) => {
 						return (
@@ -1835,7 +1835,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</div>
 
 			<div>
-				&nbsp;
+				&#x200B;
 			</div>
 
 
