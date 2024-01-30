@@ -363,12 +363,14 @@ const SlateReact = () => {
 				match: n => ['span-txt', 'table-cell1'].includes(n.type),
 			});
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
+			const previous = Editor.previous(editor, { at: editor.selection.anchor.path, match: (n) => n.type == 'katex' })
 
 
+			console.log(parent, "list item delete");
 
 			if (listItems && listItems[0].type == "span-txt") {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
-			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
+			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 				if (/android/i.test(ua)) {
 					Transforms.insertText(editor, "\u200B".toString(), {
