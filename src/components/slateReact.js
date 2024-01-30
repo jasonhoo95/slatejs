@@ -1838,6 +1838,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 			</div>
 
+			<div>
+				&#x200B;
+			</div>
 
 
 
