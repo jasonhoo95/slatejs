@@ -214,7 +214,13 @@ const SlateReact = () => {
 
 
 
-		} else {
+		} else if (currentParent && currentParent[0].type == "editable-void") {
+			Transforms.setNodes(editor, { checked: false }, { at: currentParent[1] });
+			Transforms.move(editor, { distance: 1, unit: 'offset' })
+
+
+		}
+		else {
 			insertBreak();
 			const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
 			if (selectedLeaf1.text.length == 0) {
@@ -343,7 +349,7 @@ const SlateReact = () => {
 			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
-		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type)) {
+		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type)) {
 
 
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
@@ -355,7 +361,7 @@ const SlateReact = () => {
 		}
 
 
-		else if (listItemParent && ["dropdown-content", "table-list", "editable-void"].includes(listItemParent[0].type) && !backwardCheck) {
+		else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type) && !backwardCheck) {
 
 
 
@@ -366,7 +372,7 @@ const SlateReact = () => {
 			const previous = Editor.previous(editor, { at: editor.selection.anchor.path, match: (n) => n.type == 'katex' })
 
 
-			console.log(parent, "list item delete");
+
 
 			if (listItems && listItems[0].type == "span-txt") {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
@@ -401,12 +407,13 @@ const SlateReact = () => {
 		}
 
 
-		// else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+		else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 
-		// 	Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
-		// 	Transforms.select(editor, previousVoid[1]);
+			Transforms.setNodes(editor, { checked: true }, { at: previousParent[1] });
+			// Transforms.move(editor, { distance: 1, reverse: true, unit: 'offset' })
+			Transforms.select(editor, previousVoid[1]);
 
-		// }
+		}
 
 		else {
 
@@ -477,7 +484,7 @@ const SlateReact = () => {
 	};
 	const onFocus = useCallback((e) => {
 
-		console.log("true");
+
 		setFocus(true);
 		window.addEventListener("resize", getCaretCoordinates);
 
@@ -516,7 +523,7 @@ const SlateReact = () => {
 						const string = Node.leaf(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
 
-						console.log(string, editor.selection.anchor.path, "string text")
+
 						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
 							Editor.withoutNormalizing(editor, () => {
 								toggleBlock(editor, "numbered-list", "number");
@@ -728,8 +735,7 @@ const SlateReact = () => {
 						const block = {
 							type: "editable-void",
 							checked: true,
-							card: [],
-							children: [{ type: 'span-txt', children: [{ text: '' }] }],
+							children: [{ text: '' }],
 						};
 
 						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
@@ -924,7 +930,7 @@ const SlateReact = () => {
 
 						}
 
-						else if ((event.key == 'Enter') && listItems && ["dropdown-content", "table-list", "editable-void"].includes(listItems[0].type) && !parentCheck) {
+						else if ((event.key == 'Enter') && listItems && ["dropdown-content", "table-list"].includes(listItems[0].type) && !parentCheck) {
 							event.preventDefault();
 
 							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
@@ -1090,7 +1096,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "editable-void"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1657,7 +1663,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const [inputValue, setInputValue] = useState('');
 	const ua = navigator.userAgent
 
-
+	console.log(checked, "checked value");
 	// if (checked && undo) {
 	// 	Transforms.select(editor, path);
 	// 	undo = false;
@@ -1740,7 +1746,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
-			// onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
+			onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
 			style={{
 				border: selected ? "1px solid red" : "1px solid grey",
 				background: selected ? 'green' : '',
