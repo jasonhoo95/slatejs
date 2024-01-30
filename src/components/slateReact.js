@@ -1755,11 +1755,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
-			<div>
-				{children}
-
-
-			</div>
 
 
 			{/* <button
@@ -1783,7 +1778,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					path={path}
 					editor={editor}
 				/> */}
-				<div className="flex">
+				<div className="flex" contentEditable="false">
 					{card?.map((o, key) => {
 						return (
 							<div
@@ -1836,9 +1831,15 @@ const EditableVoid = ({ attributes, children, element }) => {
 				</div>
 			</div>
 
+
 			<div>
-				&#x200B;
+				{children}
+
+
 			</div>
+
+
+
 
 
 		</div>
