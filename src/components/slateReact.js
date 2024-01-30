@@ -368,7 +368,7 @@ const SlateReact = () => {
 
 			if (listItems && listItems[0].type == "span-txt") {
 				Transforms.removeNodes(editor, { at: listItemParent[1] });
-			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && editor.selection.anchor.path[editor.selection.anchor.path.length - 1] == 0) {
+			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0) {
 
 				if (/android/i.test(ua)) {
 					Transforms.insertText(editor, "\u200B".toString(), {
