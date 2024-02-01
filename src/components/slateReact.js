@@ -233,7 +233,6 @@ const SlateReact = () => {
 
 
 	editor.deleteBackward = (...args) => {
-
 		let listItemParent;
 		let previousParent;
 		let previousVoid;
@@ -520,25 +519,14 @@ const SlateReact = () => {
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
 
 
-						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
-							Editor.withoutNormalizing(editor, () => {
-								toggleBlock(editor, "numbered-list", "number");
-								Transforms.delete(editor, {
-									at: editor.selection.anchor,
-									unit: "word",
-									reverse: true,
-								});
-
-							})
-							return false;
-						} else if (parent[0].type == "link" && parent[0].children[0].text.length <= 0) {
+						//  else if (parent[0].type == "link" && parent[0].children[0].text.length <= 0) {
 
 
-							Transforms.removeNodes(editor, {
-								at: parent[1]
-							})
+						// 	Transforms.removeNodes(editor, {
+						// 		at: parent[1]
+						// 	})
 
-						}
+						// }
 					}
 
 
@@ -951,6 +939,18 @@ const SlateReact = () => {
 							Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
 							getCaretCoordinates();
 
+
+
+						}
+
+						else if (stringText[0].text.startsWith("1.") && !/android/i.test(ua)) {
+							Transforms.delete(editor, {
+								at: editor.selection.anchor,
+								distance: 2,
+								unit: "offset",
+								reverse: true,
+							});
+							toggleBlock(editor, "numbered-list", "number");
 
 
 						}
