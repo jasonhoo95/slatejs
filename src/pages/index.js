@@ -10,15 +10,17 @@ import { Slate, useSelected } from "slate-react";
 import CheckListsExample from "@/components/checkListExample";
 import { useModalStore } from "@/globals/zustandGlobal";
 import { ReactEditor } from "slate-react";
-
+import TablesExample from "@/components/TablesExample";
+import { Tab } from "@headlessui/react";
+import MultiSelect from "@/components/multiSelectComponent";
 export default function Home() {
 	let ModalProps = useModalStore((state) => state.display);
-
 	const [display, setDisplay] = useState(false);
+	const [valuenow, setValue] = useState({ select: [{ label: "Grapes 🍇", value: "grapes" }], id: 1 })
 	useEffect(() => {
+		console.log(valuenow, "value return");
 
-
-	}, [])
+	}, [valuenow])
 	return (
 		<div className="m-8">
 			<Head>
@@ -35,9 +37,10 @@ export default function Home() {
 
 			{/* <SlateMobile /> */}
 			<SlateReact />
+			{/* <TablesExample /> */}
 
 
-
+			{/* <MultiSelect value={valuenow['select']} /> */}
 			<div className="relative">
 				<div contentEditable="true">
 					asd asda
