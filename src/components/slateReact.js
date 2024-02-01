@@ -240,7 +240,7 @@ const SlateReact = () => {
 			let nextParent;
 			const [listItems] = Editor.nodes(editor, {
 				at: editor.selection.anchor.path,
-				match: (n) => ["paragraph", "list-item", "editable-void", "dropdown-content", "check-list-item", "table-list", "katex"].includes(n.type),
+				match: (n) => ["paragraph", "table-list", "dropdown-content", "list-item", "editable-void", "dropdown-content", "check-list-item", "table-list", "katex"].includes(n.type),
 			});
 			const ua = navigator.userAgent
 
@@ -263,7 +263,7 @@ const SlateReact = () => {
 
 				});
 				nextParent = Editor.next(editor, { at: listItems[1] });
-				console.log("lsi item");
+
 
 			}
 
@@ -341,7 +341,7 @@ const SlateReact = () => {
 				editor.selection.anchor.offset == 0
 			) {
 				toggleBlock(editor, listItemParent[0].type);
-			} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type)) {
+			} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
 
 
 				Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
@@ -357,6 +357,7 @@ const SlateReact = () => {
 
 
 
+
 				const listItems = Editor.above(editor, {
 					match: n => ['span-txt', 'table-cell1'].includes(n.type),
 				});
@@ -369,6 +370,7 @@ const SlateReact = () => {
 				if (listItems && listItems[0].type == "span-txt") {
 					Transforms.removeNodes(editor, { at: listItemParent[1] });
 				} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
+
 
 					if (/android/i.test(ua)) {
 						Transforms.insertText(editor, "\u200B".toString(), {
@@ -817,8 +819,10 @@ const SlateReact = () => {
 
 					Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
 					Transforms.unwrapNodes(editor, { mode: "highest" });
-
 					Transforms.select(editor, [editor.selection.anchor.path[0], 1]);
+
+
+
 					getCaretCoordinates();
 
 					undo = false;
