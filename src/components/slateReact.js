@@ -774,6 +774,23 @@ const SlateReact = () => {
 					insert katex
 				</div>
 
+				<div onClick={(e) => {
+					ReactEditor.focus(editor);
+
+					const block = {
+						type: 'input-component',
+						inputTxt: 'ok',
+						children: [{ text: '' }]
+					}
+
+					Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
+					Transforms.unwrapNodes(editor, { mode: "highest" });
+
+
+				}}>
+					insert input
+				</div>
+
 
 				<div onClick={(e) => {
 					const ua = navigator.userAgent
@@ -1090,7 +1107,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "input-component"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1643,6 +1660,55 @@ const TableList = ({ attributes, children, element }) => {
 
 }
 
+
+const InputComponent = ({ attributes, children, element }) => {
+	const editor = useSlate();
+	const [inputValue, setInputValue] = useState(null);
+	const path = ReactEditor.findPath(editor, element);
+
+	const { inputTxt } = element;
+
+	const checkInput = (val) => {
+
+		Transforms.setNodes(editor, { inputTxt: val }, { at: path })
+
+
+
+	}
+
+	return (
+		<div style={{ width: '100%', height: '100px', background: 'green' }} {...attributes}>
+
+			<input contentEditable="false" className="w-full h-[30px]" value={inputValue ? inputValue.txt : inputTxt}
+				onChange={(e) => {
+					e.preventDefault();
+					setInputValue({ txt: e.target.value });
+					checkInput(e.target.value);
+
+				}}
+				onFocus={e => {
+					setInputValue({ txt: e.target.value });
+
+				}}
+				onBlur={e => {
+					setInputValue(null);
+
+
+				}}
+				type="text"></input>
+			<div>
+				{children}
+
+			</div>
+
+		</div>
+
+
+	)
+
+
+}
+
 const EditableVoid = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const { card, checked } = element;
@@ -1801,23 +1867,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 									{o.card}
 								</div>
 
-								{/* <input className="w-full h-[30px]" value={inputValue && inputValue.id == key ? inputValue.txt : o.card}
-									onChange={(e) => {
-										e.preventDefault();
-										setInputValue({ id: key, txt: e.target.value });
-										checkInput(e.target.value, key, card);
-
-									}}
-									onFocus={e => {
-										setInputValue({ id: key, txt: e.target.value });
-
-									}}
-									onBlur={e => {
-										setInputValue(null);
-
-
-									}}
-									type="text"></input> */}
 
 
 
@@ -2074,6 +2123,9 @@ const Element = (props) => {
 			return <CheckListItemElement {...props} />;
 		case "dropdown-content":
 			return <DropDownList {...props} />;
+		case "input-component":
+			return <InputComponent {...props} />;
+
 		case "table-list":
 			return <TableList {...props} />;
 		case "table-cell":
