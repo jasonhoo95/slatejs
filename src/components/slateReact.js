@@ -304,15 +304,13 @@ const SlateReact = () => {
 					}
 
 				}
-			}
-			 if (previousParent && previousParent[0].type == "check-list-item" && editor.selection.anchor.offset == 0) {
+			}else if (previousParent && previousParent[0].type == "check-list-item" && editor.selection.anchor.offset == 0) {
 				deleteBackward(...args);
 				if (previousParent[0].children[0].text.length == 0) {
 					Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
 
 				}
-			}
-			 if (
+			} else if (
 				nextParent &&
 				previousParent &&
 				["numbered-list", "bulleted-list"].includes(previousParent[0].type) &&
@@ -334,8 +332,7 @@ const SlateReact = () => {
 					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
 				});
 
-			} 
-			 if (
+			} else if (
 				listItemParent &&
 				(listItemParent[0].type == "list-item" || listItemParent[0].type == "check-list-item") &&
 				!previousKatex &&
@@ -343,9 +340,7 @@ const SlateReact = () => {
 				editor.selection.anchor.offset == 0
 			) {
 				toggleBlock(editor, listItemParent[0].type);
-			} 
-			
-			if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
+			} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
 
 
 				Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
@@ -354,10 +349,7 @@ const SlateReact = () => {
 				Transforms.select(editor, previousVoid[1]);
 
 
-			}
-
-
-			 if (listItemParent && ["dropdown-content", "table-list", "editable-void"].includes(listItemParent[0].type)) {
+			} else if (listItemParent && ["dropdown-content", "table-list", "editable-void"].includes(listItemParent[0].type)) {
 
 
 
