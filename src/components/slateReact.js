@@ -233,6 +233,7 @@ const SlateReact = () => {
 
 
 	editor.deleteBackward = (...args) => {
+		Editor.withoutNormalizing(editor, () => {
 
 		let listItemParent;
 		let previousParent;
@@ -303,14 +304,18 @@ const SlateReact = () => {
 					}
 				}
 			}
-		} else if (previousParent && previousParent[0].type == "check-list-item" && editor.selection.anchor.offset == 0) {
+			return;
+		} 
+		 if (previousParent && previousParent[0].type == "check-list-item" && editor.selection.anchor.offset == 0) {
 			deleteBackward(...args);
 			if (previousParent[0].children[0].text.length == 0) {
 				Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
 
 			}
+
+			return;
 		}
-		else if (
+		 if (
 			nextParent &&
 			previousParent &&
 			["numbered-list", "bulleted-list"].includes(previousParent[0].type) &&
@@ -335,7 +340,11 @@ const SlateReact = () => {
 					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
 				});
 			}
-		} else if (
+
+			return
+		}
+		
+		if (
 			listItemParent &&
 			(listItemParent[0].type == "list-item" || listItemParent[0].type == "check-list-item") &&
 			!previousKatex &&
@@ -343,19 +352,22 @@ const SlateReact = () => {
 			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
-		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type)) {
+			return;
+		}
+		
+		if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type)) {
 
 
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
 			// Transforms.move(editor, { distance: 2, reverse: true, });
 			Transforms.select(editor, previousVoid[1]);
-
+return;
 
 		}
 
 
-		else if (listItemParent && ["dropdown-content", "table-list", "editable-void"].includes(listItemParent[0].type) && !backwardCheck) {
+		 if (listItemParent && ["dropdown-content", "table-list", "editable-void"].includes(listItemParent[0].type)) {
 
 
 
@@ -385,7 +397,6 @@ const SlateReact = () => {
 			}
 			else {
 
-				backwardCheck = true;
 				deleteBackward(...args);
 				const node = Editor.node(editor, editor.selection.anchor.path);
 
@@ -398,17 +409,9 @@ const SlateReact = () => {
 				}
 			}
 
-		}
+			return;
 
-
-		// else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
-
-		// 	Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
-		// 	Transforms.select(editor, previousVoid[1]);
-
-		// }
-
-		else {
+		}else {
 
 			deleteBackward(...args);
 
@@ -430,6 +433,18 @@ const SlateReact = () => {
 				}
 			}
 		}
+
+
+		// else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+
+		// 	Transforms.setNodes(editor, { checked: true }, { at: previousVoid[1] });
+		// 	Transforms.select(editor, previousVoid[1]);
+
+		// }
+
+		
+
+	})
 	}
 
 	editor.deleteFragment = (...args) => {
@@ -541,7 +556,6 @@ const SlateReact = () => {
 
 
 
-					backwardCheck = false;
 
 				}}
 				initialValue={initialValue}>
