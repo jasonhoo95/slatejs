@@ -306,14 +306,12 @@ const SlateReact = () => {
 					}
 
 				}
-				return false;
 			} else if (previousParent && previousParent[0].type == "check-list-item" && editor.selection.anchor.offset == 0) {
 				deleteBackward(...args);
 				if (previousParent[0].children[0].text.length == 0) {
 					Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
 
 				}
-				return false;
 
 			}
 			else if (
@@ -337,7 +335,6 @@ const SlateReact = () => {
 					at: listItemParent[1],
 					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
 				});
-				return false;
 
 			} else if (
 				listItemParent &&
@@ -347,7 +344,6 @@ const SlateReact = () => {
 				editor.selection.anchor.offset == 0
 			) {
 				toggleBlock(editor, listItemParent[0].type);
-				return false;
 
 			} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
 
@@ -356,7 +352,6 @@ const SlateReact = () => {
 
 				// Transforms.move(editor, { distance: 2, reverse: true, });
 				Transforms.select(editor, previousVoid[1]);
-				return false;
 
 
 			}
@@ -407,7 +402,6 @@ const SlateReact = () => {
 					}
 				}
 
-				return false;
 
 
 			}
@@ -417,19 +411,19 @@ const SlateReact = () => {
 
 
 
-				const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-				const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
-				const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
+				// const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+				// const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
+				// const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
 
-				if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
-					Transforms.delete(editor, { at: editor.selection.anchor.path });
-				}
-				else if (/\u200B/.test(currentNode[0].children[0].text)) {
+				// if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
+				// 	Transforms.delete(editor, { at: editor.selection.anchor.path });
+				// }
+				// else if (/\u200B/.test(currentNode[0].children[0].text)) {
 
 
-					Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
-					// Transforms.move(editor, { distance: 1, unit: "offset" });
-				}
+				// 	Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
+				// 	// Transforms.move(editor, { distance: 1, unit: "offset" });
+				// }
 
 			}
 		}
