@@ -269,6 +269,21 @@ const SlateAndroid = () => {
 
 
 
+
+            if (listItemParent && listItemParent[0].type == 'paragraph' && listItemParent[0].children.filter((o) => o.type == 'katex')) {
+                deleteBackward(...args);
+                const node = Editor.node(editor, editor.selection.anchor.path);
+
+                if (/\u200B/.test(node[0].text)) {
+
+                    Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
+
+
+
+                }
+            }
+
+
             if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
                 deleteBackward(...args);
 
