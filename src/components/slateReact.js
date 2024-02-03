@@ -254,7 +254,7 @@ const SlateReact = () => {
 
 				previousParent = Editor.previous(editor, {
 					at: listItems[1],
-					match: (n) => ["paragraph", "numbered-list", "bulleted-list", "check-list-item", "editable-void", "dropdown-content"].includes(n.type),
+
 
 				});
 				previousVoid = Editor.previous(editor, {
@@ -263,7 +263,7 @@ const SlateReact = () => {
 
 				});
 				nextParent = Editor.next(editor, {
-					at: listItems[1], match: (n) => ["paragraph", "numbered-list", "bulleted-list", "check-list-item", "editable-void", "dropdown-content"].includes(n.type),
+					at: listItems[1]
 				});
 
 
