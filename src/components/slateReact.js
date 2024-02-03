@@ -306,12 +306,14 @@ const SlateReact = () => {
 					}
 
 				}
+				return false;
 			} else if (previousParent && previousParent[0].type == "check-list-item" && editor.selection.anchor.offset == 0) {
 				deleteBackward(...args);
 				if (previousParent[0].children[0].text.length == 0) {
 					Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
 
 				}
+				return false;
 
 			}
 			else if (
@@ -335,6 +337,7 @@ const SlateReact = () => {
 					at: listItemParent[1],
 					match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
 				});
+				return false;
 
 			} else if (
 				listItemParent &&
@@ -344,6 +347,7 @@ const SlateReact = () => {
 				editor.selection.anchor.offset == 0
 			) {
 				toggleBlock(editor, listItemParent[0].type);
+				return false;
 
 			} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
 
@@ -352,6 +356,7 @@ const SlateReact = () => {
 
 				// Transforms.move(editor, { distance: 2, reverse: true, });
 				Transforms.select(editor, previousVoid[1]);
+				return false;
 
 
 			}
@@ -402,6 +407,7 @@ const SlateReact = () => {
 					}
 				}
 
+				return false;
 
 
 			}
