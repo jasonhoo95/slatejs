@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useRef, useState, useEffect } from "react"
 import dynamic from "next/dynamic";
 import SlateMobile from "@/components/slateMobile";
 import SlateReact from "@/components/slateReact";
+import SlateAndroid from "@/components/slateAndroid";
 import PlainTextExample from "@/components/plainText";
 import { useBearStore, useAuthStore } from "@/globals/authStorage";
 import { Slate, useSelected } from "slate-react";
@@ -36,7 +37,8 @@ export default function Home() {
 			</Head>
 
 			{/* <SlateMobile /> */}
-			<SlateReact />
+			{/* <SlateReact /> */}
+			<SlateAndroid />
 			{/* <TablesExample /> */}
 
 			{/* {value['inputTxt']} */}
