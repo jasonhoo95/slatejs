@@ -38,8 +38,8 @@ export default function Home() {
 
 			{/* <SlateMobile /> */}
 			{/* <SlateReact /> */}
-			{/* <SlateAndroid /> */}
-			<TablesExample />
+			<SlateAndroid />
+			{/* <TablesExample /> */}
 
 			{/* {value['inputTxt']} */}
 
