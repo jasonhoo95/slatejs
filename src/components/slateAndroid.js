@@ -100,7 +100,7 @@ function getCaretCoordinates(height) {
     }
     // return { x, y };
 }
-const SlateReact = () => {
+const SlateAndroid = () => {
     let id = v4();
     let ModalProps = useModalStore((state) => state.display);
     let updateAmount = useModalStore((state) => state.updateModal);
