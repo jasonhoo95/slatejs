@@ -431,7 +431,9 @@ const SlateReact = () => {
 
 				}
 
-			} else {
+			}
+
+			if (/android/i.test(ua)) {
 				if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 					deleteBackward(...args);
 
@@ -752,7 +754,7 @@ const SlateReact = () => {
 
 						}
 					}}>
-					insert voidnow
+					insert voidnow1
 				</div>
 				{/* <div
 					onClick={(e) => {
