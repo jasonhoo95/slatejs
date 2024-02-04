@@ -270,11 +270,15 @@ const SlateReact = () => {
 			}
 
 
-			if (listItemParent[0].type == "paragraph" && previousParent && previousParent[0].type == "paragraph" && nextParent && nextParent[0].type == "paragraph") {
+			if (listItemParent[0].type == "paragraph" && previousParent && previousParent[0].type == "paragraph" && nextParent && nextParent[0].type == "paragraph" && !backwardCheck) {
+				backwardCheck = true;
+				console.log("para 1");
 				deleteBackward(...args);
 				return false;
 
 			} else {
+				console.log(2);
+
 				if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 					deleteBackward(...args);
 
@@ -546,7 +550,7 @@ const SlateReact = () => {
 						}
 					}
 
-
+					backwardCheck = false;
 
 
 
