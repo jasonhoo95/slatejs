@@ -349,7 +349,7 @@ const SlateReact = () => {
 			toggleBlock(editor, listItemParent[0].type);
 			return false;
 
-		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
+		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type) && !["dropdown-content", "table-list"].includes(listItemParent[0].type)) {
 
 
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
@@ -411,7 +411,11 @@ const SlateReact = () => {
 			return false;
 
 
-		} else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+		} else if (listItemParent && listItemParent[0].type == "editable-void") {
+			Transforms.removeNodes(editor, { at: listItemParent[1] })
+		}
+
+		else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
@@ -1842,7 +1846,11 @@ const EditableVoid = ({ attributes, children, element }) => {
 		>
 
 
+			<div>
+				{children}
 
+
+			</div>
 
 
 
