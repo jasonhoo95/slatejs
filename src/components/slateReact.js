@@ -813,7 +813,7 @@ const SlateReact = () => {
 						insert: true,
 						checked: true,
 						children: [
-							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
+							// { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
 								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							}, {
@@ -1236,7 +1236,7 @@ const SpanTxt = ({ attributes, children, element }) => {
 	const ua = navigator.userAgent
 
 	return (
-		<div contentEditable={true} {...attributes}>
+		<div contentEditable={/android/i.test(ua) ? true : false} {...attributes}>
 			{children}
 		</div>
 
@@ -1629,17 +1629,13 @@ const TableList = ({ attributes, children, element }) => {
 
 
 	return (
-		<div>
+		<>
 
 			<table style={{ background: selected ? 'green' : '' }} className="relative"  {...attributes}>
-				<div>
-					{children[0]}
-
-				</div>
 				<tr>
 
 					{children.map((o, key) => {
-						if (1 <= key && key <= 2) {
+						if (0 <= key && key <= 1) {
 
 							return children[key]
 
@@ -1661,7 +1657,7 @@ const TableList = ({ attributes, children, element }) => {
 
 				<tr>
 					{children.map((o, key) => {
-						if (3 <= key && key <= 4) {
+						if (2 <= key && key <= 3) {
 
 							return children[key]
 
@@ -1669,17 +1665,17 @@ const TableList = ({ attributes, children, element }) => {
 
 					})}
 				</tr>
-				{/* <div contentEditable="false" className="absolute left-0 top-0 z-[20] w-full h-full">
-					&nbsp;
+
+				{/* <div contentEditable="false" style={{ userSelect: 'none' }} className="absolute left-0 top-0 z-[20] w-full h-full bg-red ">
+
 				</div> */}
+
 
 			</table>
 
 
+		</>
 
-
-
-		</div>
 
 	)
 
@@ -1854,7 +1850,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
-			<div>
+			<div contentEditable="false">
 
 
 
