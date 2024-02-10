@@ -349,7 +349,7 @@ const SlateReact = () => {
 			toggleBlock(editor, listItemParent[0].type);
 			return false;
 
-		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list", 'editable-void'].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
+		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
 
 
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
@@ -362,7 +362,7 @@ const SlateReact = () => {
 		}
 
 
-		else if (listItemParent && ["dropdown-content", "table-list", "editable-void"].includes(listItemParent[0].type)) {
+		else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type)) {
 
 
 
@@ -411,6 +411,8 @@ const SlateReact = () => {
 			return false;
 
 
+		} else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
 
@@ -740,7 +742,7 @@ const SlateReact = () => {
 							type: "editable-void",
 							checked: true,
 							card: [],
-							children: [{ type: 'span-txt', children: [{ text: '' }] }],
+							children: [{ text: '' }],
 						};
 
 						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
@@ -1122,7 +1124,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "input-component"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "editable-void", "input-component"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1234,7 +1236,7 @@ const SpanTxt = ({ attributes, children, element }) => {
 	const ua = navigator.userAgent
 
 	return (
-		<div contentEditable={/android/i.test(ua) ? true : false} {...attributes}>
+		<div contentEditable={true} {...attributes}>
 			{children}
 		</div>
 
@@ -1627,10 +1629,13 @@ const TableList = ({ attributes, children, element }) => {
 
 
 	return (
-		<>
+		<div>
 
 			<table style={{ background: selected ? 'green' : '' }} className="relative"  {...attributes}>
-				{children[0]}
+				{/* <div>
+					{children[0]}
+
+				</div> */}
 				<tr>
 
 					{children.map((o, key) => {
@@ -1664,11 +1669,17 @@ const TableList = ({ attributes, children, element }) => {
 
 					})}
 				</tr>
-
+				<div contentEditable="false" className="absolute left-0 top-0 z-[20] w-full h-full">
+					&nbsp;
+				</div>
 
 			</table>
 
-		</>
+
+
+
+
+		</div>
 
 	)
 
@@ -1834,18 +1845,13 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		>
 
+			<div>
+				{children}
 
 
+			</div>
 
 
-			{/* <button
-				style={{ cursor: 'pointer' }}
-				onClick={(e) => {
-					addCard();
-				}}>
-				click here123
-
-			</button> */}
 
 
 			<div>
@@ -1896,15 +1902,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</div>
 
 
-			<div>
-				{children}
 
 
-			</div>
 
-			<div>
-				&#x200B;
-			</div>
+
 
 
 
