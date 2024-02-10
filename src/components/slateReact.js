@@ -1632,10 +1632,10 @@ const TableList = ({ attributes, children, element }) => {
 		<div>
 
 			<table style={{ background: selected ? 'green' : '' }} className="relative"  {...attributes}>
-				{/* <div>
+				<div>
 					{children[0]}
 
-				</div> */}
+				</div>
 				<tr>
 
 					{children.map((o, key) => {
@@ -1669,9 +1669,9 @@ const TableList = ({ attributes, children, element }) => {
 
 					})}
 				</tr>
-				<div contentEditable="false" className="absolute left-0 top-0 z-[20] w-full h-full">
+				{/* <div contentEditable="false" className="absolute left-0 top-0 z-[20] w-full h-full">
 					&nbsp;
-				</div>
+				</div> */}
 
 			</table>
 
