@@ -1841,11 +1841,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		>
 
-			<div>
-				{children}
 
-
-			</div>
 
 
 
@@ -1898,7 +1894,11 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</div>
 
 
+			<div>
+				{children}
 
+
+			</div>
 
 
 
