@@ -336,7 +336,6 @@ const SlateReact = () => {
 				at: listItemParent[1],
 				match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
 			});
-			return false;
 
 		} else if (
 			listItemParent &&
@@ -346,7 +345,6 @@ const SlateReact = () => {
 			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
-			return false;
 
 		}
 
@@ -613,7 +611,7 @@ const SlateReact = () => {
 
 						}
 					}}>
-					insert voidnow1
+					insert voidnow12
 				</div>
 				{/* <div
 					onClick={(e) => {
