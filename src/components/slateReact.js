@@ -576,14 +576,14 @@ const SlateReact = () => {
 							checked: true,
 
 							children: [
-								{
-									type: "span-txt",
-									children: [
-										{
-											text: "",
-										},
-									],
-								},
+								// {
+								// 	type: "span-txt",
+								// 	children: [
+								// 		{
+								// 			text: "",
+								// 		},
+								// 	],
+								// },
 
 								{
 									type: "dropdown-inner",
@@ -1560,10 +1560,10 @@ const DropDownList = ({ attributes, children, element }) => {
 			{...attributes}
 			className="p-[10px] w-full"
 			style={{ background: (selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
-			<div>
+			{/* <div>
 				{children[0]}
 
-			</div>
+			</div> */}
 			<button
 				onClick={(e) => {
 					addMore();
