@@ -1669,9 +1669,6 @@ const TableList = ({ attributes, children, element }) => {
 					})}
 				</tr>
 
-				<div contentEditable="false" style={{ userSelect: 'none' }} className="absolute left-0 top-0 z-[20] w-full h-full bg-red ">
-
-				</div>
 
 
 			</table>
