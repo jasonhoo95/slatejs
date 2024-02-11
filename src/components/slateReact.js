@@ -416,6 +416,7 @@ const SlateReact = () => {
 		}
 
 		else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousVoid[1] });
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
@@ -835,7 +836,7 @@ const SlateReact = () => {
 
 					Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
 					Transforms.unwrapNodes(editor, { mode: "highest" });
-					Transforms.select(editor, [editor.selection.anchor.path[0], 1]);
+					Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
 
 
 
@@ -1558,12 +1559,10 @@ const DropDownList = ({ attributes, children, element }) => {
 	return (
 		<div
 			{...attributes}
-			className="p-[10px] w-full"
+			className="p-[10px] w-full relative"
 			style={{ background: (selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
-			{/* <div>
-				{children[0]}
 
-			</div> */}
+
 			<button
 				onClick={(e) => {
 					addMore();
@@ -1670,9 +1669,9 @@ const TableList = ({ attributes, children, element }) => {
 					})}
 				</tr>
 
-				{/* <div contentEditable="false" style={{ userSelect: 'none' }} className="absolute left-0 top-0 z-[20] w-full h-full bg-red ">
+				<div contentEditable="false" style={{ userSelect: 'none' }} className="absolute left-0 top-0 z-[20] w-full h-full bg-red ">
 
-				</div> */}
+				</div>
 
 
 			</table>
@@ -1845,12 +1844,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		>
 
-
-			<div>
-				{children}
-
-
-			</div>
 
 
 
