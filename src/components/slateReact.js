@@ -309,7 +309,6 @@ const SlateReact = () => {
 				}
 
 			}
-			return false;
 		} else if (previousParent && previousParent[0].type == "check-list-item" && editor.selection.anchor.offset == 0) {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
@@ -408,14 +407,13 @@ const SlateReact = () => {
 				}
 			}
 
-			return false;
 
 
 		} else if (listItemParent && listItemParent[0].type == "editable-void") {
 			Transforms.removeNodes(editor, { at: listItemParent[1] })
 		}
 
-		else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+		else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousVoid[1] });
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
