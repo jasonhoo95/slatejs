@@ -405,19 +405,19 @@ const SlateReact = () => {
 
 
 
-			// const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+			const currentNode = Editor.parent(editor, editor.selection.anchor.path);
 			// const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
 			// const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
 
 			// if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
 			// 	Transforms.delete(editor, { at: editor.selection.anchor.path });
 			// }
-			// else if (/\u200B/.test(currentNode[0].children[0].text)) {
+			if (/\u200B/.test(currentNode[0].children[0].text)) {
 
 
-			// 	Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
-			// 	// Transforms.move(editor, { distance: 1, unit: "offset" });
-			// }
+				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+				// Transforms.move(editor, { distance: 1, unit: "offset" });
+			}
 
 
 		}
@@ -889,6 +889,7 @@ const SlateReact = () => {
 
 
 					onKeyDown={(event) => {
+						console.log("para keydown");
 						const ua = navigator.userAgent
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
