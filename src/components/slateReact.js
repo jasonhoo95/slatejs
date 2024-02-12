@@ -382,19 +382,14 @@ const SlateReact = () => {
 			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 
-				if (/android/i.test(ua)) {
-					Transforms.insertText(editor, "\u200B".toString(), {
-						at: editor.selection.anchor,
-					});
-				} else {
+				Transforms.insertText(editor, "\u200B".toString(), {
+					at: editor.selection.anchor,
+				});
 
-					return;
-
-				}
 
 			}
 			else {
-
+				console.log("dropdown check");
 				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
 
@@ -409,10 +404,9 @@ const SlateReact = () => {
 				}
 			}
 
-			return false;
 
 
-		} else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
