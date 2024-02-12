@@ -239,7 +239,7 @@ const SlateReact = () => {
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["paragraph", "table-list", "list-item", "editable-void", "dropdown-content", "check-list-item", "katex"].includes(n.type),
+			match: (n) => ["paragraph", "table-list", "dropdown-content", "list-item", "editable-void", "dropdown-content", "check-list-item", "table-list", "katex"].includes(n.type),
 		});
 		const ua = navigator.userAgent
 
@@ -309,6 +309,7 @@ const SlateReact = () => {
 				}
 
 			}
+			return false;
 		} else if (previousParent && previousParent[0].type == "check-list-item" && editor.selection.anchor.offset == 0) {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
@@ -316,6 +317,7 @@ const SlateReact = () => {
 				Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
 
 			}
+			return false;
 
 		}
 		else if (
@@ -335,6 +337,7 @@ const SlateReact = () => {
 				at: listItemParent[1],
 				match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ["numbered-list", "bulleted-list"].includes(n.type),
 			});
+			return false;
 
 		} else if (
 			listItemParent &&
@@ -344,6 +347,17 @@ const SlateReact = () => {
 			editor.selection.anchor.offset == 0
 		) {
 			toggleBlock(editor, listItemParent[0].type);
+			return false;
+
+		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
+
+
+			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
+
+			// Transforms.move(editor, { distance: 2, reverse: true, });
+			Transforms.select(editor, previousVoid[1]);
+			return false;
+
 
 		}
 
@@ -351,12 +365,20 @@ const SlateReact = () => {
 		else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type)) {
 
 
+
+
+			const listItems = Editor.above(editor, {
+				match: n => ['span-txt', 'table-cell1'].includes(n.type),
+			});
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
+			const previous = Editor.previous(editor, { at: editor.selection.anchor.path, match: (n) => n.type == 'katex' })
 
-			console.log("para 3")
 
 
-			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
+
+			if (listItems && listItems[0].type == "span-txt") {
+				Transforms.removeNodes(editor, { at: listItemParent[1] });
+			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 
 				if (/android/i.test(ua)) {
@@ -379,21 +401,17 @@ const SlateReact = () => {
 
 				if (/\u200B/.test(node[0].text)) {
 
-					Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+					Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
 
 
 
 				}
 			}
 
+			return false;
 
 
-		} else if (listItemParent && listItemParent[0].type == "editable-void") {
-			Transforms.removeNodes(editor, { at: listItemParent[1] })
-		}
-
-		else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
-			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousVoid[1] });
+		} else if (previousVoid && previousVoid[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
@@ -404,19 +422,19 @@ const SlateReact = () => {
 
 
 
-			const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+			// const currentNode = Editor.parent(editor, editor.selection.anchor.path);
 			// const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
 			// const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
 
 			// if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
 			// 	Transforms.delete(editor, { at: editor.selection.anchor.path });
 			// }
-			if (/\u200B/.test(currentNode[0].children[0].text)) {
+			// else if (/\u200B/.test(currentNode[0].children[0].text)) {
 
 
-				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
-				// Transforms.move(editor, { distance: 1, unit: "offset" });
-			}
+			// 	Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
+			// 	// Transforms.move(editor, { distance: 1, unit: "offset" });
+			// }
 
 
 		}
@@ -554,14 +572,14 @@ const SlateReact = () => {
 							checked: true,
 
 							children: [
-								// {
-								// 	type: "span-txt",
-								// 	children: [
-								// 		{
-								// 			text: "",
-								// 		},
-								// 	],
-								// },
+								{
+									type: "span-txt",
+									children: [
+										{
+											text: "",
+										},
+									],
+								},
 
 								{
 									type: "dropdown-inner",
@@ -610,7 +628,7 @@ const SlateReact = () => {
 
 						}
 					}}>
-					insert voidnow12
+					insert voidnow1
 				</div>
 				{/* <div
 					onClick={(e) => {
@@ -795,7 +813,7 @@ const SlateReact = () => {
 						insert: true,
 						checked: true,
 						children: [
-							// { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
+							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
 								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							}, {
@@ -813,7 +831,7 @@ const SlateReact = () => {
 
 					Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
 					Transforms.unwrapNodes(editor, { mode: "highest" });
-					Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
+					Transforms.select(editor, [editor.selection.anchor.path[0], 1]);
 
 
 
@@ -888,7 +906,6 @@ const SlateReact = () => {
 
 
 					onKeyDown={(event) => {
-						console.log("para keydown");
 						const ua = navigator.userAgent
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
@@ -1537,10 +1554,12 @@ const DropDownList = ({ attributes, children, element }) => {
 	return (
 		<div
 			{...attributes}
-			className="p-[10px] w-full relative"
+			className="p-[10px] w-full"
 			style={{ background: (selected) ? 'green' : '', border: '1px solid grey', borderRadius: "10px" }}>
+			<div>
+				{children[0]}
 
-
+			</div>
 			<button
 				onClick={(e) => {
 					addMore();
@@ -1581,6 +1600,30 @@ const TableList = ({ attributes, children, element }) => {
 	const { card, checked, insert } = element;
 	const path = ReactEditor.findPath(editor, element);
 
+	// const pathCheck = Editor.next(editor, { at: [editor.selection.anchor.path[0] + 1, 0] })
+
+
+
+
+
+
+	// if (!selected && pathCheck && pathCheck[0].type == "table-cell1" && undo) {
+	// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 1, 0]);
+	// 	undo = false;
+	// }
+
+	// if (checked && undo) {
+
+	// 	Transforms.select(editor, [path[0], 0]);
+	// 	// Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true })
+	// 	undo = false;
+	// }
+	// else if (!checked && selected && undo) {
+
+	// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0]);
+
+	// 	undo = false;
+	// }
 
 
 
@@ -1588,17 +1631,26 @@ const TableList = ({ attributes, children, element }) => {
 	return (
 		<>
 
-			<table style={{ background: selected ? 'green' : '' }}  {...attributes}>
+			<table style={{ background: selected ? 'green' : '' }} className="relative"  {...attributes}>
+				{children[0]}
 				<tr>
 
 					{children.map((o, key) => {
-						if (0 <= key && key <= 1) {
+						if (1 <= key && key <= 2) {
 
 							return children[key]
 
 						}
 
 					})}
+					{/* {card.map((o, key) => {
+						return (
+							<CellElement setCallback={arrayCheck} select={selectArray[key]} path={path} card={card} data={o} key={key} />
+
+						)
+
+
+					})} */}
 
 
 
@@ -1606,7 +1658,7 @@ const TableList = ({ attributes, children, element }) => {
 
 				<tr>
 					{children.map((o, key) => {
-						if (2 <= key && key <= 3) {
+						if (3 <= key && key <= 4) {
 
 							return children[key]
 
@@ -1614,14 +1666,12 @@ const TableList = ({ attributes, children, element }) => {
 
 					})}
 				</tr>
-
 
 
 			</table>
 
 
 		</>
-
 
 	)
 
@@ -1787,10 +1837,16 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		>
 
+			<div>
+				{children}
+
+
+			</div>
 
 
 
-			<div contentEditable="false">
+
+			<div>
 
 
 
@@ -1838,11 +1894,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</div>
 
 
-			<div>
-				{children}
 
-
-			</div>
 
 
 
