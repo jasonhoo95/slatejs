@@ -379,7 +379,7 @@ const SlateReact = () => {
 
 				if (/\u200B/.test(node[0].text)) {
 
-					Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
+					Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
 
 
