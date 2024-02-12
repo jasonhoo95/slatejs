@@ -376,9 +376,10 @@ const SlateReact = () => {
 
 
 
-			if (listItems && listItems[0].type == "span-txt") {
-				Transforms.removeNodes(editor, { at: listItemParent[1] });
-			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
+			// if (listItems && listItems[0].type == "span-txt") {
+			// 	Transforms.removeNodes(editor, { at: listItemParent[1] });
+			// } else
+			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 
 				if (/android/i.test(ua)) {
@@ -401,7 +402,7 @@ const SlateReact = () => {
 
 				if (/\u200B/.test(node[0].text)) {
 
-					Editor.deleteBackward(editor, { distance: 1, unit: 'character' })
+					Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
 
 
@@ -813,7 +814,7 @@ const SlateReact = () => {
 						insert: true,
 						checked: true,
 						children: [
-							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
+							// { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
 								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							}, {
@@ -831,7 +832,7 @@ const SlateReact = () => {
 
 					Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
 					Transforms.unwrapNodes(editor, { mode: "highest" });
-					Transforms.select(editor, [editor.selection.anchor.path[0], 1]);
+					Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
 
 
 
@@ -1632,11 +1633,11 @@ const TableList = ({ attributes, children, element }) => {
 		<>
 
 			<table style={{ background: selected ? 'green' : '' }} className="relative"  {...attributes}>
-				{children[0]}
+				{/* {children[0]} */}
 				<tr>
 
 					{children.map((o, key) => {
-						if (1 <= key && key <= 2) {
+						if (0 <= key && key <= 1) {
 
 							return children[key]
 
@@ -1658,7 +1659,7 @@ const TableList = ({ attributes, children, element }) => {
 
 				<tr>
 					{children.map((o, key) => {
-						if (3 <= key && key <= 4) {
+						if (2 <= key && key <= 3) {
 
 							return children[key]
 
