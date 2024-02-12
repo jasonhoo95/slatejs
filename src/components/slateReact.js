@@ -239,7 +239,7 @@ const SlateReact = () => {
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["paragraph", "table-list", "dropdown-content", "list-item", "editable-void", "dropdown-content", "check-list-item", "table-list", "katex"].includes(n.type),
+			match: (n) => ["paragraph", "table-list", "list-item", "editable-void", "dropdown-content", "check-list-item", "katex"].includes(n.type),
 		});
 		const ua = navigator.userAgent
 
@@ -353,7 +353,7 @@ const SlateReact = () => {
 
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
 
-			console.log("parameter 3")
+			console.log("para 3")
 
 
 			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
@@ -1588,7 +1588,7 @@ const TableList = ({ attributes, children, element }) => {
 	return (
 		<>
 
-			<table style={{ background: selected ? 'green' : '' }} className="relative"  {...attributes}>
+			<table style={{ background: selected ? 'green' : '' }}  {...attributes}>
 				<tr>
 
 					{children.map((o, key) => {
@@ -1599,14 +1599,6 @@ const TableList = ({ attributes, children, element }) => {
 						}
 
 					})}
-					{/* {card.map((o, key) => {
-						return (
-							<CellElement setCallback={arrayCheck} select={selectArray[key]} path={path} card={card} data={o} key={key} />
-
-						)
-
-
-					})} */}
 
 
 
