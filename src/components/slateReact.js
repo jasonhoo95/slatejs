@@ -316,7 +316,6 @@ const SlateReact = () => {
 				Transforms.setNodes(editor, { type: 'check-list-item', checked: previousParent[0].checked })
 
 			}
-			return false;
 
 		}
 		else if (
@@ -1582,30 +1581,6 @@ const TableList = ({ attributes, children, element }) => {
 	const { card, checked, insert } = element;
 	const path = ReactEditor.findPath(editor, element);
 
-	// const pathCheck = Editor.next(editor, { at: [editor.selection.anchor.path[0] + 1, 0] })
-
-
-
-
-
-
-	// if (!selected && pathCheck && pathCheck[0].type == "table-cell1" && undo) {
-	// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 1, 0]);
-	// 	undo = false;
-	// }
-
-	// if (checked && undo) {
-
-	// 	Transforms.select(editor, [path[0], 0]);
-	// 	// Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true })
-	// 	undo = false;
-	// }
-	// else if (!checked && selected && undo) {
-
-	// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0]);
-
-	// 	undo = false;
-	// }
 
 
 
