@@ -350,17 +350,17 @@ const SlateReact = () => {
 			return false;
 
 		}
-		//  else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
+		 else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
 
 
-		// 	Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
+			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
-		// 	// Transforms.move(editor, { distance: 2, reverse: true, });
-		// 	Transforms.select(editor, previousVoid[1]);
-		// 	return false;
+			// Transforms.move(editor, { distance: 2, reverse: true, });
+			Transforms.select(editor, previousVoid[1]);
+			return false;
 
 
-		// }
+		}
 
 
 		else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type)) {
@@ -377,9 +377,9 @@ const SlateReact = () => {
 
 
 
-			// if (listItems && listItems[0].type == "span-txt") {
-			// 	Transforms.removeNodes(editor, { at: listItemParent[1] });
-			// } else
+			if (listItems && listItems[0].type == "span-txt") {
+				Transforms.removeNodes(editor, { at: listItemParent[1] });
+			} else
 			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 
@@ -811,7 +811,7 @@ const SlateReact = () => {
 						insert: true,
 						checked: true,
 						children: [
-							// { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
+							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
 								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							}, {
@@ -1630,11 +1630,11 @@ const TableList = ({ attributes, children, element }) => {
 		<>
 
 			<table style={{ background: selected ? 'green' : '' }} className="relative"  {...attributes}>
-				{/* {children[0]} */}
+				{children[0]}
 				<tr>
 
 					{children.map((o, key) => {
-						if (0 <= key && key <= 1) {
+						if (1 <= key && key <= 2) {
 
 							return children[key]
 
@@ -1656,7 +1656,7 @@ const TableList = ({ attributes, children, element }) => {
 
 				<tr>
 					{children.map((o, key) => {
-						if (2 <= key && key <= 3) {
+						if (3 <= key && key <= 4) {
 
 							return children[key]
 
