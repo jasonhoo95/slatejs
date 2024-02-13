@@ -349,17 +349,18 @@ const SlateReact = () => {
 			toggleBlock(editor, listItemParent[0].type);
 			return false;
 
-		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
-
-
-			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
-
-			// Transforms.move(editor, { distance: 2, reverse: true, });
-			Transforms.select(editor, previousVoid[1]);
-			return false;
-
-
 		}
+		//  else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ["dropdown-content", "table-list"].includes(previousParent[0].type) && !["dropdown-content", "table-list", 'editable-void'].includes(listItemParent[0].type)) {
+
+
+		// 	Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
+
+		// 	// Transforms.move(editor, { distance: 2, reverse: true, });
+		// 	Transforms.select(editor, previousVoid[1]);
+		// 	return false;
+
+
+		// }
 
 
 		else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type)) {
@@ -407,6 +408,8 @@ const SlateReact = () => {
 
 
 		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
+
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
