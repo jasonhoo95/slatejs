@@ -412,26 +412,29 @@ const SlateReact = () => {
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
-
-			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
-
-
-
-
-
 			const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+			if (/\u200B/.test(currentNode[0].children[0].text)) {
+
+
+				Transforms.delete(editor, { distance: 2, unit: 'offset', reverse: true })
+				// Transforms.move(editor, { distance: 1, unit: "offset" });
+			}else{
+				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+
+			}
+
+
+
+
+
+
 			// const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
 			// const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
 
 			// if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
 			// 	Transforms.delete(editor, { at: editor.selection.anchor.path });
 			// }
-			 if (/\u200B/.test(currentNode[0].children[0].text)) {
-
-
-				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
-				// Transforms.move(editor, { distance: 1, unit: "offset" });
-			}
+		
 
 
 		}
