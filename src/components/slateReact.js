@@ -239,7 +239,7 @@ const SlateReact = () => {
 		let nextParent;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["paragraph", "table-list", "dropdown-content", "list-item", "editable-void", "dropdown-content", "check-list-item", "table-list", "katex"].includes(n.type),
+			match: (n) => ["paragraph", "table-list", "list-item", "editable-void", "dropdown-content", "check-list-item", "katex"].includes(n.type),
 		});
 		const ua = navigator.userAgent
 
