@@ -369,11 +369,7 @@ const SlateReact = () => {
 
 
 
-			const listItems = Editor.above(editor, {
-				match: n => ['span-txt', 'table-cell1'].includes(n.type),
-			});
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
-			const previous = Editor.previous(editor, { at: editor.selection.anchor.path, match: (n) => n.type == 'katex' })
 
 
 
@@ -395,15 +391,15 @@ const SlateReact = () => {
 				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
 
-				const node = Editor.node(editor, editor.selection.anchor.path);
+				// const node = Editor.node(editor, editor.selection.anchor.path);
 
-				if (/\u200B/.test(node[0].text)) {
+				// if (/\u200B/.test(node[0].text)) {
 
-					Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+				// 	Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
 
 
-				}
+				// }
 			}
 
 
@@ -412,16 +408,18 @@ const SlateReact = () => {
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
-			const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-			if (/\u200B/.test(currentNode[0].children[0].text)) {
+			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+
+			// const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+			// if (/\u200B/.test(currentNode[0].children[0].text)) {
 
 
-				Transforms.delete(editor, { distance: 2, unit: 'offset', reverse: true })
-				// Transforms.move(editor, { distance: 1, unit: "offset" });
-			}else{
-				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+			// 	Transforms.delete(editor, { distance: 2, unit: 'offset', reverse: true })
+			// 	// Transforms.move(editor, { distance: 1, unit: "offset" });
+			// }else{
+			// 	Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
-			}
+			// }
 
 
 
