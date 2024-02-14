@@ -1537,14 +1537,7 @@ const DropDownList = ({ attributes, children, element }) => {
 
 		const block1 = {
 			type: "dropdown-content",
-			children: [{
-				type: "span-txt",
-				children: [
-					{
-						text: "",
-					},
-				],
-			}, ...arraynow],
+			children: [ ...arraynow],
 		};
 
 		Transforms.removeNodes(editor, { at: path });
