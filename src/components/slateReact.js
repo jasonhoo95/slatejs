@@ -390,14 +390,22 @@ const SlateReact = () => {
 
 
 
-		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
+		} else if (listItemParent && listItemParent[0].type == "editable-void") {
+			Transforms.removeNodes(editor, { at: listItemParent[1] })
+
+
+		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
-			// const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-			// if (/\u200B/.test(currentNode[0].children[0].text)) {
+			const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+			if (/\u200B/.test(currentNode[0].children[0].text)) {
+
+				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+
+			}
 
 
 			// 	Transforms.delete(editor, { distance: 2, unit: 'offset', reverse: true })
