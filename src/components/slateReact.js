@@ -937,16 +937,7 @@ const SlateReact = () => {
 
 						}
 
-						// else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
-						// 	event.preventDefault();
 
-						// 	Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
-						// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
-						// 	getCaretCoordinates();
-
-
-
-						// }
 						// else if (stringText[0].text.startsWith("1.") && /android/i.test(ua)) {
 						// 	setTimeout(() => {
 						// 		Editor.withoutNormalizing(editor, () => {
@@ -1536,8 +1527,8 @@ const DropDownList = ({ attributes, children, element }) => {
 			</div> */}
 			<button
 				onClick={(e) => {
-					// addMore();
-					setOpen(true);
+					addMore();
+					// setOpen(true);
 				}}>
 				click me
 			</button>
