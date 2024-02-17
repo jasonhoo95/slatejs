@@ -387,6 +387,8 @@ const SlateReact = () => {
 
 
 		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
+			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
+
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
