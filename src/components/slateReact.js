@@ -368,11 +368,6 @@ const SlateReact = () => {
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
 
 
-
-
-			// if (listItems && listItems[0].type == "span-txt") {
-			// 	Transforms.removeNodes(editor, { at: listItemParent[1] });
-			// } else
 			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 
@@ -1488,7 +1483,7 @@ const DropDownList = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const { checked, selectNode } = element;
 	const path = ReactEditor.findPath(editor, element);
-
+	const [open, setOpen] = useState(false);
 	const [nodes] = Editor.nodes(editor, {
 		at: path,
 		match: (n) => n.type == "dropdown-content",
@@ -1546,10 +1541,17 @@ const DropDownList = ({ attributes, children, element }) => {
 			</div> */}
 			<button
 				onClick={(e) => {
-					addMore();
+					// addMore();
+					setOpen(true);
 				}}>
 				click me
 			</button>
+
+			<EditablePopup
+				open={open}
+				setOpenCallback={setOpen}
+				editor={editor}
+			/>
 			<div
 				// onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
 				className="grid-container">
