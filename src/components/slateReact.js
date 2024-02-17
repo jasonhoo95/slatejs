@@ -348,32 +348,33 @@ const SlateReact = () => {
 
 
 
-		else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type)) {
+		// else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type)) {
 
 
-			console.log("dropdown check");
+		// 	console.log("dropdown check");
 
 
-			const parent = Editor.parent(editor, editor.selection.anchor.path);
+		// 	const parent = Editor.parent(editor, editor.selection.anchor.path);
 
 
-			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
+		// 	if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 
-				Transforms.insertText(editor, "\u200B".toString(), {
-					at: editor.selection.anchor,
-				});
+		// 		Transforms.insertText(editor, "\u200B".toString(), {
+		// 			at: editor.selection.anchor,
+		// 		});
 
 
-			}
-			else {
-				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+		// 	}
+		// 	else {
+		// 		Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
-			}
+		// 	}
 
 
 
-		} else if (listItemParent && listItemParent[0].type == "editable-void") {
+		// }
+		else if (listItemParent && listItemParent[0].type == "editable-void") {
 			Transforms.removeNodes(editor, { at: listItemParent[1] })
 
 
@@ -383,12 +384,12 @@ const SlateReact = () => {
 		else {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
-			// const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-			// if (/\u200B/.test(currentNode[0].children[0].text)) {
+			const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+			if (/\u200B/.test(currentNode[0].children[0].text)) {
 
-			// 	Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
-			// }
+			}
 
 
 			// 	Transforms.delete(editor, { distance: 2, unit: 'offset', reverse: true })
