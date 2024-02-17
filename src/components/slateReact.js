@@ -726,7 +726,7 @@ const SlateReact = () => {
 						const block = {
 							type: "editable-void",
 							checked: true,
-							card: [],
+							card: ['1'],
 							children: [{ text: '' }],
 						};
 
@@ -1801,28 +1801,19 @@ const EditableVoid = ({ attributes, children, element }) => {
 					editor={editor}
 				/> */}
 			<div className="flex h-full" contentEditable="false">
-				<img className="w-full h-full" src="https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw=" />
-				{/* {card?.map((o, key) => {
-						return (
-							<div
-								className="m-3"
-								onClick={(e) => {
-									// setModal(key, card, true);
-									// setCheckValidate(key, card, false)
+				{/* <img className="w-full h-full" src="https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw=" /> */}
+				{card?.map((o, key) => {
+					return (
 
-								}}
-								style={{ height: "100%", width: "50%", background: "red" }}
-								key={key}>
 
-								<div
-									contentEditable="false"
-									// onClick={(e) => {
-									// 	setModal(key, card, true);
-									// }}
-									style={{ height: "100%", width: "100%", background: "red" }}
-									key={key}>
-									{o.card}
-								</div>
+						<div
+							// onClick={(e) => {
+							// 	setModal(key, card, true);
+							// }}
+							style={{ height: "40px", width: "25%", background: "red" }}
+							key={key}>
+							{o.card}
+						</div>
 
 
 
@@ -1831,9 +1822,8 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
-							</div>
-						);
-					})} */}
+					);
+				})}
 			</div>
 
 
