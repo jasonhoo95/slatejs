@@ -369,11 +369,20 @@ const SlateReact = () => {
 				Transforms.insertText(editor, "\u200B".toString(), {
 					at: editor.selection.anchor,
 				});
+				// Transforms.move(editor, { distance: 1, unit: 'offset' })
+				// return
 
 
 			}
 			else {
 				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+
+				const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+				if (/\u200B/.test(currentNode[0].children[0].text)) {
+
+					Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+
+				}
 
 			}
 
