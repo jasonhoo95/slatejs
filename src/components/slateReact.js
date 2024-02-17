@@ -244,7 +244,7 @@ const SlateReact = () => {
 		const ua = navigator.userAgent
 
 		const previousKatex = Editor.previous(editor, {
-			at: editor.selection.anchor.path,
+			at: editor.selection,
 			match: (n) => n.type == "katex"
 		});
 
@@ -259,7 +259,7 @@ const SlateReact = () => {
 			});
 			previousVoid = Editor.previous(editor, {
 				at: listItems[1],
-				match: (n) => ["editable-void", "span-txt"].includes(n.type),
+				match: (n) => ["katex"].includes(n.type),
 
 			});
 			nextParent = Editor.next(editor, {
@@ -269,8 +269,6 @@ const SlateReact = () => {
 
 		}
 
-
-		console.log("para 2");
 
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
@@ -385,12 +383,12 @@ const SlateReact = () => {
 		else {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
-			const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-			if (/\u200B/.test(currentNode[0].children[0].text)) {
+			// const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+			// if (/\u200B/.test(currentNode[0].children[0].text)) {
 
-				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+			// 	Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
-			}
+			// }
 
 
 			// 	Transforms.delete(editor, { distance: 2, unit: 'offset', reverse: true })
