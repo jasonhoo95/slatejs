@@ -1818,17 +1818,8 @@ const EditableVoid = ({ attributes, children, element }) => {
 					editor={editor}
 				/> */}
 				<div className="flex" contentEditable="false">
-					<div
-						contentEditable="false"
-						// onClick={(e) => {
-						// 	setModal(key, card, true);
-						// }}
-						style={{ height: "100%", width: "100%", background: "red" }}
-					>
-						asdasdasd
 
-					</div>
-					{/* {card?.map((o, key) => {
+					{card?.map((o, key) => {
 						return (
 							<div
 								className="m-3"
@@ -1859,7 +1850,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 							</div>
 						);
-					})} */}
+					})}
 				</div>
 			</div>
 
