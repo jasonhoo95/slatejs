@@ -892,6 +892,7 @@ const SlateReact = () => {
 
 
 					onKeyDown={(event) => {
+						console.log("keydown");
 						const ua = navigator.userAgent
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
