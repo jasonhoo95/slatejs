@@ -265,7 +265,7 @@ const SlateReact = () => {
 			});
 			previousVoid = Editor.previous(editor, {
 				at: listItems[1],
-				match: (n) => ["span-txt"].includes(n.type),
+				match: (n) => ["katex"].includes(n.type),
 
 			});
 			nextParent = Editor.next(editor, {
@@ -274,7 +274,6 @@ const SlateReact = () => {
 
 
 		}
-		console.log("dropdown check 1");
 
 
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
@@ -352,11 +351,7 @@ const SlateReact = () => {
 
 		}
 
-		else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0) {
-			Transforms.select(editor, previousVoid[1]);
-		} else if (listItemParent && listItemParent[0].type == "editable-void") {
-			Transforms.removeNodes(editor, { at: listItemParent[1] })
-		}
+
 
 
 		else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type)) {
@@ -383,19 +378,16 @@ const SlateReact = () => {
 				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
 
-
 			}
 
 
 
-			// } else if (listItemParent && listItemParent[0].type == "editable-void") {
-			// 	Transforms.removeNodes(editor, { at: listItemParent[1] })
+		} else if (listItemParent && listItemParent[0].type == "editable-void") {
+			Transforms.removeNodes(editor, { at: listItemParent[1] })
 
 
-			// } else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
-			// 	Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
-			// 	Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
-
+		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
+			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
 		}
 		else {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
@@ -733,7 +725,7 @@ const SlateReact = () => {
 							type: "editable-void",
 							checked: true,
 							card: [],
-							children: [{ type: 'span-txt', children: [{ text: '' }] }],
+							children: [{ text: '' }],
 						};
 
 						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
@@ -947,16 +939,6 @@ const SlateReact = () => {
 
 
 						}
-						else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
-							event.preventDefault();
-
-							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
-							Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
-							getCaretCoordinates();
-
-
-
-						}
 
 
 						// else if (stringText[0].text.startsWith("1.") && /android/i.test(ua)) {
@@ -1117,7 +1099,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "input-component"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "editable-void", "input-component"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1806,20 +1788,19 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
-			<div>
 
 
 
-				{/* <EditablePopup
+			{/* <EditablePopup
 					open={open}
 					card={objCopy}
 					setOpenCallback={setOpen}
 					path={path}
 					editor={editor}
 				/> */}
-				<div className="flex" contentEditable="false">
-
-					{card?.map((o, key) => {
+			<div className="flex h-full" contentEditable="false">
+				<img className="w-full h-full" src="https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw=" />
+				{/* {card?.map((o, key) => {
 						return (
 							<div
 								className="m-3"
@@ -1850,8 +1831,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 							</div>
 						);
-					})}
-				</div>
+					})} */}
 			</div>
 
 
