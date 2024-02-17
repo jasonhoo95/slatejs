@@ -366,23 +366,17 @@ const SlateReact = () => {
 			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 
-				Transforms.insertText(editor, "\u200B".toString(), {
-					at: editor.selection.anchor,
-				});
+				// Transforms.insertText(editor, "\u200B".toString(), {
+				// 	at: editor.selection.anchor,
+				// });
 				// Transforms.move(editor, { distance: 1, unit: 'offset' })
-				// return
+				return
 
 
 			}
 			else {
 				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
-				const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-				if (/\u200B/.test(currentNode[0].children[0].text)) {
-
-					Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
-
-				}
 
 			}
 
