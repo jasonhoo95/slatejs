@@ -353,6 +353,7 @@ const SlateReact = () => {
 		else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type)) {
 
 
+			console.log("dropdown check");
 
 
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
@@ -368,7 +369,6 @@ const SlateReact = () => {
 
 			}
 			else {
-				console.log("dropdown check");
 				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
 			}
@@ -1574,33 +1574,6 @@ const TableList = ({ attributes, children, element }) => {
 	const selected = useSelected();
 	const focused = useFocused();
 	const editor = useSlate();
-	const { card, checked, insert } = element;
-	const path = ReactEditor.findPath(editor, element);
-
-	// const pathCheck = Editor.next(editor, { at: [editor.selection.anchor.path[0] + 1, 0] })
-
-
-
-
-
-
-	// if (!selected && pathCheck && pathCheck[0].type == "table-cell1" && undo) {
-	// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 1, 0]);
-	// 	undo = false;
-	// }
-
-	// if (checked && undo) {
-
-	// 	Transforms.select(editor, [path[0], 0]);
-	// 	// Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true })
-	// 	undo = false;
-	// }
-	// else if (!checked && selected && undo) {
-
-	// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0]);
-
-	// 	undo = false;
-	// }
 
 
 
@@ -1608,7 +1581,7 @@ const TableList = ({ attributes, children, element }) => {
 	return (
 		<>
 
-			<table style={{ background: selected ? 'green' : '' }} className="relative"  {...attributes}>
+			<table style={{ background: selected ? 'green' : '' }}   {...attributes}>
 				{/* {children[0]} */}
 				<tr>
 
@@ -1910,16 +1883,7 @@ const TableCell1 = ({ attributes, children, element }) => {
 
 	const editor = useSlate();
 	const path = ReactEditor.findPath(editor, element);
-	const parent = Editor.node(editor, path);
 
-	// if (element.selected && undo && parent[0].children[0].children[0].text.length <= 0) {
-
-	// 	Transforms.select(editor, path);
-	// 	undo = false
-	// } else if (element.selected && !selected && !undo) {
-	// 	Transforms.setNodes(editor, { selected: false }, { at: path })
-
-	// }
 
 
 	return (
