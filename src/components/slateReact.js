@@ -933,7 +933,7 @@ const SlateReact = () => {
 
 						}
 
-						else if ((event.key == 'Enter') && listItems && ["dropdown-content", "table-list", "editable-void"].includes(listItems[0].type) && !parentCheck) {
+						else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
 							event.preventDefault();
 
 							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
