@@ -385,12 +385,12 @@ const SlateReact = () => {
 		else {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
-			const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-			if (/\u200B/.test(currentNode[0].children[0].text)) {
+			// const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+			// if (/\u200B/.test(currentNode[0].children[0].text)) {
 
-				Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
+			// 	Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
 
-			}
+			// }
 
 
 			// 	Transforms.delete(editor, { distance: 2, unit: 'offset', reverse: true })
