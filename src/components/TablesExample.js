@@ -15,6 +15,7 @@ const TablesExample = () => {
         <Slate editor={editor} initialValue={initialValue}>
 
             <Editable
+                style={{ padding: '10px' }}
                 renderElement={props => <Element {...props} />}
                 placeholder="Enter some text..."
             />
