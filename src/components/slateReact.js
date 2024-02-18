@@ -1798,12 +1798,12 @@ const EditableVoid = ({ attributes, children, element }) => {
 		>
 
 
-
+			{/* 
 			<div>
 				{children}
 
 
-			</div>
+			</div> */}
 
 
 
@@ -1879,7 +1879,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
-			<div>
+			<div className="w-full h-full absolute left-0 top-0 z-[10]">
 				{children}
 
 
