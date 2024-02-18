@@ -943,8 +943,14 @@ const SlateReact = () => {
 							undo = true;
 
 
-						}
+						} else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
+							event.preventDefault();
 
+							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
+							Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
+							getCaretCoordinates();
+
+						}
 
 						// else if (stringText[0].text.startsWith("1.") && /android/i.test(ua)) {
 						// 	setTimeout(() => {
@@ -960,7 +966,8 @@ const SlateReact = () => {
 
 
 
-					}}
+					}
+					}
 				/>
 			</Slate>
 
@@ -1872,12 +1879,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 			</div>
 
-
-
-
-			<div>
-				&#x200B;
-			</div>
 
 
 
