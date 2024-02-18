@@ -1800,28 +1800,37 @@ const EditableVoid = ({ attributes, children, element }) => {
 					path={path}
 					editor={editor}
 				/> */}
-			<div className="flex h-full" contentEditable="false">
+			<div className="flex" contentEditable="false">
 				{/* <img className="w-full h-full" src="https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw=" /> */}
 				{card?.map((o, key) => {
 					return (
-
-
 						<div
-							// onClick={(e) => {
-							// 	setModal(key, card, true);
-							// }}
-							style={{ height: "40px", width: "25%", background: "red" }}
+							className="m-3"
+							onClick={(e) => {
+								// setModal(key, card, true);
+								// setCheckValidate(key, card, false)
+
+							}}
+							style={{ height: "40px", width: "50%", background: "red" }}
 							key={key}>
-							{o.card}
+
+							<div
+								// onClick={(e) => {
+								// 	setModal(key, card, true);
+								// }}
+								style={{ height: "100%", width: "100%", background: "red" }}
+								key={key}>
+								{o.card}
+							</div>
+
+
+
+
+
+
+
+
 						</div>
-
-
-
-
-
-
-
-
 					);
 				})}
 			</div>
@@ -1829,7 +1838,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
-			<div>
+			<div className="absolute left-0 top-0 w-full h-full z-[10]">
 				{children}
 
 
