@@ -366,10 +366,14 @@ const SlateReact = () => {
 
 			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
-
-				Transforms.insertText(editor, "\u200B".toString(), {
-					at: editor.selection.anchor,
+				Transforms.insertNodes(editor, {
+					children: [{ text: "", type: "inline-wrapper" }],
+					type: "inline-wrapper",
 				});
+				// ReactEditor.blur(editor);
+				// Transforms.insertText(editor, "\u200B".toString(), {
+				// 	at: editor.selection.anchor,
+				// });
 				// Transforms.move(editor, { distance: 1, unit: 'offset' })
 				// return
 
@@ -1111,7 +1115,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "input-component"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "input-component", "inline-wrapper"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -2036,7 +2040,7 @@ const Element = (props) => {
 			return <KatexComponent {...props} />;
 		case "inline-wrapper":
 			return (
-				<span contentEditable="false" {...attributes}>
+				<span contentEditable="false"  {...attributes}>
 					{children}
 				</span>
 			)
