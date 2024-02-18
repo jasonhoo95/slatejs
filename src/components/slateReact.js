@@ -729,7 +729,7 @@ const SlateReact = () => {
 						const block = {
 							type: "editable-void",
 							checked: true,
-							card: ['1'],
+							card: [{ card: 'asd' }],
 							children: [{ type: 'span-txt', children: [{ text: '' }] }],
 						};
 
@@ -1798,12 +1798,12 @@ const EditableVoid = ({ attributes, children, element }) => {
 		>
 
 
+
 			<div>
 				{children}
 
 
 			</div>
-
 
 
 
@@ -1860,10 +1860,8 @@ const EditableVoid = ({ attributes, children, element }) => {
 								// }}
 								style={{ height: "30px", width: "25%", background: "red" }}
 								key={key}>
-								<div className="w-full h-full">
-									{o.card}
+								{o.card}
 
-								</div>
 							</div>
 
 
@@ -1880,6 +1878,12 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</div>
 
 
+
+			<div>
+				{children}
+
+
+			</div>
 
 
 
