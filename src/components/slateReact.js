@@ -243,6 +243,7 @@ const SlateReact = () => {
 		let previousParent;
 		let previousVoid;
 		let nextParent;
+		let parentCheck;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
 			match: (n) => ["paragraph", "table-list", "list-item", "editable-void", "dropdown-content", "check-list-item", "katex"].includes(n.type),
@@ -258,6 +259,7 @@ const SlateReact = () => {
 
 			listItemParent = Editor.node(editor, listItems[1]);
 
+
 			previousParent = Editor.previous(editor, {
 				at: listItems[1],
 
@@ -265,7 +267,7 @@ const SlateReact = () => {
 			});
 			previousVoid = Editor.previous(editor, {
 				at: listItems[1],
-				match: (n) => ["katex"].includes(n.type),
+				match: (n) => ["katex", "span-txt"].includes(n.type),
 
 			});
 			nextParent = Editor.next(editor, {
@@ -274,7 +276,6 @@ const SlateReact = () => {
 
 
 		}
-
 
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
@@ -383,13 +384,15 @@ const SlateReact = () => {
 
 
 		} else if (listItemParent && listItemParent[0].type == "editable-void") {
+
 			Transforms.removeNodes(editor, { at: listItemParent[1] })
 
 
 		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
-			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
+			// Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
+			Transforms.select(editor, previousVoid[1]);
 		}
 		else {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
@@ -727,7 +730,7 @@ const SlateReact = () => {
 							type: "editable-void",
 							checked: true,
 							card: ['1'],
-							children: [{ text: '' }],
+							children: [{ type: 'span-txt', children: [{ text: '' }] }],
 						};
 
 						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
@@ -1101,7 +1104,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "editable-void", "input-component"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "input-component"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1790,6 +1793,11 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
+			<div>
+				{children}
+
+
+			</div>
 
 
 
@@ -1800,8 +1808,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					path={path}
 					editor={editor}
 				/> */}
-			<div className="flex" contentEditable="false">
-				{/* <img className="w-full h-full" src="https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw=" /> */}
+			{/* <div className="flex h-full" contentEditable="false">
 				{card?.map((o, key) => {
 					return (
 						<div
@@ -1815,6 +1822,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 							key={key}>
 
 							<div
+								contentEditable="false"
 								// onClick={(e) => {
 								// 	setModal(key, card, true);
 								// }}
@@ -1833,16 +1841,41 @@ const EditableVoid = ({ attributes, children, element }) => {
 						</div>
 					);
 				})}
+			</div> */}
+			<div contentEditable="false">
+
+				<div className="flex">
+					{card?.map((o, key) => {
+						return (
+							<div
+								// onClick={(e) => {
+								// 	setModal(key, card, true);
+								// }}
+								style={{ height: "30px", width: "25%", background: "red" }}
+								key={key}>
+								<div className="w-full h-full">
+									{o.card}
+
+								</div>
+							</div>
+
+
+						)
+
+
+					})}
+
+
+
+				</div>
+
+
 			</div>
 
 
 
 
-			<div className="absolute left-0 top-0 w-full h-full z-[10]">
-				{children}
 
-
-			</div>
 
 
 
