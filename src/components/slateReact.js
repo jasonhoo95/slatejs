@@ -377,10 +377,9 @@ const SlateReact = () => {
 				// 	children: [{ text: "", type: "inline-wrapper" }],
 				// 	type: "inline-wrapper",
 				// });
-				ReactEditor.focus(editor);
-				// Transforms.insertText(editor, "\u200B".toString(), {
-				// 	at: editor.selection.anchor,
-				// });
+				Transforms.insertText(editor, "\u200B".toString(), {
+					at: editor.selection.anchor,
+				});
 				// ReactEditor.blur(editor);
 
 				// Transforms.move(editor, { distance: 1, unit: 'offset' })
