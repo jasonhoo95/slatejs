@@ -366,14 +366,14 @@ const SlateReact = () => {
 
 			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
-				Transforms.insertNodes(editor, {
-					children: [{ text: "", type: "inline-wrapper" }],
-					type: "inline-wrapper",
-				});
-				// ReactEditor.blur(editor);
-				// Transforms.insertText(editor, "\u200B".toString(), {
-				// 	at: editor.selection.anchor,
+				// Transforms.insertNodes(editor, {
+				// 	children: [{ text: "", type: "inline-wrapper" }],
+				// 	type: "inline-wrapper",
 				// });
+				// ReactEditor.blur(editor);
+				Transforms.insertText(editor, "\u200B".toString(), {
+					at: editor.selection.anchor,
+				});
 				// Transforms.move(editor, { distance: 1, unit: 'offset' })
 				// return
 
