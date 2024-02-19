@@ -246,7 +246,7 @@ const SlateReact = () => {
 		let parentCheck;
 		const [listItems] = Editor.nodes(editor, {
 			at: editor.selection.anchor.path,
-			match: (n) => ["paragraph", "table-list", "list-item", "editable-void", "dropdown-content", "check-list-item", "katex"].includes(n.type),
+			match: (n) => ["span-txt", "paragraph", "table-list", "list-item", "editable-void", "dropdown-content", "check-list-item", "katex"].includes(n.type),
 		});
 		const ua = navigator.userAgent
 
@@ -270,12 +270,16 @@ const SlateReact = () => {
 				match: (n) => ["katex", "span-txt"].includes(n.type),
 
 			});
+
+
 			nextParent = Editor.next(editor, {
 				at: listItems[1]
 			});
 
 
 		}
+
+		console.log(listItemParent, "list parent");
 
 		if (nextParent && nextParent[0].type == "banner-red-wrapper" && previousParent && previousParent[0].type == "banner-red-wrapper") {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
@@ -358,22 +362,27 @@ const SlateReact = () => {
 		else if (listItemParent && ["dropdown-content", "table-list"].includes(listItemParent[0].type)) {
 
 
-			console.log("dropdown check");
 
 
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
+			console.log("dropdown check", parent);
+
+			if (parent && parent[0].type == 'span-txt') {
+				Transforms.removeNodes(editor, { at: listItemParent[1] })
 
 
-			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
+			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 				// Transforms.insertNodes(editor, {
 				// 	children: [{ text: "", type: "inline-wrapper" }],
 				// 	type: "inline-wrapper",
 				// });
+				ReactEditor.focus(editor);
+				// Transforms.insertText(editor, "\u200B".toString(), {
+				// 	at: editor.selection.anchor,
+				// });
 				// ReactEditor.blur(editor);
-				Transforms.insertText(editor, "\u200B".toString(), {
-					at: editor.selection.anchor,
-				});
+
 				// Transforms.move(editor, { distance: 1, unit: 'offset' })
 				// return
 
@@ -392,7 +401,7 @@ const SlateReact = () => {
 			Transforms.removeNodes(editor, { at: listItemParent[1] })
 
 
-		} else if (previousParent && previousParent[0].type == "editable-void" && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
+		} else if (previousParent && ['editable-void', 'table-list'].includes(previousParent[0].type) && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
 			// Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
@@ -805,7 +814,7 @@ const SlateReact = () => {
 						insert: true,
 						checked: true,
 						children: [
-							// { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
+							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
 								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							}, {
@@ -947,7 +956,7 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
+						} else if ((event.key == 'Enter') && listItems && ["editable-void", "table-list"].includes(listItems[0].type) && !parentCheck) {
 							event.preventDefault();
 
 							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
@@ -1596,11 +1605,11 @@ const TableList = ({ attributes, children, element }) => {
 		<>
 
 			<table style={{ background: selected ? 'green' : '' }}   {...attributes}>
-				{/* {children[0]} */}
+				{children[0]}
 				<tr>
 
 					{children.map((o, key) => {
-						if (0 <= key && key <= 1) {
+						if (1 <= key && key <= 2) {
 
 							return children[key]
 
@@ -1622,7 +1631,7 @@ const TableList = ({ attributes, children, element }) => {
 
 				<tr>
 					{children.map((o, key) => {
-						if (2 <= key && key <= 3) {
+						if (3 <= key && key <= 4) {
 
 							return children[key]
 
