@@ -367,11 +367,7 @@ const SlateReact = () => {
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
 			console.log("dropdown check", parent);
 
-			if (parent && parent[0].type == 'span-txt') {
-				Transforms.removeNodes(editor, { at: listItemParent[1] })
-
-
-			} else if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
+	if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 				// Transforms.insertNodes(editor, {
 				// 	children: [{ text: "", type: "inline-wrapper" }],
@@ -400,7 +396,7 @@ const SlateReact = () => {
 			Transforms.removeNodes(editor, { at: listItemParent[1] })
 
 
-		} else if (previousParent && ['editable-void', 'table-list'].includes(previousParent[0].type) && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
+		} else if (previousParent && ['editable-void'].includes(previousParent[0].type) && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
 			// Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
@@ -813,7 +809,7 @@ const SlateReact = () => {
 						insert: true,
 						checked: true,
 						children: [
-							{ type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
+							// { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
 							{
 								type: 'table-cell1', id: 1, selected: true, children: [{ type: 'paragraph', children: [{ text: '' }] }]
 							}, {
@@ -955,7 +951,7 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if ((event.key == 'Enter') && listItems && ["editable-void", "table-list"].includes(listItems[0].type) && !parentCheck) {
+						} else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
 							event.preventDefault();
 
 							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
@@ -1604,11 +1600,10 @@ const TableList = ({ attributes, children, element }) => {
 		<>
 
 			<table style={{ background: selected ? 'green' : '' }}   {...attributes}>
-				{children[0]}
 				<tr>
 
 					{children.map((o, key) => {
-						if (1 <= key && key <= 2) {
+						if (0 <= key && key <= 1) {
 
 							return children[key]
 
@@ -1630,7 +1625,7 @@ const TableList = ({ attributes, children, element }) => {
 
 				<tr>
 					{children.map((o, key) => {
-						if (3 <= key && key <= 4) {
+						if (2 <= key && key <= 3) {
 
 							return children[key]
 
