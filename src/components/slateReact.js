@@ -835,7 +835,7 @@ const SlateReact = () => {
 
 					undo = false;
 				}}>
-					insert table
+					insert table12
 				</div>
 
 				<BlockButton
