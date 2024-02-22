@@ -124,7 +124,6 @@ const SlateReact = () => {
 
 				ReactEditor.blur(editor);
 				// this.window.scrollTo(0, 0);
-				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
 			} else if (event.data == "katexinsert") {
 				Transforms.insertText(editor, "\u200B".toString(), {
 					at: editor.selection.anchor,
@@ -139,7 +138,6 @@ const SlateReact = () => {
 
 
 			} else if (event.data == "focus") {
-				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focusnow");
 				ReactEditor.focus(editor);
 				// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
 				// if (parentCheck[0].type == "katex") {
@@ -492,7 +490,7 @@ const SlateReact = () => {
 		setFocus(true);
 		window.addEventListener("resize", getCaretCoordinates);
 
-		// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
+		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
 
 
 
@@ -507,7 +505,7 @@ const SlateReact = () => {
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
 
-		// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
+		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 	}, []);
 
 
@@ -835,7 +833,7 @@ const SlateReact = () => {
 
 					undo = false;
 				}}>
-					insert table now
+					insert table 123
 				</div>
 
 				<BlockButton
