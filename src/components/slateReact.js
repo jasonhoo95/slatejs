@@ -116,38 +116,38 @@ const SlateReact = () => {
 	const { insertBreak } = editor;
 
 
-	// useEffect(() => {
-	// 	window.addEventListener("message", function (event) {
-	// 		if (event.data == "bold") {
-	// 			toggleMark(editor, "bold");
-	// 		} else if (event.data == "blur") {
+	useEffect(() => {
+		window.addEventListener("message", function (event) {
+			if (event.data == "bold") {
+				toggleMark(editor, "bold");
+			} else if (event.data == "blur") {
 
-	// 			ReactEditor.blur(editor);
-	// 			// this.window.scrollTo(0, 0);
-	// 			window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
-	// 		} else if (event.data == "katexinsert") {
-	// 			Transforms.insertText(editor, "\u200B".toString(), {
-	// 				at: editor.selection.anchor,
-	// 			});
+				ReactEditor.blur(editor);
+				// this.window.scrollTo(0, 0);
+				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur1");
+			} else if (event.data == "katexinsert") {
+				Transforms.insertText(editor, "\u200B".toString(), {
+					at: editor.selection.anchor,
+				});
 
-	// 		}
-	// 		else if (event.data == "katex") {
-	// 			ReactEditor.focus(editor);
-
-
-	// 			insertKatex(editor, "flutter123");
+			}
+			else if (event.data == "katex") {
+				ReactEditor.focus(editor);
 
 
-	// 		} else if (event.data == "focus") {
-	// 			window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focusnow");
-	// 			ReactEditor.focus(editor);
-	// 			// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
-	// 			// if (parentCheck[0].type == "katex") {
-	// 			// 	Transforms.move(editor, { distance: 1, unit: "offset" });
-	// 			// }
-	// 		}
-	// 	});
-	// }, [editor]);
+				insertKatex(editor, "flutter123");
+
+
+			} else if (event.data == "focus") {
+				window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focusnow");
+				ReactEditor.focus(editor);
+				// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
+				// if (parentCheck[0].type == "katex") {
+				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+				// }
+			}
+		});
+	}, []);
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
