@@ -367,7 +367,7 @@ const SlateReact = () => {
 			const parent = Editor.parent(editor, editor.selection.anchor.path);
 			console.log("dropdown check", parent);
 
-	if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
+			if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
 
 				// Transforms.insertNodes(editor, {
 				// 	children: [{ text: "", type: "inline-wrapper" }],
@@ -835,7 +835,7 @@ const SlateReact = () => {
 
 					undo = false;
 				}}>
-					insert table12
+					insert table now
 				</div>
 
 				<BlockButton
