@@ -1752,33 +1752,35 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 	useEffect(() => {
+		function checknow(event) {
+			if (event && typeof event.data == "string") {
+				let value = JSON.parse(event.data);
 
+				if (value && value.id == "katex") {
+					ReactEditor.focus(editor);
+					var index = _.findIndex(cardnow, { id: value.key });
+					Transforms.setNodes(editor, { card: [{ card: value.card, id: value.cardId, check: false }] }, { at: path });
+
+					// if (cardnow[index].card != 'hello world') {
+					// 	cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
+
+					// }
+
+				}
+			}
+
+
+
+		}
 
 		if (selected) {
 			console.log("Selected");
-			window.addEventListener("message", function (event) {
-				if (typeof event.data == "string") {
-					let value = JSON.parse(event.data);
-
-					if (value && value.id == "katex") {
-						ReactEditor.focus(editor);
-						var index = _.findIndex(cardnow, { id: value.key });
-						Transforms.setNodes(editor, { card: [{ card: value.card, id: value.cardId, check: false }] }, { at: path });
-
-						// if (cardnow[index].card != 'hello world') {
-						// 	cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
-
-						// }
-
-					}
-				}
-
-
-
+			window.addEventListener("message", (e) => {
+				checknow(e);
 			})
 
 		} else {
-			window.removeEventListener('message')
+			window.removeEventListener('message', checknow())
 		}
 
 
