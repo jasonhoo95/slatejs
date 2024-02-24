@@ -119,6 +119,7 @@ const SlateReact = () => {
 	useEffect(() => {
 
 		const messageListener = (event) => {
+			console.log("message");
 			if (event.data == "bold") {
 				toggleMark(editor, "bold");
 			} else if (event.data == "blur") {
@@ -144,6 +145,9 @@ const SlateReact = () => {
 				// if (parentCheck[0].type == "katex") {
 				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
 				// }
+			} else {
+				window.removeEventListener("message", messageListener);
+
 			}
 		};
 
