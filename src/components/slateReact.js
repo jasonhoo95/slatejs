@@ -116,36 +116,47 @@ const SlateReact = () => {
 	const { insertBreak } = editor;
 
 
-	// useEffect(() => {
-	// 	window.addEventListener("message", function (event) {
-	// 		if (event.data == "bold") {
-	// 			toggleMark(editor, "bold");
-	// 		} else if (event.data == "blur") {
+	useEffect(() => {
 
-	// 			ReactEditor.blur(editor);
-	// 			// this.window.scrollTo(0, 0);
-	// 		} else if (event.data == "katexinsert") {
-	// 			Transforms.insertText(editor, "\u200B".toString(), {
-	// 				at: editor.selection.anchor,
-	// 			});
+		const messageListener = (event) => {
+			if (event.data == "bold") {
+				toggleMark(editor, "bold");
+			} else if (event.data == "blur") {
 
-	// 		}
-	// 		else if (event.data == "katex") {
-	// 			ReactEditor.focus(editor);
+				ReactEditor.blur(editor);
+				// this.window.scrollTo(0, 0);
+			} else if (event.data == "katexinsert") {
+				Transforms.insertText(editor, "\u200B".toString(), {
+					at: editor.selection.anchor,
+				});
 
-
-	// 			insertKatex(editor, "flutter123");
+			}
+			else if (event.data == "katex") {
+				ReactEditor.focus(editor);
 
 
-	// 		} else if (event.data == "focus") {
-	// 			ReactEditor.focus(editor);
-	// 			// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
-	// 			// if (parentCheck[0].type == "katex") {
-	// 			// 	Transforms.move(editor, { distance: 1, unit: "offset" });
-	// 			// }
-	// 		}
-	// 	});
-	// }, []);
+				insertKatex(editor, "flutter123");
+
+
+			} else if (event.data == "focus") {
+				ReactEditor.focus(editor);
+				// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
+				// if (parentCheck[0].type == "katex") {
+				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+				// }
+			}
+		};
+
+		window.addEventListener("message", messageListener);
+
+
+		// Cleanup when the component unmounts or when the dependency changes
+		return () => {
+			window.removeEventListener("message", messageListener);
+		};
+
+
+	}, []);
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
