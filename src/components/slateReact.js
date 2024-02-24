@@ -116,36 +116,36 @@ const SlateReact = () => {
 	const { insertBreak } = editor;
 
 
-	useEffect(() => {
-		window.addEventListener("message", function (event) {
-			if (event.data == "bold") {
-				toggleMark(editor, "bold");
-			} else if (event.data == "blur") {
+	// useEffect(() => {
+	// 	window.addEventListener("message", function (event) {
+	// 		if (event.data == "bold") {
+	// 			toggleMark(editor, "bold");
+	// 		} else if (event.data == "blur") {
 
-				ReactEditor.blur(editor);
-				// this.window.scrollTo(0, 0);
-			} else if (event.data == "katexinsert") {
-				Transforms.insertText(editor, "\u200B".toString(), {
-					at: editor.selection.anchor,
-				});
+	// 			ReactEditor.blur(editor);
+	// 			// this.window.scrollTo(0, 0);
+	// 		} else if (event.data == "katexinsert") {
+	// 			Transforms.insertText(editor, "\u200B".toString(), {
+	// 				at: editor.selection.anchor,
+	// 			});
 
-			}
-			else if (event.data == "katex") {
-				ReactEditor.focus(editor);
-
-
-				insertKatex(editor, "flutter123");
+	// 		}
+	// 		else if (event.data == "katex") {
+	// 			ReactEditor.focus(editor);
 
 
-			} else if (event.data == "focus") {
-				ReactEditor.focus(editor);
-				// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
-				// if (parentCheck[0].type == "katex") {
-				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
-				// }
-			}
-		});
-	}, []);
+	// 			insertKatex(editor, "flutter123");
+
+
+	// 		} else if (event.data == "focus") {
+	// 			ReactEditor.focus(editor);
+	// 			// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
+	// 			// if (parentCheck[0].type == "katex") {
+	// 			// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+	// 			// }
+	// 		}
+	// 	});
+	// }, []);
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -1749,39 +1749,47 @@ const EditableVoid = ({ attributes, children, element }) => {
 	}, []);
 
 
+	function checknow(event) {
+		if (event && typeof event.data == "string") {
+			let value = JSON.parse(event.data);
 
+			if (value && value.id == "katex") {
+				ReactEditor.focus(editor);
+				var index = _.findIndex(cardnow, { id: value.key });
+				Transforms.setNodes(editor, { card: [{ card: value.card, id: value.cardId, check: false }] }, { at: path });
+
+				// if (cardnow[index].card != 'hello world') {
+				// 	cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
+
+				// }
+
+			}
+		}
+
+
+
+	}
 
 	useEffect(() => {
-		function checknow(event) {
-			if (event && typeof event.data == "string") {
-				let value = JSON.parse(event.data);
 
-				if (value && value.id == "katex") {
-					ReactEditor.focus(editor);
-					var index = _.findIndex(cardnow, { id: value.key });
-					Transforms.setNodes(editor, { card: [{ card: value.card, id: value.cardId, check: false }] }, { at: path });
-
-					// if (cardnow[index].card != 'hello world') {
-					// 	cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
-
-					// }
-
-				}
+		const messageListener = (e) => {
+			if (selected) {
+				console.log("checking", selected);
+				checknow(e);
 			}
-
-
-
-		}
+		};
 
 		if (selected) {
-			console.log("Selected");
-			window.addEventListener("message", (e) => {
-				checknow(e);
-			})
-
+			window.addEventListener("message", messageListener);
 		} else {
-			window.removeEventListener('message', checknow())
+			window.removeEventListener("message", messageListener);
 		}
+
+		// Cleanup when the component unmounts or when the dependency changes
+		return () => {
+			window.removeEventListener("message", messageListener);
+		};
+
 
 
 	}, [selected])
