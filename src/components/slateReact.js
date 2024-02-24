@@ -833,7 +833,7 @@ const SlateReact = () => {
 
 					undo = false;
 				}}>
-					insert table 123
+					insert table now
 				</div>
 
 				<BlockButton
@@ -1777,6 +1777,8 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 			})
 
+		} else {
+			window.removeEventListener('message')
 		}
 
 
