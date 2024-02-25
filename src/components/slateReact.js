@@ -153,6 +153,9 @@ const SlateReact = () => {
 
 		window.addEventListener("message", messageListener);
 
+		return () => {
+			window.removeEventListener("message", messageListener);
+		};
 
 		// Cleanup when the component unmounts or when the dependency changes
 
