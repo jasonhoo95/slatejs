@@ -1514,7 +1514,28 @@ const DropDownList = ({ attributes, children, element }) => {
 
 
 
+	useEffect(() => {
 
+		const messageListener = (e) => {
+			if (selected) {
+				console.log("checking", selected);
+			}
+		};
+
+		if (selected) {
+			window.addEventListener("message", messageListener);
+		} else {
+			window.removeEventListener("message", messageListener);
+		}
+
+		// Cleanup when the component unmounts or when the dependency changes
+		return () => {
+			window.removeEventListener("message", messageListener);
+		};
+
+
+
+	}, [selected])
 
 
 	const addMore = () => {
