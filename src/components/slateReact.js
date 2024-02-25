@@ -1537,7 +1537,7 @@ const DropDownList = ({ attributes, children, element }) => {
 	useEffect(() => {
 
 		const messageListener = (e) => {
-			checknow(e);
+			checknow();
 		};
 
 		if (selected) {
@@ -1646,12 +1646,32 @@ const TableList = ({ attributes, children, element }) => {
 	const focused = useFocused();
 	const editor = useSlate();
 
+	function checknow(event) {
+		if (event && typeof event.data == "katexnow") {
+			let value = JSON.parse(event.data);
+
+			if (value && value.id == "katex") {
+				ReactEditor.focus(editor);
+				var index = _.findIndex(cardnow, { id: value.key });
+				Transforms.setNodes(editor, { card: [{ card: value.card, id: value.cardId, check: false }] }, { at: path });
+
+				// if (cardnow[index].card != 'hello world') {
+				// 	cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
+
+				// }
+
+			}
+		}
+
+
+
+	}
 	useEffect(() => {
 
 		const messageListener = (e) => {
-			if (selected) {
-				console.log("checking", selected);
-			}
+			checknow(e)
+			console.log("checking", selected);
+
 		};
 
 		if (selected) {
