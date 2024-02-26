@@ -1534,26 +1534,26 @@ const DropDownList = ({ attributes, children, element }) => {
 	}
 
 
-	useEffect(() => {
+	// useEffect(() => {
 
-		const messageListener = (e) => {
-			checknow();
-		};
+	// 	const messageListener = (e) => {
+	// 		checknow();
+	// 	};
 
-		if (selected) {
-			window.addEventListener("message", messageListener);
-		} else {
-			window.removeEventListener("message", messageListener);
-		}
+	// 	if (selected) {
+	// 		window.addEventListener("message", messageListener);
+	// 	} else {
+	// 		window.removeEventListener("message", messageListener);
+	// 	}
 
-		// Cleanup when the component unmounts or when the dependency changes
-		return () => {
-			window.removeEventListener("message", messageListener);
-		};
+	// 	// Cleanup when the component unmounts or when the dependency changes
+	// 	return () => {
+	// 		window.removeEventListener("message", messageListener);
+	// 	};
 
 
 
-	}, [selected])
+	// }, [selected])
 
 
 	const addMore = () => {
