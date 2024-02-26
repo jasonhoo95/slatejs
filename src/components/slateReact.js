@@ -1669,7 +1669,10 @@ const TableList = ({ attributes, children, element }) => {
 	useEffect(() => {
 
 		const messageListener = (e) => {
-			checknow(e)
+			if(selected){
+				checknow(e)
+
+			}
 			console.log("checking", selected);
 
 		};
