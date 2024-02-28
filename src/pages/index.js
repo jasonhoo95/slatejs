@@ -23,7 +23,7 @@ export default function Home() {
 		function updateStickyDivPosition() {
 			const stickyDiv = document.getElementById('stickyDiv');
 			const isMobile = window.innerWidth <= 768; // Adjust the breakpoint as needed
-		
+
 			if (isMobile) {
 				const keyboardHeight = window.innerHeight - document.documentElement.clientHeight;
 				stickyDiv.style.bottom = keyboardHeight + 'px';
@@ -31,11 +31,11 @@ export default function Home() {
 				stickyDiv.style.bottom = '0';
 			}
 		}
-		window.addEventListener('resize', function() {
+		window.addEventListener('resize', function () {
 			// this.alert("here");
 			updateStickyDivPosition();
 		});
-		
+
 	}, [])
 	return (
 		<div className="m-8">
@@ -52,9 +52,9 @@ export default function Home() {
 			</Head>
 
 			{/* <SlateMobile /> */}
-			<SlateReact />
+			{/* <SlateReact /> */}
 			{/* <SlateAndroid /> */}
-			{/* <TablesExample /> */}
+			<TablesExample />
 
 			{/* {value['inputTxt']} */}
 
