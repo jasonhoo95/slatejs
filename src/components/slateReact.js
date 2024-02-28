@@ -116,52 +116,52 @@ const SlateReact = () => {
 	const { insertBreak } = editor;
 
 
-	// useEffect(() => {
+	useEffect(() => {
 
-	// 	const messageListener = (event) => {
-	// 		console.log("message");
-	// 		if (event.data == "bold") {
-	// 			toggleMark(editor, "bold");
-	// 		} else if (event.data == "blur") {
+		const messageListener = (event) => {
+			console.log("message");
+			if (event.data == "bold") {
+				toggleMark(editor, "bold");
+			} else if (event.data == "blur") {
 
-	// 			ReactEditor.blur(editor);
-	// 			// this.window.scrollTo(0, 0);
-	// 		} else if (event.data == "katexinsert") {
-	// 			Transforms.insertText(editor, "\u200B".toString(), {
-	// 				at: editor.selection.anchor,
-	// 			});
+				ReactEditor.blur(editor);
+				// this.window.scrollTo(0, 0);
+			} else if (event.data == "katexinsert") {
+				Transforms.insertText(editor, "\u200B".toString(), {
+					at: editor.selection.anchor,
+				});
 
-	// 		}
-	// 		else if (event.data == "katex") {
-	// 			ReactEditor.focus(editor);
-
-
-	// 			insertKatex(editor, "flutter123");
+			}
+			else if (event.data == "katex") {
+				ReactEditor.focus(editor);
 
 
-	// 		} else if (event.data == "focus") {
-	// 			ReactEditor.focus(editor);
-	// 			// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
-	// 			// if (parentCheck[0].type == "katex") {
-	// 			// 	Transforms.move(editor, { distance: 1, unit: "offset" });
-	// 			// }
-	// 		} else {
-	// 			window.removeEventListener("message", messageListener);
-
-	// 		}
-	// 	};
-
-	// 	window.addEventListener("message", messageListener);
-
-	// 	return () => {
-	// 		window.removeEventListener("message", messageListener);
-	// 	};
-
-	// 	// Cleanup when the component unmounts or when the dependency changes
+				insertKatex(editor, "flutter123");
 
 
+			} else if (event.data == "focus") {
+				ReactEditor.focus(editor);
+				// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
+				// if (parentCheck[0].type == "katex") {
+				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+				// }
+			} else {
+				window.removeEventListener("message", messageListener);
 
-	// }, []);
+			}
+		};
+
+		window.addEventListener("message", messageListener);
+
+		return () => {
+			window.removeEventListener("message", messageListener);
+		};
+
+		// Cleanup when the component unmounts or when the dependency changes
+
+
+
+	}, []);
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -506,7 +506,7 @@ const SlateReact = () => {
 		setFocus(true);
 		window.addEventListener("resize", getCaretCoordinates);
 
-		// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
+		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "focus123");
 
 
 
@@ -521,7 +521,7 @@ const SlateReact = () => {
 		// savedSelection.current = editor.selection;
 		window.removeEventListener("resize", getCaretCoordinates);
 
-		// window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
+		window.flutter_inappwebview?.callHandler("handlerFooWithArgs", "blur");
 	}, []);
 
 
@@ -1536,20 +1536,20 @@ const DropDownList = ({ attributes, children, element }) => {
 
 	useEffect(() => {
 
-		const messageListener = (e) => {
-			checknow();
-		};
+		// const messageListener = (e) => {
+		// 	checknow();
+		// };
 
-		if (selected) {
-			window.addEventListener("message", messageListener);
-		} else {
-			window.removeEventListener("message", messageListener);
-		}
+		// if (selected) {
+		// 	window.addEventListener("message", messageListener);
+		// } else {
+		// 	window.removeEventListener("message", messageListener);
+		// }
 
-		// Cleanup when the component unmounts or when the dependency changes
-		return () => {
-			window.removeEventListener("message", messageListener);
-		};
+		// // Cleanup when the component unmounts or when the dependency changes
+		// return () => {
+		// 	window.removeEventListener("message", messageListener);
+		// };
 
 
 
@@ -1666,31 +1666,31 @@ const TableList = ({ attributes, children, element }) => {
 
 
 	}
-	// useEffect(() => {
+	useEffect(() => {
 
-	// 	const messageListener = (e) => {
-	// 		if (selected) {
-	// 			checknow(e)
+		const messageListener = (e) => {
+			if (selected) {
+				checknow(e)
 
-	// 		}
-	// 		console.log("checking", selected);
+			}
+			console.log("checking", selected);
 
-	// 	};
+		};
 
-	// 	if (selected) {
-	// 		window.addEventListener("message", messageListener);
-	// 	} else {
-	// 		window.removeEventListener("message", messageListener);
-	// 	}
+		if (selected) {
+			window.addEventListener("message", messageListener);
+		} else {
+			window.removeEventListener("message", messageListener);
+		}
 
-	// 	// Cleanup when the component unmounts or when the dependency changes
-	// 	return () => {
-	// 		window.removeEventListener("message", messageListener);
-	// 	};
+		// Cleanup when the component unmounts or when the dependency changes
+		return () => {
+			window.removeEventListener("message", messageListener);
+		};
 
 
 
-	// }, [selected])
+	}, [selected])
 
 
 
@@ -1873,10 +1873,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 	// useEffect(() => {
 
 	// 	const messageListener = (e) => {
-	// 		if (selected) {
+	// 		if(selected){
 	// 			console.log("checking", selected);
 
-	// 			checknow(e);
+	// 		checknow(e);
 
 	// 		}
 
