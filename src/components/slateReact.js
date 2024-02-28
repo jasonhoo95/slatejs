@@ -1536,20 +1536,20 @@ const DropDownList = ({ attributes, children, element }) => {
 
 	useEffect(() => {
 
-		// const messageListener = (e) => {
-		// 	checknow();
-		// };
+		const messageListener = (e) => {
+			checknow();
+		};
 
-		// if (selected) {
-		// 	window.addEventListener("message", messageListener);
-		// } else {
-		// 	window.removeEventListener("message", messageListener);
-		// }
+		if (selected) {
+			window.addEventListener("message", messageListener);
+		} else {
+			window.removeEventListener("message", messageListener);
+		}
 
-		// // Cleanup when the component unmounts or when the dependency changes
-		// return () => {
-		// 	window.removeEventListener("message", messageListener);
-		// };
+		// Cleanup when the component unmounts or when the dependency changes
+		return () => {
+			window.removeEventListener("message", messageListener);
+		};
 
 
 
@@ -1671,10 +1671,8 @@ const TableList = ({ attributes, children, element }) => {
 		const messageListener = (e) => {
 			if (selected) {
 				checknow(e)
-
+				console.log("checking", selected);
 			}
-			console.log("checking", selected);
-
 		};
 
 		if (selected) {
@@ -1870,32 +1868,28 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 	}
 
-	// useEffect(() => {
+	useEffect(() => {
 
-	// 	const messageListener = (e) => {
-	// 		if(selected){
-	// 			console.log("checking", selected);
+		const messageListener = (e) => {
+			console.log("checking", selected);
+			checknow(e);
 
-	// 		checknow(e);
+		};
 
-	// 		}
+		if (selected) {
+			window.addEventListener("message", messageListener);
+		} else {
+			window.removeEventListener("message", messageListener);
+		}
 
-	// 	};
-
-	// 	if (selected) {
-	// 		window.addEventListener("message", messageListener);
-	// 	} else {
-	// 		window.removeEventListener("message", messageListener);
-	// 	}
-
-	// 	// Cleanup when the component unmounts or when the dependency changes
-	// 	return () => {
-	// 		window.removeEventListener("message", messageListener);
-	// 	};
+		// Cleanup when the component unmounts or when the dependency changes
+		return () => {
+			window.removeEventListener("message", messageListener);
+		};
 
 
 
-	// }, [selected])
+	}, [selected])
 
 	const setCheckValidate = useCallback((key, card1, check) => {
 		let cardnow = [...card1];
