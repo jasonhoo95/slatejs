@@ -52,9 +52,9 @@ export default function Home() {
 			</Head>
 
 			{/* <SlateMobile /> */}
-			{/* <SlateReact /> */}
+			<SlateReact />
 			{/* <SlateAndroid /> */}
-			<TablesExample />
+			{/* <TablesExample /> */}
 
 			{/* {value['inputTxt']} */}
 
