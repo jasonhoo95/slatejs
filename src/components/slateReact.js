@@ -413,8 +413,8 @@ const SlateReact = () => {
 		} else if (previousParent && ['editable-void'].includes(previousParent[0].type) && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
-			// Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
-			Transforms.select(editor, previousVoid[1]);
+			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
+			// Transforms.select(editor, previousVoid[1]);
 		}
 		else {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
@@ -752,7 +752,7 @@ const SlateReact = () => {
 							type: "editable-void",
 							checked: true,
 							card: [{ card: 'asd' }],
-							children: [{ type: 'span-txt', children: [{ text: '' }] }],
+							children: [{ text: '' }],
 						};
 
 						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
@@ -965,14 +965,15 @@ const SlateReact = () => {
 							undo = true;
 
 
-						} else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
-							event.preventDefault();
-
-							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
-							Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
-							getCaretCoordinates();
-
 						}
+						//  else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
+						// 	event.preventDefault();
+
+						// 	Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
+						// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
+						// 	getCaretCoordinates();
+
+						// }
 
 						// else if (stringText[0].text.startsWith("1.") && /android/i.test(ua)) {
 						// 	setTimeout(() => {
@@ -1133,7 +1134,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "input-component", "inline-wrapper"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "editable-void", "input-component", "inline-wrapper"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1997,7 +1998,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 
-			<div className="w-full h-full absolute left-0 top-0 z-[10]">
+			<div>
 				{children}
 
 
