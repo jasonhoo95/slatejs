@@ -14,6 +14,7 @@ import { ReactEditor } from "slate-react";
 import TablesExample from "@/components/TablesExample";
 import { Tab } from "@headlessui/react";
 import MultiSelect from "@/components/multiSelectComponent";
+import QuillJs from "@/components/quill";
 export default function Home() {
 	let ModalProps = useModalStore((state) => state.display);
 	const [display, setDisplay] = useState(false);
@@ -52,7 +53,7 @@ export default function Home() {
 			</Head>
 
 			{/* <SlateMobile /> */}
-			<SlateReact />
+			<QuillJs />
 			{/* <SlateAndroid /> */}
 			{/* <TablesExample /> */}
 
