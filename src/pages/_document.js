@@ -30,20 +30,10 @@ export default function Document() {
 					src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.min.js"
 					async
 				/>
-				<script
-					defer
-					src="https://cdn.quilljs.com/1.3.7/quill.min.js"
-				/>
 
-				{/* <script src="https://cdn.quilljs.com/1.3.7/quill.min.js" async></script> */}
-				<link
-					href="https://cdn.quilljs.com/1.3.7/quill.snow.css"
-					rel="stylesheet"
-				/>
-				<link
-					href="https://cdn.quilljs.com/1.3.7/quill.bubble.css"
-					rel="stylesheet"
-				/>
+				<script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.2/dist/quill.js"></script>
+				<link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.2/dist/quill.snow.css" rel="stylesheet" />
+
 				<link
 					rel="stylesheet"
 					href="https://cdn.jsdelivr.net/npm/tw-elements/dist/css/index.min.css"
