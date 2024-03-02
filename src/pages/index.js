@@ -53,8 +53,8 @@ export default function Home() {
 			</Head>
 
 			{/* <SlateMobile /> */}
-			{/* <SlateReact /> */}
-			<QuillComponent />
+			<SlateReact />
+			{/* <QuillComponent /> */}
 			{/* <SlateAndroid /> */}
 			{/* <TablesExample /> */}
 
