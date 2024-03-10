@@ -977,6 +977,10 @@ const SlateReact = () => {
 							Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
 							getCaretCoordinates();
 
+						} else if (event.key != 'Enter' && listItems && ["editable-void"].includes(listItems[0].type)) {
+							event.preventDefault();
+							Transforms.select(editor, editor.selection.anchor)
+
 						}
 
 						// else if (stringText[0].text.startsWith("1.") && /android/i.test(ua)) {
@@ -1972,7 +1976,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-			<div contentEditable="false">
+			<div contentEditable="false" className="overflow-hidden">
 
 				<div className="flex">
 					{card?.map((o, key) => {
