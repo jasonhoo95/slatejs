@@ -116,52 +116,52 @@ const SlateReact = () => {
 	const { insertBreak } = editor;
 
 
-	useEffect(() => {
+	// useEffect(() => {
 
-		const messageListener = (event) => {
-			console.log("message");
-			if (event.data == "bold") {
-				toggleMark(editor, "bold");
-			} else if (event.data == "blur") {
+	// 	const messageListener = (event) => {
+	// 		console.log("message");
+	// 		if (event.data == "bold") {
+	// 			toggleMark(editor, "bold");
+	// 		} else if (event.data == "blur") {
 
-				ReactEditor.blur(editor);
-				// this.window.scrollTo(0, 0);
-			} else if (event.data == "katexinsert") {
-				Transforms.insertText(editor, "\u200B".toString(), {
-					at: editor.selection.anchor,
-				});
+	// 			ReactEditor.blur(editor);
+	// 			// this.window.scrollTo(0, 0);
+	// 		} else if (event.data == "katexinsert") {
+	// 			Transforms.insertText(editor, "\u200B".toString(), {
+	// 				at: editor.selection.anchor,
+	// 			});
 
-			}
-			else if (event.data == "katex") {
-				ReactEditor.focus(editor);
-
-
-				insertKatex(editor, "flutter123");
+	// 		}
+	// 		else if (event.data == "katex") {
+	// 			ReactEditor.focus(editor);
 
 
-			} else if (event.data == "focus") {
-				ReactEditor.focus(editor);
-				// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
-				// if (parentCheck[0].type == "katex") {
-				// 	Transforms.move(editor, { distance: 1, unit: "offset" });
-				// }
-			} else {
-				window.removeEventListener("message", messageListener);
-
-			}
-		};
-
-		window.addEventListener("message", messageListener);
-
-		return () => {
-			window.removeEventListener("message", messageListener);
-		};
-
-		// Cleanup when the component unmounts or when the dependency changes
+	// 			insertKatex(editor, "flutter123");
 
 
+	// 		} else if (event.data == "focus") {
+	// 			ReactEditor.focus(editor);
+	// 			// const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
+	// 			// if (parentCheck[0].type == "katex") {
+	// 			// 	Transforms.move(editor, { distance: 1, unit: "offset" });
+	// 			// }
+	// 		} else {
+	// 			window.removeEventListener("message", messageListener);
 
-	}, []);
+	// 		}
+	// 	};
+
+	// 	window.addEventListener("message", messageListener);
+
+	// 	return () => {
+	// 		window.removeEventListener("message", messageListener);
+	// 	};
+
+	// 	// Cleanup when the component unmounts or when the dependency changes
+
+
+
+	// }, []);
 
 	editor.insertBreak = () => {
 		const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -410,15 +410,11 @@ const SlateReact = () => {
 			Transforms.removeNodes(editor, { at: listItemParent[1] })
 
 
-		} else if (previousParent && previousVoid && previousVoid[0].type == "span-txt" && editor.selection.anchor.offset == 0 && ['editable-void'].includes(previousParent[0].type) && !['editable-void'].includes(listItemParent[0].type)) {
-
-
+		} else if (previousParent && ['editable-void'].includes(previousParent[0].type) && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
-			// Transforms.move(editor, { distance: 2, reverse: true, });
-			Transforms.select(editor, previousVoid[1]);
-
-
+			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
+			// Transforms.select(editor, previousVoid[1]);
 		}
 		else {
 			Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
@@ -756,7 +752,7 @@ const SlateReact = () => {
 							type: "editable-void",
 							checked: true,
 							card: [{ card: 'asd' }],
-							children: [{ type: 'span-txt', children: [{ text: '' }] }],
+							children: [{ text: '' }],
 						};
 
 						Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
@@ -970,14 +966,14 @@ const SlateReact = () => {
 
 
 						}
-						else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
-							event.preventDefault();
+						//  else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
+						// 	event.preventDefault();
 
-							Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
-							Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
-							getCaretCoordinates();
+						// 	Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
+						// 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
+						// 	getCaretCoordinates();
 
-						}
+						// }
 
 						// else if (stringText[0].text.startsWith("1.") && /android/i.test(ua)) {
 						// 	setTimeout(() => {
@@ -1138,7 +1134,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "input-component", "inline-wrapper"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "editable-void", "input-component", "inline-wrapper"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1972,7 +1968,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-			<div contentEditable="false" className="overflow-hidden">
+			<div contentEditable="false">
 
 				<div className="flex">
 					{card?.map((o, key) => {
@@ -1996,18 +1992,16 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 				</div>
+				<div>
+					{children}
+
+
+				</div>
 
 
 			</div>
 
 
-
-
-			<div>
-				{children}
-
-
-			</div>
 
 
 
