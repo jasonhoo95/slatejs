@@ -2009,9 +2009,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 			</div>
 
-			<div>
+			{/* <div>
 				&#x200B;
-			</div>
+			</div> */}
 
 
 
