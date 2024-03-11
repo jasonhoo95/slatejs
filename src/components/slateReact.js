@@ -935,7 +935,6 @@ const SlateReact = () => {
 						const stringText = Editor.node(editor, editor.selection.anchor.path);
 
 
-
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
 							event.preventDefault();
@@ -966,6 +965,10 @@ const SlateReact = () => {
 
 
 						}
+						//  else if (!backwardCheck && listItems && ["editable-void"].includes(listItems[0].type)) {
+						// 	ReactEditor.blur(editor);
+
+						// }
 						//  else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
 						// 	event.preventDefault();
 
@@ -1879,7 +1882,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 		};
 
 		if (selected) {
-
+			Transforms.insertText(editor, "\u200B".toString(), {
+				at: path,
+			});
 			window.addEventListener("message", messageListener);
 		} else {
 			setDisabled(false);
@@ -1971,9 +1976,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-			<div contentEditable={disabled ? false : true}>
+			<div >
 
-				<div className="flex">
+				<div contentEditable="false" className="flex">
 					{card?.map((o, key) => {
 						return (
 							<div
@@ -1995,16 +2000,16 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 
 				</div>
-				<div>
-					{children}
-
-
-				</div>
 
 
 			</div>
 
 
+			<div contentEditable={!/android/i.test(ua) ? true : false}>
+				{children}
+
+
+			</div>
 
 
 
