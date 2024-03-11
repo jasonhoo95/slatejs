@@ -1801,6 +1801,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 	const [objCopy, setObj] = useState();
 	const [open, setOpen] = useState(false);
 	const path = ReactEditor.findPath(editor, element);
+	const [disabled, setDisabled] = useState(false);
 
 	const [inputValue, setInputValue] = useState('');
 	const ua = navigator.userAgent
@@ -1878,8 +1879,10 @@ const EditableVoid = ({ attributes, children, element }) => {
 		};
 
 		if (selected) {
+
 			window.addEventListener("message", messageListener);
 		} else {
+			setDisabled(false);
 			window.removeEventListener("message", messageListener);
 		}
 
@@ -1903,7 +1906,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
-			// onClick={e => { Transforms.setNodes(editor, { checked: true }, { at: path }); }}
+			onClick={e => { setDisabled(true) }}
 			style={{
 				border: selected ? "1px solid red" : "1px solid grey",
 				background: selected ? 'green' : '',
@@ -1968,7 +1971,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-			<div contentEditable="false">
+			<div contentEditable={disabled ? false : true}>
 
 				<div className="flex">
 					{card?.map((o, key) => {
