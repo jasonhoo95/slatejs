@@ -1912,6 +1912,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
 			onClick={e => { setDisabled(true) }}
+			contentEditable="false"
 			style={{
 				border: selected ? "1px solid red" : "1px solid grey",
 				background: selected ? 'green' : '',
@@ -1978,7 +1979,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</div> */}
 			<div >
 
-				<div contentEditable="false" className="flex">
+				<div className="flex">
 					{card?.map((o, key) => {
 						return (
 							<div
@@ -2005,7 +2006,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</div>
 
 
-			<div contentEditable={!/android/i.test(ua) ? true : false}>
+			<div>
 				{children}
 
 
