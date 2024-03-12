@@ -1882,9 +1882,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 		};
 
 		if (selected) {
-			Transforms.insertText(editor, "\u200B".toString(), {
-				at: path,
-			});
+
 			window.addEventListener("message", messageListener);
 		} else {
 			window.removeEventListener("message", messageListener);
