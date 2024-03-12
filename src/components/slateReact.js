@@ -1887,7 +1887,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 			});
 			window.addEventListener("message", messageListener);
 		} else {
-			setDisabled(false);
 			window.removeEventListener("message", messageListener);
 		}
 
@@ -1911,7 +1910,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
-			onClick={e => { setDisabled(true) }}
 			contentEditable="false"
 			style={{
 				border: selected ? "1px solid red" : "1px solid grey",
