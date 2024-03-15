@@ -1922,12 +1922,12 @@ const EditableVoid = ({ attributes, children, element }) => {
 		>
 
 
-			{/* 
-			<div>
-				{children}
+
+			<div onClick={e => { Transforms.removeNodes(editor, { at: path }) }}>
+				CLICK ME
 
 
-			</div> */}
+			</div>
 
 
 
