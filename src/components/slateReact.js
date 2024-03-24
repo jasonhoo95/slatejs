@@ -904,8 +904,9 @@ const SlateReact = () => {
 					renderElement={renderElement}
 					style={{ padding: "10px" }}
 					ref={contentEditableRef}
-					autoCapitalize="off"
-					spellCheck={false}
+					autoCapitalize="false"
+					autoCorrect="false"
+					spellCheck="false"
 					onFocus={onFocus}
 					onBlur={onBlur}
 					autoFocus={false}
@@ -1148,9 +1149,9 @@ const withInlines = (editor) => {
 
 const ChromiumBugfix = () => (
 	<span
-		contentEditable={false}
 		className={css`
 		font-size: 0;
+		padding-left: 0.1px;
 	  `}
 	>
 		{String.fromCodePoint(160) /* Non-breaking space */}
@@ -1167,6 +1168,7 @@ const LinkComponent = ({ attributes, children, element }) => {
 
 	return (
 		<a
+			{...attributes}
 
 			className={
 				selected
