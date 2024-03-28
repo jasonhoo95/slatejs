@@ -1609,8 +1609,8 @@ const DropDownList = ({ attributes, children, element }) => {
 			</div> */}
 			<button
 				onClick={(e) => {
-					addMore();
-					// setOpen(true);
+					// addMore();
+					setOpen(true);
 				}}>
 				click me
 			</button>
