@@ -1543,7 +1543,10 @@ const DropDownList = ({ attributes, children, element }) => {
 	useEffect(() => {
 
 		const messageListener = (e) => {
-			checknow();
+			if (selected) {
+				checknow();
+
+			}
 		};
 
 		if (selected) {
