@@ -1610,7 +1610,7 @@ const DropDownList = ({ attributes, children, element }) => {
 				{children[0]}
 
 			</div> */}
-			<button
+			{/* <button
 				onClick={(e) => {
 					// addMore();
 					setOpen(true);
@@ -1622,7 +1622,7 @@ const DropDownList = ({ attributes, children, element }) => {
 				open={open}
 				setOpenCallback={setOpen}
 				editor={editor}
-			/>
+			/> */}
 			<div
 				// onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
 				className="grid-container">
