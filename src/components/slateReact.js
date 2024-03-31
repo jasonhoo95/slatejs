@@ -173,7 +173,7 @@ const SlateReact = () => {
 
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
-			match: (n) => n.type == "list-item" || n.type == "banner-red-wrapper" || n.type == "table-list" || n.type == "katex" || n.type == "check-list-item" || n.type == "dropdown-inner" || n.type == "editable-void",
+			match: (n) => ["list-item", "banner-red-wrapper", "table-list", "katex", "check-list-item", "dropdown-inner", "editable-void", "ImageWrapper"].includes(n.type)
 		});
 		let currentParent, currentDescendant, previousParent, voidCheck;
 
@@ -228,7 +228,7 @@ const SlateReact = () => {
 
 
 
-		} else if (currentParent && ["editable-void"].includes(currentParent[0].type)) {
+		} else if (currentParent && ["editable-void", "ImageWrapper"].includes(currentParent[0].type)) {
 			Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: currentParent[1] });
 
 			Transforms.move(editor, { distance: 1, unit: 'offset' })
@@ -410,7 +410,7 @@ const SlateReact = () => {
 			Transforms.removeNodes(editor, { at: listItemParent[1] })
 
 
-		} else if (previousParent && ['editable-void'].includes(previousParent[0].type) && editor.selection.anchor.offset == 0 && listItemParent[0].type != 'editable-void') {
+		} else if (previousParent && ['editable-void', 'ImageWrapper'].includes(previousParent[0].type) && editor.selection.anchor.offset == 0 && !['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)) {
 			Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
 			Transforms.move(editor, { distance: 1, reverse: true, offset: 1 })
@@ -788,6 +788,17 @@ const SlateReact = () => {
 
 				<div onClick={(e) => {
 					ReactEditor.focus(editor);
+
+					Transforms.insertNodes(editor, { type: 'ImageWrapper', children: [{ text: '' }] }, { at: editor.selection.anchor.path })
+
+					Transforms.unwrapNodes(editor, { mode: "highest" });
+
+				}}>
+					insert image
+				</div>
+
+				<div onClick={(e) => {
+					ReactEditor.focus(editor);
 					// Transforms.insertText(editor, "\u200B".toString(), {
 					// 	at: editor.selection.anchor,
 					// });
@@ -1138,7 +1149,7 @@ const withInlines = (editor) => {
 
 	editor.isInline = (element) => ["button", "link", "katex", "inline-bug", "inline-wrapper-bug", "inline-wrapper"].includes(element.type) || isInline(element);
 
-	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "editable-void", "input-component", "inline-wrapper"].includes(element.type) || isVoid(element);
+	editor.isVoid = (element) => ["katex", "inline-bug", "span-txt", "editable-void", "ImageWrapper", "input-component", "inline-wrapper"].includes(element.type) || isVoid(element);
 
 	editor.markableVoid = (element) => {
 		return element.type === "katex" || markableVoid(element);
@@ -1799,6 +1810,26 @@ const InputComponent = ({ attributes, children, element }) => {
 
 }
 
+const ImageWrapper = ({ attributes, children, element }) => {
+	const editor = useSlate();
+	const selected = useSelected();
+	const ua = navigator.userAgent
+
+	return (
+		<div contentEditable={!/android/i.test(ua) ? true : false} style={{ border: selected ? '3px solid blue' : '' }} className="h-[100px] w-[100px] relative" {...attributes}>
+			<div className="w-full h-full" contentEditable="false">
+
+				<img className="absolute left-0 top-0 w-full h-full z-[3]" src="https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw=" />
+			</div>
+
+
+			{children}
+
+		</div >
+	)
+
+}
+
 const EditableVoid = ({ attributes, children, element }) => {
 	const editor = useSlate();
 	const { card, checked } = element;
@@ -2156,6 +2187,11 @@ const Element = (props) => {
 					{children}
 				</ul>
 			);
+
+		case "ImageWrapper":
+			return (
+				<ImageWrapper {...props} />
+			)
 
 		case "link":
 			return <LinkComponent {...props} />;
