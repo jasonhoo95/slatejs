@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
-import isUrl from "is-url";
 
 import isHotkey, { isKeyHotkey } from "is-hotkey";
 
@@ -10,6 +9,7 @@ import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateEle
 import { withHistory, HistoryEditor, History } from "slate-history";
 import { useModalStore } from "@/globals/zustandGlobal";
 import EditablePopup from "./editablePopup";
+import { setRequestMeta } from "next/dist/server/request-meta";
 
 
 const HOTKEYS = {
@@ -539,8 +539,9 @@ const SlateReact = () => {
 						const string = Node.leaf(editor, editor.selection.anchor.path);
 						const parent = Editor.parent(editor, editor.selection.anchor.path);
 
+						let pattern = /^\d+\. /; // \d+ matches one or more digits, followed by a literal period
 
-						if (string.text.startsWith("1. ") && parent[0].type != "list-item" && !/android/i.test(ua)) {
+						if (string.text.match(pattern) && parent[0].type != "list-item" && !/android/i.test(ua)) {
 							Editor.withoutNormalizing(editor, () => {
 								toggleBlock(editor, "numbered-list", "number");
 								Transforms.delete(editor, {
@@ -944,6 +945,7 @@ const SlateReact = () => {
 						const parentCheck = Editor.above(editor, { match: (n) => n.type == "table-cell1" || n.type == "dropdown-inner" || n.type == "numbered-list" });
 						const stringText = Editor.node(editor, editor.selection.anchor.path);
 
+						let pattern = /^\d+\./; // \d+ matches one or more digits, followed by a literal period
 
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
@@ -988,17 +990,20 @@ const SlateReact = () => {
 
 						// }
 
-						// else if (stringText[0].text.startsWith("1.") && /android/i.test(ua)) {
-						// 	setTimeout(() => {
-						// 		Editor.withoutNormalizing(editor, () => {
-
-						// 			toggleBlock(editor, "numbered-list", "number");
-						// 			Transforms.delete(editor, { at: editor.selection.anchor, distance: 2, reverse: true, unit: 'word' })
-						// 		})
-						// 	}, 0)
+						else if (stringText[0].text.match(pattern) && /android/i.test(ua) && !parentCheck) {
 
 
-						// }
+							setTimeout(() => {
+								Editor.withoutNormalizing(editor, () => {
+									toggleBlock(editor, "numbered-list", "number");
+									Transforms.delete(editor, { at: editor.selection.anchor, distance: 1, reverse: true, unit: 'word' })
+								})
+
+							}, 0)
+
+
+
+						}
 
 
 
@@ -1295,9 +1300,11 @@ const KatexComponent = ({ attributes, children, element }) => {
 				contentEditable="false"
 
 				dangerouslySetInnerHTML={{ __html: katextext }}></span>
+			<ChromiumBugfix />
 
 			{children}
 			&nbsp;
+			<ChromiumBugfix />
 
 		</span>
 	);

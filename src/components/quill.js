@@ -44,6 +44,10 @@ const QuillComponent = () => {
         const quill = new Quill('#editor', {
             theme: 'snow',
             modules: {
+                history: {
+                    delay: 10,
+                    maxStack: 100,
+                },
                 keyboard: {
                     bindings: bindings
                 }
@@ -53,6 +57,42 @@ const QuillComponent = () => {
 
         const Inline = Quill.import('blots/inline');
         const Block = Quill.import('blots/block');
+        const BlockEmbed = Quill.import('blots/block/embed');
+        var Delta = Quill.import("delta");
+
+        class DivEmbed extends BlockEmbed {
+            static blotName = 'divEmbed';
+            static tagName = 'div';
+
+            static create(data) {
+                console.log(data, "return text");
+                let node = super.create();
+                // Sanitize url if desired
+                node.setAttribute('style', "background:red; width:100px; height:100px");
+                node.setAttribute('contenteditable', "true");
+                node.setAttribute('id', 'oklah');
+                node.setAttribute('data-card', data.card);
+
+
+                if (data.card) {
+                    node.innerHTML = `<div style='background:green' contenteditable='false'>${data.card}</div>`
+
+                }
+                // Okay to set other non-format related attributes
+                return node;
+            }
+
+            static formats(domNode) {
+                console.log(domNode, "dom node");
+                return {
+                    color: domNode.getAttribute("color"),
+                    card: domNode.getAttribute("data-card"),
+                };
+            }
+        }
+
+        Quill.register("formats/DivEmbed", DivEmbed);
+
 
         class LinkBlot extends Inline {
             static blotName = 'link';
@@ -82,6 +122,7 @@ const QuillComponent = () => {
                 let node = super.create();
                 // Sanitize url if desired
                 node.setAttribute('format', 'WrapperDiv');
+
                 node.setAttribute('style', 'background: purple; width:100px; height:100px;');
                 // Okay to set other non-format related attributes
                 return node;
@@ -129,12 +170,30 @@ const QuillComponent = () => {
         });
 
         onClick('#italic-button', () => {
-            quill.format('italic', true);
+            quill.format('divEmbed', { card: 2 });
         });
 
         onClick('#link-button', () => {
-            const value = prompt('Enter link URL');
-            quill.format('link', value);
+            // const value = prompt('Enter link URL');
+            console.log(quill.getSelection(), "quillsj");
+            let blot = Quill.find(
+                document.getElementById('oklah')
+            );
+            // document.getElementById(format.id).classList.add("ql-selected");
+            let index = blot.offset(quill.scroll);
+
+            console.log(index, 'index');
+            quill.updateContents(
+                new Delta()
+                    .retain(index)
+                    .delete(1)
+                    .insert({
+                        divEmbed: {
+                            card: 3
+
+                        }
+                    })
+            );
         });
 
     }, [])
