@@ -168,7 +168,7 @@ const SlateReact = () => {
 		// 	
 		// }, 900)
 
-
+		console.log("enter");
 		const listItems = Editor.nodes(editor, {
 			at: editor.selection.anchor,
 			match: (n) => ["list-item", "banner-red-wrapper", "table-list", "katex", "check-list-item", "dropdown-inner", "editable-void", "ImageWrapper"].includes(n.type)
@@ -927,7 +927,6 @@ const SlateReact = () => {
 
 
 					onKeyDown={(event) => {
-						console.log("keydown");
 						const ua = navigator.userAgent
 						for (const hotkey in HOTKEYS) {
 							if (isHotkey(hotkey, event)) {
@@ -946,6 +945,7 @@ const SlateReact = () => {
 						const stringText = Editor.node(editor, editor.selection.anchor.path);
 
 						let pattern = /^\d+\./; // \d+ matches one or more digits, followed by a literal period
+						console.log("keydown", listItems[0]);
 
 						// setState({ text: selectedLeaf.text });
 						if (event.key == "Enter" && event.shiftKey && listItems && (listItems[0].type == "list-item" || listItems[0].type == "check-list-item")) {
@@ -976,6 +976,9 @@ const SlateReact = () => {
 							undo = true;
 
 
+						} else if (listItems && listItems[0].type == "editable-void" && event.key == "Enter") {
+							event.preventDefault();
+							Transforms.move(editor, { distance: 1, unit: 'offset' })
 						}
 						//  else if (!backwardCheck && listItems && ["editable-void"].includes(listItems[0].type)) {
 						// 	ReactEditor.blur(editor);
@@ -2013,7 +2016,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-			<div className="absolute w-full h-full" contentEditable="false">
+			<div className="h-full w-full absolute z-[10] left-0 top-0" contentEditable="false">
 				<div onClick={e => { Transforms.removeNodes(editor, { at: path }) }}>
 					CLICK ME
 
