@@ -1821,7 +1821,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
 	const ua = navigator.userAgent
 
 	return (
-		<div contentEditable={!/android/i.test(ua) ? true : false} style={{ border: selected ? '3px solid blue' : '' }} className="h-[100px] w-[100px] relative" {...attributes}>
+		<div style={{ border: selected ? '3px solid blue' : '' }} className="h-[100px] w-[100px] relative" {...attributes}>
 			<div className="w-full h-full" contentEditable="false">
 
 				<img className="absolute left-0 top-0 w-full h-full z-[3]" src="https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw=" />
@@ -1949,7 +1949,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
-			contentEditable="false"
+			// contentEditable="false"
 			style={{
 				border: selected ? "1px solid red" : "1px solid grey",
 				background: selected ? 'green' : '',
