@@ -1922,6 +1922,11 @@ const EditableVoid = ({ attributes, children, element }) => {
 
 		};
 
+		// Add event listener when component mounts
+		// window.addEventListener('keydown', handleKeyDown);
+
+		// Remove event listener when component unmounts
+
 		if (selected) {
 
 			window.addEventListener("message", messageListener);
@@ -1932,6 +1937,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 		// Cleanup when the component unmounts or when the dependency changes
 		return () => {
 			window.removeEventListener("message", messageListener);
+
+			// window.removeEventListener('keydown', handleKeyDown);
+
 		};
 
 
@@ -1949,7 +1957,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 	return (
 		// Need contentEditable=false or Firefox has issues with certain input types.
 		<div
-			// contentEditable="false"
 			style={{
 				border: selected ? "1px solid red" : "1px solid grey",
 				background: selected ? 'green' : '',
@@ -1961,14 +1968,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 			{...attributes}
 
 		>
-
-
-
-			<div onClick={e => { Transforms.removeNodes(editor, { at: path }) }}>
-				CLICK ME
-
-
-			</div>
 
 
 
@@ -2014,7 +2013,15 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-			<div >
+			<div className="absolute w-full h-full" contentEditable="false">
+				<div onClick={e => { Transforms.removeNodes(editor, { at: path }) }}>
+					CLICK ME
+
+
+				</div>
+
+
+
 
 				<div className="flex">
 					{card?.map((o, key) => {
