@@ -139,8 +139,9 @@ const SlateReact = () => {
   let updateAmount = useModalStore((state) => state.updateModal);
 
   const [focus, setFocus] = useState(true);
+  const [disabled, setDisabled] = useState(false);
   const contentEditableRef = useRef(null);
-
+  const [check, setCheck] = useState({ bold: false, color: false });
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const editor = useMemo(
@@ -153,7 +154,6 @@ const SlateReact = () => {
 
   useEffect(() => {
     const messageListener = (event) => {
-      console.log('message');
       if (event.data == 'bold') {
         toggleMark(editor, 'bold');
       } else if (event.data == 'blur') {
@@ -194,7 +194,6 @@ const SlateReact = () => {
     //
     // }, 900)
 
-    console.log('enter');
     const listItems = Editor.nodes(editor, {
       at: editor.selection.anchor,
       match: (n) =>
@@ -346,8 +345,6 @@ const SlateReact = () => {
       });
     }
 
-    console.log(listItemParent, 'list parent');
-
     if (
       nextParent &&
       nextParent[0].type == 'banner-red-wrapper' &&
@@ -435,7 +432,6 @@ const SlateReact = () => {
       ['dropdown-content', 'table-list'].includes(listItemParent[0].type)
     ) {
       const parent = Editor.parent(editor, editor.selection.anchor.path);
-      console.log('dropdown check', parent);
 
       if (
         parent[1][parent[1].length - 1] == 0 &&
@@ -570,8 +566,10 @@ const SlateReact = () => {
           if (editor.selection) {
             const string = Node.leaf(editor, editor.selection.anchor.path);
             const parent = Editor.parent(editor, editor.selection.anchor.path);
-
+            let markActive = isMarkActive(editor, 'bold');
             let pattern = /^\d+\. /; // \d+ matches one or more digits, followed by a literal period
+
+            setCheck({ ...check, bold: markActive });
 
             if (
               string.text.match(pattern) &&
@@ -678,110 +676,7 @@ const SlateReact = () => {
         >
           insert voidnow123
         </div>
-        {/* <div
-					onClick={(e) => {
-						const block = {
-							type: "editable-void",
-							card: [],
-							children: [{ text: '' }],
-						};
-						const block1 = {
-							type: "dropdown-content",
-							children: [
-
-								{
-									type: "dropdown-inner",
-									children: [
-										{
-											type: "paragraph",
-											children: [
-												{
-													text: "",
-												},
-											],
-										},
-									],
-								},
-							],
-						};
-						// Transforms.insertNodes(editor, block, { at: editor.selection.anchor.path });
-
-						const [listItems] = Editor.nodes(editor, {
-							match: (n) => n.type === "paragraph" || n.type == "list-item" || n.type == "banner-red-wrapper",
-						});
-						if (Editor.isEmpty(editor, listItems[0])) {
-							Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
-							Transforms.unwrapNodes(editor, { mode: "highest" });
-						} else {
-							const nextNode = Editor.next(editor, {
-								at: listItems[1],
-							});
-
-
-
-
-							if (!nextNode) {
-								Editor.insertBreak(editor);
-
-								Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
-							} else {
-								Transforms.insertNodes(editor, block1, { at: nextNode[1] });
-
-							}
-							undo = true;
-
-						}
-					}}>
-					insert voidnow
-				</div>
-
-				<div onClick={e => { ReactEditor.blur(editor) }}>
-					click now123
-				</div>
-
-				<div onClick={e => {
-					const { selection } = editor;
-					ReactEditor.focus(editor);
-
-					// if (selection && Range.isCollapsed(selection)) {
-					// 	ReactEditor.focus(editor);
-
-					// 	const [start] = Editor.edges(editor, selection);
-					// 	const path = start.path;
-
-					// 	// Remove nodes at the current path
-					// 	Transforms.removeNodes(editor, { at: path });
-
-					// 	Transforms.insertNodes(editor, { type: 'paragraph', children: [{ text: 'asd' }] }, { at: path });
-					// 	const newPath = [...path, 0]; // Assuming you want to set the cursor at the start of the inserted node
-					// 	Transforms.select(editor, Editor.range(editor, newPath));
-					// 	Transforms.move(editor, { unit: "offset", distance: 1 });
-
-					// 	// Insert new nodes at the current path
-
-					// }
-
-
-				}}>
-					click focus
-				</div>
-
-				<div
-					style={{ padding: "10px" }}
-					onClick={(event) => {
-						// updateAmount(true);
-						// event.preventDefault();
-						// Transforms.insertText(editor, "\u200b".toString(), {
-						// 	at: editor.selection.anchor,
-						// });
-						ReactEditor.focus(editor);
-
-						insertKatex(editor, "jjk", updateAmount);
-						// getCaretCoordinates();
-					}}>
-					Katex Link
-				</div> */}
-
+        <div style={{ color: check.bold ? 'red' : 'black' }}>BOLD</div>
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
@@ -1013,7 +908,6 @@ const SlateReact = () => {
             );
 
             let pattern = /^\d+\./; // \d+ matches one or more digits, followed by a literal period
-            console.log('keydown', listItems[0]);
 
             // setState({ text: selectedLeaf.text });
             if (
@@ -1787,7 +1681,6 @@ const TableList = ({ attributes, children, element }) => {
   // 	const messageListener = (e) => {
   // 		if (selected) {
   // 			checknow(e)
-  // 			console.log("checking", selected);
   // 		}
   // 	};
 
@@ -1970,7 +1863,6 @@ const EditableVoid = ({ attributes, children, element }) => {
 
   useEffect(() => {
     const messageListener = (e) => {
-      console.log('checking', selected);
       checknow(e);
     };
 
@@ -2292,12 +2184,15 @@ const Element = (props) => {
     case 'paragraph-inline':
       return <p {...attributes}>{children}</p>;
     case 'paragraph':
+      console.log('paragraphj');
       return (
         <p style={{ marginTop: '5px' }} {...attributes}>
           {children}
         </p>
       );
     default:
+      console.log('paragraphj');
+
       return <p {...attributes}>{children}</p>;
   }
 };
