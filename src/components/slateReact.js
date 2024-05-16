@@ -569,8 +569,6 @@ const SlateReact = () => {
             let markActive = isMarkActive(editor, 'bold');
             let pattern = /^\d+\. /; // \d+ matches one or more digits, followed by a literal period
 
-            setCheck({ ...check, bold: markActive });
-
             if (
               string.text.match(pattern) &&
               parent[0].type != 'list-item' &&
@@ -681,7 +679,15 @@ const SlateReact = () => {
             ReactEditor.focus(editor);
             toggleMark(editor, 'bold');
           }}
-          style={{ color: check.bold ? 'red' : 'black' }}
+          style={{
+            color: isBlockActive(
+              editor,
+              'bold',
+              TEXT_ALIGN_TYPES.includes('bold') ? 'align' : 'type',
+            )
+              ? 'red'
+              : 'black',
+          }}
         >
           BOLD
         </div>
@@ -824,7 +830,7 @@ const SlateReact = () => {
           insert table now
         </div>
 
-        <BlockButton format='url-link' icon='format_list_item' />
+        <BlockButton format='numbered-list' icon='format_list_item' />
 
         {/*
 
@@ -1317,7 +1323,16 @@ const BlockButton = ({ format, icon }) => {
   if (format == 'numbered-list') {
     return (
       <div
-        style={{ padding: '10px' }}
+        style={{
+          padding: '10px',
+          color: isBlockActive(
+            editor,
+            format,
+            TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type',
+          )
+            ? 'red'
+            : 'black',
+        }}
         onMouseDown={(event) => {
           event.preventDefault();
           toggleBlock(editor, 'numbered-list', 'number');
@@ -1515,6 +1530,8 @@ const isBlockActive = (editor, format, blockType = 'type') => {
         n[blockType] === format,
     }),
   );
+
+  console.log(match, 'match bold');
 
   return !!match;
 };
