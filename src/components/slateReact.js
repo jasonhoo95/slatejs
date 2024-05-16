@@ -676,7 +676,15 @@ const SlateReact = () => {
         >
           insert voidnow123
         </div>
-        <div style={{ color: check.bold ? 'red' : 'black' }}>BOLD</div>
+        <div
+          onClick={(e) => {
+            ReactEditor.focus(editor);
+            toggleMark(editor, 'bold');
+          }}
+          style={{ color: check.bold ? 'red' : 'black' }}
+        >
+          BOLD
+        </div>
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
