@@ -1317,8 +1317,6 @@ const MarkButton = ({ format, icon }) => {
 
 const BlockButton = ({ format, icon }) => {
 	const editor = useSlate();
-	let updateAmount = useModalStore((state) => state.updateModal);
-	let ModalProps = useModalStore((state) => state.display);
 
 	if (format == 'numbered-list') {
 		return (
@@ -1531,7 +1529,6 @@ const isBlockActive = (editor, format, blockType = 'type') => {
 		}),
 	);
 
-	console.log(match, 'match bold');
 
 	return !!match;
 };
