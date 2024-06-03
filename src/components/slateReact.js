@@ -780,17 +780,12 @@ const SlateReact = () => {
               const nextNode = Editor.next(editor, {
                 at: editor.selection.anchor.path,
               });
-              Transforms.insertNodes(editor, {
-                children: [{ text: '', type: 'inline-bug' }],
-                type: 'inline-bug',
-              });
-              // const block = { type: "inline-bug", children: [] };
-              // Transforms.wrapNodes(editor, block);
-              Transforms.move(editor, { unit: 'offset', distance: 1 });
-            } else if (event.key == 'ArrowLeft') {
-              leftCheck = true;
-            } else if (event.key == 'ArrowRight') {
-              rightCheck = true;
+              // Transforms.insertNodes(editor, {
+              //   children: [{ text: '', type: 'inline-bug' }],
+              //   type: 'inline-bug',
+              // });
+
+              Transforms.insertText(editor, '\n');
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
               HistoryEditor.undo(editor);
@@ -1018,28 +1013,6 @@ const InlineWrapperBug = ({ attributes, children }) => {
   return (
     <span contentEditable='false' {...attributes}>
       <span contentEditable='false' className='slite-line-break'></span>
-      {children}
-    </span>
-  );
-};
-
-const InlineChromiumBugfix = ({ attributes, children, element }) => {
-  const selected = useSelected();
-  const editor = useSlate();
-  const focused = useFocused();
-
-  if (focused && selected && leftCheck) {
-    Transforms.move(editor, { unit: 'offset', distance: 1, reverse: true });
-    leftCheck = false;
-  } else if (focused && selected && rightCheck) {
-    Transforms.move(editor, { unit: 'offset', distance: 1 });
-    rightCheck = false;
-  }
-  return (
-    <span contentEditable='false' {...attributes}>
-      <span contentEditable='false'>
-        <span contentEditable='false' className='slite-line-break'></span>
-      </span>
       {children}
     </span>
   );
@@ -1864,8 +1837,7 @@ const Element = (props) => {
           {children}
         </span>
       );
-    case 'inline-bug':
-      return <InlineChromiumBugfix {...props} />;
+
     case 'inline-wrapper-bug':
       return <InlineWrapperBug {...props} />;
     case 'editable-void':
