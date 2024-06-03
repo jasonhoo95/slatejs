@@ -153,10 +153,6 @@ const SlateReact = () => {
 
   editor.insertBreak = () => {
     const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
-    // timeset = setTimeout(() => {
-    // 	window.scrollTo({ top: window.scrollY + 200, behavior: "smooth" })
-    //
-    // }, 900)
 
     const listItems = Editor.nodes(editor, {
       at: editor.selection.anchor,
@@ -768,14 +764,14 @@ const SlateReact = () => {
                 n.type == 'dropdown-content',
             });
             const parentCheck = Editor.above(editor, {
-              match: (n) => n.type == 'table-cell1' || n.type == 'dropdown-inner' || n.type == 'numbered-list',
+              match: (n) => n.type == 'list-item' || n.type == 'paragraph',
             });
             const stringText = Editor.node(editor, editor.selection.anchor.path);
 
             let pattern = /^\d+\./; // \d+ matches one or more digits, followed by a literal period
 
             // setState({ text: selectedLeaf.text });
-            if (event.key == 'Enter' && event.shiftKey && listItems && (listItems[0].type == 'list-item' || listItems[0].type == 'check-list-item')) {
+            if (event.key == 'Enter' && event.shiftKey && parentCheck) {
               event.preventDefault();
               const nextNode = Editor.next(editor, {
                 at: editor.selection.anchor.path,
