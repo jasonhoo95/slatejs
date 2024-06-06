@@ -344,8 +344,6 @@ const SlateReact = () => {
           reverse: true,
         });
       }
-    } else if (listItemParent && listItemParent[0].type == 'editable-void') {
-      Transforms.removeNodes(editor, { at: listItemParent[1] });
     } else if (
       previousParent &&
       ['editable-void', 'ImageWrapper'].includes(previousParent[0].type) &&
@@ -361,12 +359,15 @@ const SlateReact = () => {
 
       const currentNode = Editor.parent(editor, editor.selection.anchor.path);
       if (/\u200B/.test(currentNode[0].children[0].text)) {
+        console.log('insert here');
         Transforms.delete(editor, {
           distance: 1,
           unit: 'offset',
           reverse: true,
         });
       }
+
+      ReactEditor.focus(editor);
 
       // 	Transforms.delete(editor, { distance: 2, unit: 'offset', reverse: true })
       // 	// Transforms.move(editor, { distance: 1, unit: "offset" });
@@ -773,13 +774,6 @@ const SlateReact = () => {
             // setState({ text: selectedLeaf.text });
             if (event.key == 'Enter' && event.shiftKey && parentCheck) {
               event.preventDefault();
-              const nextNode = Editor.next(editor, {
-                at: editor.selection.anchor.path,
-              });
-              // Transforms.insertNodes(editor, {
-              //   children: [{ text: '', type: 'inline-bug' }],
-              //   type: 'inline-bug',
-              // });
 
               Transforms.insertText(editor, '\n');
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
@@ -793,20 +787,7 @@ const SlateReact = () => {
             } else if (listItems && (listItems[0].type == 'editable-void' || listItems[0].type == 'ImageWrapper') && event.key == 'Enter') {
               event.preventDefault();
               Transforms.move(editor, { distance: 1, unit: 'offset' });
-            }
-            //  else if (!backwardCheck && listItems && ["editable-void"].includes(listItems[0].type)) {
-            // 	ReactEditor.blur(editor);
-
-            // }
-            //  else if ((event.key == 'Enter') && listItems && ["editable-void"].includes(listItems[0].type) && !parentCheck) {
-            // 	event.preventDefault();
-
-            // 	Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
-            // 	Transforms.select(editor, [editor.selection.anchor.path[0] + 1, 0])
-            // 	getCaretCoordinates();
-
-            // }
-            else if (stringText[0].text.match(pattern) && /android/i.test(ua) && !parentCheck) {
+            } else if (stringText[0].text.match(pattern) && /android/i.test(ua) && !parentCheck) {
               setTimeout(() => {
                 Editor.withoutNormalizing(editor, () => {
                   toggleBlock(editor, 'numbered-list', 'number');
@@ -1027,11 +1008,8 @@ const SpanTxt = ({ attributes, children, element }) => {
 };
 
 const KatexComponent = ({ attributes, children, element }) => {
-  const editor = useSlate();
   const katextext = katex.renderToString(String.raw`${element.url}`);
   const selected = useSelected();
-  const focused = useFocused();
-  const path = ReactEditor.findPath(editor, element);
 
   return (
     <span
