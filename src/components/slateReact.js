@@ -9,7 +9,6 @@ import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateEle
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useModalStore } from '@/globals/zustandGlobal';
 import EditablePopup from './editablePopup';
-import { setRequestMeta } from 'next/dist/server/request-meta';
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -22,11 +21,6 @@ const LIST_TYPES = ['numbered-list', 'bulleted-list', 'list-item', 'check-list-i
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
 const FORMAT_TYPES = ['bold', 'italic', 'underline'];
 const FORMAT_NONE = ['numbered-list', 'paragraph'];
-let backwardCheck = false;
-let leftCheck = false;
-let rightCheck = false;
-let undo = false;
-let focusCheck = false;
 
 const initialValue = [
   {
@@ -459,7 +453,6 @@ const SlateReact = () => {
               });
             }
           }
-          backwardCheck = false;
         }}
         initialValue={initialValue}
       >
@@ -746,8 +739,7 @@ const SlateReact = () => {
                 toggleMark(editor, mark);
               }
             }
-            leftCheck = false;
-            rightCheck = false;
+
             let timeset;
             const [listItems] = Editor.nodes(editor, {
               match: (n) =>
@@ -776,11 +768,9 @@ const SlateReact = () => {
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
               HistoryEditor.undo(editor);
-              undo = true;
             } else if (event.metaKey && event.shiftKey && event.key === 'z') {
               event.preventDefault();
               HistoryEditor.redo(editor);
-              undo = true;
             } else if (listItems && (listItems[0].type == 'editable-void' || listItems[0].type == 'ImageWrapper') && event.key == 'Enter') {
               event.preventDefault();
               Transforms.move(editor, { distance: 1, unit: 'offset' });
@@ -1111,7 +1101,6 @@ const BlockButton = ({ format, icon }) => {
       <div
         onClick={(event) => {
           HistoryEditor.undo(editor);
-          undo = true;
           ReactEditor.focus(editor);
         }}
       >
@@ -1213,8 +1202,6 @@ const toggleBlock = (editor, format, type) => {
       match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
     });
   }
-
-  focusCheck = false;
 };
 
 const isBlockActive = (editor, format, blockType = 'type') => {
@@ -1674,7 +1661,7 @@ const EditableVoid = ({ attributes, children, element }) => {
         </div>
       </div>
 
-      <div>{children}</div>
+      <div className='w-[0px] h-[0px]'>{children}</div>
     </div>
   );
 };
