@@ -366,8 +366,6 @@ const SlateReact = () => {
         });
       }
 
-      ReactEditor.focus(editor);
-
       // 	Transforms.delete(editor, { distance: 2, unit: 'offset', reverse: true })
       // 	// Transforms.move(editor, { distance: 1, unit: "offset" });
       // }else{
