@@ -173,25 +173,7 @@ const SlateReact = () => {
       toggleBlock(editor, currentParent[0].type);
     } else if (currentParent && ['banner-red-wrapper'].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
       toggleBlock(editor, currentParent[0].type);
-    }
-
-    // else if (currentParent && currentParent[0].type == "dropdown-inner" && parentCheck) {
-
-    // 	// let block1 =
-    // 	// {
-    // 	// 	type: "paragraph",
-    // 	// 	children: [
-    // 	// 		{
-    // 	// 			id: currentParent[0].children.length + 1,
-    // 	// 			text: "",
-    // 	// 		},
-    // 	// 	],
-    // 	// }
-
-    // 	// Transforms.insertNodes(editor, block1);
-
-    // }
-    else if (currentParent && ['check-list-item'].includes(currentParent[0].type)) {
+    } else if (currentParent && ['check-list-item'].includes(currentParent[0].type)) {
       insertBreak();
       const parentCheck = Editor.parent(editor, editor.selection.anchor.path, {
         match: (n) => n.type == 'check-list-item',
@@ -231,12 +213,6 @@ const SlateReact = () => {
     const [listItems] = Editor.nodes(editor, {
       at: editor.selection.anchor.path,
       match: (n) => ['span-txt', 'paragraph', 'table-list', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
-    });
-    const ua = navigator.userAgent;
-
-    const previousKatex = Editor.previous(editor, {
-      at: editor.selection,
-      match: (n) => n.type == 'katex',
     });
 
     if (listItems) {
@@ -359,20 +335,6 @@ const SlateReact = () => {
           reverse: true,
         });
       }
-
-      // 	Transforms.delete(editor, { distance: 2, unit: 'offset', reverse: true })
-      // 	// Transforms.move(editor, { distance: 1, unit: "offset" });
-      // }else{
-      // 	Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true })
-
-      // }
-
-      // const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
-      // const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
-
-      // if (previousNode && nextNode && previousNode[0].type == "link" && nextNode[0].type == "link") {
-      // 	Transforms.delete(editor, { at: editor.selection.anchor.path });
-      // }
     }
   };
 
@@ -740,7 +702,6 @@ const SlateReact = () => {
               }
             }
 
-            let timeset;
             const [listItems] = Editor.nodes(editor, {
               match: (n) =>
                 n.type === 'list-item' ||
@@ -774,18 +735,6 @@ const SlateReact = () => {
             } else if (listItems && (listItems[0].type == 'editable-void' || listItems[0].type == 'ImageWrapper') && event.key == 'Enter') {
               event.preventDefault();
               Transforms.move(editor, { distance: 1, unit: 'offset' });
-            } else if (stringText[0].text.match(pattern) && /android/i.test(ua) && !parentCheck) {
-              setTimeout(() => {
-                Editor.withoutNormalizing(editor, () => {
-                  toggleBlock(editor, 'numbered-list', 'number');
-                  Transforms.delete(editor, {
-                    at: editor.selection.anchor,
-                    distance: 1,
-                    reverse: true,
-                    unit: 'word',
-                  });
-                });
-              }, 0);
             }
           }}
         />
