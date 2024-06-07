@@ -359,7 +359,6 @@ const SlateReact = () => {
 
       const currentNode = Editor.parent(editor, editor.selection.anchor.path);
       if (/\u200B/.test(currentNode[0].children[0].text)) {
-        console.log('insert here');
         Transforms.delete(editor, {
           distance: 1,
           unit: 'offset',
