@@ -1811,9 +1811,9 @@ const Element = (props) => {
       return <p {...attributes}>{children}</p>;
     case 'paragraph':
       return (
-        <p style={{ marginTop: '5px' }} {...attributes}>
+        <div style={{ marginTop: '5px' }} {...attributes}>
           {children}
-        </p>
+        </div>
       );
     default:
       return <p {...attributes}>{children}</p>;
