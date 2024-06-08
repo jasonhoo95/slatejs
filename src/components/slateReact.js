@@ -629,8 +629,6 @@ const SlateReact = () => {
             Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
 
             getCaretCoordinates();
-
-            undo = false;
           }}
         >
           insert table now
@@ -780,12 +778,12 @@ const wrapperCheck = (editor) => {
       split: true,
     });
   } else {
-    Transforms.unwrapNodes(editor, {
-      match: (n) => {
-        return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == 'numbered-list';
-      },
-      split: true,
-    });
+    // Transforms.unwrapNodes(editor, {
+    //   match: (n) => {
+    //     return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == 'numbered-list';
+    //   },
+    //   split: true,
+    // });
 
     Transforms.unwrapNodes(editor, {
       match: (n) => {
@@ -793,10 +791,10 @@ const wrapperCheck = (editor) => {
       },
       split: true,
     });
-    Transforms.setNodes(editor, { type: 'list-item' });
-    const block = { type: 'numbered-list', children: [] };
+    // Transforms.setNodes(editor, { type: 'list-item' });
+    // const block = { type: 'numbered-list', children: [] };
 
-    Transforms.wrapNodes(editor, block);
+    // Transforms.wrapNodes(editor, block);
 
     // toggleBlock(editor, "numbered-list", "number");
   }
@@ -1324,26 +1322,24 @@ const TableList = ({ attributes, children, element }) => {
       }
     }
   }
-  // useEffect(() => {
+  useEffect(() => {
+    const messageListener = (e) => {
+      if (selected) {
+        checknow(e);
+      }
+    };
 
-  // 	const messageListener = (e) => {
-  // 		if (selected) {
-  // 			checknow(e)
-  // 		}
-  // 	};
+    if (selected) {
+      window.addEventListener('message', messageListener);
+    } else {
+      window.removeEventListener('message', messageListener);
+    }
 
-  // 	if (selected) {
-  // 		window.addEventListener("message", messageListener);
-  // 	} else {
-  // 		window.removeEventListener("message", messageListener);
-  // 	}
-
-  // 	// Cleanup when the component unmounts or when the dependency changes
-  // 	return () => {
-  // 		window.removeEventListener("message", messageListener);
-  // 	};
-
-  // }, [selected])
+    // Cleanup when the component unmounts or when the dependency changes
+    return () => {
+      window.removeEventListener('message', messageListener);
+    };
+  }, [selected]);
 
   return (
     <>
