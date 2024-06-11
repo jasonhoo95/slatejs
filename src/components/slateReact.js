@@ -516,7 +516,6 @@ const SlateReact = () => {
               at: editor.selection.anchor.path,
             });
             Transforms.unwrapNodes(editor, { mode: 'highest' });
-            getCaretCoordinates();
           }}
         >
           insert banner void
@@ -627,8 +626,6 @@ const SlateReact = () => {
             });
             Transforms.unwrapNodes(editor, { mode: 'highest' });
             Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
-
-            getCaretCoordinates();
           }}
         >
           insert table now
@@ -1001,7 +998,6 @@ const BlockButton = ({ format, icon }) => {
         onMouseDown={(event) => {
           event.preventDefault();
           toggleBlock(editor, 'numbered-list', 'number');
-          getCaretCoordinates();
         }}
       >
         number list
@@ -1037,7 +1033,6 @@ const BlockButton = ({ format, icon }) => {
         onMouseDown={(event) => {
           event.preventDefault();
           wrapperCheck(editor);
-          getCaretCoordinates();
         }}
       >
         Banner red
@@ -1807,8 +1802,6 @@ const Element = (props) => {
 
     case 'banner-red-wrapper':
       return <BannerRed {...props} />;
-    case 'paragraph-inline':
-      return <p {...attributes}>{children}</p>;
     case 'paragraph':
       return (
         <div style={{ marginTop: '5px' }} {...attributes}>
@@ -1816,7 +1809,7 @@ const Element = (props) => {
         </div>
       );
     default:
-      return <p {...attributes}>{children}</p>;
+      return <div {...attributes}>{children}</div>;
   }
 };
 
