@@ -1873,9 +1873,9 @@ const Element = (props) => {
       return <BannerRed {...props} />;
     case 'paragraph':
       return (
-        <div style={{ marginTop: '5px' }} {...attributes}>
+        <p style={{ marginTop: '5px' }} {...attributes}>
           {children}
-        </div>
+        </p>
       );
     default:
       return <div {...attributes}>{children}</div>;
