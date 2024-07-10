@@ -747,7 +747,7 @@ const SlateReact = () => {
           style={{ padding: '10px' }}
           ref={contentEditableRef}
           autoCapitalize={false}
-          // onDOMBeforeInput={handleDOMBeforeInput}
+          onDOMBeforeInput={handleDOMBeforeInput}
           autoCorrect={false}
           spellCheck={false}
           onFocus={onFocus}
