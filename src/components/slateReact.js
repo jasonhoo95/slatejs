@@ -554,16 +554,7 @@ const SlateReact = () => {
             let markActive = isMarkActive(editor, 'bold');
             let pattern = /^\d+\. /; // \d+ matches one or more digits, followed by a literal period
 
-            if (string.text.match(pattern) && parent[0].type != 'list-item' && !/android/i.test(ua)) {
-              Editor.withoutNormalizing(editor, () => {
-                toggleBlock(editor, 'numbered-list', 'number');
-                Transforms.delete(editor, {
-                  at: editor.selection.anchor,
-                  unit: 'word',
-                  reverse: true,
-                });
-              });
-            } else if (parent[0].type == 'link' && parent[0].children[0].text.length <= 0) {
+            if (parent[0].type == 'link' && parent[0].children[0].text.length <= 0) {
               Transforms.removeNodes(editor, {
                 at: parent[1],
               });
