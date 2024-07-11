@@ -193,50 +193,49 @@ const SlateReact = () => {
     // Cleanup when the component unmounts or when the dependency changes
   }, []);
 
-  //   editor.insertText = (text) => {
-  //     const { selection } = editor;
+  editor.insertText = (text) => {
+    const { selection } = editor;
 
-  //     if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
-  //       const { anchor } = selection;
-  //       const block = Editor.above(editor, {
-  //         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-  //       });
-  //       const path = block ? block[1] : [];
-  //       const start = Editor.start(editor, path);
-  //       const range = { anchor, focus: start };
-  //       const beforeText = Editor.string(editor, range) + text.slice(0, -1);
-  //       const type = SHORTCUTS[beforeText];
+    if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+      const { anchor } = selection;
+      const block = Editor.above(editor, {
+        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+      });
+      const path = block ? block[1] : [];
+      const start = Editor.start(editor, path);
+      const range = { anchor, focus: start };
+      const beforeText = Editor.string(editor, range) + text.slice(0, -1);
+      const type = SHORTCUTS[beforeText];
 
-  //       if (type) {
-  //         console.log(type, 'type enter');
-  //         Transforms.select(editor, range);
+      if (type) {
+        console.log(type, 'type enter');
+        Transforms.select(editor, range);
 
-  //         if (!Range.isCollapsed(range)) {
-  //           Transforms.delete(editor);
-  //         }
+        if (!Range.isCollapsed(range)) {
+          Transforms.delete(editor);
+        }
 
-  //         const newProperties = {
-  //           type,
-  //         };
-  //         Transforms.setNodes <
-  //           SlateElement >
-  //           (editor,
-  //           newProperties,
-  //           {
-  //             match: (n) =>
-  //               SlateElement.isElement(n) && Editor.isBlock(editor, n),
-  //           });
+        const newProperties = {
+          type,
+        };
+        Transforms.setNodes <
+          SlateElement >
+          (editor,
+          newProperties,
+          {
+            match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+          });
 
-  //         if (type === 'list-item') {
-  //           toggleBlock(editor, 'numbered-list', 'number');
-  //         }
+        if (type === 'list-item') {
+          toggleBlock(editor, 'numbered-list', 'number');
+        }
 
-  //         return;
-  //       }
-  //     }
+        return;
+      }
+    }
 
-  //     insertText(text);
-  //   };
+    insertText(text);
+  };
 
   editor.insertBreak = () => {
     const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -500,16 +499,16 @@ const SlateReact = () => {
               Transforms.removeNodes(editor, {
                 at: parent[1],
               });
-            } else if (string.text.startsWith('1. ') && parent[0].type != 'list-item' && !/android/i.test(ua)) {
-              Editor.withoutNormalizing(editor, () => {
-                toggleBlock(editor, 'numbered-list', 'number');
-                Transforms.delete(editor, {
-                  at: editor.selection.anchor,
-                  unit: 'word',
-                  reverse: true,
-                });
-              });
             }
+          } else if (string.text.startsWith('1. ') && parent[0].type != 'list-item' && !/android/i.test(ua)) {
+            Editor.withoutNormalizing(editor, () => {
+              toggleBlock(editor, 'numbered-list', 'number');
+              Transforms.delete(editor, {
+                at: editor.selection.anchor,
+                unit: 'word',
+                reverse: true,
+              });
+            });
           }
         }}
         initialValue={initialValue}
@@ -778,7 +777,7 @@ const SlateReact = () => {
           style={{ padding: '10px' }}
           ref={contentEditableRef}
           autoCapitalize={false}
-          //   onDOMBeforeInput={handleDOMBeforeInput}
+          onDOMBeforeInput={handleDOMBeforeInput}
           autoCorrect={false}
           spellCheck={false}
           onFocus={onFocus}
