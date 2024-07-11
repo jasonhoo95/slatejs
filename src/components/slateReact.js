@@ -193,56 +193,58 @@ const SlateReact = () => {
     // Cleanup when the component unmounts or when the dependency changes
   }, []);
 
-  editor.insertText = (text) => {
-    const { selection } = editor;
+  //   editor.insertText = (text) => {
+  //     const { selection } = editor;
 
-    if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
-      const { anchor } = selection;
-      const block = Editor.above(editor, {
-        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-      });
-      const path = block ? block[1] : [];
-      const start = Editor.start(editor, path);
-      const range = { anchor, focus: start };
-      const beforeText = Editor.string(editor, range) + text.slice(0, -1);
-      const type = SHORTCUTS[beforeText];
+  //     if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+  //       const { anchor } = selection;
+  //       const block = Editor.above(editor, {
+  //         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+  //       });
+  //       const path = block ? block[1] : [];
+  //       const start = Editor.start(editor, path);
+  //       const range = { anchor, focus: start };
+  //       const beforeText = Editor.string(editor, range) + text.slice(0, -1);
+  //       const type = SHORTCUTS[beforeText];
 
-      if (type) {
-        console.log(type, 'type enter');
-        Transforms.select(editor, range);
+  //       if (type) {
+  //         console.log(type, 'type enter');
+  //         Transforms.select(editor, range);
 
-        if (!Range.isCollapsed(range)) {
-          Transforms.delete(editor);
-        }
+  //         if (!Range.isCollapsed(range)) {
+  //           Transforms.delete(editor);
+  //         }
 
-        const newProperties = {
-          type,
-        };
-        Transforms.setNodes <
-          SlateElement >
-          (editor,
-          newProperties,
-          {
-            match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-          });
+  //         const newProperties = {
+  //           type,
+  //         };
+  //         Transforms.setNodes <
+  //           SlateElement >
+  //           (editor,
+  //           newProperties,
+  //           {
+  //             match: (n) =>
+  //               SlateElement.isElement(n) && Editor.isBlock(editor, n),
+  //           });
 
-        if (type === 'list-item') {
-          toggleBlock(editor, 'numbered-list', 'number');
-        }
+  //         if (type === 'list-item') {
+  //           toggleBlock(editor, 'numbered-list', 'number');
+  //         }
 
-        return;
-      }
-    }
+  //         return;
+  //       }
+  //     }
 
-    insertText(text);
-  };
+  //     insertText(text);
+  //   };
 
   editor.insertBreak = () => {
     const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
 
     const listItems = Editor.nodes(editor, {
       at: editor.selection.anchor,
-      match: (n) => ['list-item', 'banner-red-wrapper', 'table-list', 'katex', 'check-list-item', 'dropdown-inner', 'editable-void', 'ImageWrapper'].includes(n.type),
+      match: (n) =>
+        ['list-item', 'banner-red-wrapper', 'table-list', 'katex', 'check-list-item', 'dropdown-inner', 'editable-void', 'ImageWrapper'].includes(n.type),
     });
     let currentParent, currentDescendant, previousParent, voidCheck;
 
@@ -261,9 +263,19 @@ const SlateReact = () => {
       match: (n) => n.type == 'paragraph',
     });
 
-    if (currentParent && ['list-item', 'check-list-item'].includes(currentParent[0].type) && currentParent[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
+    if (
+      currentParent &&
+      ['list-item', 'check-list-item'].includes(currentParent[0].type) &&
+      currentParent[0].children.length == 1 &&
+      !/\S/.test(selectedLeaf.text)
+    ) {
       toggleBlock(editor, currentParent[0].type);
-    } else if (currentParent && ['banner-red-wrapper'].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
+    } else if (
+      currentParent &&
+      ['banner-red-wrapper'].includes(currentParent[0].type) &&
+      parentCheck[0].children.length == 1 &&
+      !/\S/.test(selectedLeaf.text)
+    ) {
       toggleBlock(editor, currentParent[0].type);
     } else if (currentParent && ['check-list-item'].includes(currentParent[0].type)) {
       insertBreak();
@@ -489,9 +501,19 @@ const SlateReact = () => {
                 at: parent[1],
               });
             }
+          } else if (string.text.startsWith('1. ') && parent[0].type != 'list-item' && !/android/i.test(ua)) {
+            Editor.withoutNormalizing(editor, () => {
+              toggleBlock(editor, 'numbered-list', 'number');
+              Transforms.delete(editor, {
+                at: editor.selection.anchor,
+                unit: 'word',
+                reverse: true,
+              });
+            });
           }
         }}
-        initialValue={initialValue}>
+        initialValue={initialValue}
+      >
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
@@ -562,7 +584,8 @@ const SlateReact = () => {
 
               // Transforms.select(editor, [editor.selection.anchor.path, 0])
             }
-          }}>
+          }}
+        >
           insert voidnow123
         </div>
         <div
@@ -572,7 +595,8 @@ const SlateReact = () => {
           }}
           style={{
             color: isBlockActive(editor, 'bold', TEXT_ALIGN_TYPES.includes('bold') ? 'align' : 'type') ? 'red' : 'black',
-          }}>
+          }}
+        >
           BOLD
         </div>
         <div
@@ -591,7 +615,8 @@ const SlateReact = () => {
               at: editor.selection.anchor.path,
             });
             Transforms.unwrapNodes(editor, { mode: 'highest' });
-          }}>
+          }}
+        >
           insert banner void
         </div>
 
@@ -599,7 +624,8 @@ const SlateReact = () => {
           onClick={(e) => {
             ReactEditor.focus(editor);
             toggleBlock(editor, 'numbered-list', 'number');
-          }}>
+          }}
+        >
           insert numbered list
         </div>
 
@@ -608,7 +634,8 @@ const SlateReact = () => {
             ReactEditor.focus(editor);
 
             wrapperCheck(editor);
-          }}>
+          }}
+        >
           insert banner red
         </div>
 
@@ -619,7 +646,8 @@ const SlateReact = () => {
             Transforms.insertNodes(editor, { type: 'ImageWrapper', children: [{ text: '' }] }, { at: editor.selection.anchor.path });
 
             Transforms.unwrapNodes(editor, { mode: 'highest' });
-          }}>
+          }}
+        >
           insert image
         </div>
 
@@ -630,7 +658,8 @@ const SlateReact = () => {
             // 	at: editor.selection.anchor,
             // });
             insertKatex(editor, 'flutter');
-          }}>
+          }}
+        >
           insert katex
         </div>
 
@@ -648,7 +677,8 @@ const SlateReact = () => {
               at: editor.selection.anchor.path,
             });
             Transforms.unwrapNodes(editor, { mode: 'highest' });
-          }}>
+          }}
+        >
           insert input
         </div>
 
@@ -695,7 +725,8 @@ const SlateReact = () => {
             });
             Transforms.unwrapNodes(editor, { mode: 'highest' });
             Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
-          }}>
+          }}
+        >
           insert table now
         </div>
 
@@ -808,59 +839,6 @@ const SlateReact = () => {
   );
 };
 
-const withShortcuts = (editor) => {
-  const { deleteBackward, insertText } = editor;
-
-  editor.insertText = (text) => {
-    const { selection } = editor;
-
-    if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
-      const { anchor } = selection;
-      const block = Editor.above(editor, {
-        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-      });
-      const path = block ? block[1] : [];
-      const start = Editor.start(editor, path);
-      const range = { anchor, focus: start };
-      const beforeText = Editor.string(editor, range) + text.slice(0, -1);
-      const type = SHORTCUTS[beforeText];
-
-      if (type) {
-        Transforms.select(editor, range);
-
-        if (!Range.isCollapsed(range)) {
-          Transforms.delete(editor);
-        }
-
-        const newProperties = {
-          type,
-        };
-        Transforms.setNodes <
-          SlateElement >
-          (editor,
-          newProperties,
-          {
-            match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-          });
-
-        if (type === 'list-item') {
-          const list = {
-            type: 'bulleted-list',
-            children: [],
-          };
-          Transforms.wrapNodes(editor, list, {
-            match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'list-item',
-          });
-        }
-
-        return;
-      }
-    }
-
-    insertText(text);
-  };
-};
-
 const wrapperCheck = (editor) => {
   const block = { type: 'banner-red-wrapper', children: [] };
   const isActive = isBlockActive(editor, 'banner-red-wrapper', TEXT_ALIGN_TYPES.includes('banner-red-wrapper') ? 'align' : 'type');
@@ -893,7 +871,11 @@ const wrapperCheck = (editor) => {
         },
       },
       match: (n) => {
-        return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == 'numbered-list' || n.type == 'paragraph' || n.type == 'bulleted-list' || n.type == 'check-list');
+        return (
+          !Editor.isEditor(n) &&
+          SlateElement.isElement(n) &&
+          (n.type == 'numbered-list' || n.type == 'paragraph' || n.type == 'bulleted-list' || n.type == 'check-list')
+        );
       },
       split: true,
     });
@@ -980,7 +962,8 @@ const withInlines = (editor) => {
 
   editor.isInline = (element) => ['button', 'link', 'katex', 'inline-bug', 'inline-wrapper-bug', 'inline-wrapper'].includes(element.type) || isInline(element);
 
-  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt', 'editable-void', 'ImageWrapper', 'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
+  editor.isVoid = (element) =>
+    ['katex', 'inline-bug', 'span-txt', 'editable-void', 'ImageWrapper', 'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
 
   editor.markableVoid = (element) => {
     return element.type === 'katex' || markableVoid(element);
@@ -994,7 +977,8 @@ const ChromiumBugfix = () => (
     className={css`
       font-size: 0;
       padding-left: 0.1px;
-    `}>
+    `}
+  >
     {String.fromCodePoint(160) /* Non-breaking space */}
   </span>
 );
@@ -1030,7 +1014,8 @@ const LinkComponent = ({ attributes, children, element }) => {
           path: ReactEditor.findPath(editor, element),
         };
         updateAmount(data);
-      }}>
+      }}
+    >
       <ChromiumBugfix />
       {children}
       <ChromiumBugfix />
@@ -1072,7 +1057,8 @@ const KatexComponent = ({ attributes, children, element }) => {
         background: selected ? 'red' : '',
       }}
       className='span-katex'
-      {...attributes}>
+      {...attributes}
+    >
       <span contentEditable='false' dangerouslySetInnerHTML={{ __html: katextext }}></span>
       <ChromiumBugfix />
       {children}
@@ -1098,7 +1084,8 @@ const MarkButton = ({ format, icon }) => {
         event.preventDefault();
         toggleMark(editor, format);
         getCaretCoordinates();
-      }}>
+      }}
+    >
       {format}
     </div>
   );
@@ -1117,7 +1104,8 @@ const BlockButton = ({ format, icon }) => {
         onMouseDown={(event) => {
           event.preventDefault();
           toggleBlock(editor, 'numbered-list', 'number');
-        }}>
+        }}
+      >
         number list
       </div>
     );
@@ -1129,7 +1117,8 @@ const BlockButton = ({ format, icon }) => {
           const url = window.prompt('Enter the URL of the link:');
           if (!url) return;
           insertLink(editor, url);
-        }}>
+        }}
+      >
         URL LINK
       </div>
     );
@@ -1138,7 +1127,8 @@ const BlockButton = ({ format, icon }) => {
       <div
         onClick={(e) => {
           ReactEditor.focus(editor);
-        }}>
+        }}
+      >
         focus now
       </div>
     );
@@ -1149,7 +1139,8 @@ const BlockButton = ({ format, icon }) => {
         onMouseDown={(event) => {
           event.preventDefault();
           wrapperCheck(editor);
-        }}>
+        }}
+      >
         Banner red
       </div>
     );
@@ -1159,7 +1150,8 @@ const BlockButton = ({ format, icon }) => {
         onClick={(event) => {
           HistoryEditor.undo(editor);
           ReactEditor.focus(editor);
-        }}>
+        }}
+      >
         undo
       </div>
     );
@@ -1377,7 +1369,8 @@ const DropDownList = ({ attributes, children, element }) => {
         background: selected ? 'green' : '',
         border: '1px solid grey',
         borderRadius: '10px',
-      }}>
+      }}
+    >
       {/* <div>
 				{children[0]}
 
@@ -1397,7 +1390,8 @@ const DropDownList = ({ attributes, children, element }) => {
 			/> */}
       <div
         // onClick={e => { Transforms.setNodes(editor, { checked: false }, { at: path }) }}
-        className='grid-container'>
+        className='grid-container'
+      >
         {nodes[0].children.map((o, key) => {
           if (o.type == 'dropdown-inner') {
             return children[key];
@@ -1507,7 +1501,8 @@ const InputComponent = ({ attributes, children, element }) => {
         onBlur={(e) => {
           setInputValue(null);
         }}
-        type='text'></input>
+        type='text'
+      ></input>
       <div>{children}</div>
     </div>
   );
@@ -1643,7 +1638,8 @@ const EditableVoid = ({ attributes, children, element }) => {
         height: '100px',
         width: '100%',
       }}
-      {...attributes}>
+      {...attributes}
+    >
       {/* <EditablePopup
 					open={open}
 					card={objCopy}
@@ -1689,7 +1685,8 @@ const EditableVoid = ({ attributes, children, element }) => {
         <button
           onClick={(e) => {
             Transforms.removeNodes(editor, { at: path });
-          }}>
+          }}
+        >
           CLICK ME
         </button>
 
@@ -1701,7 +1698,8 @@ const EditableVoid = ({ attributes, children, element }) => {
                 // 	setModal(key, card, true);
                 // }}
                 style={{ height: '30px', width: '25%', background: 'red' }}
-                key={key}>
+                key={key}
+              >
                 {o.card}
               </div>
             );
@@ -1761,7 +1759,8 @@ const CheckListItemElement = ({ attributes, children, element }) => {
         display: flex;
         flex-direction: row;
         align-items: flex-start;
-      `}>
+      `}
+    >
       <span
         contentEditable={false}
         className={css`
@@ -1769,7 +1768,8 @@ const CheckListItemElement = ({ attributes, children, element }) => {
           margin-right: 0.5em;
           margin-top: 0.1em;
           display: block;
-        `}>
+        `}
+      >
         <input
           type='checkbox'
           checked={checked}
@@ -1792,7 +1792,8 @@ const CheckListItemElement = ({ attributes, children, element }) => {
           &:focus {
             outline: none;
           }
-        `}>
+        `}
+      >
         {children}
       </span>
     </div>
@@ -1948,7 +1949,8 @@ const Leaf = ({ attributes, children, leaf }) => {
             `
           : null
       }
-      {...attributes}>
+      {...attributes}
+    >
       {children}
     </span>
   );
