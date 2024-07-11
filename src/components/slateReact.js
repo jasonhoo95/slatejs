@@ -500,16 +500,16 @@ const SlateReact = () => {
               Transforms.removeNodes(editor, {
                 at: parent[1],
               });
-            }
-          } else if (string.text.startsWith('1. ') && parent[0].type != 'list-item' && !/android/i.test(ua)) {
-            Editor.withoutNormalizing(editor, () => {
-              toggleBlock(editor, 'numbered-list', 'number');
-              Transforms.delete(editor, {
-                at: editor.selection.anchor,
-                unit: 'word',
-                reverse: true,
+            } else if (string.text.startsWith('1. ') && parent[0].type != 'list-item' && !/android/i.test(ua)) {
+              Editor.withoutNormalizing(editor, () => {
+                toggleBlock(editor, 'numbered-list', 'number');
+                Transforms.delete(editor, {
+                  at: editor.selection.anchor,
+                  unit: 'word',
+                  reverse: true,
+                });
               });
-            });
+            }
           }
         }}
         initialValue={initialValue}
@@ -778,7 +778,7 @@ const SlateReact = () => {
           style={{ padding: '10px' }}
           ref={contentEditableRef}
           autoCapitalize={false}
-          onDOMBeforeInput={handleDOMBeforeInput}
+          //   onDOMBeforeInput={handleDOMBeforeInput}
           autoCorrect={false}
           spellCheck={false}
           onFocus={onFocus}
