@@ -154,7 +154,7 @@ const SlateReact = () => {
         ReactEditor.androidScheduleFlush(editor);
       }
 
-      console.log('check back');
+      
     });
   }, []);
 
@@ -175,10 +175,6 @@ const SlateReact = () => {
         insertKatex(editor, 'flutter123');
       } else if (event.data == 'focus') {
         ReactEditor.focus(editor);
-        // const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == "katex" });
-        // if (parentCheck[0].type == "katex") {
-        // 	Transforms.move(editor, { distance: 1, unit: "offset" });
-        // }
       } else {
         window.removeEventListener('message', messageListener);
       }
@@ -208,7 +204,7 @@ const SlateReact = () => {
       const type = SHORTCUTS[beforeText];
 
       if (type) {
-        console.log(type, 'type enter');
+        
         Transforms.select(editor, range);
 
         if (!Range.isCollapsed(range)) {
