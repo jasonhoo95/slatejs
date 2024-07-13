@@ -29,7 +29,7 @@ export default function Home() {
     id: 1,
   });
   useEffect(() => {
-    console.log(valuenow, 'value return');
+    
     function updateStickyDivPosition() {
       const stickyDiv = document.getElementById('stickyDiv');
       const isMobile = window.innerWidth <= 768; // Adjust the breakpoint as needed
