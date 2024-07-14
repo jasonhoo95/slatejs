@@ -314,6 +314,12 @@ const SlateReact = () => {
       match: (n) => ['span-txt', 'paragraph', 'table-list', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
     });
 
+    const listItemCheck = Editor.above(editor, {
+      match: (n) => n.type == 'list-item' || n.type == 'paragraph',
+    });
+    const stringText = Editor.string(editor, editor.selection.anchor.path);
+
+
     if (listItems) {
       listItemParent = Editor.node(editor, listItems[1]);
 
@@ -329,6 +335,7 @@ const SlateReact = () => {
         at: listItems[1],
       });
     }
+    
 
     if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
@@ -385,12 +392,12 @@ const SlateReact = () => {
         match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes(n.type),
       });
     } else if (
-      listItemParent &&
-      (listItemParent[0].type == 'list-item' || listItemParent[0].type == 'check-list-item') &&
-      listItemParent[1][listItemParent[1].length - 1] == 0 &&
-      editor.selection.anchor.offset == 0
+      listItemCheck &&
+      (listItemCheck[0].type == 'list-item' || listItemCheck[0].type == 'check-list-item') &&
+      listItemCheck[1][listItemCheck[1].length - 1] === 0 &&
+      editor.selection.anchor.offset === 0
     ) {
-      toggleBlock(editor, listItemParent[0].type);
+      toggleBlock(editor, listItemCheck[0].type);
     } else if (listItemParent && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
       const parent = Editor.parent(editor, editor.selection.anchor.path);
 
@@ -1217,9 +1224,11 @@ const toggleBlock = (editor, format, type) => {
     });
     nextParent = Editor.next(editor, {
       at: currentNode[1],
-      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && (LIST_PARENT.includes(n.type) || n.type == 'paragraph') ,
     });
   }
+
+  
 
   if (currentNode && prevParent && currentNode[0].type == prevParent[0].type) {
     const [parent, parentPath] = currentNode;
