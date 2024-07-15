@@ -1187,8 +1187,6 @@ const toggleBlock = (editor, format, type) => {
       at: currentNode[1],
       match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && (LIST_PARENT.includes(n.type) || n.type === 'paragraph'),
     });
-
-    console.log(currentNode, prevParent, 'current parent check');
   }
 
   if (
@@ -1200,7 +1198,6 @@ const toggleBlock = (editor, format, type) => {
     currentNode[1][currentNode[1].length - 1] !== 0
   ) {
     const [parent, parentPath] = currentNode;
-    console.log(parentPath, currentNode, editor.selection.anchor, 'parent path');
 
     // Merge current node with the one above
     Transforms.mergeNodes(editor, {
@@ -1219,7 +1216,7 @@ const toggleBlock = (editor, format, type) => {
     // Transforms.wrapNodes(editor, newList, { at: parentPath });
   } else if (prevParent && currentNode && (!parentCheck || (parentCheck && currentNode[1][currentNode[1].length - 1] !== 0)) && currentNode[0].type === prevParent[0].type) {
     const [parent, parentPath] = currentNode;
-    console.log(currentNode, 'current node prev parent');
+
     Transforms.mergeNodes(editor, {
       at: parentPath,
       match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
@@ -1234,8 +1231,6 @@ const toggleBlock = (editor, format, type) => {
     currentNode &&
     currentNode[0].type === nextParent[0].type
   ) {
-    console.log(currentNode, 'current node next parent');
-
     Transforms.mergeNodes(editor, {
       at: nextParent[1],
       match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
