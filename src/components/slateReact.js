@@ -1134,7 +1134,7 @@ const toggleMark = (editor, format) => {
 const toggleBlock = (editor, format, type) => {
   const isActive = isBlockActive(editor, format, TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type');
   const isList = LIST_TYPES.includes(format) || format == 'banner-red-wrapper';
-  let LIST_PARENT = ['numbered-list', 'bulleted-list', 'check-list'];
+  let LIST_PARENT = ['numbered-list', 'bulleted-list', 'check-list', 'banner-red-wrapper', 'table-list'];
   let formatCheck;
 
   if (format == 'list-item' || format == 'check-list-item') {
@@ -1170,6 +1170,7 @@ const toggleBlock = (editor, format, type) => {
   }
 
   const [currentNode] = Editor.nodes(editor, {
+    mode:'lowest',
     match: (n) => LIST_PARENT.includes(n.type),
   });
 
@@ -1186,18 +1187,20 @@ const toggleBlock = (editor, format, type) => {
       match: (n) =>
         !Editor.isEditor(n) &&
         SlateElement.isElement(n) &&
-        (n.type === 'table-list' || n.type === 'banner-red-wrapper' || n.type === 'table-cell1' || n.type === 'paragraph' || LIST_PARENT.includes(n.type)),
+        (n.type === 'paragraph' || LIST_PARENT.includes(n.type)),
     });
     nextParent = Editor.next(editor, {
       at: currentNode[1],
+      mode: parentCheck ? 'lowest' : 'highest',
       match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && (LIST_PARENT.includes(n.type) || n.type === 'paragraph'),
     });
   }
-
+ 
   if (
     currentNode &&
     prevParent &&
     nextParent &&
+    nextParent[0].type === prevParent[0].type &&
     currentNode[0].type == prevParent[0].type &&
     currentNode[0].type == nextParent[0].type &&
     currentNode[1][currentNode[1].length - 1] !== 0
