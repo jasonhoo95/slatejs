@@ -204,7 +204,7 @@ const SlateReact = () => {
       console.log('king');
 
       if (type) {
-        console.log('king');
+        console.log('king1');
 
         Transforms.select(editor, range);
 
@@ -226,6 +226,17 @@ const SlateReact = () => {
         if (type === 'list-item') {
           toggleBlock(editor, 'numbered-list', 'number');
         }
+
+        return;
+      } else if (/\u200B/.test(beforeText)) {
+        console.log('king2');
+
+        Transforms.delete(editor, {
+          unit: 'character',
+          distance: 3,
+          reverse: true,
+        });
+        toggleBlock(editor, 'numbered-list', 'number');
 
         return;
       }
