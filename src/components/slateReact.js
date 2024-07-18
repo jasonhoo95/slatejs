@@ -201,8 +201,11 @@ const SlateReact = () => {
       const range = { anchor, focus: start };
       const beforeText = Editor.string(editor, range) + text.slice(0, -1);
       const type = SHORTCUTS[beforeText];
+      console.log('king');
 
       if (type) {
+        console.log('king');
+
         Transforms.select(editor, range);
 
         if (!Range.isCollapsed(range)) {
@@ -227,7 +230,9 @@ const SlateReact = () => {
         return;
       }
     }
-    insertText(text);
+
+    Transforms.insertText(editor, text);
+    // insertText(text);
   };
 
   editor.insertBreak = () => {
