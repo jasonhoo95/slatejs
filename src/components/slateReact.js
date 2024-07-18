@@ -225,21 +225,9 @@ const SlateReact = () => {
         }
 
         return;
-      } else if (/\u200B/.test(beforeText)) {
-        Transforms.delete(editor, {
-          at: editor.selection.anchor,
-          unit: 'character',
-          distance: 3,
-          reverse: true,
-        });
-        toggleBlock(editor, 'numbered-list', 'number');
-
-        return;
       }
-      insertText(text);
-    } else {
-      insertText(text);
     }
+    insertText(text);
   };
 
   editor.insertBreak = () => {
