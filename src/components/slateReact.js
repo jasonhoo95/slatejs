@@ -9,6 +9,7 @@ import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateEle
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useModalStore } from '@/globals/zustandGlobal';
 import EditablePopup from './editablePopup';
+import { before } from 'lodash';
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -224,10 +225,21 @@ const SlateReact = () => {
         }
 
         return;
-      }
-    }
+      } else if (/\u200B/.test(beforeText)) {
+        Transforms.delete(editor, {
+          at: editor.selection.anchor,
+          unit: 'character',
+          distance: 3,
+          reverse: true,
+        });
+        toggleBlock(editor, 'numbered-list', 'number');
 
-    insertText(text);
+        return;
+      }
+      insertText(text);
+    } else {
+      insertText(text);
+    }
   };
 
   editor.insertBreak = () => {
@@ -1170,7 +1182,7 @@ const toggleBlock = (editor, format, type) => {
   }
 
   const [currentNode] = Editor.nodes(editor, {
-    mode:'lowest',
+    mode: 'lowest',
     match: (n) => LIST_PARENT.includes(n.type),
   });
 
@@ -1184,10 +1196,7 @@ const toggleBlock = (editor, format, type) => {
     prevParent = Editor.previous(editor, {
       at: currentNode[1],
       mode: parentCheck ? 'lowest' : 'highest',
-      match: (n) =>
-        !Editor.isEditor(n) &&
-        SlateElement.isElement(n) &&
-        (n.type === 'paragraph' || LIST_PARENT.includes(n.type)),
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type === 'paragraph' || LIST_PARENT.includes(n.type)),
     });
     nextParent = Editor.next(editor, {
       at: currentNode[1],
@@ -1195,7 +1204,7 @@ const toggleBlock = (editor, format, type) => {
       match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && (LIST_PARENT.includes(n.type) || n.type === 'paragraph'),
     });
   }
- 
+
   if (
     currentNode &&
     prevParent &&
