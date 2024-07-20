@@ -135,9 +135,9 @@ const SlateReact = () => {
 
         const { text } = SlateNode.leaf(editor, path);
         const beforeText = text.slice(0, diff.start) + diff.text.slice(0, -1);
-        if (!(beforeText in SHORTCUTS)) {
-          return;
-        }
+        // if (!(beforeText in SHORTCUTS)) {
+        //   return;
+        // }
 
         const blockEntry = Editor.above(editor, {
           at: path,
@@ -201,11 +201,8 @@ const SlateReact = () => {
       const range = { anchor, focus: start };
       const beforeText = Editor.string(editor, range) + text.slice(0, -1);
       const type = SHORTCUTS[beforeText];
-      console.log('king');
 
       if (type) {
-        console.log('king1');
-
         Transforms.select(editor, range);
 
         if (!Range.isCollapsed(range)) {
@@ -229,14 +226,27 @@ const SlateReact = () => {
 
         return;
       } else if (/\u200B/.test(beforeText)) {
-        console.log('king2');
+        
+        Transforms.select(editor, range);
 
-        Transforms.delete(editor, {
-          unit: 'character',
-          distance: 3,
-          reverse: true,
-        });
-        toggleBlock(editor, 'numbered-list', 'number');
+        if (!Range.isCollapsed(range)) {
+          Transforms.delete(editor);
+        }
+
+        const newProperties = {
+          type,
+        };
+        Transforms.setNodes <
+          SlateElement >
+          (editor,
+          newProperties,
+          {
+            match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+          });
+
+          toggleBlock(editor, 'numbered-list', 'number');
+        
+
 
         return;
       }
