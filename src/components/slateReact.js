@@ -200,6 +200,8 @@ const SlateReact = () => {
       const start = Editor.start(editor, path);
       const range = { anchor, focus: start };
       const beforeText = Editor.string(editor, range) + text.slice(0, -1);
+      let pattern = /\u200B1./;
+
       const type = SHORTCUTS[beforeText];
 
       if (type) {
@@ -225,8 +227,7 @@ const SlateReact = () => {
         }
 
         return;
-      } else if (/\u200B/.test(beforeText)) {
-        
+      } else if (pattern.test(beforeText)) {
         Transforms.select(editor, range);
 
         if (!Range.isCollapsed(range)) {
@@ -244,9 +245,7 @@ const SlateReact = () => {
             match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
           });
 
-          toggleBlock(editor, 'numbered-list', 'number');
-        
-
+        toggleBlock(editor, 'numbered-list', 'number');
 
         return;
       }
