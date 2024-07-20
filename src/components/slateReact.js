@@ -204,30 +204,7 @@ const SlateReact = () => {
 
       const type = SHORTCUTS[beforeText];
 
-      if (type) {
-        Transforms.select(editor, range);
-
-        if (!Range.isCollapsed(range)) {
-          Transforms.delete(editor);
-        }
-
-        const newProperties = {
-          type,
-        };
-        Transforms.setNodes <
-          SlateElement >
-          (editor,
-          newProperties,
-          {
-            match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-          });
-
-        if (type === 'list-item') {
-          toggleBlock(editor, 'numbered-list', 'number');
-        }
-
-        return;
-      } else if (pattern.test(beforeText)) {
+      if (pattern.test(beforeText) || type) {
         Transforms.select(editor, range);
 
         if (!Range.isCollapsed(range)) {
