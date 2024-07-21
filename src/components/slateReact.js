@@ -408,6 +408,8 @@ const SlateReact = () => {
 
       Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
       // Transforms.select(editor, previousVoid[1]);
+    } else if (listItemParent && listItemParent[0].type === 'editable-void') {
+      Transforms.removeNodes(editor, { at: listItemParent[1] });
     } else {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -936,7 +938,7 @@ const withInlines = (editor) => {
 
   editor.isInline = (element) => ['button', 'link', 'katex', 'inline-bug', 'inline-wrapper-bug', 'inline-wrapper'].includes(element.type) || isInline(element);
 
-  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt', 'editable-void', 'ImageWrapper', 'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
+  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt', 'ImageWrapper', 'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
 
   editor.markableVoid = (element) => {
     return element.type === 'katex' || markableVoid(element);
@@ -1670,7 +1672,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-      <div className='h-full w-full absolute z-[10] left-0 top-0' contentEditable='false'>
+      <div className='h-full w-full absolute z-[10] left-0 top-0 overflow-hidden'>
         <button
           onClick={(e) => {
             Transforms.removeNodes(editor, { at: path });
@@ -1694,7 +1696,7 @@ const EditableVoid = ({ attributes, children, element }) => {
         </div>
       </div>
 
-      <div className='w-[0px] h-[0px]'>{children}</div>
+      <div className='w-[0px] h-[0px] overflow-hidden'>{children}</div>
     </div>
   );
 };
