@@ -595,7 +595,7 @@ const SlateReact = () => {
               type: 'editable-void',
               checked: true,
               card: [{ card: 'asd' }],
-              children: [{ text: '' }],
+              children: [{ text: '\u200B'.toString() }],
             };
 
             Transforms.insertNodes(editor, block, {
@@ -1669,7 +1669,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-      <div className='h-full w-full absolute z-[10] left-0 top-0 overflow-hidden'>
+      <div className='h-full w-full'>
         <button
           onClick={(e) => {
             Transforms.removeNodes(editor, { at: path });
