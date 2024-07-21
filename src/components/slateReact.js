@@ -808,9 +808,6 @@ const SlateReact = () => {
             } else if (event.metaKey && event.shiftKey && event.key === 'z') {
               event.preventDefault();
               HistoryEditor.redo(editor);
-            } else if (listItems && (listItems[0].type == 'editable-void' || listItems[0].type == 'ImageWrapper') && event.key == 'Enter') {
-              event.preventDefault();
-              Transforms.move(editor, { distance: 1, unit: 'offset' });
             }
           }}
         />
