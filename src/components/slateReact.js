@@ -135,9 +135,9 @@ const SlateReact = () => {
 
         const { text } = SlateNode.leaf(editor, path);
         const beforeText = text.slice(0, diff.start) + diff.text.slice(0, -1);
-        // if (!(beforeText in SHORTCUTS)) {
-        //   return;
-        // }
+        if (!(beforeText in SHORTCUTS)) {
+          return;
+        }
 
         const blockEntry = Editor.above(editor, {
           at: path,
@@ -200,11 +200,12 @@ const SlateReact = () => {
       const start = Editor.start(editor, path);
       const range = { anchor, focus: start };
       const beforeText = Editor.string(editor, range) + text.slice(0, -1);
-      let pattern = /\u200B1./;
-
       const type = SHORTCUTS[beforeText];
+      
 
-      if (pattern.test(beforeText) || type) {
+      if (type) {
+        
+
         Transforms.select(editor, range);
 
         if (!Range.isCollapsed(range)) {
@@ -222,6 +223,19 @@ const SlateReact = () => {
             match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
           });
 
+        if (type === 'list-item') {
+          toggleBlock(editor, 'numbered-list', 'number');
+        }
+
+        return;
+      } else if (/\u200B/.test(beforeText)) {
+        
+
+        Transforms.delete(editor, {
+          unit: 'character',
+          distance: 3,
+          reverse: true,
+        });
         toggleBlock(editor, 'numbered-list', 'number');
 
         return;
@@ -276,7 +290,9 @@ const SlateReact = () => {
       Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: currentParent[1] });
 
       Transforms.move(editor, { distance: 1, unit: 'offset' });
-    } else {
+    }
+    
+    else {
       insertBreak();
       const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
       if (selectedLeaf1.text.length == 0) {
@@ -408,9 +424,11 @@ const SlateReact = () => {
 
       Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
       // Transforms.select(editor, previousVoid[1]);
-    } else if (listItemParent && listItemParent[0].type === 'editable-void') {
-      Transforms.removeNodes(editor, { at: listItemParent[1] });
-    } else {
+    }else if(listItemParent && ['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)){
+      Transforms.removeNodes(editor,{at:listItemParent[1]})
+    }
+    
+    else {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
       const currentNode = Editor.parent(editor, editor.selection.anchor.path);
@@ -595,7 +613,7 @@ const SlateReact = () => {
               type: 'editable-void',
               checked: true,
               card: [{ card: 'asd' }],
-              children: [{ text: '\u200B'.toString() }],
+              children: [{ text: '' }],
             };
 
             Transforms.insertNodes(editor, block, {
@@ -808,7 +826,7 @@ const SlateReact = () => {
             } else if (event.metaKey && event.shiftKey && event.key === 'z') {
               event.preventDefault();
               HistoryEditor.redo(editor);
-            }
+            } 
           }}
         />
       </Slate>
@@ -935,7 +953,7 @@ const withInlines = (editor) => {
 
   editor.isInline = (element) => ['button', 'link', 'katex', 'inline-bug', 'inline-wrapper-bug', 'inline-wrapper'].includes(element.type) || isInline(element);
 
-  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt', 'ImageWrapper', 'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
+  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt',  'ImageWrapper', 'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
 
   editor.markableVoid = (element) => {
     return element.type === 'katex' || markableVoid(element);
@@ -1671,6 +1689,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 			</div> */}
       <div className='h-full w-full'>
         <button
+        className=''
           onClick={(e) => {
             Transforms.removeNodes(editor, { at: path });
           }}>
