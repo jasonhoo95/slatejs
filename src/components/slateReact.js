@@ -1499,17 +1499,14 @@ const ImageWrapper = ({ attributes, children, element }) => {
 
   return (
     <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[100px] w-[100px] relative' {...attributes}>
-      <div className='w-full h-full'>
+      <div className='w-full h-full' contentEditable='false'>
         <img
           className='absolute left-0 top-0 w-full h-full z-[3]'
           src='https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw='
         />
       </div>
-    
-      <div className='overflow-hidden w-[0px] h-[0px]'>
-      {children}
 
-      </div>
+      {children}
     </div>
   );
 };
