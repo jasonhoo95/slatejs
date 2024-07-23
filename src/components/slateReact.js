@@ -135,9 +135,7 @@ const SlateReact = () => {
 
         const { text } = SlateNode.leaf(editor, path);
         const beforeText = text.slice(0, diff.start) + diff.text.slice(0, -1);
-        if (!(beforeText in SHORTCUTS)) {
-          return;
-        }
+    
 
         const blockEntry = Editor.above(editor, {
           at: path,
