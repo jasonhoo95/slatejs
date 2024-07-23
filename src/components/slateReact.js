@@ -221,9 +221,8 @@ const SlateReact = () => {
             match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
           });
 
-        if (type === 'list-item') {
           toggleBlock(editor, 'numbered-list', 'number');
-        }
+        
 
         return;
       } 
