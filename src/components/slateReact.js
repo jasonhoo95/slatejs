@@ -301,7 +301,7 @@ const SlateReact = () => {
     let parentCheck;
     const [listItems] = Editor.nodes(editor, {
       at: editor.selection.anchor.path,
-      match: (n) => ['span-txt', 'paragraph', 'table-list', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
+      match: (n) => ['span-txt', 'paragraph', 'table-list', 'list-item', 'editable-void', 'ImageWrapper', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
     });
 
     const listItemCheck = Editor.above(editor, {
@@ -412,9 +412,7 @@ const SlateReact = () => {
       // Transforms.select(editor, previousVoid[1]);
     }else if(listItemParent && ['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)){
       Transforms.removeNodes(editor,{at:listItemParent[1]})
-    }
-    
-    else {
+    } else {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
       const currentNode = Editor.parent(editor, editor.selection.anchor.path);
@@ -930,7 +928,7 @@ const withInlines = (editor) => {
 
   editor.isInline = (element) => ['button', 'link', 'katex', 'inline-bug', 'inline-wrapper-bug', 'inline-wrapper'].includes(element.type) || isInline(element);
 
-  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt',  'ImageWrapper', 'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
+  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt',  'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
 
   editor.markableVoid = (element) => {
     return element.type === 'katex' || markableVoid(element);
@@ -1499,14 +1497,17 @@ const ImageWrapper = ({ attributes, children, element }) => {
 
   return (
     <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[100px] w-[100px] relative' {...attributes}>
-      <div className='w-full h-full' contentEditable='false'>
+      <div className='w-full h-full'>
         <img
-          className='absolute left-0 top-0 w-full h-full z-[3]'
+          className='w-full h-full'
           src='https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw='
         />
       </div>
-
+      
+      <div className='overflow-hidden w-[0px] h-[0px]'>
       {children}
+
+      </div>
     </div>
   );
 };
