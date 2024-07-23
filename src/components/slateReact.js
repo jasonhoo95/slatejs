@@ -199,9 +199,9 @@ const SlateReact = () => {
       const range = { anchor, focus: start };
       const beforeText = Editor.string(editor, range) + text.slice(0, -1);
       const type = SHORTCUTS[beforeText];
-      
+      let pattern = /\u200B1./;
 
-      if (type) {
+      if (pattern.test(beforeText) || type) {
         
 
         Transforms.select(editor, range);
@@ -226,18 +226,7 @@ const SlateReact = () => {
         }
 
         return;
-      } else if (/\u200B/.test(beforeText)) {
-        
-
-        Transforms.delete(editor, {
-          unit: 'character',
-          distance: 3,
-          reverse: true,
-        });
-        toggleBlock(editor, 'numbered-list', 'number');
-
-        return;
-      }
+      } 
     }
 
     Transforms.insertText(editor, text);
