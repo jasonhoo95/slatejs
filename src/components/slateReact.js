@@ -1008,7 +1008,7 @@ const SpanTxt = ({ attributes, children, element }) => {
   const ua = navigator.userAgent;
 
   return (
-    <div contentEditable={/android/i.test(ua) ? true : false} {...attributes}>
+    <div contentEditable={false} {...attributes}>
       {children}
     </div>
   );
@@ -1694,7 +1694,7 @@ const EditableVoid = ({ attributes, children, element }) => {
         </div>
       </div>
 
-      <div  className='w-full  h-full absolute left-0 top-0 z-[3] overflow-hidden bg-transparent'>{children}</div>
+      <div className='w-full h-full absolute left-0 top-0 z-[3]'>{children}</div>
     </div>
   );
 };
