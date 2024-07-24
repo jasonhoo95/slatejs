@@ -935,7 +935,7 @@ const withInlines = (editor) => {
 
   editor.isInline = (element) => ['button', 'link', 'katex', 'inline-bug', 'inline-wrapper-bug', 'inline-wrapper'].includes(element.type) || isInline(element);
 
-  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt',  'ImageWrapper', 'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
+  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt',  'ImageWrapper', 'editable-void', 'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
 
   editor.markableVoid = (element) => {
     return element.type === 'katex' || markableVoid(element);
