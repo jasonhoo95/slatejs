@@ -134,7 +134,7 @@ const SlateReact = () => {
         if (!diff.text.endsWith(' ')) {
           return false;
         }
-        console.log(diff.text,"diff text");
+        
         const { text } = SlateNode.leaf(editor, path);
      
 
@@ -416,9 +416,11 @@ const SlateReact = () => {
 
       Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
       // Transforms.select(editor, previousVoid[1]);
-    }else if(listItemParent && ['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)){
-      Transforms.removeNodes(editor,{at:listItemParent[1]})
     }
+    
+    // else if(listItemParent && ['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)){
+    //   Transforms.removeNodes(editor,{at:listItemParent[1]})
+    // }
     
     else {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
@@ -1676,7 +1678,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-      <div contentEditable="false" className='h-full w-full absolute left-0 top-0 z-[3]'>
+      <div contentEditable="false"  className='h-full w-full'>
         <button
         className=''
           onClick={(e) => {
@@ -1701,7 +1703,7 @@ const EditableVoid = ({ attributes, children, element }) => {
         </div>
       </div>
 
-      <div className='w-[0px] h-[0px]'>{children}</div>
+      <div className='overflow-hidden absolute left-0 bottom-[-20px]'>{children}</div>
     </div>
   );
 };
