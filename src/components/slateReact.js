@@ -129,13 +129,14 @@ const SlateReact = () => {
       const pendingDiffs = ReactEditor.androidPendingDiffs(editor);
 
       const scheduleFlush = pendingDiffs?.some(({ diff, path }) => {
+     
+      
         if (!diff.text.endsWith(' ')) {
           return false;
         }
-
+        console.log(diff.text,"diff text");
         const { text } = SlateNode.leaf(editor, path);
-        const beforeText = text.slice(0, diff.start) + diff.text.slice(0, -1);
-    
+     
 
         const blockEntry = Editor.above(editor, {
           at: path,
@@ -188,8 +189,12 @@ const SlateReact = () => {
 
   editor.insertText = (text) => {
     const { selection } = editor;
-
-    if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+    const block = Editor.above(editor, {
+      match: (n) => SlateElement.isElement(n) && n.type === 'editable-void',
+    });
+    if (block && block[0].type === 'editable-void'){
+      return;
+    }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const block = Editor.above(editor, {
         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -226,7 +231,7 @@ const SlateReact = () => {
 
         return;
       } 
-    }
+    } 
 
     Transforms.insertText(editor, text);
     // insertText(text);
@@ -803,7 +808,7 @@ const SlateReact = () => {
             } else if (event.metaKey && event.shiftKey && event.key === 'z') {
               event.preventDefault();
               HistoryEditor.redo(editor);
-            } 
+            }
           }}
         />
       </Slate>
@@ -1664,7 +1669,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-      <div className='h-full w-full'>
+      <div contentEditable="false" className='h-full w-full'>
         <button
         className=''
           onClick={(e) => {
@@ -1689,7 +1694,7 @@ const EditableVoid = ({ attributes, children, element }) => {
         </div>
       </div>
 
-      <div className='w-[0px] h-[0px] overflow-hidden'>{children}</div>
+      <div  className='w-full  h-full absolute left-0 top-0 z-[3] overflow-hidden bg-transparent'>{children}</div>
     </div>
   );
 };
