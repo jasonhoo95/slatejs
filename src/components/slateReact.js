@@ -277,11 +277,12 @@ const SlateReact = () => {
         children: [{ text: parentCheck[0].children[0].text }],
       };
       Transforms.setNodes(editor, newProperties, { at: parentCheck[1] });
-    } else if (currentParent && ['editable-void', 'ImageWrapper'].includes(currentParent[0].type)) {
-      Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: currentParent[1] });
-
-      Transforms.move(editor, { distance: 1, unit: 'offset' });
     }
+    //  else if (currentParent && ['editable-void', 'ImageWrapper'].includes(currentParent[0].type)) {
+    //   Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: currentParent[1] });
+
+    //   Transforms.move(editor, { distance: 1, unit: 'offset' });
+    // }
     
     else {
       insertBreak();
@@ -808,6 +809,12 @@ const SlateReact = () => {
             } else if (event.metaKey && event.shiftKey && event.key === 'z') {
               event.preventDefault();
               HistoryEditor.redo(editor);
+            }else if ((event.key == 'Enter') && listItems && ["editable-void", "ImageWrapper"].includes(listItems[0].type)) {
+              event.preventDefault();
+              Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
+
+              Transforms.move(editor, { distance: 1, unit: 'offset' });
+              getCaretCoordinates();
             }
           }}
         />
@@ -1669,7 +1676,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-      <div contentEditable="false" className='h-full w-full'>
+      <div contentEditable="false" className='h-full w-full absolute left-0 top-0 z-[3]'>
         <button
         className=''
           onClick={(e) => {
@@ -1694,7 +1701,7 @@ const EditableVoid = ({ attributes, children, element }) => {
         </div>
       </div>
 
-      <div className='w-full h-full absolute left-0 top-0 z-[3]'>{children}</div>
+      <div className='w-[0px] h-[0px]'>{children}</div>
     </div>
   );
 };
