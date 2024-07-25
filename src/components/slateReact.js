@@ -192,9 +192,7 @@ const SlateReact = () => {
     const block = Editor.above(editor, {
       match: (n) => SlateElement.isElement(n) && n.type === 'editable-void',
     });
-    if (block && block[0].type === 'editable-void'){
-      return;
-    }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+  if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const block = Editor.above(editor, {
         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -816,7 +814,7 @@ const SlateReact = () => {
               Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
 
               Transforms.move(editor, { distance: 1, unit: 'offset' });
-              getCaretCoordinates();
+              ReactEditor.focus(editor);
             }
           }}
         />
@@ -1678,7 +1676,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-      <div contentEditable="false"  className='h-full w-full'>
+      <div contentEditable="false"  className='h-full w-full absolute left-0 top-0 z-[4]'>
         <button
         className=''
           onClick={(e) => {
@@ -1703,7 +1701,7 @@ const EditableVoid = ({ attributes, children, element }) => {
         </div>
       </div>
 
-      <div className='overflow-hidden absolute left-0 bottom-[-20px]'>{children}</div>
+      <div className='overflow-hidden w-[0px] h-[0px]'>{children}</div>
     </div>
   );
 };
