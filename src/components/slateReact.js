@@ -130,7 +130,7 @@ const SlateReact = () => {
 
       const scheduleFlush = pendingDiffs?.some(({ diff, path }) => {
         const block = Editor.above(editor, {
-          match: (n) => SlateElement.isElement(n) && n.type === 'editable-void',
+          match: (n) => SlateElement.isElement(n) && (n.type === 'editable-void' || n.type === 'ImageWrapper'),
         });
 
         if(block){
@@ -196,9 +196,18 @@ const SlateReact = () => {
   editor.insertText = (text) => {
     const { selection } = editor;
     const block = Editor.above(editor, {
-      match: (n) => SlateElement.isElement(n) && n.type === 'editable-void',
+      match: (n) => SlateElement.isElement(n) && (n.type === 'editable-void' || n.type === 'ImageWrapper'),
     });
-  if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+    const ua = navigator.userAgent;
+
+    if(block){
+      if(/android/i.test(ua)){
+        ReactEditor.blur(editor);
+
+      }else{
+        return;
+      }
+    }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const block = Editor.above(editor, {
         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -948,7 +957,7 @@ const withInlines = (editor) => {
 
   editor.isInline = (element) => ['button', 'link', 'katex', 'inline-bug', 'inline-wrapper-bug', 'inline-wrapper'].includes(element.type) || isInline(element);
 
-  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt',  'ImageWrapper', 'editable-void', 'input-component', 'inline-wrapper'].includes(element.type) || isVoid(element);
+  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt',   'editable-void', 'input-component', 'ImageWrapper', 'inline-wrapper'].includes(element.type) || isVoid(element);
 
   editor.markableVoid = (element) => {
     return element.type === 'katex' || markableVoid(element);
@@ -1516,15 +1525,19 @@ const ImageWrapper = ({ attributes, children, element }) => {
   const ua = navigator.userAgent;
 
   return (
-    <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[100px] w-[100px] relative' {...attributes}>
-      <div className='w-full h-full' contentEditable='false'>
+    <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[200px] w-[300px] relative overflow-hidden' {...attributes}>
+      <div className='w-full h-full absolute left-0 top-0 z-[2] overlfow-hidden' contentEditable='false'>
         <img
-          className='absolute left-0 top-0 w-full h-full z-[3]'
+          className='w-full h-full object-cover'
           src='https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw='
         />
       </div>
 
-      {children}
+     
+        <div>
+        {children}
+
+        </div>
     </div>
   );
 };
