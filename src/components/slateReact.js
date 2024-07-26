@@ -201,12 +201,9 @@ const SlateReact = () => {
     const ua = navigator.userAgent;
 
     if(block){
-      if(/android/i.test(ua)){
-        ReactEditor.blur(editor);
-
-      }else{
+    
         return;
-      }
+      
     }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const block = Editor.above(editor, {
