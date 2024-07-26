@@ -129,7 +129,13 @@ const SlateReact = () => {
       const pendingDiffs = ReactEditor.androidPendingDiffs(editor);
 
       const scheduleFlush = pendingDiffs?.some(({ diff, path }) => {
-     
+        const block = Editor.above(editor, {
+          match: (n) => SlateElement.isElement(n) && n.type === 'editable-void',
+        });
+
+        if(block){
+          return true;
+        }
       
         if (!diff.text.endsWith(' ')) {
           return false;
@@ -1676,7 +1682,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-      <div contentEditable="false"  className='h-full w-full absolute left-0 top-0 z-[4]'>
+      <div contentEditable="false"  className='h-full w-full absolute left-0 top-0 z-[2]'>
         <button
         className=''
           onClick={(e) => {
@@ -1698,6 +1704,8 @@ const EditableVoid = ({ attributes, children, element }) => {
               </div>
             );
           })}
+
+
         </div>
       </div>
 
