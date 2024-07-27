@@ -130,7 +130,7 @@ const SlateReact = () => {
 
       const scheduleFlush = pendingDiffs?.some(({ diff, path }) => {
         const block = Editor.above(editor, {
-          match: (n) => SlateElement.isElement(n) && (n.type === 'editable-void' || n.type === 'ImageWrapper'),
+          match: (n) => SlateElement.isElement(n) && Editor.isVoid(editor,n),
         });
 
         if(block){
@@ -196,7 +196,7 @@ const SlateReact = () => {
   editor.insertText = (text) => {
     const { selection } = editor;
     const block = Editor.above(editor, {
-      match: (n) => SlateElement.isElement(n) && (n.type === 'editable-void' || n.type === 'ImageWrapper'),
+      match: (n) => SlateElement.isElement(n) && Editor.isVoid(editor,n),
     });
     const ua = navigator.userAgent;
 
@@ -317,7 +317,7 @@ const SlateReact = () => {
     let parentCheck;
     const [listItems] = Editor.nodes(editor, {
       at: editor.selection.anchor.path,
-      match: (n) => ['span-txt', 'paragraph', 'table-list', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
+      match: (n) => ['span-txt', 'paragraph', 'input-component', 'table-list', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
     });
 
     const listItemCheck = Editor.above(editor, {
@@ -418,9 +418,9 @@ const SlateReact = () => {
       }
     } else if (
       previousParent &&
-      ['editable-void', 'ImageWrapper'].includes(previousParent[0].type) &&
+      ['editable-void', 'ImageWrapper', 'input-component'].includes(previousParent[0].type) &&
       editor.selection.anchor.offset == 0 &&
-      !['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)
+      !['editable-void', 'ImageWrapper', 'input-component'].includes(listItemParent[0].type)
     ) {
       Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
@@ -1484,6 +1484,8 @@ const TableList = ({ attributes, children, element }) => {
 
 const InputComponent = ({ attributes, children, element }) => {
   const editor = useSlate();
+  const selected = useSelected();
+
   const [inputValue, setInputValue] = useState(null);
   const path = ReactEditor.findPath(editor, element);
 
@@ -1494,7 +1496,7 @@ const InputComponent = ({ attributes, children, element }) => {
   };
 
   return (
-    <div style={{ width: '100%', height: '100px', background: 'green' }} {...attributes}>
+    <div style={{ width: '100%', height: '100px', border: selected? '1px solid red': '', background: 'green' }} {...attributes}>
       <input
         contentEditable='false'
         className='w-full h-[30px]'
@@ -1522,7 +1524,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
   const ua = navigator.userAgent;
 
   return (
-    <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[200px] w-[300px] relative overflow-hidden' {...attributes}>
+    <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[100px] w-[100px] relative overflow-hidden' {...attributes}>
       <div className='w-full h-full absolute left-0 top-0 z-[2] overlfow-hidden' contentEditable='false'>
         <img
           className='w-full h-full object-cover'
