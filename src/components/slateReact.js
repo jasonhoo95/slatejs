@@ -1647,6 +1647,7 @@ const EditableVoid = ({ attributes, children, element }) => {
       style={{
         border: selected ? '1px solid red' : '1px solid grey',
         background: selected ? 'green' : '',
+        caretColor: 'transparent',
         position: 'relative',
         overflow: 'hidden',
         height: '100px',
@@ -1721,7 +1722,7 @@ const EditableVoid = ({ attributes, children, element }) => {
         </div>
       </div>
 
-      <div className='overflow-hidden w-[0px] h-[0px]'>{children}</div>
+      <div className='overflow-hidden absolute z-[-1] w-[0px] h-[0px]'>{children}</div>
     </div>
   );
 };
