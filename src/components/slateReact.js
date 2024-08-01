@@ -201,7 +201,7 @@ const SlateReact = () => {
     const ua = navigator.userAgent;
 
     if(block){
-    
+       Transforms.move(editor, {distance:1,unit:'offset',reverse:false})
         return;
       
     }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
@@ -1525,7 +1525,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
 
   return (
     <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[100px] w-[100px] relative overflow-hidden' {...attributes}>
-      <div className='w-full h-full absolute left-0 top-0 z-[2] overlfow-hidden' contentEditable='false'>
+      <div className='w-full h-full absolute left-0 top-0 z-[2] overflow-hidden' contentEditable='false'>
         <img
           className='w-full h-full object-cover'
           src='https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw='
@@ -1704,6 +1704,7 @@ const EditableVoid = ({ attributes, children, element }) => {
           CLICK ME
         </button>
 
+     
         <div className='flex'>
           {card?.map((o, key) => {
             return (
@@ -1721,6 +1722,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 
         </div>
       </div>
+      
 
       <div className='overflow-hidden absolute z-[-1] w-[0px] h-[0px]'>{children}</div>
     </div>
