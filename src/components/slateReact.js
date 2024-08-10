@@ -134,7 +134,7 @@ const SlateReact = () => {
         });
 
         if(block){
-          return false;
+          return true;
         }
       
         if (!diff.text.endsWith(' ')) {
@@ -195,12 +195,16 @@ const SlateReact = () => {
 
   editor.insertText = (text) => {
     const { selection } = editor;
-    const block1 = Editor.above(editor, {
+    const block = Editor.above(editor, {
       match: (n) => SlateElement.isElement(n) && Editor.isVoid(editor,n),
     });
     const ua = navigator.userAgent;
 
-    if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+    if(block){
+       Transforms.move(editor, {distance:1,unit:'offset',reverse:false})
+        return;
+      
+    }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const block = Editor.above(editor, {
         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -236,13 +240,11 @@ const SlateReact = () => {
         
 
         return;
-      }
       } 
-    
-      Transforms.insertText(editor, text);
+    } 
 
-    
-
+    Transforms.insertText(editor, text);
+    // insertText(text);
   };
 
   editor.insertBreak = () => {
@@ -316,10 +318,6 @@ const SlateReact = () => {
     const [listItems] = Editor.nodes(editor, {
       at: editor.selection.anchor.path,
       match: (n) => ['span-txt', 'paragraph', 'input-component', 'table-list', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
-    });
-
-    const editableVoid = Editor.above(editor, {
-      match: (n) => SlateElement.isElement(n) && Editor.isVoid(editor,n),
     });
 
     const listItemCheck = Editor.above(editor, {
@@ -430,9 +428,9 @@ const SlateReact = () => {
       // Transforms.select(editor, previousVoid[1]);
     }
     
-    else if(editableVoid){
-      Transforms.removeNodes(editor,{at:listItemParent[1]})
-    }
+    // else if(listItemParent && ['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)){
+    //   Transforms.removeNodes(editor,{at:listItemParent[1]})
+    // }
     
     else {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
