@@ -202,11 +202,6 @@ const SlateReact = () => {
     const ua = navigator.userAgent;
 
     if(block1){
-      const { anchor } = selection;
-      const path = block1 ? block1[1] : [];
-      const start = Editor.start(editor, path);
-      const range = { anchor, focus: start };
-      Transforms.select(editor, range);
         return;
       
     }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
