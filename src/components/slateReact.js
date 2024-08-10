@@ -134,7 +134,6 @@ const SlateReact = () => {
         });
 
         if(block){
-          ReactEditor.blur(editor);
           return false;
         }
       
@@ -201,10 +200,7 @@ const SlateReact = () => {
     });
     const ua = navigator.userAgent;
 
-    if(block1){
-        return;
-      
-    }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+    if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const block = Editor.above(editor, {
         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -240,8 +236,9 @@ const SlateReact = () => {
         
 
         return;
+      }
       } 
-    }
+    
       Transforms.insertText(editor, text);
 
     
@@ -319,6 +316,10 @@ const SlateReact = () => {
     const [listItems] = Editor.nodes(editor, {
       at: editor.selection.anchor.path,
       match: (n) => ['span-txt', 'paragraph', 'input-component', 'table-list', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
+    });
+
+    const editableVoid = Editor.above(editor, {
+      match: (n) => SlateElement.isElement(n) && Editor.isVoid(editor,n),
     });
 
     const listItemCheck = Editor.above(editor, {
@@ -429,9 +430,9 @@ const SlateReact = () => {
       // Transforms.select(editor, previousVoid[1]);
     }
     
-    // else if(listItemParent && ['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)){
-    //   Transforms.removeNodes(editor,{at:listItemParent[1]})
-    // }
+    else if(editableVoid){
+      Transforms.removeNodes(editor,{at:listItemParent[1]})
+    }
     
     else {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
