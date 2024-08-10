@@ -134,7 +134,8 @@ const SlateReact = () => {
         });
 
         if(block){
-          return true;
+          ReactEditor.blur(editor);
+          return false;
         }
       
         if (!diff.text.endsWith(' ')) {
@@ -195,13 +196,17 @@ const SlateReact = () => {
 
   editor.insertText = (text) => {
     const { selection } = editor;
-    const block = Editor.above(editor, {
+    const block1 = Editor.above(editor, {
       match: (n) => SlateElement.isElement(n) && Editor.isVoid(editor,n),
     });
     const ua = navigator.userAgent;
 
-    if(block){
-       Transforms.move(editor, {distance:1,unit:'offset',reverse:false})
+    if(block1){
+      const { anchor } = selection;
+      const path = block1 ? block1[1] : [];
+      const start = Editor.start(editor, path);
+      const range = { anchor, focus: start };
+      Transforms.select(editor, range);
         return;
       
     }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
@@ -241,10 +246,11 @@ const SlateReact = () => {
 
         return;
       } 
-    } 
+    }
+      Transforms.insertText(editor, text);
 
-    Transforms.insertText(editor, text);
-    // insertText(text);
+    
+
   };
 
   editor.insertBreak = () => {
@@ -1653,6 +1659,7 @@ const EditableVoid = ({ attributes, children, element }) => {
         height: '100px',
         width: '100%',
       }}
+      className='shadow-box'
       {...attributes}>
       {/* <EditablePopup
 					open={open}
