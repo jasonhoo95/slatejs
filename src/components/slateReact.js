@@ -130,7 +130,7 @@ const SlateReact = () => {
 
       const scheduleFlush = pendingDiffs?.some(({ diff, path }) => {
         const block = Editor.above(editor, {
-          match: (n) => SlateElement.isElement(n) && Editor.isVoid(editor,n),
+          match: (n) =>  Editor.isVoid(editor,n),
         });
 
         if(block){
@@ -196,7 +196,7 @@ const SlateReact = () => {
   editor.insertText = (text) => {
     const { selection } = editor;
     const block = Editor.above(editor, {
-      match: (n) => SlateElement.isElement(n) && Editor.isVoid(editor,n),
+      match: (n) => Editor.isVoid(editor,n),
     });
     const ua = navigator.userAgent;
 
@@ -243,8 +243,8 @@ const SlateReact = () => {
       } 
     } 
 
-    Transforms.insertText(editor, text);
-    // insertText(text);
+    // Transforms.insertText(editor, text);
+    insertText(text);
   };
 
   editor.insertBreak = () => {
