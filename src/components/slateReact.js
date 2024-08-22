@@ -1753,7 +1753,7 @@ const TableCell1 = ({ attributes, children, element }) => {
   const focused = useFocused();
   const path = ReactEditor.findPath(editor, element);
   console.log(selected,focused,"focus now");
-  return <td style={{display:'inline-flex'}} {...attributes}>
+  return <td {...attributes}>
     {children}
     </td>;
 };
