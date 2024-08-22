@@ -319,7 +319,13 @@ const SlateReact = () => {
       at: editor.selection.anchor.path,
       match: (n) => ['span-txt', 'paragraph', 'input-component', 'table-list', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
     });
-
+    const { selection } = editor
+    const [cell] = Editor.nodes(editor, {
+      match: n =>
+        !Editor.isEditor(n) &&
+        SlateElement.isElement(n) &&
+        n.type === 'table-cell1',
+    })
     const listItemCheck = Editor.above(editor, {
       match: (n) => n.type == 'list-item' || n.type == 'paragraph',
     });
@@ -402,21 +408,7 @@ const SlateReact = () => {
       editor.selection.anchor.offset === 0
     ) {
       toggleBlock(editor, listItemCheck[0].type);
-    } else if (listItemParent && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
-      const parent = Editor.parent(editor, editor.selection.anchor.path);
-
-      if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
-        Transforms.insertText(editor, '\u200B'.toString(), {
-          at: editor.selection.anchor,
-        });
-      } else {
-        Transforms.delete(editor, {
-          distance: 1,
-          unit: 'offset',
-          reverse: true,
-        });
-      }
-    } else if (
+    }  else if (
       previousParent &&
       ['editable-void', 'ImageWrapper', 'input-component'].includes(previousParent[0].type) &&
       editor.selection.anchor.offset == 0 &&
@@ -426,13 +418,17 @@ const SlateReact = () => {
 
       Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
       // Transforms.select(editor, previousVoid[1]);
-    }
-    
-    // else if(listItemParent && ['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)){
-    //   Transforms.removeNodes(editor,{at:listItemParent[1]})
-    // }
-    
-    else {
+    }else if (cell) {
+        const [, cellPath] = cell
+        const start = Editor.start(editor, cellPath)
+
+        if (Point.equals(selection.anchor, start)) {
+          return
+        }else{
+          Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
+
+        }
+      } else {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
       const currentNode = Editor.parent(editor, editor.selection.anchor.path);
@@ -445,7 +441,6 @@ const SlateReact = () => {
       }
     }
   };
-
   editor.deleteFragment = (...args) => {
     const [listItems] = Editor.nodes(editor, {
       match: (n) => n.type === 'list-item' || n.type == 'check-list-item' || n.type == 'paragraph' || n.type == 'dropdown-content',
