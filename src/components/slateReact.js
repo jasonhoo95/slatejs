@@ -4,12 +4,13 @@ import isHotkey, { isKeyHotkey } from 'is-hotkey';
 
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
-import { Editable, withReact, useSlate, useSlateStatic, Slate, ReactEditor, useSelected, useFocused, useReadOnly } from 'slate-react';
+import { Editable, withReact, useSlate, useSlateSelection, useSlateStatic, Slate, ReactEditor, useSelected, useFocused, useReadOnly } from 'slate-react';
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Node as SlateNode, Text, Range, Node, Point, setPoint } from 'slate';
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useModalStore } from '@/globals/zustandGlobal';
 import EditablePopup from './editablePopup';
 import { before } from 'lodash';
+import { TableCursor, TableEditor, withTable } from "slate-table";
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -119,7 +120,22 @@ const SlateReact = () => {
   const [check, setCheck] = useState({ bold: false, color: false });
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
-  const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
+  const editor = useMemo(
+    () =>
+      withTable(withInlines(withReact(withHistory(createEditor()))), {
+        blocks: {
+          table: "table",
+          thead: "table-head",
+          tbody: "table-body",
+          tfoot: "table-footer",
+          tr: "table-row",
+          th: "header-cell",
+          td: "table-cell",
+          content: "paragraph",
+        },
+      }),
+    []
+  );
   const { deleteFragment, deleteBackward, onChange, insertText } = editor;
 
   const { insertBreak } = editor;
@@ -402,7 +418,8 @@ const SlateReact = () => {
       editor.selection.anchor.offset === 0
     ) {
       toggleBlock(editor, listItemCheck[0].type);
-    } else if (listItemParent && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
+    }
+     else if (listItemParent && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
       const parent = Editor.parent(editor, editor.selection.anchor.path);
 
       if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
@@ -416,7 +433,8 @@ const SlateReact = () => {
           reverse: true,
         });
       }
-    } else if (
+    }
+     else if (
       previousParent &&
       ['editable-void', 'ImageWrapper', 'input-component'].includes(previousParent[0].type) &&
       editor.selection.anchor.offset == 0 &&
@@ -433,16 +451,17 @@ const SlateReact = () => {
     // }
     
     else {
-      Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
+      deleteBackward(...args);
+      // Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
-      const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-      if (/\u200B/.test(currentNode[0].children[0].text)) {
-        Transforms.delete(editor, {
-          distance: 1,
-          unit: 'offset',
-          reverse: true,
-        });
-      }
+      // const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+      // if (/\u200B/.test(currentNode[0].children[0].text)) {
+      //   Transforms.delete(editor, {
+      //     distance: 1,
+      //     unit: 'offset',
+      //     reverse: true,
+      //   });
+      // }
     }
   };
 
@@ -453,12 +472,17 @@ const SlateReact = () => {
     const string = Node.leaf(editor, editor.selection.anchor.path);
 
     const checked = listItems;
-    deleteFragment(...args);
 
     const [checkListItem] = Editor.nodes(editor, {
       at: listItems[1],
       match: (n) => n.type == 'list-item',
     });
+
+    const tableCheck = Editor.above(editor, {
+      match: (n) =>  n.type == 'table-cell1',
+    });
+
+    
 
     if (checkListItem && !['list-item', 'check-list-item'].includes(checkListItem[0].type)) {
       Transforms.setNodes(
@@ -477,6 +501,9 @@ const SlateReact = () => {
           at: checked[1],
         },
       );
+    }  else {
+      
+      deleteFragment(...args);
     }
   };
   const onFocus = useCallback((e) => {
@@ -681,44 +708,58 @@ const SlateReact = () => {
             ReactEditor.focus(editor);
             const ua = navigator.userAgent;
 
-            const block = {
-              type: 'table-list',
-              insert: true,
-              checked: true,
-              children: [
-                // { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
-                {
-                  type: 'table-cell1',
-                  id: 1,
-                  selected: true,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 2,
-                  selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 3,
-                  selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 4,
-                  selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
-                },
-              ],
-            };
+            TableEditor.insertTable(editor, { rows: 3, cols: 3});
 
-            Transforms.insertNodes(editor, block, {
-              at: editor.selection.anchor.path,
-            });
-            Transforms.unwrapNodes(editor, { mode: 'highest' });
-            Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
+
+            // const block = {
+            //   type: 'table-list',
+            //   insert: true,
+            //   checked: true,
+            //   children: [
+            //     {
+            //       type: 'table-cell2',
+            //       children: [
+            //         {
+            //           type: 'table-cell1',
+            //           id: 1,
+            //           selected: true,
+            //           children: [{ type: 'paragraph', children: [{ text: '' }] }],
+            //         },
+            //         {
+            //           type: 'table-cell1',
+            //           id: 2,
+            //           selected: false,
+            //           children: [{ type: 'paragraph', children: [{ text: '' }] }],
+            //         },
+            //       ],
+            //     },
+
+            //     {
+            //       type: 'table-cell2',
+            //       children: [
+            //         {
+            //           type: 'table-cell1',
+            //           id: 1,
+            //           selected: true,
+            //           children: [{ type: 'paragraph', children: [{ text: '' }] }],
+            //         },
+            //         {
+            //           type: 'table-cell1',
+            //           id: 2,
+            //           selected: false,
+            //           children: [{ type: 'paragraph', children: [{ text: '' }] }],
+            //         },
+            //       ],
+            //     },
+            //     // { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
+            //   ],
+            // };
+
+            // Transforms.insertNodes(editor, block, {
+            //   at: editor.selection.anchor.path,
+            // });
+            // Transforms.unwrapNodes(editor, { mode: 'highest' });
+            // Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
           }}>
           insert table now
         </div>
@@ -772,6 +813,7 @@ const SlateReact = () => {
           ref={contentEditableRef}
           autoCapitalize={false}
           onDOMBeforeInput={handleDOMBeforeInput}
+        
           autoCorrect={false}
           spellCheck={false}
           onFocus={onFocus}
@@ -1452,33 +1494,15 @@ const TableList = ({ attributes, children, element }) => {
   }, [selected]);
 
   return (
-    <>
-      <table style={{ background: selected ? 'green' : '' }} {...attributes}>
-        <tr>
+    <tbody>
+      <table style={{userSelect:'none', background: selected ? 'green' : '' }}>
           {children.map((o, key) => {
-            if (0 <= key && key <= 1) {
-              return children[key];
-            }
+              return o;
+            
           })}
-          {/* {card.map((o, key) => {
-						return (
-							<CellElement setCallback={arrayCheck} select={selectArray[key]} path={path} card={card} data={o} key={key} />
-
-						)
-
-
-					})} */}
-        </tr>
-
-        <tr>
-          {children.map((o, key) => {
-            if (2 <= key && key <= 3) {
-              return children[key];
-            }
-          })}
-        </tr>
+    
       </table>
-    </>
+    </tbody>
   );
 };
 
@@ -1747,11 +1771,41 @@ const Heading1Component = ({ attributes, children, element }) => {
   );
 };
 
+const TableCellTR = ({ attributes, children, element }) => {
+
+  const editor = useSlate();
+  const selected = useSelected();
+  const [enable,setEnable] = useState(false);
+  const path = ReactEditor.findPath(editor, element);
+  
+
+  
+    return (
+      <tr {...attributes}>
+
+        {children}
+
+      </tr>
+    );
+
+}
+
 const TableCell1 = ({ attributes, children, element }) => {
   const editor = useSlate();
+  const selected = useSelected();
+  const [enable,setEnable] = useState(false);
   const path = ReactEditor.findPath(editor, element);
+  
 
-  return <td {...attributes}>{children}</td>;
+  
+    return (
+      <td {...attributes}>
+
+        {children}
+
+      </td>
+    );
+  
 };
 
 const CheckListItemElement = ({ attributes, children, element }) => {
@@ -1815,6 +1869,78 @@ const CheckListItemElement = ({ attributes, children, element }) => {
   );
 };
 
+
+const Table = ({
+  attributes,
+  children,
+  className,
+}) => {
+  const editor = useSlateStatic();
+  const [isSelecting] = TableCursor.selection(editor);
+
+  return (
+    <table
+      className={`${!!isSelecting ? "table-selection-none" : ""} ${className}`}
+      {...attributes}
+    >
+      {children}
+    </table>
+  );
+};
+
+
+
+
+const Th = ({
+  attributes,
+  children,
+  className,
+  element,
+}) => {
+  if (element.type !== "header-cell") {
+    throw new Error('Element "Th" must be of type "header-cell"');
+  }
+
+  useSlateSelection();
+  const editor = useSlateStatic();
+  const selected = TableCursor.isSelected(editor, element);
+
+  return (
+    <th
+      className={`${selected ? "bg-sky-200" : ""} ${className}`}
+      {...attributes}
+    >
+      {children}
+    </th>
+  );
+};
+
+
+const Td= ({
+  attributes,
+  children,
+  className,
+  element,
+}) => {
+  if (element.type !== "table-cell") {
+    throw new Error('Element "Td" must be of type "table-cell"');
+  }
+
+  useSlateSelection();
+  const editor = useSlateStatic();
+  const selected = TableCursor.isSelected(editor, element);
+
+  return (
+    <td
+      className={`${selected ? "bg-sky-200" : ""} ${className}`}
+      
+      {...attributes}
+    >
+      {children}
+    </td>
+  );
+};
+
 const BannerRed = ({ attributes, children, element }) => {
   return (
     <div className='banner-red' {...attributes}>
@@ -1867,12 +1993,55 @@ const Element = (props) => {
       return <DropDownList {...props} />;
     case 'input-component':
       return <InputComponent {...props} />;
+      case "table":
+        return (
+          <Table
+            className="table-fixed my-4 sm:w-1/2 w-full text-center"
+            {...props}
+          />
+        );
+      case "table-head":
+        return (
+          <thead
+            className="border-b text-sm uppercase bg-slate-100"
+            {...props.attributes}
+          >
+            {props.children}
+          </thead>
+        );
+      case "table-body":
+        return (
+          <tbody className="border-b text-sm" {...props.attributes}>
+            {props.children}
+          </tbody>
+        );
+      case "table-footer":
+        return (
+          <tfoot className="" {...props.attributes}>
+            {props.children}
+          </tfoot>
+        );
+      case "table-row":
+        return <tr {...props.attributes}>{props.children}</tr>;
+      case "header-cell":
+        return (
+          <Th className="border border-gray-400 p-2 align-middle	" {...props} />
+        );
+      case "table-cell":
+        return (
+          <Td className="border border-gray-400 p-2 align-middle	" {...props} />
+        );
 
-    case 'table-list':
-      return <TableList {...props} />;
-
-    case 'table-cell1':
-      return <TableCell1 {...props} />;
+    // case 'table-list':
+    //   return (
+    //     <table>
+    //       <tbody {...attributes}>{children}</tbody>
+    //     </table>
+    //   );
+    // case 'table-cell2':
+    //   return <TableCellTR {...props} />;
+    // case 'table-cell1':
+    //   return <TableCell1 {...props} />;
     case 'heading-one':
       return <Heading1Component {...props}></Heading1Component>;
     case 'span-txt':
