@@ -1749,9 +1749,13 @@ const Heading1Component = ({ attributes, children, element }) => {
 
 const TableCell1 = ({ attributes, children, element }) => {
   const editor = useSlate();
+  const selected = useSelected();
+  const focused = useFocused();
   const path = ReactEditor.findPath(editor, element);
-
-  return <td {...attributes}>{children}</td>;
+  console.log(selected,focused,"focus now");
+  return <td style={{display:'inline-flex'}} {...attributes}>
+    {children}
+    </td>;
 };
 
 const CheckListItemElement = ({ attributes, children, element }) => {

@@ -103,10 +103,25 @@ td, th, .dropdown-content{
 	display: table-cell;
 } */
 
-table{
-	border-collapse: collapse;
-	/* border-spacing: 20px 0; */
+.table{
+	display: inline-block;
+	border-collapse: separate;
+	border-spacing: 20px 0;
 }
+
+.tr {    
+    display: table-row;
+    border: 1px solid red;
+ 
+
+}
+
+.td {
+	display: table-cell;
+	padding: 8px;
+	border: 1px solid red;
+	     
+  }
 
 .controls {
 	display: flex;
