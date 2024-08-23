@@ -452,8 +452,11 @@ const SlateReact = () => {
     });
     const string = Node.leaf(editor, editor.selection.anchor.path);
 
+    const tableCheck =  Editor.above(editor, {
+      match: (n) => n.type == 'table-list',
+    });
+
     const checked = listItems;
-    deleteFragment(...args);
 
     const [checkListItem] = Editor.nodes(editor, {
       at: listItems[1],
@@ -477,7 +480,84 @@ const SlateReact = () => {
           at: checked[1],
         },
       );
+    } else if (tableCheck) {
+      const [startPoint, endPoint] = Range.edges(editor.selection);
+      const edges = [startPoint.path, endPoint.path];
+      let path1 = []
+      
+      Editor.withoutNormalizing(editor, () => {
+        if(edges[0][1] === edges[1][1]){
+          deleteFragment(...args)
+        }else{
+          console.log(startPoint,endPoint,"path match");
+          console.log(editor.selection.anchor,"start point");
+          console.log(editor.selection.focus,"focus point");
+
+          for (const [parent, path] of Editor.nodes(editor, {
+            match: (n)=> n.type === 'table-cell1',
+            at: editor.selection,
+            reverse:_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path) ? false : true
+          })) {
+            let valuePath = [];
+            for (const [value, childPath] of Editor.nodes(editor, {
+              match: (n) => n.type === 'list-item' || n.type === 'paragraph',
+              at: path,
+              reverse:_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path) ? false : true
+            })) {
+
+              console.log(value,childPath,"value inside");
+
+            //   if (_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path)) {
+            //     if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) <= _.sum(childPath)){
+            //       const [value] = Editor.nodes(editor, {
+            //         mode:'lowest',
+            //         at: childPath,
+            //         match: (n)=> n.type === 'list-item' || n.type === 'paragraph'
+
+            //       })
+            //       console.log(value,parent,path,"going down");
+
+            //       valuePath.push({path:value[1], offset:value[0].text.length});
+
+            //     }else if(editor.selection.focus.path[1] >= path[1] && _.sum(editor.selection.focus.path) >= _.sum(childPath)){
+            //       console.log('going down2', childPath);
+            //       // Transforms.delete(editor, { at: childPath });
+
+            //     }
+
+            //  }else{
+            //   if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)){
+            //     console.log('going up', childPath);
+            //     // Transforms.removeNodes(editor,{at:childPath});
+
+
+            //   }
+            //  }
+ 
+            }
+
+            // if(valuePath.length > 0){
+            //   console.log(valuePath,"path push finish");
+            //   Transforms.delete(editor,{at:{
+            //     anchor:{path:editor.selection.anchor.path, offset:editor.selection.anchor.offset},
+            //     focus:{path:valuePath[valuePath.length - 1].path, offset:valuePath[valuePath.length - 1].offset}
+            //   }})
+            // }
+         
+  
+        }
+      
+      }})
+  
+    
+      // Transforms.delete(editor, {  at:[editor.selection.anchor.path[0], editor.selection.anchor.path[1]], reverse:true, unit:'offset', distance:editor.selection.anchor.offset})
+      
+    } else {
+      deleteFragment(...args);
     }
+
+
+
   };
   const onFocus = useCallback((e) => {
     setFocus(true);
@@ -1752,7 +1832,7 @@ const TableCell1 = ({ attributes, children, element }) => {
   const selected = useSelected();
   const focused = useFocused();
   const path = ReactEditor.findPath(editor, element);
-  console.log(selected,focused,"focus now");
+  
   return <td {...attributes}>
     {children}
     </td>;
