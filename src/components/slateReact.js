@@ -505,44 +505,44 @@ const SlateReact = () => {
               reverse:_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path) ? false : true
             })) {
 
-              console.log(value,childPath,"value inside");
 
-            //   if (_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path)) {
-            //     if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) <= _.sum(childPath)){
-            //       const [value] = Editor.nodes(editor, {
-            //         mode:'lowest',
-            //         at: childPath,
-            //         match: (n)=> n.type === 'list-item' || n.type === 'paragraph'
+              if (_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path)) {
+                if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) <= _.sum(childPath)){
+                  const [value] = Editor.nodes(editor, {
+                    mode:'lowest',
+                    at: childPath,
 
-            //       })
-            //       console.log(value,parent,path,"going down");
+                  })
+                  console.log(value,parent,path,"going down");
 
-            //       valuePath.push({path:value[1], offset:value[0].text.length});
+                  valuePath.push({path:value[1], offset:value[0].text.length});
 
-            //     }else if(editor.selection.focus.path[1] >= path[1] && _.sum(editor.selection.focus.path) >= _.sum(childPath)){
-            //       console.log('going down2', childPath);
-            //       // Transforms.delete(editor, { at: childPath });
+                }else if(editor.selection.focus.path[1] >= path[1] && _.sum(editor.selection.focus.path) >= _.sum(childPath)){
+                  console.log('going down2', childPath);
+                  // Transforms.delete(editor, { at: childPath });
 
-            //     }
+                }
 
-            //  }else{
-            //   if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)){
-            //     console.log('going up', childPath);
-            //     // Transforms.removeNodes(editor,{at:childPath});
+             }else{
+              if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)){
+                console.log('going up', childPath);
+                // Transforms.removeNodes(editor,{at:childPath});
 
 
-            //   }
-            //  }
+              }
+             }
  
             }
 
-            // if(valuePath.length > 0){
-            //   console.log(valuePath,"path push finish");
-            //   Transforms.delete(editor,{at:{
-            //     anchor:{path:editor.selection.anchor.path, offset:editor.selection.anchor.offset},
-            //     focus:{path:valuePath[valuePath.length - 1].path, offset:valuePath[valuePath.length - 1].offset}
-            //   }})
-            // }
+            console.log(valuePath,"value path");
+
+            if(valuePath.length > 0){
+              console.log(valuePath,"path push finish");
+              Transforms.delete(editor,{at:{
+                anchor:{...valuePath[0]},
+                focus:{...valuePath[valuePath.length - 1]}
+              }})
+            }
          
   
         }
