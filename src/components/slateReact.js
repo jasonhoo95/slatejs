@@ -416,6 +416,8 @@ const SlateReact = () => {
     ) {
       toggleBlock(editor, listItemCheck[0].type);
     } else if (listItemParent && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
+      const ua = navigator.userAgent;
+
       const parent = Editor.parent(editor, editor.selection.anchor.path);
       const [cell] = Editor.nodes(editor, {
         match: n =>
@@ -429,8 +431,12 @@ const SlateReact = () => {
         const start = Editor.start(editor, cellPath)
 
         if (Point.equals(editor.selection.anchor, start)) {
-          Transforms.move(editor,{reverse:true,unit:'offset',distance:1})
-          return
+          if (/android/i.test(ua)) {
+            Transforms.move(editor,{reverse:true,unit:'offset',distance:1})
+
+          }else{
+            return
+          }
         }else{
           Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -532,13 +538,13 @@ const SlateReact = () => {
           for (const [parent, path] of Editor.nodes(editor, {
             match: (n)=> n.type === 'table-cell1',
             at: editor.selection,
-            // reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
+            reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
           })) {
             let valuePath = [];
             for (const [value, childPath] of Editor.nodes(editor, {
               match: (n) => n.type === 'list-item' || n.type === 'paragraph',
               at: path,
-              // reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
+              reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
             })) {
               
             
@@ -593,20 +599,30 @@ const SlateReact = () => {
                     at: childPath,
 
                   })
-                  if (valuePath.length == 0) {
-                    
-                    if (parent.children.length > 0) {
-                      valuePath.push({ path: value[1], offset: 0 });
-                    } else {
-                      
-                      valuePath.push([
-                        { path: value[1], offset: 0 },
-                        { path: value[1], offset: value[0].text.length },
-                      ]);
+
+                  
+                  
+                  if (childPath[childPath.length - 1] === 0) {
+                    valuePath.push({ path: value[1], offset: 0 });
+
+                    if (_.sum(childPath) === _.sum(editor.selection.focus.path)) {
+                      valuePath.push({ path: value[1], offset: editor.selection.focus.offset });
                     }
-                  } else {
-                    valuePath.push({ path: value[1], offset: value[0].text.length });
+                  } else if (_.sum(childPath) <= _.sum(editor.selection.focus.path)) {
+                    valuePath.push({ path: value[1], offset: editor.selection.focus.offset });
                   }
+
+
+                //   if(editor.selection.focus.path[2] == childPath[2]){
+
+                //  }else if(valuePath.length == 0){
+
+                //     valuePath.push({...editor.selection.focus});
+
+                //   }else{
+                //     valuePath.push({path:value[1], offset:value[0].text.length});
+
+                //   }
                 }
 
              }else{
