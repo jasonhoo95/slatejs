@@ -404,18 +404,35 @@ const SlateReact = () => {
       toggleBlock(editor, listItemCheck[0].type);
     } else if (listItemParent && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
       const parent = Editor.parent(editor, editor.selection.anchor.path);
+      const [cell] = Editor.nodes(editor, {
+        match: n =>
+          !Editor.isEditor(n) &&
+          SlateElement.isElement(n) &&
+          n.type === 'table-cell1',
+      })
 
-      if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
-        Transforms.insertText(editor, '\u200B'.toString(), {
-          at: editor.selection.anchor,
-        });
-      } else {
-        Transforms.delete(editor, {
-          distance: 1,
-          unit: 'offset',
-          reverse: true,
-        });
+      if (cell) {
+        const [, cellPath] = cell
+        const start = Editor.start(editor, cellPath)
+
+        if (Point.equals(editor.selection.anchor, start)) {
+          return
+        }else{
+          Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
+
+        }
       }
+      // if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
+      //   Transforms.insertText(editor, '\u200B'.toString(), {
+      //     at: editor.selection.anchor,
+      //   });
+      // } else {
+      //   Transforms.delete(editor, {
+      //     distance: 1,
+      //     unit: 'offset',
+      //     reverse: true,
+      //   });
+      // }
     } else if (
       previousParent &&
       ['editable-void', 'ImageWrapper', 'input-component'].includes(previousParent[0].type) &&
@@ -448,14 +465,14 @@ const SlateReact = () => {
 
   editor.deleteFragment = (...args) => {
     const [listItems] = Editor.nodes(editor, {
-      match: (n) => n.type === 'list-item' || n.type == 'check-list-item' || n.type == 'paragraph' || n.type == 'dropdown-content',
+      match: (n) => n.type === 'list-item' || n.type == 'table-cell1' || n.type == 'check-list-item' || n.type == 'paragraph' || n.type == 'dropdown-content',
     });
     const string = Node.leaf(editor, editor.selection.anchor.path);
 
     const tableCheck =  Editor.above(editor, {
-      match: (n) => n.type == 'table-list',
+      match: (n) => n.type == 'table-cell1',
     });
-
+    
     const checked = listItems;
 
     const [checkListItem] = Editor.nodes(editor, {
@@ -480,7 +497,7 @@ const SlateReact = () => {
           at: checked[1],
         },
       );
-    } else if (tableCheck) {
+    } else if (listItems && listItems[0].type === 'table-cell1') {
       const [startPoint, endPoint] = Range.edges(editor.selection);
       const edges = [startPoint.path, endPoint.path];
       let path1 = []
@@ -489,9 +506,9 @@ const SlateReact = () => {
         if(edges[0][1] === edges[1][1]){
           deleteFragment(...args)
         }else{
-          console.log(startPoint,endPoint,"path match");
-          console.log(editor.selection.anchor,"start point");
-          console.log(editor.selection.focus,"focus point");
+          
+          
+          
 
           for (const [parent, path] of Editor.nodes(editor, {
             match: (n)=> n.type === 'table-cell1',
@@ -504,8 +521,8 @@ const SlateReact = () => {
               at: path,
               reverse:_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path) ? false : true
             })) {
-
-
+             
+              
               if (_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path)) {
                 if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) <= _.sum(childPath)){
                   const [value] = Editor.nodes(editor, {
@@ -513,19 +530,68 @@ const SlateReact = () => {
                     at: childPath,
 
                   })
-                  console.log(value,parent,path,"going down");
+                  
 
-                  valuePath.push({path:value[1], offset:value[0].text.length});
+                 if(parent.children.length == 1){
+                    valuePath = []
+                    valuePath.push({path:value[1], offset:editor.selection.anchor.offset},{path:value[1], offset:value[0].text.length});
 
-                }else if(editor.selection.focus.path[1] >= path[1] && _.sum(editor.selection.focus.path) >= _.sum(childPath)){
-                  console.log('going down2', childPath);
+                 }else if(valuePath.length == 0){
+
+                    valuePath.push({...editor.selection.anchor});
+
+                  }else{
+                    valuePath.push({path:value[1], offset:value[0].text.length});
+
+                  }
+
+
+                }else if(editor.selection.anchor.path[1] !== path[1] && editor.selection.focus.path[1] !== path[1]){
+                  const [value] = Editor.nodes(editor, {
+                    mode:'lowest',
+                    at: childPath,
+
+                  })
+                  
+
+                  if(valuePath.length == 0){
+                    
+                    valuePath.push({path:value[1], offset:0});
+
+                  }else{
+                    valuePath.push({path:value[1], offset:value[0].text.length});
+
+                  }
+
                   // Transforms.delete(editor, { at: childPath });
 
+                }else if(editor.selection.focus.path[1] === path[1] && _.sum(childPath) <= _.sum(editor.selection.focus.path)){
+                  const [value] = Editor.nodes(editor, {
+                    mode:'lowest',
+                    at: childPath,
+
+                  })
+                  
+
+                  if(valuePath.length == 0){
+                    if(parent.children.length > 0){
+                      valuePath.push({path:value[1], offset:0});
+
+                    }else{
+                      valuePath.push([{path:value[1], offset:0}, {path:value[1], offset:value[0].text.length}]);
+
+                    }
+                    
+
+                  }else{
+                    valuePath.push({path:value[1], offset:value[0].text.length});
+
+                  }
                 }
 
              }else{
               if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)){
-                console.log('going up', childPath);
+                
                 // Transforms.removeNodes(editor,{at:childPath});
 
 
@@ -534,10 +600,10 @@ const SlateReact = () => {
  
             }
 
-            console.log(valuePath,"value path");
+            
 
             if(valuePath.length > 0){
-              console.log(valuePath,"path push finish");
+              
               Transforms.delete(editor,{at:{
                 anchor:{...valuePath[0]},
                 focus:{...valuePath[valuePath.length - 1]}
