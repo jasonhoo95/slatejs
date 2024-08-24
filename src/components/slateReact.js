@@ -133,9 +133,12 @@ const SlateReact = () => {
           match: (n) =>  Editor.isVoid(editor,n),
         });
 
+  
         if(block){
           return true;
         }
+
+     
       
         if (!diff.text.endsWith(' ')) {
           return false;
@@ -198,13 +201,23 @@ const SlateReact = () => {
     const block = Editor.above(editor, {
       match: (n) => Editor.isVoid(editor,n),
     });
-    const ua = navigator.userAgent;
 
+    const table = Editor.nodes(editor, {
+      at:editor.selection.anchor,
+      match: (n) => n.type === 'table-cell1',
+    });
+    const ua = navigator.userAgent;
+    const [startPoint, endPoint] = Range.edges(editor.selection);
+    const edges = [startPoint.path, endPoint.path];
     if(block){
        Transforms.move(editor, {distance:1,unit:'offset',reverse:false})
         return;
       
-    }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+    }else if(table && (edges[0][1] != edges[1][1] || edges[0][0] != edges[1][0])){
+
+      return;
+    }
+    else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const block = Editor.above(editor, {
         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -416,6 +429,7 @@ const SlateReact = () => {
         const start = Editor.start(editor, cellPath)
 
         if (Point.equals(editor.selection.anchor, start)) {
+          Transforms.move(editor,{reverse:true,unit:'offset',distance:1})
           return
         }else{
           Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
@@ -475,6 +489,7 @@ const SlateReact = () => {
     
     const checked = listItems;
 
+
     const [checkListItem] = Editor.nodes(editor, {
       at: listItems[1],
       match: (n) => n.type == 'list-item',
@@ -502,38 +517,46 @@ const SlateReact = () => {
       const edges = [startPoint.path, endPoint.path];
       let path1 = []
       
-      Editor.withoutNormalizing(editor, () => {
-        if(edges[0][1] === edges[1][1]){
-          deleteFragment(...args)
-        }else{
-          
-          
-          
 
+      Editor.withoutNormalizing(editor, () => {
+        if(edges[0][1] === edges[1][1] && edges[0][0] === edges[1][0]){
+          deleteFragment(...args)
+        }else if(edges[0][0] !== edges[1][0]){
+          
+          Transforms.removeNodes(editor,{at:editor.selection})
+
+        }
+        else{
+          
+          
           for (const [parent, path] of Editor.nodes(editor, {
             match: (n)=> n.type === 'table-cell1',
             at: editor.selection,
-            reverse:_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path) ? false : true
+            // reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
           })) {
             let valuePath = [];
             for (const [value, childPath] of Editor.nodes(editor, {
               match: (n) => n.type === 'list-item' || n.type === 'paragraph',
               at: path,
-              reverse:_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path) ? false : true
+              // reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
             })) {
-             
               
-              if (_.sum(editor.selection.anchor.path) <= _.sum(editor.selection.focus.path)) {
+            
+              if (editor.selection.anchor.path[1] <= editor.selection.focus.path[1]) {
+                
+
                 if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) <= _.sum(childPath)){
                   const [value] = Editor.nodes(editor, {
                     mode:'lowest',
                     at: childPath,
 
                   })
+
+
+                  
                   
 
-                 if(parent.children.length == 1){
-                    valuePath = []
+                 if(parent.children.length == 1 || childPath[2] === parent.children.length-1){
                     valuePath.push({path:value[1], offset:editor.selection.anchor.offset},{path:value[1], offset:value[0].text.length});
 
                  }else if(valuePath.length == 0){
@@ -553,14 +576,13 @@ const SlateReact = () => {
 
                   })
                   
-
-                  if(valuePath.length == 0){
-                    
-                    valuePath.push({path:value[1], offset:0});
-
-                  }else{
-                    valuePath.push({path:value[1], offset:value[0].text.length});
-
+                  
+                  if (parent.children.length == 1 && value[0].text.length == 0) {
+                    valuePath = [];
+                  } else if (valuePath.length == 0) {
+                    valuePath.push({ path: value[1], offset: 0 });
+                  } else {
+                    valuePath.push({ path: value[1], offset: value[0].text.length });
                   }
 
                   // Transforms.delete(editor, { at: childPath });
@@ -571,21 +593,19 @@ const SlateReact = () => {
                     at: childPath,
 
                   })
-                  
-
-                  if(valuePath.length == 0){
-                    if(parent.children.length > 0){
-                      valuePath.push({path:value[1], offset:0});
-
-                    }else{
-                      valuePath.push([{path:value[1], offset:0}, {path:value[1], offset:value[0].text.length}]);
-
-                    }
+                  if (valuePath.length == 0) {
                     
-
-                  }else{
-                    valuePath.push({path:value[1], offset:value[0].text.length});
-
+                    if (parent.children.length > 0) {
+                      valuePath.push({ path: value[1], offset: 0 });
+                    } else {
+                      
+                      valuePath.push([
+                        { path: value[1], offset: 0 },
+                        { path: value[1], offset: value[0].text.length },
+                      ]);
+                    }
+                  } else {
+                    valuePath.push({ path: value[1], offset: value[0].text.length });
                   }
                 }
 
