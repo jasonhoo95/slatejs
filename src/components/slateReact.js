@@ -527,9 +527,7 @@ const SlateReact = () => {
       Editor.withoutNormalizing(editor, () => {
         if(edges[0][1] === edges[1][1] && edges[0][0] === edges[1][0]){
           deleteFragment(...args)
-        }else if(edges[0][0] !== edges[1][0]){
           
-          Transforms.removeNodes(editor,{at:editor.selection})
 
         }
         else{
@@ -547,7 +545,8 @@ const SlateReact = () => {
               reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
             })) {
               
-            
+              
+
               if (editor.selection.anchor.path[1] <= editor.selection.focus.path[1]) {
                 
 
@@ -561,8 +560,10 @@ const SlateReact = () => {
 
                   
                   
+                 if(value[0].text.length == 0){
+                  valuePath = [];
 
-                 if(parent.children.length == 1 || childPath[2] === parent.children.length-1){
+                 }else if(parent.children.length == 1 || childPath[2] === parent.children.length-1){
                     valuePath.push({path:value[1], offset:editor.selection.anchor.offset},{path:value[1], offset:value[0].text.length});
 
                  }else if(valuePath.length == 0){
@@ -582,13 +583,18 @@ const SlateReact = () => {
 
                   })
                   
-                  
-                  if (parent.children.length == 1 && value[0].text.length == 0) {
+
+                  if(value[0].text.length == 0){
                     valuePath = [];
-                  } else if (valuePath.length == 0) {
-                    valuePath.push({ path: value[1], offset: 0 });
+  
+                   }else if (parent.children.length == 1 && value[0].text.length == 0) {
+                    valuePath = [];
                   } else {
-                    valuePath.push({ path: value[1], offset: value[0].text.length });
+                    valuePath.push({ path: value[1], offset: 0 });
+                    if(parent.children.length -1 === childPath[2]){
+                      valuePath.push({ path: value[1], offset: value[0].text.length });
+
+                    }
                   }
 
                   // Transforms.delete(editor, { at: childPath });
@@ -599,12 +605,13 @@ const SlateReact = () => {
                     at: childPath,
 
                   })
-
+                 
                   
-                  
-                  if (childPath[childPath.length - 1] === 0) {
+                  if(value[0].text.length == 0 || editor.selection.focus.offset === 0){
+                    valuePath = [];
+  
+                   }else if (childPath[childPath.length - 1] === 0) {
                     valuePath.push({ path: value[1], offset: 0 });
-
                     if (_.sum(childPath) === _.sum(editor.selection.focus.path)) {
                       valuePath.push({ path: value[1], offset: editor.selection.focus.offset });
                     }
