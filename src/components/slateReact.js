@@ -132,10 +132,21 @@ const SlateReact = () => {
         const block = Editor.above(editor, {
           match: (n) =>  Editor.isVoid(editor,n),
         });
-
+        const table = Editor.nodes(editor, {
+          match: (n) => n.type === 'table-cell1',
+        });
+        const ua = navigator.userAgent;
+        const [startPoint, endPoint] = Range.edges(editor.selection);
+        const edges = [startPoint.path, endPoint.path];
   
         if(block){
           return true;
+        }
+
+
+         if(table && (edges[0][1] != edges[1][1] || edges[0][0] != edges[1][0])){
+          // ReactEditor.blur(editor);
+          return false;
         }
 
      
@@ -203,7 +214,6 @@ const SlateReact = () => {
     });
 
     const table = Editor.nodes(editor, {
-      at:editor.selection.anchor,
       match: (n) => n.type === 'table-cell1',
     });
     const ua = navigator.userAgent;
@@ -214,7 +224,7 @@ const SlateReact = () => {
         return;
       
     }else if(table && (edges[0][1] != edges[1][1] || edges[0][0] != edges[1][0])){
-
+      Transforms.select(editor, editor.selection);
       return;
     }
     else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
