@@ -213,19 +213,30 @@ const SlateReact = () => {
       match: (n) => Editor.isVoid(editor,n),
     });
 
-    const table = Editor.nodes(editor, {
-      match: (n) => n.type === 'table-cell1',
+    const [tableCell] = Editor.nodes(editor, {
+      match: (n) => n.type === 'table-list',
     });
     const ua = navigator.userAgent;
     const [startPoint, endPoint] = Range.edges(editor.selection);
     const edges = [startPoint.path, endPoint.path];
+
     if(block){
        Transforms.move(editor, {distance:1,unit:'offset',reverse:false})
         return;
       
-    }else if(table && (edges[0][1] != edges[1][1] || edges[0][0] != edges[1][0])){
-      Transforms.select(editor, editor.selection);
-      return;
+    }else if(tableCell){
+      const tableList = Editor.nodes(editor, {
+        match: (n) => n.type === 'table-list',
+      });
+
+      for (const listItem of tableList) {
+        if (listItem) {
+          Transforms.removeNodes(editor, { at: listItem[1] });
+        }
+      }
+
+
+
     }
     else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
