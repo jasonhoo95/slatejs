@@ -230,7 +230,7 @@ const SlateReact = () => {
         return;
       
     }else if(tableCell){
-      if (!tableBlock) {
+      if (edges[0][0] !== edges[1][0]) {
         const tableList = Editor.nodes(editor, {
           match: (n) => n.type === 'table-list',
         });
@@ -562,7 +562,7 @@ const SlateReact = () => {
       
 
       Editor.withoutNormalizing(editor, () => {
-        if(edges[0][1] === edges[1][1] && edges[0][0] === edges[1][0]){
+        if(edges[0][0] === edges[1][1] && edges[0][0] === edges[1][0]){
           deleteFragment(...args)
           
 
