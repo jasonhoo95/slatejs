@@ -213,6 +213,11 @@ const SlateReact = () => {
       match: (n) => Editor.isVoid(editor,n),
     });
 
+    const tableBlock = Editor.above(editor,{
+      at:editor.selection.anchor.path,
+      match: (n) => n.type === 'table-list'
+    })
+
     const [tableCell] = Editor.nodes(editor, {
       match: (n) => n.type === 'table-list',
     });
@@ -225,20 +230,28 @@ const SlateReact = () => {
         return;
       
     }else if(tableCell){
-      const tableList = Editor.nodes(editor, {
-        match: (n) => n.type === 'table-list',
-      });
+      if (!tableBlock) {
+        const tableList = Editor.nodes(editor, {
+          match: (n) => n.type === 'table-list',
+        });
 
-      for (const listItem of tableList) {
-        if (listItem) {
-          Transforms.removeNodes(editor, { at: listItem[1] });
+        for (const listItem of tableList) {
+          if (listItem) {
+            Transforms.removeNodes(editor, { at: listItem[1] });
+          }
         }
+      } else if (edges[0][1] === edges[1][1] && edges[0][0] === edges[1][0]) {
+      } else {
+        Transforms.select(editor, editor.selection);
+        return;
       }
+  
 
 
 
     }
     else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+
       const { anchor } = selection;
       const block = Editor.above(editor, {
         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -275,10 +288,13 @@ const SlateReact = () => {
 
         return;
       } 
-    } 
+    }
+    
+      insertText(text);
+
+    
 
     // Transforms.insertText(editor, text);
-    insertText(text);
   };
 
   editor.insertBreak = () => {
