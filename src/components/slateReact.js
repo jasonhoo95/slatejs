@@ -230,7 +230,7 @@ const SlateReact = () => {
        Transforms.move(editor, {distance:1,unit:'offset',reverse:false})
         return;
       
-    }else if(tableCell){
+    }else if(tableCell && edges[0][0] !== edges[1][0]){
       
       if (edges[0][0] !== edges[1][0]) {
         let data = []
@@ -261,8 +261,7 @@ const SlateReact = () => {
 
 
 
-    }
-    else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+    }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
 
       const { anchor } = selection;
       const block = Editor.above(editor, {
