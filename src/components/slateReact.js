@@ -220,6 +220,7 @@ const SlateReact = () => {
 
     const [tableCell] = Editor.nodes(editor, {
       match: (n) => n.type === 'table-list',
+      at:editor.selection
     });
     const ua = navigator.userAgent;
     const [startPoint, endPoint] = Range.edges(editor.selection);
@@ -230,18 +231,29 @@ const SlateReact = () => {
         return;
       
     }else if(tableCell){
+      
       if (edges[0][0] !== edges[1][0]) {
+        let data = []
         const tableList = Editor.nodes(editor, {
           match: (n) => n.type === 'table-list',
+          at:editor.selection
         });
 
         for (const listItem of tableList) {
           if (listItem) {
-            Transforms.removeNodes(editor, { at: listItem[1] });
+            data.push(listItem[1]);
           }
         }
+
+       if(data.length > 0){
+        for (var i =0; i < data.length; i++){
+          Transforms.removeNodes(editor,{at:data[i]})
+        }
+       }
+
       } else if (edges[0][1] === edges[1][1] && edges[0][0] === edges[1][0]) {
       } else {
+        
         Transforms.select(editor, editor.selection);
         return;
       }
@@ -526,9 +538,7 @@ const SlateReact = () => {
     });
     const string = Node.leaf(editor, editor.selection.anchor.path);
 
-    const tableCheck =  Editor.above(editor, {
-      match: (n) => n.type == 'table-cell1',
-    });
+
     
     const checked = listItems;
 
@@ -562,9 +572,28 @@ const SlateReact = () => {
       
 
       Editor.withoutNormalizing(editor, () => {
-        if(edges[0][0] === edges[1][1] && edges[0][0] === edges[1][0]){
-          deleteFragment(...args)
+        if(edges[0][0] !== edges[1][0]){
           
+          let data = [];
+          for (const [parent, path] of Editor.nodes(editor, {
+            match: (n)=> n.type === 'table-list',
+            at: editor.selection,
+           })) {
+            
+
+          data.push(path);
+
+          }
+
+          if(data.length > 0){
+            for(var i =0; i< data.length; i++){
+              Transforms.removeNodes(editor,{at:data[i]})
+            }
+          }
+          
+
+          deleteFragment(...args)
+       
 
         }
         else{
