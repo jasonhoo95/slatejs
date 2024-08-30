@@ -5,7 +5,7 @@ import isHotkey, { isKeyHotkey } from 'is-hotkey';
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
 import { Editable, withReact, useSlate, useSlateStatic, Slate, ReactEditor, useSelected, useFocused, useReadOnly } from 'slate-react';
-import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Node as SlateNode, Text, Range, Node, Point, setPoint } from 'slate';
+import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Node as SlateNode, Text, Range, Node, Point, setPoint, apply } from 'slate';
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useModalStore } from '@/globals/zustandGlobal';
 import EditablePopup from './editablePopup';
@@ -120,7 +120,7 @@ const SlateReact = () => {
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
-  const { deleteFragment, deleteBackward, onChange, insertText } = editor;
+  const { deleteFragment, deleteBackward, onChange, insertText, apply } = editor;
 
   const { insertBreak } = editor;
 
@@ -206,6 +206,13 @@ const SlateReact = () => {
 
     // Cleanup when the component unmounts or when the dependency changes
   }, []);
+
+
+  editor.apply = (operation) =>{
+    
+
+    apply(operation);
+  }
 
   editor.insertText = (text) => {
     const { selection } = editor;
@@ -579,19 +586,21 @@ const SlateReact = () => {
             at: editor.selection,
            })) {
             
-
+              Transforms.removeNodes(editor,{at:path})
+              console.log(path,"table list path");
           data.push(path);
 
           }
 
-          if(data.length > 0){
-            for(var i =0; i< data.length; i++){
-              Transforms.removeNodes(editor,{at:data[i]})
-            }
-          }
-          
+          // if(data.length > 0){
+          //     console.log(data,"delete table");
 
-          deleteFragment(...args)
+          //   for(var i =0; i< data.length; i++){
+          //     Transforms.removeNodes(editor,{at:data[i]})
+          //   }
+          // }
+          
+          // deleteFragment(...args)
        
 
         }
@@ -2007,7 +2016,7 @@ const TableCell1 = ({ attributes, children, element }) => {
   const focused = useFocused();
   const path = ReactEditor.findPath(editor, element);
   
-  return <td {...attributes}>
+  return <td className={selected? 'bg-sky-200':''} {...attributes}>
     {children}
     </td>;
 };
