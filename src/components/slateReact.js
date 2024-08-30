@@ -120,7 +120,7 @@ const SlateReact = () => {
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
-  const { deleteFragment, deleteBackward, onChange, insertText } = editor;
+  const { deleteFragment, deleteBackward, onChange, insertText, apply } = editor;
 
   const { insertBreak } = editor;
 
@@ -230,35 +230,52 @@ const SlateReact = () => {
        Transforms.move(editor, {distance:1,unit:'offset',reverse:false})
         return;
       
-    }else if(tableCell && edges[0][0] !== edges[1][0]){
-      
-      if (edges[0][0] !== edges[1][0]) {
-        let data = []
-        const tableList = Editor.nodes(editor, {
-          match: (n) => n.type === 'table-list',
+    }else if(tableCell){
+      if(edges[0][1] !== edges[1][1]){
+            const tableCell = Editor.nodes(editor, {
+          match: (n) => n.type === 'table-cell1',
           at:editor.selection
         });
-
-        for (const listItem of tableList) {
-          if (listItem) {
-            data.push(listItem[1]);
-          }
+        let data = [];
+        for(const tableItem of tableCell){
+           data.push(tableItem[1])
         }
-
-       if(data.length > 0){
-        for (var i =0; i < data.length; i++){
-          Transforms.removeNodes(editor,{at:data[i]})
-        }
-       }
-
-      } else if (edges[0][1] === edges[1][1] && edges[0][0] === edges[1][0]) {
-      } else {
         
-        Transforms.select(editor, editor.selection);
-        return;
-      }
-  
+        if(data.length > 0){
+          Transforms.select(editor, data[0]);
 
+        }
+        return;
+      }else{
+        
+      }
+      // Transforms.deselect(editor);
+      // if (edges[0][0] !== edges[1][0]) {
+      //   let data = []
+      //   const tableList = Editor.nodes(editor, {
+      //     match: (n) => n.type === 'table-list',
+      //     at:editor.selection
+      //   });
+
+      //   for (const listItem of tableList) {
+      //     if (listItem) {
+      //       data.push(listItem[1]);
+      //     }
+      //   }
+
+      //  if(data.length > 0){
+      //   for (var i =0; i < data.length; i++){
+      //     Transforms.removeNodes(editor,{at:data[i]})
+      //   }
+      //  }
+
+      // } else if (edges[0][1] === edges[1][1] && edges[0][0] === edges[1][0]) {
+      // } else {
+        
+      //   Transforms.select(editor, editor.selection);
+      //   return;
+      // }
+  
 
 
     }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
@@ -531,6 +548,30 @@ const SlateReact = () => {
     }
   };
 
+
+  // editor.apply = (operation) =>{
+  //   const block = Editor.above(editor, {
+  //     match: (n) => n.type === 'table-list'
+  //   });
+
+  //   if(block){
+
+  //     if(editor.selection.anchor.path[1] !== editor.selection.focus.path[1]){
+  //       
+  //       // ReactEditor.blur(editor);
+
+  //       return;
+  //     }else{
+  //       apply(operation)
+
+  //     } 
+  //   }else{
+  //     apply(operation)
+
+  //   }
+
+  // }
+
   editor.deleteFragment = (...args) => {
     const [listItems] = Editor.nodes(editor, {
       match: (n) => n.type === 'list-item' || n.type == 'table-cell1' || n.type == 'check-list-item' || n.type == 'paragraph' || n.type == 'dropdown-content',
@@ -598,128 +639,128 @@ const SlateReact = () => {
         else{
           
           
-          for (const [parent, path] of Editor.nodes(editor, {
-            match: (n)=> n.type === 'table-cell1',
-            at: editor.selection,
-            reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
-          })) {
-            let valuePath = [];
-            for (const [value, childPath] of Editor.nodes(editor, {
-              match: (n) => n.type === 'list-item' || n.type === 'paragraph',
-              at: path,
-              reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
-            })) {
+        //   for (const [parent, path] of Editor.nodes(editor, {
+        //     match: (n)=> n.type === 'table-cell1',
+        //     at: editor.selection,
+        //     reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
+        //   })) {
+        //     let valuePath = [];
+        //     for (const [value, childPath] of Editor.nodes(editor, {
+        //       match: (n) => n.type === 'list-item' || n.type === 'paragraph',
+        //       at: path,
+        //       reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
+        //     })) {
               
               
 
-              if (editor.selection.anchor.path[1] <= editor.selection.focus.path[1]) {
+        //       if (editor.selection.anchor.path[1] <= editor.selection.focus.path[1]) {
                 
 
-                if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) <= _.sum(childPath)){
-                  const [value] = Editor.nodes(editor, {
-                    mode:'lowest',
-                    at: childPath,
+        //         if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) <= _.sum(childPath)){
+        //           const [value] = Editor.nodes(editor, {
+        //             mode:'lowest',
+        //             at: childPath,
 
-                  })
+        //           })
 
 
                   
                   
-                 if(value[0].text.length == 0){
-                  valuePath = [];
+        //          if(value[0].text.length == 0){
+        //           valuePath = [];
 
-                 }else if(parent.children.length == 1 || childPath[2] === parent.children.length-1){
-                    valuePath.push({path:value[1], offset:editor.selection.anchor.offset},{path:value[1], offset:value[0].text.length});
+        //          }else if(parent.children.length == 1 || childPath[2] === parent.children.length-1){
+        //             valuePath.push({path:value[1], offset:editor.selection.anchor.offset},{path:value[1], offset:value[0].text.length});
 
-                 }else if(valuePath.length == 0){
+        //          }else if(valuePath.length == 0){
 
-                    valuePath.push({...editor.selection.anchor});
+        //             valuePath.push({...editor.selection.anchor});
 
-                  }else{
-                    valuePath.push({path:value[1], offset:value[0].text.length});
+        //           }else{
+        //             valuePath.push({path:value[1], offset:value[0].text.length});
 
-                  }
+        //           }
 
 
-                }else if(editor.selection.anchor.path[1] !== path[1] && editor.selection.focus.path[1] !== path[1]){
-                  const [value] = Editor.nodes(editor, {
-                    mode:'lowest',
-                    at: childPath,
+        //         }else if(editor.selection.anchor.path[1] !== path[1] && editor.selection.focus.path[1] !== path[1]){
+        //           const [value] = Editor.nodes(editor, {
+        //             mode:'lowest',
+        //             at: childPath,
 
-                  })
+        //           })
                   
 
-                  if(value[0].text.length == 0){
-                    valuePath = [];
+        //           if(value[0].text.length == 0){
+        //             valuePath = [];
   
-                   }else if (parent.children.length == 1 && value[0].text.length == 0) {
-                    valuePath = [];
-                  } else {
-                    valuePath.push({ path: value[1], offset: 0 });
-                    if(parent.children.length -1 === childPath[2]){
-                      valuePath.push({ path: value[1], offset: value[0].text.length });
+        //            }else if (parent.children.length == 1 && value[0].text.length == 0) {
+        //             valuePath = [];
+        //           } else {
+        //             valuePath.push({ path: value[1], offset: 0 });
+        //             if(parent.children.length -1 === childPath[2]){
+        //               valuePath.push({ path: value[1], offset: value[0].text.length });
 
-                    }
-                  }
+        //             }
+        //           }
 
-                  // Transforms.delete(editor, { at: childPath });
+        //           // Transforms.delete(editor, { at: childPath });
 
-                }else if(editor.selection.focus.path[1] === path[1] && _.sum(childPath) <= _.sum(editor.selection.focus.path)){
-                  const [value] = Editor.nodes(editor, {
-                    mode:'lowest',
-                    at: childPath,
+        //         }else if(editor.selection.focus.path[1] === path[1] && _.sum(childPath) <= _.sum(editor.selection.focus.path)){
+        //           const [value] = Editor.nodes(editor, {
+        //             mode:'lowest',
+        //             at: childPath,
 
-                  })
+        //           })
                  
                   
-                  if(value[0].text.length == 0 || editor.selection.focus.offset === 0){
-                    valuePath = [];
+        //           if(value[0].text.length == 0 || editor.selection.focus.offset === 0){
+        //             valuePath = [];
   
-                   }else if (childPath[childPath.length - 1] === 0) {
-                    valuePath.push({ path: value[1], offset: 0 });
-                    if (_.sum(childPath) === _.sum(editor.selection.focus.path)) {
-                      valuePath.push({ path: value[1], offset: editor.selection.focus.offset });
-                    }
-                  } else if (_.sum(childPath) <= _.sum(editor.selection.focus.path)) {
-                    valuePath.push({ path: value[1], offset: editor.selection.focus.offset });
-                  }
+        //            }else if (childPath[childPath.length - 1] === 0) {
+        //             valuePath.push({ path: value[1], offset: 0 });
+        //             if (_.sum(childPath) === _.sum(editor.selection.focus.path)) {
+        //               valuePath.push({ path: value[1], offset: editor.selection.focus.offset });
+        //             }
+        //           } else if (_.sum(childPath) <= _.sum(editor.selection.focus.path)) {
+        //             valuePath.push({ path: value[1], offset: editor.selection.focus.offset });
+        //           }
 
 
-                //   if(editor.selection.focus.path[2] == childPath[2]){
+        //         //   if(editor.selection.focus.path[2] == childPath[2]){
 
-                //  }else if(valuePath.length == 0){
+        //         //  }else if(valuePath.length == 0){
 
-                //     valuePath.push({...editor.selection.focus});
+        //         //     valuePath.push({...editor.selection.focus});
 
-                //   }else{
-                //     valuePath.push({path:value[1], offset:value[0].text.length});
+        //         //   }else{
+        //         //     valuePath.push({path:value[1], offset:value[0].text.length});
 
-                //   }
-                }
+        //         //   }
+        //         }
 
-             }else{
-              if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)){
+        //      }else{
+        //       if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)){
                 
-                // Transforms.removeNodes(editor,{at:childPath});
+        //         // Transforms.removeNodes(editor,{at:childPath});
 
 
-              }
-             }
+        //       }
+        //      }
  
-            }
+        //     }
 
             
 
-            if(valuePath.length > 0){
+        //     if(valuePath.length > 0){
               
-              Transforms.delete(editor,{at:{
-                anchor:{...valuePath[0]},
-                focus:{...valuePath[valuePath.length - 1]}
-              }})
-            }
+        //       Transforms.delete(editor,{at:{
+        //         anchor:{...valuePath[0]},
+        //         focus:{...valuePath[valuePath.length - 1]}
+        //       }})
+        //     }
          
   
-        }
+        // }
       
       }})
   
@@ -757,7 +798,6 @@ const SlateReact = () => {
         onChange={(value) => {
           const ua = navigator.userAgent;
           if (editor.selection) {
-            const string = Node.leaf(editor, editor.selection.anchor.path);
             const parent = Editor.parent(editor, editor.selection.anchor.path);
             let markActive = isMarkActive(editor, 'bold');
             let pattern = /^\d+\. /; // \d+ matches one or more digits, followed by a literal period
@@ -2006,8 +2046,20 @@ const TableCell1 = ({ attributes, children, element }) => {
   const selected = useSelected();
   const focused = useFocused();
   const path = ReactEditor.findPath(editor, element);
-  
-  return <td {...attributes}>
+  const edges = Editor.edges(editor,path)
+  let checked = false;
+  if(_.isEqual(edges[0], editor.selection.anchor) && _.isEqual(edges[1], editor.selection.focus)){
+    
+    checked = true
+
+  }else if(editor.selection.anchor.path[1] != editor.selection.focus.path[1]){
+    checked = true;
+  }
+  else{
+    checked = false;
+  }
+
+  return <td  className={checked && selected?'bg-sky-200': ''} {...attributes}>
     {children}
     </td>;
 };
