@@ -633,9 +633,6 @@ const SlateReact = () => {
           }
             
 
-
-          
-
           if(data.length > 0){
             for(var i =0; i< data.length; i++){
               Transforms.removeNodes(editor, { at: data[i] });
@@ -660,7 +657,7 @@ const SlateReact = () => {
               if (editor.selection.anchor.path[1] <= editor.selection.focus.path[1]) {
                 
 
-                if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) <= _.sum(childPath)){
+                if(editor.selection.anchor.path[1] === path[1]){
                   const [value] = Editor.nodes(editor, {
                     mode:'lowest',
                     at: childPath,
@@ -673,6 +670,10 @@ const SlateReact = () => {
                  if(value[0].text.length == 0){
                   valuePath = [];
 
+                 }else if (parent.children.length == 1){
+                  valuePath.push({path:value[1],offset:0},{path:value[1],offset:value[0].text.length})
+
+                  
                  }else{
                   if(valuePath.length == 0){
                     valuePath.push({path:value[1],offset:0})
@@ -718,6 +719,10 @@ const SlateReact = () => {
                   if(value[0].text.length == 0){
                     valuePath = [];
   
+                   }else if (parent.children.length == 1){
+                    valuePath.push({path:value[1],offset:0},{path:value[1],offset:value[0].text.length})
+  
+                    
                    }else{
                     if(valuePath.length == 0){
                       valuePath.push({path:value[1],offset:0})
