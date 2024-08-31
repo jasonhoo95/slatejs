@@ -14,7 +14,7 @@
 	}
 }
 
-::selection {
+.table-list ::selection {
 	--tw-bg-opacity: 1;
     background-color: rgb(186 230 253 / var(--tw-bg-opacity));
   }

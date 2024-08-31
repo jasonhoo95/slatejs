@@ -612,155 +612,158 @@ const SlateReact = () => {
       
 
       Editor.withoutNormalizing(editor, () => {
-        if(edges[0][0] !== edges[1][0]){
-          
-          let data = [];
-          for (const [parent, path] of Editor.nodes(editor, {
-            match: (n)=> n.type === 'table-list',
-            at: editor.selection,
-           })) {
-            
-
-          data.push(path);
-
-          }
-
-          if(data.length > 0){
-            for(var i =0; i< data.length; i++){
-              Transforms.removeNodes(editor,{at:data[i]})
-            }
-          }
-          
+        if(edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]){
+        
 
           deleteFragment(...args)
        
 
+        }else if(edges[0][0] != edges[1][0]){
+          let data = [];
+           deleteFragment(...args);
+
+          for (const [parent, path] of Editor.nodes(editor, {
+            at: editor.selection,
+            mode: 'highest',
+            match: (n) => n.type === 'table-list',
+          })) {
+            data.push(path);
+
+            
+          }
+            
+
+
+          
+
+          if(data.length > 0){
+            for(var i =0; i< data.length; i++){
+              Transforms.removeNodes(editor, { at: data[i] });
+            }
+          }
         }
         else{
           
           
-        //   for (const [parent, path] of Editor.nodes(editor, {
-        //     match: (n)=> n.type === 'table-cell1',
-        //     at: editor.selection,
-        //     reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
-        //   })) {
-        //     let valuePath = [];
-        //     for (const [value, childPath] of Editor.nodes(editor, {
-        //       match: (n) => n.type === 'list-item' || n.type === 'paragraph',
-        //       at: path,
-        //       reverse:editor.selection.anchor.path[1] <= editor.selection.focus.path[1] ? false : true
-        //     })) {
+          for (const [parent, path] of Editor.nodes(editor, {
+            match: (n)=> n.type === 'table-cell1',
+            at: editor.selection,
+          })) {
+            let valuePath = [];
+            for (const [value, childPath] of Editor.nodes(editor, {
+              match: (n) => n.type === 'list-item' || n.type === 'paragraph',
+              at: path,
+            })) {
               
               
 
-        //       if (editor.selection.anchor.path[1] <= editor.selection.focus.path[1]) {
+              if (editor.selection.anchor.path[1] <= editor.selection.focus.path[1]) {
                 
 
-        //         if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) <= _.sum(childPath)){
-        //           const [value] = Editor.nodes(editor, {
-        //             mode:'lowest',
-        //             at: childPath,
+                if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) <= _.sum(childPath)){
+                  const [value] = Editor.nodes(editor, {
+                    mode:'lowest',
+                    at: childPath,
 
-        //           })
+                  })
 
 
                   
                   
-        //          if(value[0].text.length == 0){
-        //           valuePath = [];
+                 if(value[0].text.length == 0){
+                  valuePath = [];
 
-        //          }else if(parent.children.length == 1 || childPath[2] === parent.children.length-1){
-        //             valuePath.push({path:value[1], offset:editor.selection.anchor.offset},{path:value[1], offset:value[0].text.length});
+                 }else{
+                  if(valuePath.length == 0){
+                    valuePath.push({path:value[1],offset:0})
 
-        //          }else if(valuePath.length == 0){
+                  }else{
+                    valuePath.push({path:value[1],offset:value[0].text.length})
 
-        //             valuePath.push({...editor.selection.anchor});
-
-        //           }else{
-        //             valuePath.push({path:value[1], offset:value[0].text.length});
-
-        //           }
+                  }
+                 }
 
 
-        //         }else if(editor.selection.anchor.path[1] !== path[1] && editor.selection.focus.path[1] !== path[1]){
-        //           const [value] = Editor.nodes(editor, {
-        //             mode:'lowest',
-        //             at: childPath,
+                }else if(editor.selection.anchor.path[1] !== path[1] && editor.selection.focus.path[1] !== path[1]){
+                  const [value] = Editor.nodes(editor, {
+                    mode:'lowest',
+                    at: childPath,
 
-        //           })
+                  })
                   
 
-        //           if(value[0].text.length == 0){
-        //             valuePath = [];
+                  if(value[0].text.length == 0){
+                    valuePath = [];
   
-        //            }else if (parent.children.length == 1 && value[0].text.length == 0) {
-        //             valuePath = [];
-        //           } else {
-        //             valuePath.push({ path: value[1], offset: 0 });
-        //             if(parent.children.length -1 === childPath[2]){
-        //               valuePath.push({ path: value[1], offset: value[0].text.length });
+                   }else if (parent.children.length == 1 && value[0].text.length == 0) {
+                    valuePath = [];
+                  } else {
+                    valuePath.push({ path: value[1], offset: 0 });
+                    if(parent.children.length -1 === childPath[2]){
+                      valuePath.push({ path: value[1], offset: value[0].text.length });
 
-        //             }
-        //           }
+                    }
+                  }
 
-        //           // Transforms.delete(editor, { at: childPath });
+                  // Transforms.delete(editor, { at: childPath });
 
-        //         }else if(editor.selection.focus.path[1] === path[1] && _.sum(childPath) <= _.sum(editor.selection.focus.path)){
-        //           const [value] = Editor.nodes(editor, {
-        //             mode:'lowest',
-        //             at: childPath,
+                }else if(editor.selection.focus.path[1] === path[1]){
+                  const [value] = Editor.nodes(editor, {
+                    mode:'lowest',
+                    at: childPath,
 
-        //           })
+                  })
                  
                   
-        //           if(value[0].text.length == 0 || editor.selection.focus.offset === 0){
-        //             valuePath = [];
+                  if(value[0].text.length == 0){
+                    valuePath = [];
   
-        //            }else if (childPath[childPath.length - 1] === 0) {
-        //             valuePath.push({ path: value[1], offset: 0 });
-        //             if (_.sum(childPath) === _.sum(editor.selection.focus.path)) {
-        //               valuePath.push({ path: value[1], offset: editor.selection.focus.offset });
-        //             }
-        //           } else if (_.sum(childPath) <= _.sum(editor.selection.focus.path)) {
-        //             valuePath.push({ path: value[1], offset: editor.selection.focus.offset });
-        //           }
+                   }else{
+                    if(valuePath.length == 0){
+                      valuePath.push({path:value[1],offset:0})
+  
+                    }else{
+                      valuePath.push({path:value[1],offset:value[0].text.length})
+  
+                    }
+                   }
+  
 
+                //   if(editor.selection.focus.path[2] == childPath[2]){
 
-        //         //   if(editor.selection.focus.path[2] == childPath[2]){
+                //  }else if(valuePath.length == 0){
 
-        //         //  }else if(valuePath.length == 0){
+                //     valuePath.push({...editor.selection.focus});
 
-        //         //     valuePath.push({...editor.selection.focus});
+                //   }else{
+                //     valuePath.push({path:value[1], offset:value[0].text.length});
 
-        //         //   }else{
-        //         //     valuePath.push({path:value[1], offset:value[0].text.length});
+                //   }
+                }
 
-        //         //   }
-        //         }
-
-        //      }else{
-        //       if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)){
+             }else{
+              if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)){
                 
-        //         // Transforms.removeNodes(editor,{at:childPath});
+                // Transforms.removeNodes(editor,{at:childPath});
 
 
-        //       }
-        //      }
+              }
+             }
  
-        //     }
+            }
 
             
 
-        //     if(valuePath.length > 0){
+            if(valuePath.length > 0){
               
-        //       Transforms.delete(editor,{at:{
-        //         anchor:{...valuePath[0]},
-        //         focus:{...valuePath[valuePath.length - 1]}
-        //       }})
-        //     }
+              Transforms.delete(editor,{at:{
+                anchor:{...valuePath[0]},
+                focus:{...valuePath[valuePath.length - 1]}
+              }})
+            }
          
   
-        // }
+        }
       
       }})
   
@@ -1709,6 +1712,7 @@ const TableList = ({ attributes, children, element }) => {
   const selected = useSelected();
   const focused = useFocused();
   const editor = useSlate();
+  const [check, setChecked] = useState(false);
 
   function checknow(event) {
     if (event && typeof event.data == 'katexnow') {
@@ -1734,6 +1738,7 @@ const TableList = ({ attributes, children, element }) => {
     };
 
     if (selected) {
+
       window.addEventListener('message', messageListener);
     } else {
       window.removeEventListener('message', messageListener);
@@ -1747,8 +1752,9 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table style={{ background: selected ? 'green' : '' }} {...attributes}>
-        <tr>
+      <table className='table-list' {...attributes}>
+       
+        <tr >
           {children.map((o, key) => {
             if (0 <= key && key <= 1) {
               return children[key];
@@ -2048,11 +2054,11 @@ const TableCell1 = ({ attributes, children, element }) => {
   const path = ReactEditor.findPath(editor, element);
   const edges = Editor.edges(editor,path)
   let checked = false;
-  if(_.isEqual(edges[0], editor.selection.anchor) && _.isEqual(edges[1], editor.selection.focus)){
+  if(_.isEqual(edges[0], editor.selection.anchor) && _.isEqual(edges[1], editor.selection.focus) && editor.selection.anchor.offset != 0 && editor.selection.focus.offset != 0){
     
     checked = true
 
-  }else if(editor.selection.anchor.path[1] != editor.selection.focus.path[1]){
+  }else if((editor.selection.anchor.path[1] != editor.selection.focus.path[1]) || (editor.selection.anchor.path[0] != editor.selection.focus.path[0])){
     checked = true;
   }
   else{
