@@ -613,7 +613,7 @@ const SlateReact = () => {
 
       Editor.withoutNormalizing(editor, () => {
         if(edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]){
-        
+         
 
           deleteFragment(...args)
        
@@ -651,110 +651,76 @@ const SlateReact = () => {
               match: (n) => n.type === 'list-item' || n.type === 'paragraph',
               at: path,
             })) {
-              
-              
-
               if (editor.selection.anchor.path[1] <= editor.selection.focus.path[1]) {
-                
-
-                if(editor.selection.anchor.path[1] === path[1]){
+                if (editor.selection.anchor.path[1] === path[1]) {
                   const [value] = Editor.nodes(editor, {
-                    mode:'lowest',
+                    mode: 'lowest',
                     at: childPath,
+                  });
 
-                  })
-
-
-                  
-                  
-                 if(value[0].text.length == 0){
-                  valuePath = [];
-
-                 }else if (parent.children.length == 1){
-                  valuePath.push({path:value[1],offset:0},{path:value[1],offset:value[0].text.length})
-
-                  
-                 }else{
-                  if(valuePath.length == 0){
-                    valuePath.push({path:value[1],offset:0})
-
-                  }else{
-                    valuePath.push({path:value[1],offset:value[0].text.length})
-
-                  }
-                 }
-
-
-                }else if(editor.selection.anchor.path[1] !== path[1] && editor.selection.focus.path[1] !== path[1]){
-                  const [value] = Editor.nodes(editor, {
-                    mode:'lowest',
-                    at: childPath,
-
-                  })
-                  
-
-                  if(value[0].text.length == 0){
+                  if (value[0].text.length == 0) {
                     valuePath = [];
-  
-                   }else if (parent.children.length == 1 && value[0].text.length == 0) {
+                  } else if (parent.children.length == 1) {
+                    valuePath.push({ path: value[1], offset: 0 }, { path: value[1], offset: value[0].text.length });
+                  } else {
+                    if (valuePath.length == 0) {
+                      valuePath.push({ path: value[1], offset: 0 });
+                    } else {
+                      valuePath.push({ path: value[1], offset: value[0].text.length });
+                    }
+                  }
+                } else if (editor.selection.anchor.path[1] !== path[1] && editor.selection.focus.path[1] !== path[1]) {
+                  const [value] = Editor.nodes(editor, {
+                    mode: 'lowest',
+                    at: childPath,
+                  });
+
+                  if (value[0].text.length == 0) {
+                    valuePath = [];
+                  } else if (parent.children.length == 1 && value[0].text.length == 0) {
                     valuePath = [];
                   } else {
                     valuePath.push({ path: value[1], offset: 0 });
-                    if(parent.children.length -1 === childPath[2]){
+                    if (parent.children.length - 1 === childPath[2]) {
                       valuePath.push({ path: value[1], offset: value[0].text.length });
-
                     }
                   }
 
                   // Transforms.delete(editor, { at: childPath });
-
-                }else if(editor.selection.focus.path[1] === path[1]){
+                } else if (editor.selection.focus.path[1] === path[1]) {
                   const [value] = Editor.nodes(editor, {
-                    mode:'lowest',
+                    mode: 'lowest',
                     at: childPath,
+                  });
 
-                  })
-                 
-                  
-                  if(value[0].text.length == 0){
+                  if (value[0].text.length == 0) {
                     valuePath = [];
-  
-                   }else if (parent.children.length == 1){
-                    valuePath.push({path:value[1],offset:0},{path:value[1],offset:value[0].text.length})
-  
-                    
-                   }else{
-                    if(valuePath.length == 0){
-                      valuePath.push({path:value[1],offset:0})
-  
-                    }else{
-                      valuePath.push({path:value[1],offset:value[0].text.length})
-  
+                  } else if (parent.children.length == 1 && value[0].text.length > 0) {
+                    valuePath.push({ path: value[1], offset: 0 }, { path: value[1], offset: value[0].text.length });
+                  } else {
+                    if (valuePath.length == 0) {
+                      valuePath.push({ path: value[1], offset: 0 });
+                    } else {
+                      valuePath.push({ path: value[1], offset: value[0].text.length });
                     }
-                   }
-  
+                  }
 
-                //   if(editor.selection.focus.path[2] == childPath[2]){
+                  //   if(editor.selection.focus.path[2] == childPath[2]){
 
-                //  }else if(valuePath.length == 0){
+                  //  }else if(valuePath.length == 0){
 
-                //     valuePath.push({...editor.selection.focus});
+                  //     valuePath.push({...editor.selection.focus});
 
-                //   }else{
-                //     valuePath.push({path:value[1], offset:value[0].text.length});
+                  //   }else{
+                  //     valuePath.push({path:value[1], offset:value[0].text.length});
 
-                //   }
+                  //   }
                 }
-
-             }else{
-              if(editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)){
-                
-                // Transforms.removeNodes(editor,{at:childPath});
-
-
+              } else {
+                if (editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)) {
+                  // Transforms.removeNodes(editor,{at:childPath});
+                }
               }
-             }
- 
             }
 
             
@@ -765,16 +731,16 @@ const SlateReact = () => {
                 anchor:{...valuePath[0]},
                 focus:{...valuePath[valuePath.length - 1]}
               }})
+              deleteFragment(...args);
+
+              
             }
          
   
         }
       
       }})
-  
-    
-      // Transforms.delete(editor, {  at:[editor.selection.anchor.path[0], editor.selection.anchor.path[1]], reverse:true, unit:'offset', distance:editor.selection.anchor.offset})
-      
+        
     } else {
       deleteFragment(...args);
     }
