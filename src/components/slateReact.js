@@ -264,20 +264,28 @@ const SlateReact = () => {
         return;
       
     }else if(tableCell){
-      if(edges[0][1] !== edges[1][1]){
-            const tableCell = Editor.nodes(editor, {
-          match: (n) => n.type === 'table-cell1',
+      if(edges[0][0] !== edges[1][0]){
+
+            const tableList = Editor.nodes(editor, {
+          match: (n) => n.type === 'table-list',
+          mode:'highest',
           at:editor.selection
         });
+
         let data = [];
-        for(const tableItem of tableCell){
+        for(const tableItem of tableList){
            data.push(tableItem[1])
         }
         
         if(data.length > 0){
-          Transforms.select(editor, data[0]);
+          for(var i =0; i< data.length; i++){
+            Transforms.removeNodes(editor, { at: data[i] });
+          }
 
         }
+
+        insertText(text);
+
         return;
       }else{
         
@@ -582,92 +590,7 @@ const SlateReact = () => {
   };
 
 
-  // editor.apply = (operation) =>{
-  //   const block = Editor.above(editor, {
-  //     match: (n) => n.type === 'table-cell1'
-  //   });
 
-  // // if(editor.selection){
-  // //   
-
-  // // }
-   
-
-
-
-  //    if(block){
-  //     apply(operation);
-  //    
-  //    return Transforms.select(editor,{anchor:{offset:0,path:[4,0,0,0]},focus:{offset:5,path:[4,1,1,0]}})
-
-  //    }
-
-  //    apply(operation);
-
-
-
-     
-   
-  //     // if (editor.selection.anchor.path[1] !== editor.selection.focus.path[1]) {
-        
-  //     //   let valuePath = [];
-       
-  //     //   for (const [parent, path] of Editor.nodes(editor, {
-  //     //     match: (n) => n.type === 'table-cell1',
-  //     //     at: editor.selection,
-  //     //     reverse:editor.selection.anchor.path[1] > editor.selection.focus.path[1]
-  //     //   })) {
-  //     //     for (const [parent, childPath] of Editor.nodes(editor, {
-  //     //       mode:'lowest',
-  //     //       at: path,
-  //     //       reverse:editor.selection.anchor.path[1] > editor.selection.focus.path[1]
-
-  //     //     })){
-            
-  //     //       if(valuePath.length === 0){
-  //     //         if(editor.selection.anchor.path[1] > editor.selection.focus.path[1]){
-  //     //           valuePath.push({path:childPath,offset:parent.text.length});
-
-  //     //         }else{
-  //     //           valuePath.push({path:childPath,offset:0});
-
-  //     //         }
-
-  //     //       }else{
-  //     //         if(editor.selection.anchor.path[1] > editor.selection.focus.path[1] && path[1] === editor.selection.focus.path[1]){
-  //     //            
-  //     //           valuePath.push({path:childPath,offset:0});
-
-  //     //         }else{
-  //     //           valuePath.push({path:childPath,offset:parent.text.length});
-
-  //     //         }
-
-  //     //       }
-
-
-  //     //     }
-  //     //   }
-
-  //     //   if (valuePath.length > 0) {
-  //     //     
-
-  //     //     const anchor = { ...valuePath[0] }; // Starting point (first node, first character)
-  //     //     const focus = { ...valuePath[valuePath.length - 1] };
-  //     //     const range = { ...anchor, ...focus };
-          
-  //     //     // Transforms.deselect(editor);
-  //     //     Transforms.select(editor,{anchor:{...anchor}, focus:{...focus}})
-  //     //     return;
-  //     //   }
-
-  //     //   // ReactEditor.blur(editor);
-  //     // }
-    
-
-
-
-  // }
 
   editor.deleteFragment = (...args) => {
     const [listItems] = Editor.nodes(editor, {
@@ -818,8 +741,8 @@ const SlateReact = () => {
         
           if (editor.selection) {
             const [block] = Editor.nodes(editor, {
-              match: (n) => n.type === 'table-cell1',
-              at:editor.slection
+              match: (n) => n.type === 'table-list',
+              at:editor.selection.anchor
             });
         
    
