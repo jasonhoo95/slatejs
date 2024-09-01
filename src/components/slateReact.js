@@ -62,6 +62,39 @@ const initialValue = [
       },
     ],
   },
+
+  // {
+  //   type: 'table-list',
+  //   insert: true,
+  //   checked: true,
+  //   children: [
+  //     // { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
+  //     {
+  //       type: 'table-cell1',
+  //       id: 1,
+  //       selected: true,
+  //       children: [{ type: 'paragraph', children: [{ text: '' }] }],
+  //     },
+  //     {
+  //       type: 'table-cell1',
+  //       id: 2,
+  //       selected: false,
+  //       children: [{ type: 'paragraph', children: [{ text: '' }] }],
+  //     },
+  //     {
+  //       type: 'table-cell1',
+  //       id: 3,
+  //       selected: false,
+  //       children: [{ type: 'paragraph', children: [{ text: '' }] }],
+  //     },
+  //     {
+  //       type: 'table-cell1',
+  //       id: 4,
+  //       selected: false,
+  //       children: [{ type: 'paragraph', children: [{ text: '' }] }],
+  //     },
+  //   ],
+  // }
 ];
 
 const SHORTCUTS = {
@@ -551,24 +584,88 @@ const SlateReact = () => {
 
   // editor.apply = (operation) =>{
   //   const block = Editor.above(editor, {
-  //     match: (n) => n.type === 'table-list'
+  //     match: (n) => n.type === 'table-cell1'
   //   });
 
-  //   if(block){
+  // // if(editor.selection){
+  // //   
 
-  //     if(editor.selection.anchor.path[1] !== editor.selection.focus.path[1]){
-  //       
-  //       // ReactEditor.blur(editor);
+  // // }
+   
 
-  //       return;
-  //     }else{
-  //       apply(operation)
 
-  //     } 
-  //   }else{
-  //     apply(operation)
 
-  //   }
+  //    if(block){
+  //     apply(operation);
+  //    
+  //    return Transforms.select(editor,{anchor:{offset:0,path:[4,0,0,0]},focus:{offset:5,path:[4,1,1,0]}})
+
+  //    }
+
+  //    apply(operation);
+
+
+
+     
+   
+  //     // if (editor.selection.anchor.path[1] !== editor.selection.focus.path[1]) {
+        
+  //     //   let valuePath = [];
+       
+  //     //   for (const [parent, path] of Editor.nodes(editor, {
+  //     //     match: (n) => n.type === 'table-cell1',
+  //     //     at: editor.selection,
+  //     //     reverse:editor.selection.anchor.path[1] > editor.selection.focus.path[1]
+  //     //   })) {
+  //     //     for (const [parent, childPath] of Editor.nodes(editor, {
+  //     //       mode:'lowest',
+  //     //       at: path,
+  //     //       reverse:editor.selection.anchor.path[1] > editor.selection.focus.path[1]
+
+  //     //     })){
+            
+  //     //       if(valuePath.length === 0){
+  //     //         if(editor.selection.anchor.path[1] > editor.selection.focus.path[1]){
+  //     //           valuePath.push({path:childPath,offset:parent.text.length});
+
+  //     //         }else{
+  //     //           valuePath.push({path:childPath,offset:0});
+
+  //     //         }
+
+  //     //       }else{
+  //     //         if(editor.selection.anchor.path[1] > editor.selection.focus.path[1] && path[1] === editor.selection.focus.path[1]){
+  //     //            
+  //     //           valuePath.push({path:childPath,offset:0});
+
+  //     //         }else{
+  //     //           valuePath.push({path:childPath,offset:parent.text.length});
+
+  //     //         }
+
+  //     //       }
+
+
+  //     //     }
+  //     //   }
+
+  //     //   if (valuePath.length > 0) {
+  //     //     
+
+  //     //     const anchor = { ...valuePath[0] }; // Starting point (first node, first character)
+  //     //     const focus = { ...valuePath[valuePath.length - 1] };
+  //     //     const range = { ...anchor, ...focus };
+          
+  //     //     // Transforms.deselect(editor);
+  //     //     Transforms.select(editor,{anchor:{...anchor}, focus:{...focus}})
+  //     //     return;
+  //     //   }
+
+  //     //   // ReactEditor.blur(editor);
+  //     // }
+    
+
+
 
   // }
 
@@ -645,99 +742,45 @@ const SlateReact = () => {
           for (const [parent, path] of Editor.nodes(editor, {
             match: (n)=> n.type === 'table-cell1',
             at: editor.selection,
+
           })) {
             let valuePath = [];
-            for (const [value, childPath] of Editor.nodes(editor, {
-              match: (n) => n.type === 'list-item' || n.type === 'paragraph',
-              at: path,
+            for (const [value, childPath] of Node.children(editor,path, {
+              reverse:true
             })) {
-              if (editor.selection.anchor.path[1] <= editor.selection.focus.path[1]) {
-                if (editor.selection.anchor.path[1] === path[1]) {
-                  const [value] = Editor.nodes(editor, {
-                    mode: 'lowest',
-                    at: childPath,
-                  });
+              
+              valuePath.push(childPath);
+              Transforms.removeNodes(editor,{at:childPath})
+              
 
-                  if (value[0].text.length == 0) {
-                    valuePath = [];
-                  } else if (parent.children.length == 1) {
-                    valuePath.push({ path: value[1], offset: 0 }, { path: value[1], offset: value[0].text.length });
-                  } else {
-                    if (valuePath.length == 0) {
-                      valuePath.push({ path: value[1], offset: 0 });
-                    } else {
-                      valuePath.push({ path: value[1], offset: value[0].text.length });
-                    }
-                  }
-                } else if (editor.selection.anchor.path[1] !== path[1] && editor.selection.focus.path[1] !== path[1]) {
-                  const [value] = Editor.nodes(editor, {
-                    mode: 'lowest',
-                    at: childPath,
-                  });
-
-                  if (value[0].text.length == 0) {
-                    valuePath = [];
-                  } else if (parent.children.length == 1 && value[0].text.length == 0) {
-                    valuePath = [];
-                  } else {
-                    valuePath.push({ path: value[1], offset: 0 });
-                    if (parent.children.length - 1 === childPath[2]) {
-                      valuePath.push({ path: value[1], offset: value[0].text.length });
-                    }
-                  }
-
-                  // Transforms.delete(editor, { at: childPath });
-                } else if (editor.selection.focus.path[1] === path[1]) {
-                  const [value] = Editor.nodes(editor, {
-                    mode: 'lowest',
-                    at: childPath,
-                  });
-
-                  if (value[0].text.length == 0) {
-                    valuePath = [];
-                  } else if (parent.children.length == 1 && value[0].text.length > 0) {
-                    valuePath.push({ path: value[1], offset: 0 }, { path: value[1], offset: value[0].text.length });
-                  } else {
-                    if (valuePath.length == 0) {
-                      valuePath.push({ path: value[1], offset: 0 });
-                    } else {
-                      valuePath.push({ path: value[1], offset: value[0].text.length });
-                    }
-                  }
-
-                  //   if(editor.selection.focus.path[2] == childPath[2]){
-
-                  //  }else if(valuePath.length == 0){
-
-                  //     valuePath.push({...editor.selection.focus});
-
-                  //   }else{
-                  //     valuePath.push({path:value[1], offset:value[0].text.length});
-
-                  //   }
-                }
-              } else {
-                if (editor.selection.anchor.path[1] === path[1] && _.sum(editor.selection.anchor.path) >= _.sum(childPath)) {
-                  // Transforms.removeNodes(editor,{at:childPath});
-                }
-              }
+          
             }
 
-            
+            Transforms.insertNodes(
+              editor,
+              {
+                type: 'paragraph',
+                children: [{ text: "" }],
+              },
+              { at: [...path, 0] }
+            );
 
-            if(valuePath.length > 0){
+            // if(valuePath.length > 0){
               
-              Transforms.delete(editor,{at:{
-                anchor:{...valuePath[0]},
-                focus:{...valuePath[valuePath.length - 1]}
-              }})
-              deleteFragment(...args);
+            //   // Transforms.delete(editor,{at:{
+            //   //   anchor:{...valuePath[0]},
+            //   //   focus:{...valuePath[valuePath.length - 1]}
+            //   // }})
+            //   Transforms.removeNodes(editor,{at:[0,0],match:(n) => n.type === 'paragraph'})
+            //   Transforms.move(editor,{distance:1,unit:'offset'});
 
               
-            }
+            // }
          
   
         }
+
+        Transforms.select(editor,[editor.selection.focus.path[0], editor.selection.focus.path[1], 0])
       
       }})
         
@@ -771,8 +814,18 @@ const SlateReact = () => {
         editor={editor}
         onChange={(value) => {
           const ua = navigator.userAgent;
+        
+        
           if (editor.selection) {
+            const [block] = Editor.nodes(editor, {
+              match: (n) => n.type === 'table-cell1',
+              at:editor.slection
+            });
+        
+   
             const parent = Editor.parent(editor, editor.selection.anchor.path);
+            
+
             let markActive = isMarkActive(editor, 'bold');
             let pattern = /^\d+\. /; // \d+ matches one or more digits, followed by a literal period
 
@@ -780,7 +833,51 @@ const SlateReact = () => {
               Transforms.removeNodes(editor, {
                 at: parent[1],
               });
+            }else if(block){
+              if (editor.selection.anchor.path[1] !== editor.selection.focus.path[1]) {
+                      
+                      let valuePath = [];
+
+                      for (const [parent, path] of Editor.nodes(editor, {
+                        match: (n) => n.type === 'table-cell1',
+                        at: editor.selection,
+                        reverse: editor.selection.anchor.path[1] > editor.selection.focus.path[1],
+                      })) {
+                        for (const [parent, childPath] of Editor.nodes(editor, {
+                          mode: 'lowest',
+                          at: path,
+                          reverse: editor.selection.anchor.path[1] > editor.selection.focus.path[1],
+                        })) {
+                          if (valuePath.length === 0) {
+                            if (editor.selection.anchor.path[1] > editor.selection.focus.path[1]) {
+                              valuePath.push({ path: childPath, offset: parent.text.length });
+                            } else {
+                              valuePath.push({ path: childPath, offset: 0 });
+                            }
+                          } else {
+                            if (editor.selection.anchor.path[1] > editor.selection.focus.path[1] && path[1] === editor.selection.focus.path[1]) {
+                              
+                              valuePath.push({ path: childPath, offset: 0 });
+                            } else {
+                              valuePath.push({ path: childPath, offset: parent.text.length });
+                            }
+                          }
+                        }
+                      }
+
+                      if (valuePath.length > 0) {
+                        
+                       
+                        const anchor = { ...valuePath[0] }; // Starting point (first node, first character)
+                        const focus = { ...valuePath[valuePath.length - 1] };
+                        const range = { ...anchor, ...focus };
+
+                        // Transforms.deselect(editor);
+                        return Transforms.select(editor, { anchor: { ...anchor }, focus: { ...focus } });
+                      }
+
             }
+          }
           } 
         }}
         initialValue={initialValue}>
@@ -959,13 +1056,13 @@ const SlateReact = () => {
                   type: 'table-cell1',
                   id: 1,
                   selected: true,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
+                  children: [{ type: 'paragraph', children: [{ text: 'asdasda' }] },{ type: 'paragraph', children: [{ text: 'okman' }] }],
                 },
                 {
                   type: 'table-cell1',
                   id: 2,
                   selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
+                  children: [{ type: 'paragraph', children: [{ text: 'asdasda' }] },{ type: 'paragraph', children: [{ text: 'okman' }] }],
                 },
                 {
                   type: 'table-cell1',
