@@ -745,6 +745,11 @@ const SlateReact = () => {
               match: (n) => n.type === 'table-list',
               at:editor.selection.anchor
             });
+
+            const [endBlock] = Editor.nodes(editor, {
+              match: (n) => n.type === 'table-list',
+              at:editor.selection.focus
+            });
         
    
             const parent = Editor.parent(editor, editor.selection.anchor.path);
@@ -758,6 +763,7 @@ const SlateReact = () => {
                 at: parent[1],
               });
             }else if(block){
+              console.log(editor.selection,"editor selection");
               if (editor.selection.anchor.path[1] !== editor.selection.focus.path[1]) {
                       
                       let valuePath = [];
@@ -800,6 +806,21 @@ const SlateReact = () => {
                         return Transforms.select(editor, { anchor: { ...anchor }, focus: { ...focus } });
                       }
 
+            }
+          }else if(!block && endBlock){
+            let value;
+            for (const [parent, path] of Editor.nodes(editor, {
+              at: endBlock[1],
+              mode:'lowest'
+            })){
+              if(endBlock[0].children.length - 1 === path[1]){
+               value= {offset:parent.text.length, path:path}
+
+              }
+            }
+
+            if(value){
+              Transforms.select(editor,{anchor:{...editor.selection.anchor},focus:value})
             }
           }
           } 
