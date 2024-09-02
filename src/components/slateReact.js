@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 
 import isHotkey, { isKeyHotkey } from 'is-hotkey';
-
+import SlateMobile from './slateMobile';
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
 import { Editable, withReact, useSlate, useSlateStatic, Slate, ReactEditor, useSelected, useFocused, useReadOnly } from 'slate-react';
@@ -972,35 +972,9 @@ const SlateReact = () => {
 
             const block = {
               type: 'table-list',
-              insert: true,
               checked: true,
-              children: [
-                // { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
-                {
-                  type: 'table-cell1',
-                  id: 1,
-                  selected: true,
-                  children: [{ type: 'paragraph', children: [{ text: 'asdasda' }] },{ type: 'paragraph', children: [{ text: 'okman' }] }],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 2,
-                  selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: 'asdasda' }] },{ type: 'paragraph', children: [{ text: 'okman' }] }],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 3,
-                  selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 4,
-                  selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
-                },
-              ],
+              card: [{ table: 'asd' },{ table: 'okman' },{ table: 'oklah' }],
+              children: [{ text: '' }],
             };
 
             Transforms.insertNodes(editor, block, {
@@ -1243,7 +1217,7 @@ const withInlines = (editor) => {
 
   editor.isInline = (element) => ['button', 'link', 'katex', 'inline-bug', 'inline-wrapper-bug', 'inline-wrapper'].includes(element.type) || isInline(element);
 
-  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt',   'editable-void', 'input-component', 'ImageWrapper', 'inline-wrapper'].includes(element.type) || isVoid(element);
+  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt', 'table-list',  'editable-void', 'input-component', 'ImageWrapper', 'inline-wrapper'].includes(element.type) || isVoid(element);
 
   editor.markableVoid = (element) => {
     return element.type === 'katex' || markableVoid(element);
@@ -1744,31 +1718,15 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table className='table-list' {...attributes}>
+      <table contentEditable="false" className='table-list' {...attributes}>
        
         <tr >
-          {children.map((o, key) => {
-            if (0 <= key && key <= 1) {
-              return children[key];
-            }
-          })}
-          {/* {card.map((o, key) => {
-						return (
-							<CellElement setCallback={arrayCheck} select={selectArray[key]} path={path} card={card} data={o} key={key} />
-
-						)
-
-
-					})} */}
-        </tr>
-
-        <tr>
-          {children.map((o, key) => {
-            if (2 <= key && key <= 3) {
-              return children[key];
-            }
-          })}
-        </tr>
+        {element.card.map(()=>{
+          return <SlateMobile/>
+        })}
+             
+             </tr>
+             {children}
       </table>
     </>
   );
@@ -2057,8 +2015,9 @@ const TableCell1 = ({ attributes, children, element }) => {
     checked = false;
   }
 
-  return <td  className={checked && selected?'bg-sky-200': ''} {...attributes}>
+  return <td   {...attributes}>
     {children}
+   <SlateMobile/>
     </td>;
 };
 

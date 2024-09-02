@@ -425,95 +425,7 @@ const SlateMobile = () => {
           backwardCheck = false;
         }}
         initialValue={initialValue}>
-        <BlockButton format='katex-link' icon='format_list_item' />
-
-        <BlockButton format='banner-red' icon='format_list_item' />
-
-        <BlockButton icon='format_list_item' format='bulleted-list' />
-
-        {/* <BlockButton
-					format="url-link"
-					icon="format_list_item"
-				/>
-
-
-
-
-				<MarkButton
-					format="bold"
-					icon="format_bold"
-				/> */}
-
-        <div
-          onClick={(e) => {
-            const block = {
-              type: 'editable-void',
-              card: [],
-              children: [],
-            };
-            const block1 = {
-              type: 'dropdown-content',
-              children: [
-                // {
-                // 	type: "paragraph",
-                // 	children: [
-                // 		{
-                // 			type: "heading-two",
-                // 			children: [{ text: "oklah" }],
-                // 		},
-                // 	],
-                // },
-
-                {
-                  type: 'dropdown-inner',
-                  children: [
-                    {
-                      type: 'paragraph',
-                      children: [
-                        {
-                          text: '123oklsa',
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            };
-            // Editor.deleteBackward(editor, { unit: "block" });
-            Transforms.insertNodes(editor, block, { mode: 'highest' });
-            // const [listItems] = Editor.nodes(editor, {
-            // 	match: (n) => n.type === "paragraph",
-            // });
-            // if (Editor.isEmpty(editor, listItems[0])) {
-            // 	Transforms.insertNodes(editor, block1, { at: editor.selection.anchor.path });
-            // 	Transforms.unwrapNodes(editor, { mode: "highest" });
-            // } else {
-            // 	Transforms.insertNodes(editor, block1, { mode: "highest" });
-            // 	// Transforms.unwrapNodes(editor, { mode: "highest" });
-            // }
-          }}>
-          insert void123
-        </div>
-
-        {/* <div
-					onClick={(e) => {
-						
-						Transforms.select(editorNow, editorNow.selection);
-						ReactEditor.focus(editorNow);
-					}}>
-					focus now
-				</div> */}
-
-        <div
-          onClick={(e) => {
-            const text = { text: '', type: 'heading-one' };
-            // const block = { type: "editable-void", children: [text] };
-
-            Transforms.setNodes(editor, text);
-            ReactEditor.focus(editor);
-          }}>
-          heading one
-        </div>
+      
 
         <Editable
           renderElement={renderElement}
@@ -569,9 +481,7 @@ const SlateMobile = () => {
           }}
         />
       </Slate>
-      <div onInput={(e) => {}} contentEditable='true'>
-        asd asdasd asd asd asd asd as
-      </div>
+     
     </div>
   );
 };
