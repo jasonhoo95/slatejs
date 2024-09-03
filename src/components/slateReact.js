@@ -761,7 +761,6 @@ const SlateReact = () => {
                             }
                           } else {
                             if (editor.selection.anchor.path[1] > editor.selection.focus.path[1] && path[1] === editor.selection.focus.path[1]) {
-                              
                               valuePath.push({ path: childPath, offset: 0 });
                             } else {
                               valuePath.push({ path: childPath, offset: parent.text.length });
@@ -2054,7 +2053,7 @@ const TableCell1 = ({ attributes, children, element }) => {
     checked = false;
   }
 
-  return <td  className={checked && selected?'bg-sky-200': ''} {...attributes}>
+  return <td  className={checked && selected?'bg-sky-200 cell-selected': ''} {...attributes}>
     {children}
     </td>;
 };
