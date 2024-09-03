@@ -634,56 +634,35 @@ const SlateReact = () => {
       
 
       Editor.withoutNormalizing(editor, () => {
-        if(edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]){
-         
-
-          deleteFragment(...args)
-       
-
-        }else if(edges[0][0] != edges[1][0]){
+        if (edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]) {
+          deleteFragment(...args);
+        } else if (edges[0][0] != edges[1][0]) {
           let data = [];
-          
-          for (const [parent, path] of Editor.nodes(editor, {
-            mode:'highest',
-            match:(n) =>  !Editor.isEditor(n) && SlateElement.isElement(n),
-            at: editor.selection,
+          deleteFragment(...args);
 
+          for (const [parent, path] of Editor.nodes(editor, {
+            match: (n) => n.type === 'table-list',
+            at: editor.selection,
           })) {
             
-            if (editor.selection.anchor.path[0] === path[0]) {
-              Transforms.delete(editor, {
-                anchor: { offset: editor.selection.anchor.offset, path: [...editor.selection.anchor.path,0] },
-                focus: { offset: parent.children[0].text.length, path: [...path, 0] },
-              });
-              return;
 
-            } else {
-              console.log(path, parent, 'paragraph path');
-
-              // Transforms.insertNodes(
-              //   editor,
-              //   {
-              //     type: 'paragraph',
-              //     children: [{ text: "" }],
-              //   },
-              //   { at: [...path,0] }
-              // );
+            if (parent.type === 'table-list') {
+              Transforms.removeNodes(editor, { at: path });
             }
-          
 
-            // Transforms.removeNodes(editor,{at:path})
-       
-
-
+            //   Transforms.insertNodes(
+            //     editor,
+            //     {
+            //       type: 'paragraph',
+            //       children: [{ text: "" }],
+            //     },
+            //     { at: [...path,0] }
+            //   );
           }
-        }
-        else{
-          
-          
+        } else {
           for (const [parent, path] of Editor.nodes(editor, {
-            match: (n)=> n.type === 'table-cell1',
+            match: (n) => n.type === 'table-cell1',
             at: editor.selection,
-
           })) {
             for (const [value, childPath] of Node.children(editor, path, {
               reverse: true,
@@ -699,14 +678,10 @@ const SlateReact = () => {
               },
               { at: [...path, 0] },
             );
+          }
 
-       
-  
-        }
-
-        Transforms.select(editor,[editor.selection.focus.path[0], editor.selection.focus.path[1], 0])
-      
-      }})
+          Transforms.select(editor, [editor.selection.focus.path[0], editor.selection.focus.path[1], 0]);
+        }})
         
     } else {
       deleteFragment(...args);
@@ -762,8 +737,8 @@ const SlateReact = () => {
               Transforms.removeNodes(editor, {
                 at: parent[1],
               });
-            }else if(block){
-              console.log(editor.selection,"editor selection");
+            }else if(block && editor.selection.anchor.path[0] === editor.selection.focus.path[0]){
+              
               if (editor.selection.anchor.path[1] !== editor.selection.focus.path[1]) {
                       
                       let valuePath = [];
@@ -807,7 +782,8 @@ const SlateReact = () => {
                       }
 
             }
-          }else if(!block && endBlock){
+          }else if(endBlock && (editor.selection.anchor.path[0] != editor.selection.focus.path[0])){
+            
             let value;
             for (const [parent, path] of Editor.nodes(editor, {
               at: endBlock[1],
