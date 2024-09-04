@@ -603,19 +603,24 @@ const SlateReact = () => {
       const [startPoint, endPoint] = Range.edges(editor.selection);
       const edges = [startPoint.path, endPoint.path];
       let path1 = [];
-
+      
       Editor.withoutNormalizing(editor, () => {
         if (edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]) {
           deleteFragment(...args);
         } else if (edges[0][0] != edges[1][0]) {
+          Transforms.select(editor,editor.selection);
           let data = [];
-
           if (editor.selection.anchor.path[0] > editor.selection.focus.path[0]) {
+            
+
             for (const [parent, path] of Editor.nodes(editor, {
               match: (n) => n.type === 'table-list',
               at: editor.selection,
             })) {
-              Transforms.removeNodes(editor, { at: path });
+              if (editor.selection.anchor.path[0] > path[0]) {
+                
+                Transforms.removeNodes(editor, { at: path });
+              }
             }
             deleteFragment(...args);
           } else {
@@ -674,6 +679,7 @@ const SlateReact = () => {
           const ua = navigator.userAgent;
 
           if (editor.selection) {
+            setCheck(editor.selection);
             const [block] = Editor.nodes(editor, {
               match: (n) => n.type === 'table-list',
               at: editor.selection.anchor,
@@ -1075,6 +1081,9 @@ const SlateReact = () => {
           }}
         />
       </Slate>
+      {check?.anchor?.path[0]}path
+      <br/>
+      {check?.focus?.path[0]}path
     </div>
   );
 };
