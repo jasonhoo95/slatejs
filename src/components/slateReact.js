@@ -738,9 +738,36 @@ const SlateReact = () => {
                   return Transforms.select(editor, { anchor: { ...anchor }, focus: { ...focus } });
                 }
               }
-            } else if (endBlock && editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
-              let value;
+            }else if(block && (editor.selection.anchor.path[1] === 0 || editor.selection.anchor.path[1] === block[0].children.length -1) &&  editor.selection.anchor.path[0] != editor.selection.focus.path[0]){
+              let value = [];
 
+              for (const [parent, path] of Editor.nodes(editor, {
+                at: block[1],
+                mode: 'lowest',
+                reverse:editor.selection.anchor.path[1] === 0  ,
+              })) {
+                if(editor.selection.anchor.path[1] === 0){
+                  value.push( { offset: parent.text.length, path: path })
+
+                }else{
+                  value.push( { offset: 0, path: path })
+
+                }
+                 break;
+              }
+
+
+              // if (value.length > 0) {
+              //   console.log("block is true",value);
+              //    Transforms.select(editor, { anchor: { ...value[0]}, focus: {...editor.selection.focus} });
+              //    return;
+
+              //   }
+              
+
+            } 
+            else if (endBlock && editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
+              let value;
               for (const [parent, path] of Editor.nodes(editor, {
                 at: endBlock[1],
                 mode: 'lowest',
@@ -754,6 +781,7 @@ const SlateReact = () => {
               }
 
               if (value) {
+                console.log("block now");
                 Transforms.select(editor, { anchor: { ...editor.selection.anchor }, focus: value });
               }
             }
