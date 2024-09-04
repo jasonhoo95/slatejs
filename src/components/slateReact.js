@@ -1095,9 +1095,9 @@ const SlateReact = () => {
           }}
         />
       </Slate>
-      {check?.anchor?.path[0]}path
+      {/* {check?.anchor?.path[0]}path
       <br />
-      {check?.focus?.path[0]}path
+      {check?.focus?.path[0]}path */}
     </div>
   );
 };
