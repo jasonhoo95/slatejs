@@ -734,7 +734,7 @@ const SlateReact = () => {
                   return Transforms.select(editor, { anchor: { ...anchor }, focus: { ...focus } });
                 }
               }
-            } else if (block && editor.selection.anchor.path[0] !== editor.selection.focus.path[0]) {
+            } else if (block && !endBlock && editor.selection.anchor.path[0] !== editor.selection.focus.path[0]) {
               let value = [];
 
               for (const [parent, path] of Editor.nodes(editor, {
