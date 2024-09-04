@@ -603,22 +603,19 @@ const SlateReact = () => {
       const [startPoint, endPoint] = Range.edges(editor.selection);
       const edges = [startPoint.path, endPoint.path];
       let path1 = [];
-      
+
       Editor.withoutNormalizing(editor, () => {
         if (edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]) {
           deleteFragment(...args);
         } else if (edges[0][0] != edges[1][0]) {
-          Transforms.select(editor,editor.selection);
+          Transforms.select(editor, editor.selection);
           let data = [];
           if (editor.selection.anchor.path[0] > editor.selection.focus.path[0]) {
-            
-
             for (const [parent, path] of Editor.nodes(editor, {
               match: (n) => n.type === 'table-list',
               at: editor.selection,
             })) {
               if (editor.selection.anchor.path[0] > path[0]) {
-                
                 Transforms.removeNodes(editor, { at: path });
               }
             }
@@ -679,7 +676,6 @@ const SlateReact = () => {
           const ua = navigator.userAgent;
 
           if (editor.selection) {
-            setCheck(editor.selection);
             const [block] = Editor.nodes(editor, {
               match: (n) => n.type === 'table-list',
               at: editor.selection.anchor,
@@ -738,35 +734,26 @@ const SlateReact = () => {
                   return Transforms.select(editor, { anchor: { ...anchor }, focus: { ...focus } });
                 }
               }
-            }else if(block && (editor.selection.anchor.path[1] === 0 || editor.selection.anchor.path[1] === block[0].children.length -1) &&  editor.selection.anchor.path[0] != editor.selection.focus.path[0]){
+            } else if (block && editor.selection.anchor.path[0] !== editor.selection.focus.path[0]) {
               let value = [];
 
               for (const [parent, path] of Editor.nodes(editor, {
                 at: block[1],
                 mode: 'lowest',
-                reverse:editor.selection.anchor.path[1] === 0  ,
+                reverse: editor.selection.anchor.path[0] > editor.selection.focus.path[0],
               })) {
-                if(editor.selection.anchor.path[1] === 0){
-                  value.push( { offset: parent.text.length, path: path })
-
-                }else{
-                  value.push( { offset: 0, path: path })
-
+                if (path[1] === block[0].children.length - 1) {
+                  value.push({ offset: parent.text.length, path: path });
+                } else {
+                  value.push({ offset: 0, path: path });
                 }
-                 break;
+                break;
               }
 
-
-              // if (value.length > 0) {
-              //   console.log("block is true",value);
-              //    Transforms.select(editor, { anchor: { ...value[0]}, focus: {...editor.selection.focus} });
-              //    return;
-
-              //   }
-              
-
-            } 
-            else if (endBlock && editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
+              if (value) {
+                return Transforms.select(editor, { focus: { ...editor.selection.focus }, anchor: { ...value[0] } });
+              }
+            } else if (endBlock && editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
               let value;
               for (const [parent, path] of Editor.nodes(editor, {
                 at: endBlock[1],
@@ -781,7 +768,6 @@ const SlateReact = () => {
               }
 
               if (value) {
-                console.log("block now");
                 Transforms.select(editor, { anchor: { ...editor.selection.anchor }, focus: value });
               }
             }
@@ -1110,7 +1096,7 @@ const SlateReact = () => {
         />
       </Slate>
       {check?.anchor?.path[0]}path
-      <br/>
+      <br />
       {check?.focus?.path[0]}path
     </div>
   );
@@ -2037,7 +2023,7 @@ const TableCell1 = ({ attributes, children, element }) => {
   }
 
   return (
-    <td className={checked && selected ? 'bg-sky-200 cell-selected' : ''} {...attributes}>
+    <td className={checked && selected ? 'bg-sky-200' : ''} {...attributes}>
       {children}
     </td>
   );
