@@ -260,6 +260,7 @@ const SlateReact = () => {
       return;
     } else if (tableCell) {
       if (edges[0][0] !== edges[1][0]) {
+        console.log("insert text table cell");
         const tableList = Editor.nodes(editor, {
           match: (n) => n.type === 'table-list',
           mode: 'highest',
@@ -608,21 +609,25 @@ const SlateReact = () => {
         if (edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]) {
           deleteFragment(...args);
         } else if (edges[0][0] != edges[1][0]) {
-          Transforms.select(editor, editor.selection);
+          const tableList = Editor.nodes(editor, {
+            match: (n) => n.type === 'table-list',
+            mode: 'highest',
+            at: editor.selection,
+          });
+  
           let data = [];
-          if (editor.selection.anchor.path[0] > editor.selection.focus.path[0]) {
-            for (const [parent, path] of Editor.nodes(editor, {
-              match: (n) => n.type === 'table-list',
-              at: editor.selection,
-            })) {
-              if (editor.selection.anchor.path[0] > path[0]) {
-                Transforms.removeNodes(editor, { at: path });
-              }
-            }
-            deleteFragment(...args);
-          } else {
-            deleteFragment(...args);
+          for (const tableItem of tableList) {
+            data.push(tableItem[1]);
           }
+  
+          if (data.length > 0) {
+            for (var i = 0; i < data.length; i++) {
+              Transforms.removeNodes(editor, { at: data[i] });
+            }
+          }
+
+          deleteFragment(...args);
+        
         } else {
           for (const [parent, path] of Editor.nodes(editor, {
             match: (n) => n.type === 'table-cell1',
