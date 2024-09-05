@@ -260,7 +260,7 @@ const SlateReact = () => {
       return;
     } else if (tableCell) {
       if (edges[0][0] !== edges[1][0]) {
-        console.log("insert text table cell");
+        
         const tableList = Editor.nodes(editor, {
           match: (n) => n.type === 'table-list',
           mode: 'highest',
