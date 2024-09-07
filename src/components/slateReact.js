@@ -260,7 +260,6 @@ const SlateReact = () => {
       return;
     } else if (tableCell) {
       if (edges[0][0] !== edges[1][0]) {
-        
         const tableList = Editor.nodes(editor, {
           match: (n) => n.type === 'table-list',
           mode: 'highest',
@@ -612,26 +611,19 @@ const SlateReact = () => {
           const tableList = Editor.nodes(editor, {
             match: (n) => n.type === 'table-list',
             at: editor.selection,
-            reverse:true
+            reverse: true,
           });
           let data = [];
           for (const tableItem of tableList) {
-            
-
             data.push(tableItem[1]);
           }
-  
+
           if (data.length > 0) {
             for (var i = 0; i < data.length; i++) {
-              
               Transforms.removeNodes(editor, { at: data[i] });
-            
             }
-             deleteFragment(...args);
-           
+            deleteFragment(...args);
           }
-
-        
         } else {
           for (const [parent, path] of Editor.nodes(editor, {
             match: (n) => n.type === 'table-cell1',
@@ -1730,7 +1722,7 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table className='table-list' {...attributes}>
+      <table className='table-list my-5' {...attributes}>
         <tr>
           {children.map((o, key) => {
             if (0 <= key && key <= 1) {
