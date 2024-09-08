@@ -616,7 +616,6 @@ const SlateReact = () => {
             at: editor.selection.anchor,
           });
 
-          // deleteFragment(...args);
           const tableList = Editor.nodes(editor, {
             match: (n) => n.type === 'table-list',
             at: editor.selection,
@@ -948,7 +947,6 @@ const SlateReact = () => {
         <div
           onClick={(e) => {
             HistoryEditor.undo(editor);
-            ReactEditor.focus(editor);
           }}>
           undo
         </div>
@@ -1029,7 +1027,6 @@ const SlateReact = () => {
             const paragraph = { type: 'paragraph', children: [{ text: '' }] };
 
             Transforms.insertNodes(editor, paragraph, { at: editor.selection.anchor });
-            // Transforms.move(editor, { distance: 1, unit: 'offset' });
             Transforms.insertNodes(editor, block, {
               at: editor.selection.anchor,
             });
