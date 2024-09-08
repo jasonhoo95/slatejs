@@ -608,21 +608,30 @@ const SlateReact = () => {
         if (edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]) {
           deleteFragment(...args);
         } else if (edges[0][0] != edges[1][0]) {
-          const tableList = Editor.nodes(editor, {
-            match: (n) => n.type === 'table-list',
-            at: editor.selection,
-            reverse: true,
+          const [startBlock] = Editor.nodes(editor, {
+            match: (n) => n.type == 'table-list',
+            at: editor.selection.anchor,
           });
-          let data = [];
-          for (const tableItem of tableList) {
-            data.push(tableItem[1]);
-          }
 
-          if (data.length > 0) {
-            for (var i = 0; i < data.length; i++) {
-              Transforms.removeNodes(editor, { at: data[i] });
-            }
+          if (!startBlock && editor.selection.anchor.path[0] < editor.selection.focus.path[0]) {
             deleteFragment(...args);
+          } else {
+            const tableList = Editor.nodes(editor, {
+              match: (n) => n.type === 'table-list',
+              at: editor.selection,
+              reverse: true,
+            });
+            let data = [];
+            for (const tableItem of tableList) {
+              data.push(tableItem[1]);
+            }
+
+            if (data.length > 0) {
+              for (var i = 0; i < data.length; i++) {
+                Transforms.removeNodes(editor, { at: data[i] });
+              }
+              deleteFragment(...args);
+            }
           }
         } else {
           for (const [parent, path] of Editor.nodes(editor, {
@@ -799,7 +808,7 @@ const SlateReact = () => {
               }
 
               if (value) {
-                Transforms.select(editor, { anchor: { ...editor.selection.anchor }, focus: value });
+                return Transforms.select(editor, { anchor: { ...editor.selection.anchor }, focus: value });
               }
             }
           }
@@ -1752,7 +1761,7 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table className='table-list my-5' {...attributes}>
+      <table className='my-5' {...attributes}>
         <tr>
           {children.map((o, key) => {
             if (0 <= key && key <= 1) {
