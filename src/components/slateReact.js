@@ -537,7 +537,7 @@ const SlateReact = () => {
       //     reverse: true,
       //   });
       // }
-    } else if (previousParent && previousParent[0].type === 'table-list') {
+    } else if (previousParent && previousParent[0].type === 'table-list' && editor.selection.anchor.offset === 0) {
       Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
     } else if (
       previousParent &&
@@ -1021,14 +1021,15 @@ const SlateReact = () => {
               ],
             };
 
-            const paragraph = { type: 'paragraph', children: [{ text: '' }] };
+            const paragraph = { type: 'paragraph', children: [{ text: '\u200B'.toString() }] };
 
             Transforms.insertNodes(editor, paragraph, { at: editor.selection.anchor });
+            Transforms.move(editor, { distance: 1, unit: 'offset' });
             Transforms.insertNodes(editor, block, {
-              at: editor.selection.anchor.path,
+              at: editor.selection.anchor,
             });
-            Transforms.unwrapNodes(editor, { mode: 'highest' });
-            Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
+            // Transforms.unwrapNodes(editor, { mode: 'highest' });
+            // Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
           }}>
           insert table now
         </div>
