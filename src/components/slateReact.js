@@ -431,6 +431,7 @@ const SlateReact = () => {
 
       previousParent = Editor.previous(editor, {
         at: listItems[1],
+        mode: 'highest',
       });
       previousVoid = Editor.previous(editor, {
         at: listItems[1],
@@ -441,7 +442,7 @@ const SlateReact = () => {
         at: listItems[1],
       });
     }
-
+    console.log(previousParent, 'previous parent');
     if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -536,6 +537,8 @@ const SlateReact = () => {
       //     reverse: true,
       //   });
       // }
+    } else if (previousParent && previousParent[0].type === 'table-list') {
+      Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
     } else if (
       previousParent &&
       ['editable-void', 'ImageWrapper', 'input-component'].includes(previousParent[0].type) &&
@@ -1018,6 +1021,9 @@ const SlateReact = () => {
               ],
             };
 
+            const paragraph = { type: 'paragraph', children: [{ text: '' }] };
+
+            Transforms.insertNodes(editor, paragraph, { at: editor.selection.anchor });
             Transforms.insertNodes(editor, block, {
               at: editor.selection.anchor.path,
             });
