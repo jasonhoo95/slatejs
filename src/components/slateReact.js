@@ -950,6 +950,13 @@ const SlateReact = () => {
 
         <div
           onClick={(e) => {
+            HistoryEditor.undo(editor);
+          }}>
+          undo
+        </div>
+
+        <div
+          onClick={(e) => {
             ReactEditor.focus(editor);
             // Transforms.insertText(editor, "\u200B".toString(), {
             // 	at: editor.selection.anchor,
@@ -1021,10 +1028,10 @@ const SlateReact = () => {
               ],
             };
 
-            const paragraph = { type: 'paragraph', children: [{ text: '\u200B'.toString() }] };
+            const paragraph = { type: 'paragraph', children: [{ text: '' }] };
 
             Transforms.insertNodes(editor, paragraph, { at: editor.selection.anchor });
-            Transforms.move(editor, { distance: 1, unit: 'offset' });
+            // Transforms.move(editor, { distance: 1, unit: 'offset' });
             Transforms.insertNodes(editor, block, {
               at: editor.selection.anchor,
             });
