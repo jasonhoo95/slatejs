@@ -735,7 +735,7 @@ const SlateReact = () => {
                   return Transforms.select(editor, { anchor: { ...anchor }, focus: { ...focus } });
                 }
               }
-            } else if (block && !endBlock && editor.selection.anchor.path[0] !== editor.selection.focus.path[0]) {
+            } else if ((block || endBlock) && block && editor.selection.anchor.path[0] === block[1][0] && editor.selection.anchor.path[0] !== editor.selection.focus.path[0]) {
               let value = [];
 
               for (const [parent, path] of Editor.nodes(editor, {
@@ -743,16 +743,45 @@ const SlateReact = () => {
                 mode: 'lowest',
                 reverse: editor.selection.anchor.path[0] > editor.selection.focus.path[0],
               })) {
-                if (path[1] === block[0].children.length - 1) {
-                  value.push({ offset: parent.text.length, path: path });
-                } else {
+                if (path[1] === 0 && editor.selection.anchor.path[0] < editor.selection.focus.path[0]) {
                   value.push({ offset: 0, path: path });
+                } else if (editor.selection.anchor.path[0] > editor.selection.focus.path[0]) {
+                  value.push({ offset: parent.text.length, path: path });
+                  if (path[1] === 0) {
+                    value.push({ offset: 0, path: path });
+                    break;
+                  }
                 }
                 break;
               }
+              const [focusTable] = Editor.nodes(editor, {
+                at: editor.selection.focus,
+                mode: 'highest',
+                match: (n) => n.type === 'table-list',
+              });
+
+              if (focusTable) {
+                for (const [parent, path] of Editor.nodes(editor, {
+                  at: focusTable[1],
+                  mode: 'lowest',
+                  reverse: editor.selection.anchor.path[0] > editor.selection.focus.path[0],
+                })) {
+                  if (editor.selection.anchor.path[0] < editor.selection.focus.path[0] && path[1] === focusTable[0].children.length - 1) {
+                    value.push({ offset: parent.text.length, path: path });
+                  } else if (editor.selection.anchor.path[0] > editor.selection.focus.path[0]) {
+                    if (path[1] === 0) {
+                      value.push({ offset: 0, path: path });
+                    }
+                  }
+                }
+              }
 
               if (value) {
-                return Transforms.select(editor, { focus: { ...editor.selection.focus }, anchor: { ...value[0] } });
+                if (block && !endBlock) {
+                  return Transforms.select(editor, { focus: { ...editor.selection.focus }, anchor: { ...value[0] } });
+                } else {
+                  return Transforms.select(editor, { focus: { ...value[value.length - 1] }, anchor: { ...value[0] } });
+                }
               }
             } else if (endBlock && editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
               let value;
