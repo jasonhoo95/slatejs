@@ -616,25 +616,22 @@ const SlateReact = () => {
             at: editor.selection.anchor,
           });
 
-          if (!startBlock && editor.selection.anchor.path[0] < editor.selection.focus.path[0]) {
-            deleteFragment(...args);
-          } else {
-            const tableList = Editor.nodes(editor, {
-              match: (n) => n.type === 'table-list',
-              at: editor.selection,
-              reverse: true,
-            });
-            let data = [];
-            for (const tableItem of tableList) {
-              data.push(tableItem[1]);
-            }
+          // deleteFragment(...args);
+          const tableList = Editor.nodes(editor, {
+            match: (n) => n.type === 'table-list',
+            at: editor.selection,
+            reverse: true,
+          });
+          let data = [];
+          for (const tableItem of tableList) {
+            data.push(tableItem[1]);
+          }
 
-            if (data.length > 0) {
-              for (var i = 0; i < data.length; i++) {
-                Transforms.removeNodes(editor, { at: data[i] });
-              }
-              deleteFragment(...args);
+          if (data.length > 0) {
+            for (var i = 0; i < data.length; i++) {
+              Transforms.removeNodes(editor, { at: data[i] });
             }
+            deleteFragment(...args);
           }
         } else {
           for (const [parent, path] of Editor.nodes(editor, {
