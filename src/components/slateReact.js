@@ -1761,7 +1761,7 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table className='my-5' {...attributes}>
+      <table className='table-list my-5' {...attributes}>
         <tr>
           {children.map((o, key) => {
             if (0 <= key && key <= 1) {
