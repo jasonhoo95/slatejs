@@ -785,6 +785,7 @@ const SlateReact = () => {
               }
             } else if (endBlock && editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
               let value;
+
               for (const [parent, path] of Editor.nodes(editor, {
                 at: endBlock[1],
                 mode: 'lowest',
@@ -2044,9 +2045,7 @@ const TableCell1 = ({ attributes, children, element }) => {
   const path = ReactEditor.findPath(editor, element);
   const edges = Editor.edges(editor, path);
   let checked = false;
-  if (_.isEqual(edges[0], editor.selection.anchor) && _.isEqual(edges[1], editor.selection.focus) && editor.selection.anchor.offset != 0 && editor.selection.focus.offset != 0) {
-    checked = true;
-  } else if (editor.selection.anchor.path[1] != editor.selection.focus.path[1] || editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
+  if (editor.selection.anchor.path[1] != editor.selection.focus.path[1] || editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
     checked = true;
   } else {
     checked = false;
