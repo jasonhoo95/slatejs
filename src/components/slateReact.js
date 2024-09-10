@@ -1025,12 +1025,15 @@ const SlateReact = () => {
             };
 
             const paragraph = { type: 'paragraph', children: [{ text: '' }] };
-
-            Transforms.insertNodes(editor, paragraph, { at: editor.selection.anchor });
+            Transforms.insertNodes(editor, paragraph, {
+              at: editor.selection.anchor,
+            });
             Transforms.insertNodes(editor, block, {
               at: editor.selection.anchor,
             });
-            // Transforms.unwrapNodes(editor, { mode: 'highest' });
+            Transforms.move(editor, { distance: 1, unit: 'offset' });
+            Transforms.unwrapNodes(editor, { mode: 'highest', split: true, match: (n) => n.type === 'numbered-list' });
+
             // Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
           }}>
           insert table now
