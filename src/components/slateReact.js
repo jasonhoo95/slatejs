@@ -685,6 +685,7 @@ const SlateReact = () => {
           const ua = navigator.userAgent;
 
           if (editor.selection) {
+            console.log(editor.selection, 'editor selection');
             const [block] = Editor.nodes(editor, {
               match: (n) => n.type === 'table-list',
               at: editor.selection.anchor,
@@ -694,6 +695,13 @@ const SlateReact = () => {
               match: (n) => n.type === 'table-list',
               at: editor.selection.focus,
             });
+
+            const previousBlock = Editor.previous(editor, {
+              match: (n) => n.type === 'table-list',
+              at: editor.selection.focus,
+            });
+
+            console.log(previousBlock, 'previous block');
 
             const parent = Editor.parent(editor, editor.selection.anchor.path);
 
@@ -743,72 +751,27 @@ const SlateReact = () => {
                   return Transforms.select(editor, { anchor: { ...anchor }, focus: { ...focus } });
                 }
               }
-            } else if ((block || endBlock) && block && editor.selection.anchor.path[0] === block[1][0] && editor.selection.anchor.path[0] !== editor.selection.focus.path[0]) {
-              let value = [];
+            } else if (endBlock || previousBlock) {
+              console.log('edn block');
+              Transforms.select(editor, editor.selection.anchor);
 
-              for (const [parent, path] of Editor.nodes(editor, {
-                at: block[1],
-                mode: 'lowest',
-                reverse: editor.selection.anchor.path[0] > editor.selection.focus.path[0],
-              })) {
-                if (path[1] === 0 && editor.selection.anchor.path[0] < editor.selection.focus.path[0]) {
-                  value.push({ offset: 0, path: path });
-                } else if (editor.selection.anchor.path[0] > editor.selection.focus.path[0]) {
-                  value.push({ offset: parent.text.length, path: path });
-                  if (path[1] === 0) {
-                    value.push({ offset: 0, path: path });
-                    break;
-                  }
-                }
-                break;
-              }
-              const [focusTable] = Editor.nodes(editor, {
-                at: editor.selection.focus,
-                mode: 'highest',
-                match: (n) => n.type === 'table-list',
-              });
+              // let value;
 
-              if (focusTable) {
-                for (const [parent, path] of Editor.nodes(editor, {
-                  at: focusTable[1],
-                  mode: 'lowest',
-                  reverse: editor.selection.anchor.path[0] > editor.selection.focus.path[0],
-                })) {
-                  if (editor.selection.anchor.path[0] < editor.selection.focus.path[0] && path[1] === focusTable[0].children.length - 1) {
-                    value.push({ offset: parent.text.length, path: path });
-                  } else if (editor.selection.anchor.path[0] > editor.selection.focus.path[0]) {
-                    if (path[1] === 0) {
-                      value.push({ offset: 0, path: path });
-                    }
-                  }
-                }
-              }
+              // for (const [parent, path] of Editor.nodes(editor, {
+              //   at: endBlock[1],
+              //   mode: 'lowest',
+              //   reverse: editor.selection.anchor.path[0] > editor.selection.focus.path[0],
+              // })) {
+              //   if (editor.selection.anchor.path[0] < editor.selection.focus.path[0] && endBlock[0].children.length - 1 === path[1]) {
+              //     value = { offset: parent.text.length, path: path };
+              //   } else if (editor.selection.anchor.path[0] > editor.selection.focus.path[0] && path[1] === 0) {
+              //     value = { offset: parent.text.length, path: path };
+              //   }
+              // }
 
-              if (value) {
-                if (block && !endBlock) {
-                  return Transforms.select(editor, { focus: { ...editor.selection.focus }, anchor: { ...value[0] } });
-                } else {
-                  return Transforms.select(editor, { focus: { ...value[value.length - 1] }, anchor: { ...value[0] } });
-                }
-              }
-            } else if (endBlock && editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
-              let value;
-
-              for (const [parent, path] of Editor.nodes(editor, {
-                at: endBlock[1],
-                mode: 'lowest',
-                reverse: editor.selection.anchor.path[0] > editor.selection.focus.path[0],
-              })) {
-                if (editor.selection.anchor.path[0] < editor.selection.focus.path[0] && endBlock[0].children.length - 1 === path[1]) {
-                  value = { offset: parent.text.length, path: path };
-                } else if (editor.selection.anchor.path[0] > editor.selection.focus.path[0] && path[1] === 0) {
-                  value = { offset: parent.text.length, path: path };
-                }
-              }
-
-              if (value) {
-                return Transforms.select(editor, { anchor: { ...editor.selection.anchor }, focus: value });
-              }
+              // if (value) {
+              //   return Transforms.select(editor, { anchor: { ...editor.selection.anchor }, focus: value });
+              // }
             }
           }
         }}
@@ -1025,9 +988,9 @@ const SlateReact = () => {
             };
 
             const paragraph = { type: 'paragraph', children: [{ text: '' }] };
-            Transforms.insertNodes(editor, paragraph, {
-              at: editor.selection.anchor,
-            });
+            // Transforms.insertNodes(editor, paragraph, {
+            //   at: editor.selection.anchor,
+            // });
             Transforms.insertNodes(editor, block, {
               at: editor.selection.anchor,
             });
@@ -1773,7 +1736,7 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table className='table-list my-5' {...attributes}>
+      <table className='table-list my-5 relative' {...attributes}>
         <tr>
           {children.map((o, key) => {
             if (0 <= key && key <= 1) {
