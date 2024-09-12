@@ -972,43 +972,10 @@ const SlateReact = () => {
 
             const block = {
               type: 'table-list',
-              insert: true,
               checked: true,
-              children: [
-                // { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
-                {
-                  type: 'table-cell1',
-                  id: 1,
-                  selected: true,
-                  children: [
-                    { type: 'paragraph', children: [{ text: 'asdasda' }] },
-                    { type: 'paragraph', children: [{ text: 'okman' }] },
-                  ],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 2,
-                  selected: false,
-                  children: [
-                    { type: 'paragraph', children: [{ text: 'asdasda' }] },
-                    { type: 'paragraph', children: [{ text: 'okman' }] },
-                  ],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 3,
-                  selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 4,
-                  selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
-                },
-              ],
+              card: [{ table: 'asd' },{ table: 'okman' },{ table: 'oklah' },{ table: 'oklah' }],
+              children: [{ text: '' }],
             };
-
 
             Transforms.insertNodes(editor, block, {
               at: editor.selection.anchor.path,
@@ -1751,14 +1718,33 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table contentEditable="false" className='table-list' {...attributes}>
-       
-        <tr >
-       
-             {children}
+      <table contentEditable='false' style={{background:selected ? 'blue': ''}} className='table-list relative' {...attributes}>
+        {children}
+        <tr>
+          {element.card.map((o, key) => {
+            if (key >= 0 && key <= 1) {
+              return (
+                <td>
+                  <SlateMobile />
+                </td>
+              );
+            }
+          })}
+        </tr>
 
-             </tr>
-      </table>
+        <tr>
+          {element.card.map((o, key) => {
+            if (key >= 2 && key <= 3) {
+              return (
+                <td>
+                  <SlateMobile />
+                </td>
+              );
+            }
+          })}
+        </tr>
+        {children}
+        </table>
     </>
   );
 };
