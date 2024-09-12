@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react'
 import isUrl from 'is-url';
 
 import isHotkey from 'is-hotkey';
-
+import { useSelector, useDispatch } from "react-redux";
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
 import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from 'slate-react';
@@ -27,6 +27,8 @@ import _, { keyBy } from 'lodash';
 import next from 'next';
 import SlateReact from './slateReact';
 import { Transform } from 'stream';
+import {setSlateCheck } from '@/globals/counterSlice'
+
 const HOTKEYS = {
   'mod+b': 'bold',
   'mod+i': 'italic',
@@ -95,9 +97,11 @@ function getCaretCoordinates() {
   }
   // return { x, y };
 }
-const SlateMobile = () => {
+const SlateMobile = ({keyID}) => {
   let id = v4();
   let updateAmount = useModalStore((state) => state.updateModal);
+  const slateObject = useSelector((state) => state.counter.slateObject)
+  const dispatch = useDispatch()
 
   const [focus, setFocus] = useState(true);
   const ModalProps = useModalStore((state) => state.amount);
@@ -110,7 +114,6 @@ const SlateMobile = () => {
 
   const { insertBreak } = editor;
   const savedSelection = React.useRef(editor.selection);
-
   useEffect(() => {
     window.addEventListener('message', function (event) {
       if (event.data == 'bold') {
@@ -132,6 +135,15 @@ const SlateMobile = () => {
       }
     });
   }, [editor]);
+
+  useEffect(()=>{
+    if(slateObject && slateObject.type === 'arrowLeft' && keyID === slateObject.id -1){
+     ReactEditor.focus(editor)
+    }else{
+      ReactEditor.blur(editor);
+    }
+  
+  },[slateObject])
 
   editor.insertBreak = () => {
     const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -409,8 +421,8 @@ const SlateMobile = () => {
       <Slate
         editor={editor}
         onChange={(e) => {
+           
           const string = Node.leaf(editor, editor.selection.anchor.path);
-
           if (string.text.startsWith('1. ')) {
             toggleBlock(editor, 'numbered-list', 'number');
             Transforms.delete(editor, {
@@ -436,7 +448,7 @@ const SlateMobile = () => {
           onFocus={onFocus}
           onBlur={onBlur}
           autoFocus={false}
-          className='editable-slate'
+          className='mobile-slate'
           id={id}
           renderLeaf={renderLeaf}
           onKeyDown={(event) => {
@@ -465,8 +477,9 @@ const SlateMobile = () => {
               // const block = { type: "inline-bug", children: [] };
               // Transforms.wrapNodes(editor, block);
               Transforms.move(editor, { unit: 'offset', distance: 1 });
-            } else if (event.key == 'ArrowLeft') {
-              leftCheck = true;
+            } else if (event.key == 'ArrowLeft' && editor.selection.anchor.offset === 0) {
+              dispatch(setSlateCheck({id:keyID,type:'arrowLeft'}))
+
             } else if (event.key == 'ArrowRight') {
               rightCheck = true;
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {

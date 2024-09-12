@@ -19,6 +19,12 @@
     background-color: rgb(186 230 253 / var(--tw-bg-opacity));
   }
 
+
+  .mobile-slate{
+	background-color: transparent;
+	padding:10px;
+  }
+
 #editor {
 	padding: 5px 20px;
 }

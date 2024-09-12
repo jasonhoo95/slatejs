@@ -1069,6 +1069,9 @@ const SlateReact = () => {
             const parentCheck = Editor.above(editor, {
               match: (n) => n.type == 'list-item' || n.type == 'paragraph',
             });
+            const previousParent = Editor.previous(editor, {
+              match: (n) => n.type == 'table-list',
+            });
             const stringText = Editor.string(editor, editor.selection.anchor.path);
 
             let pattern = /^\d+\./; // \d+ matches one or more digits, followed by a literal period
@@ -1084,7 +1087,11 @@ const SlateReact = () => {
             } else if (event.metaKey && event.shiftKey && event.key === 'z') {
               event.preventDefault();
               HistoryEditor.redo(editor);
-            }else if ((event.key == 'Enter') && listItems && ["editable-void", "ImageWrapper"].includes(listItems[0].type)) {
+            } else if (event.key === 'ArrowUp' && previousParent){
+              Transforms.move(editor,{distance:1,unit:'offset',reverse:true})
+
+            }
+            else if ((event.key == 'Enter') && listItems && ["editable-void", "ImageWrapper"].includes(listItems[0].type)) {
               event.preventDefault();
               Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
 
@@ -1718,14 +1725,16 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table contentEditable='false' style={{background:selected ? 'blue': ''}} className='table-list relative' {...attributes}>
+      <table contentEditable='false' style={{ background: selected ? 'blue' : '' }} className='table-list relative' {...attributes}>
         {children}
         <tr>
           {element.card.map((o, key) => {
             if (key >= 0 && key <= 1) {
               return (
                 <td>
-                  <SlateMobile />
+                  {children}
+
+                  <SlateMobile keyID={key} />
                 </td>
               );
             }
@@ -1737,14 +1746,15 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 2 && key <= 3) {
               return (
                 <td>
-                  <SlateMobile />
+                  {children}
+                  <SlateMobile keyID={key} />
                 </td>
               );
             }
           })}
         </tr>
         {children}
-        </table>
+      </table>
     </>
   );
 };
