@@ -972,10 +972,43 @@ const SlateReact = () => {
 
             const block = {
               type: 'table-list',
+              insert: true,
               checked: true,
-              card: [{ table: 'asd' },{ table: 'okman' },{ table: 'oklah' }],
-              children: [{ text: '' }],
+              children: [
+                // { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
+                {
+                  type: 'table-cell1',
+                  id: 1,
+                  selected: true,
+                  children: [
+                    { type: 'paragraph', children: [{ text: 'asdasda' }] },
+                    { type: 'paragraph', children: [{ text: 'okman' }] },
+                  ],
+                },
+                {
+                  type: 'table-cell1',
+                  id: 2,
+                  selected: false,
+                  children: [
+                    { type: 'paragraph', children: [{ text: 'asdasda' }] },
+                    { type: 'paragraph', children: [{ text: 'okman' }] },
+                  ],
+                },
+                {
+                  type: 'table-cell1',
+                  id: 3,
+                  selected: false,
+                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
+                },
+                {
+                  type: 'table-cell1',
+                  id: 4,
+                  selected: false,
+                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
+                },
+              ],
             };
+
 
             Transforms.insertNodes(editor, block, {
               at: editor.selection.anchor.path,
@@ -1721,12 +1754,10 @@ const TableList = ({ attributes, children, element }) => {
       <table contentEditable="false" className='table-list' {...attributes}>
        
         <tr >
-        {element.card.map(()=>{
-          return <SlateMobile/>
-        })}
-             
-             </tr>
+       
              {children}
+
+             </tr>
       </table>
     </>
   );
