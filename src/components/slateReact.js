@@ -653,7 +653,7 @@ const SlateReact = () => {
             );
           }
 
-          Transforms.select(editor, [editor.selection.focus.path[0], editor.selection.focus.path[1], 0]);
+          Transforms.select(editor, editor.selection.focus);
         }
       });
     } else {
