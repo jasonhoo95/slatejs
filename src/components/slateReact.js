@@ -163,7 +163,7 @@ const SlateReact = () => {
 
       const scheduleFlush = pendingDiffs?.some(({ diff, path }) => {
         const block = Editor.above(editor, {
-          match: (n) =>  Editor.isVoid(editor,n),
+          match: (n) => Editor.isVoid(editor, n),
         });
         const table = Editor.nodes(editor, {
           match: (n) => n.type === 'table-cell1',
@@ -171,25 +171,21 @@ const SlateReact = () => {
         const ua = navigator.userAgent;
         const [startPoint, endPoint] = Range.edges(editor.selection);
         const edges = [startPoint.path, endPoint.path];
-  
-        if(block){
+
+        if (block) {
           return true;
         }
 
-
-         if(table && (edges[0][1] != edges[1][1] || edges[0][0] != edges[1][0])){
+        if (table && (edges[0][1] != edges[1][1] || edges[0][0] != edges[1][0])) {
           // ReactEditor.blur(editor);
           return false;
         }
 
-     
-      
         if (!diff.text.endsWith(' ')) {
           return false;
         }
-        
+
         const { text } = SlateNode.leaf(editor, path);
-     
 
         const blockEntry = Editor.above(editor, {
           at: path,
@@ -243,52 +239,48 @@ const SlateReact = () => {
   editor.insertText = (text) => {
     const { selection } = editor;
     const block = Editor.above(editor, {
-      match: (n) => Editor.isVoid(editor,n),
+      match: (n) => Editor.isVoid(editor, n),
     });
 
-    const tableBlock = Editor.above(editor,{
-      at:editor.selection.anchor.path,
-      match: (n) => n.type === 'table-list'
-    })
+    const tableBlock = Editor.above(editor, {
+      at: editor.selection.anchor.path,
+      match: (n) => n.type === 'table-list',
+    });
 
     const [tableCell] = Editor.nodes(editor, {
       match: (n) => n.type === 'table-list',
-      at:editor.selection
+      at: editor.selection,
     });
     const ua = navigator.userAgent;
     const [startPoint, endPoint] = Range.edges(editor.selection);
     const edges = [startPoint.path, endPoint.path];
 
-    if(block){
-       Transforms.move(editor, {distance:1,unit:'offset',reverse:false})
-        return;
-      
-    }else if(tableCell){
-      if(edges[0][0] !== edges[1][0]){
-
-            const tableList = Editor.nodes(editor, {
+    if (block) {
+      Transforms.move(editor, { distance: 1, unit: 'offset', reverse: false });
+      return;
+    } else if (tableCell) {
+      if (edges[0][0] !== edges[1][0]) {
+        const tableList = Editor.nodes(editor, {
           match: (n) => n.type === 'table-list',
-          mode:'highest',
-          at:editor.selection
+          mode: 'highest',
+          at: editor.selection,
         });
 
         let data = [];
-        for(const tableItem of tableList){
-           data.push(tableItem[1])
+        for (const tableItem of tableList) {
+          data.push(tableItem[1]);
         }
-        
-        if(data.length > 0){
-          for(var i =0; i< data.length; i++){
+
+        if (data.length > 0) {
+          for (var i = 0; i < data.length; i++) {
             Transforms.removeNodes(editor, { at: data[i] });
           }
-
         }
 
         insertText(text);
 
         return;
-      }else{
-        
+      } else {
       }
       // Transforms.deselect(editor);
       // if (edges[0][0] !== edges[1][0]) {
@@ -312,15 +304,11 @@ const SlateReact = () => {
 
       // } else if (edges[0][1] === edges[1][1] && edges[0][0] === edges[1][0]) {
       // } else {
-        
+
       //   Transforms.select(editor, editor.selection);
       //   return;
       // }
-  
-
-
-    }else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
-
+    } else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const block = Editor.above(editor, {
         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -333,8 +321,6 @@ const SlateReact = () => {
       let pattern = /\u200B1./;
 
       if (pattern.test(beforeText) || type) {
-        
-
         Transforms.select(editor, range);
 
         if (!Range.isCollapsed(range)) {
@@ -352,16 +338,13 @@ const SlateReact = () => {
             match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
           });
 
-          toggleBlock(editor, 'numbered-list', 'number');
-        
+        toggleBlock(editor, 'numbered-list', 'number');
 
         return;
-      } 
+      }
     }
-    
-      insertText(text);
 
-    
+    insertText(text);
 
     // Transforms.insertText(editor, text);
   };
@@ -412,7 +395,6 @@ const SlateReact = () => {
 
     //   Transforms.move(editor, { distance: 1, unit: 'offset' });
     // }
-    
     else {
       insertBreak();
       const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
@@ -526,26 +508,21 @@ const SlateReact = () => {
 
       const parent = Editor.parent(editor, editor.selection.anchor.path);
       const [cell] = Editor.nodes(editor, {
-        match: n =>
-          !Editor.isEditor(n) &&
-          SlateElement.isElement(n) &&
-          n.type === 'table-cell1',
-      })
+        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'table-cell1',
+      });
 
       if (cell) {
-        const [, cellPath] = cell
-        const start = Editor.start(editor, cellPath)
+        const [, cellPath] = cell;
+        const start = Editor.start(editor, cellPath);
 
         if (Point.equals(editor.selection.anchor, start)) {
           if (/android/i.test(ua)) {
-            Transforms.move(editor,{reverse:true,unit:'offset',distance:1})
-
-          }else{
-            return
+            Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
+          } else {
+            return;
           }
-        }else{
+        } else {
           Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
-
         }
       }
       // if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
@@ -570,11 +547,10 @@ const SlateReact = () => {
       Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
       // Transforms.select(editor, previousVoid[1]);
     }
-    
+
     // else if(listItemParent && ['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)){
     //   Transforms.removeNodes(editor,{at:listItemParent[1]})
     // }
-    
     else {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -589,9 +565,6 @@ const SlateReact = () => {
     }
   };
 
-
-
-
   editor.deleteFragment = (...args) => {
     const [listItems] = Editor.nodes(editor, {
       match: (n) => n.type === 'list-item' || n.type == 'check-list-item' || n.type == 'paragraph' || n.type == 'dropdown-content',
@@ -599,11 +572,10 @@ const SlateReact = () => {
     const string = Node.leaf(editor, editor.selection.anchor.path);
 
     const [tableCellList] = Editor.nodes(editor, {
-      match: (n) =>  n.type == 'table-list',
+      match: (n) => n.type == 'table-list',
     });
-    
-    const checked = listItems;
 
+    const checked = listItems;
 
     const [checkListItem] = Editor.nodes(editor, {
       at: listItems[1],
@@ -627,93 +599,9 @@ const SlateReact = () => {
           at: checked[1],
         },
       );
-    } else if (tableCellList && tableCellList[0].type === 'table-list') {
-      const [startPoint, endPoint] = Range.edges(editor.selection);
-      const edges = [startPoint.path, endPoint.path];
-      let path1 = []
-      
-
-      Editor.withoutNormalizing(editor, () => {
-        if(edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]){
-         
-
-          deleteFragment(...args)
-       
-
-        }else if(edges[0][0] != edges[1][0]){
-          let data = [];
-          
-          for (const [parent, path] of Editor.nodes(editor, {
-            mode:'highest',
-            match:(n) =>  !Editor.isEditor(n) && SlateElement.isElement(n),
-            at: editor.selection,
-
-          })) {
-            
-            if (editor.selection.anchor.path[0] === path[0]) {
-              Transforms.delete(editor, {
-                anchor: { offset: editor.selection.anchor.offset, path: [...editor.selection.anchor.path,0] },
-                focus: { offset: parent.children[0].text.length, path: [...path, 0] },
-              });
-              return;
-
-            } else {
-              console.log(path, parent, 'paragraph path');
-
-              // Transforms.insertNodes(
-              //   editor,
-              //   {
-              //     type: 'paragraph',
-              //     children: [{ text: "" }],
-              //   },
-              //   { at: [...path,0] }
-              // );
-            }
-          
-
-            // Transforms.removeNodes(editor,{at:path})
-       
-
-
-          }
-        }
-        else{
-          
-          
-          for (const [parent, path] of Editor.nodes(editor, {
-            match: (n)=> n.type === 'table-cell1',
-            at: editor.selection,
-
-          })) {
-            for (const [value, childPath] of Node.children(editor, path, {
-              reverse: true,
-            })) {
-              Transforms.removeNodes(editor, { at: childPath });
-            }
-
-            Transforms.insertNodes(
-              editor,
-              {
-                type: 'paragraph',
-                children: [{ text: '' }],
-              },
-              { at: [...path, 0] },
-            );
-
-       
-  
-        }
-
-        Transforms.select(editor,[editor.selection.focus.path[0], editor.selection.focus.path[1], 0])
-      
-      }})
-        
     } else {
       deleteFragment(...args);
     }
-
-
-
   };
   const onFocus = useCallback((e) => {
     setFocus(true);
@@ -738,17 +626,14 @@ const SlateReact = () => {
         editor={editor}
         onChange={(value) => {
           const ua = navigator.userAgent;
-        
-        
+
           if (editor.selection) {
             const [block] = Editor.nodes(editor, {
               match: (n) => n.type === 'table-list',
-              at:editor.selection.anchor
+              at: editor.selection.anchor,
             });
-        
-   
+
             const parent = Editor.parent(editor, editor.selection.anchor.path);
-            
 
             let markActive = isMarkActive(editor, 'bold');
             let pattern = /^\d+\. /; // \d+ matches one or more digits, followed by a literal period
@@ -757,52 +642,47 @@ const SlateReact = () => {
               Transforms.removeNodes(editor, {
                 at: parent[1],
               });
-            }else if(block){
+            } else if (block) {
               if (editor.selection.anchor.path[1] !== editor.selection.focus.path[1]) {
-                      
-                      let valuePath = [];
+                let valuePath = [];
 
-                      for (const [parent, path] of Editor.nodes(editor, {
-                        match: (n) => n.type === 'table-cell1',
-                        at: editor.selection,
-                        reverse: editor.selection.anchor.path[1] > editor.selection.focus.path[1],
-                      })) {
-                        for (const [parent, childPath] of Editor.nodes(editor, {
-                          mode: 'lowest',
-                          at: path,
-                          reverse: editor.selection.anchor.path[1] > editor.selection.focus.path[1],
-                        })) {
-                          if (valuePath.length === 0) {
-                            if (editor.selection.anchor.path[1] > editor.selection.focus.path[1]) {
-                              valuePath.push({ path: childPath, offset: parent.text.length });
-                            } else {
-                              valuePath.push({ path: childPath, offset: 0 });
-                            }
-                          } else {
-                            if (editor.selection.anchor.path[1] > editor.selection.focus.path[1] && path[1] === editor.selection.focus.path[1]) {
-                              
-                              valuePath.push({ path: childPath, offset: 0 });
-                            } else {
-                              valuePath.push({ path: childPath, offset: parent.text.length });
-                            }
-                          }
-                        }
+                for (const [parent, path] of Editor.nodes(editor, {
+                  match: (n) => n.type === 'table-cell1',
+                  at: editor.selection,
+                  reverse: editor.selection.anchor.path[1] > editor.selection.focus.path[1],
+                })) {
+                  for (const [parent, childPath] of Editor.nodes(editor, {
+                    mode: 'lowest',
+                    at: path,
+                    reverse: editor.selection.anchor.path[1] > editor.selection.focus.path[1],
+                  })) {
+                    if (valuePath.length === 0) {
+                      if (editor.selection.anchor.path[1] > editor.selection.focus.path[1]) {
+                        valuePath.push({ path: childPath, offset: parent.text.length });
+                      } else {
+                        valuePath.push({ path: childPath, offset: 0 });
                       }
-
-                      if (valuePath.length > 0) {
-                        
-                       
-                        const anchor = { ...valuePath[0] }; // Starting point (first node, first character)
-                        const focus = { ...valuePath[valuePath.length - 1] };
-                        const range = { ...anchor, ...focus };
-
-                        // Transforms.deselect(editor);
-                        return Transforms.select(editor, { anchor: { ...anchor }, focus: { ...focus } });
+                    } else {
+                      if (editor.selection.anchor.path[1] > editor.selection.focus.path[1] && path[1] === editor.selection.focus.path[1]) {
+                        valuePath.push({ path: childPath, offset: 0 });
+                      } else {
+                        valuePath.push({ path: childPath, offset: parent.text.length });
                       }
+                    }
+                  }
+                }
 
+                if (valuePath.length > 0) {
+                  const anchor = { ...valuePath[0] }; // Starting point (first node, first character)
+                  const focus = { ...valuePath[valuePath.length - 1] };
+                  const range = { ...anchor, ...focus };
+
+                  // Transforms.deselect(editor);
+                  return Transforms.select(editor, { anchor: { ...anchor }, focus: { ...focus } });
+                }
+              }
             }
           }
-          } 
         }}
         initialValue={initialValue}>
         <div
@@ -969,11 +849,13 @@ const SlateReact = () => {
           onClick={(e) => {
             ReactEditor.focus(editor);
             const ua = navigator.userAgent;
+            let id = v4();
 
             const block = {
               type: 'table-list',
               checked: true,
-              card: [{ table: 'asd' },{ table: 'okman' },{ table: 'oklah' },{ table: 'oklah' }],
+              id: id,
+              card: [{ table: 'asd' }, { table: 'okman' }, { table: 'oklah' }, { table: 'oklah' }],
               children: [{ text: '' }],
             };
 
@@ -1087,11 +969,9 @@ const SlateReact = () => {
             } else if (event.metaKey && event.shiftKey && event.key === 'z') {
               event.preventDefault();
               HistoryEditor.redo(editor);
-            } else if (event.key === 'ArrowUp' && previousParent){
-              Transforms.move(editor,{distance:1,unit:'offset',reverse:true})
-
-            }
-            else if ((event.key == 'Enter') && listItems && ["editable-void", "ImageWrapper"].includes(listItems[0].type)) {
+            } else if (event.key === 'ArrowUp' && previousParent) {
+              Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true });
+            } else if (event.key == 'Enter' && listItems && ['editable-void', 'ImageWrapper'].includes(listItems[0].type)) {
               event.preventDefault();
               Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: listItems[1] });
 
@@ -1224,7 +1104,8 @@ const withInlines = (editor) => {
 
   editor.isInline = (element) => ['button', 'link', 'katex', 'inline-bug', 'inline-wrapper-bug', 'inline-wrapper'].includes(element.type) || isInline(element);
 
-  editor.isVoid = (element) => ['katex', 'inline-bug', 'span-txt', 'table-list',  'editable-void', 'input-component', 'ImageWrapper', 'inline-wrapper'].includes(element.type) || isVoid(element);
+  editor.isVoid = (element) =>
+    ['katex', 'inline-bug', 'span-txt', 'table-list', 'editable-void', 'input-component', 'ImageWrapper', 'inline-wrapper'].includes(element.type) || isVoid(element);
 
   editor.markableVoid = (element) => {
     return element.type === 'katex' || markableVoid(element);
@@ -1711,7 +1592,6 @@ const TableList = ({ attributes, children, element }) => {
     };
 
     if (selected) {
-
       window.addEventListener('message', messageListener);
     } else {
       window.removeEventListener('message', messageListener);
@@ -1725,16 +1605,16 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table contentEditable='false' style={{ background: selected ? 'blue' : '' }} className='table-list relative' {...attributes}>
+      <table contentEditable='false' id={element.id} style={{ background: selected ? 'blue' : '' }} className='table-list relative' {...attributes}>
         {children}
         <tr>
           {element.card.map((o, key) => {
             if (key >= 0 && key <= 1) {
               return (
-                <td>
+                <td id={'id-' + key}>
                   {children}
 
-                  <SlateMobile keyID={key} />
+                  <SlateMobile tableID={element.id} keyID={key} />
                 </td>
               );
             }
@@ -1745,9 +1625,9 @@ const TableList = ({ attributes, children, element }) => {
           {element.card.map((o, key) => {
             if (key >= 2 && key <= 3) {
               return (
-                <td>
+                <td id={'id-' + key}>
                   {children}
-                  <SlateMobile keyID={key} />
+                  <SlateMobile tableID={element.id} keyID={key} />
                 </td>
               );
             }
@@ -1773,7 +1653,7 @@ const InputComponent = ({ attributes, children, element }) => {
   };
 
   return (
-    <div style={{ width: '100%', height: '100px', border: selected? '1px solid red': '', background: 'green' }} {...attributes}>
+    <div style={{ width: '100%', height: '100px', border: selected ? '1px solid red' : '', background: 'green' }} {...attributes}>
       <input
         contentEditable='false'
         className='w-full h-[30px]'
@@ -1809,11 +1689,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
         />
       </div>
 
-     
-        <div>
-        {children}
-
-        </div>
+      <div>{children}</div>
     </div>
   );
 };
@@ -1973,16 +1849,15 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-      <div contentEditable="false"  className='h-full w-full absolute left-0 top-0 z-[2]'>
+      <div contentEditable='false' className='h-full w-full absolute left-0 top-0 z-[2]'>
         <button
-        className=''
+          className=''
           onClick={(e) => {
             Transforms.removeNodes(editor, { at: path });
           }}>
           CLICK ME
         </button>
 
-     
         <div className='flex'>
           {card?.map((o, key) => {
             return (
@@ -1996,11 +1871,8 @@ const EditableVoid = ({ attributes, children, element }) => {
               </div>
             );
           })}
-
-
         </div>
       </div>
-      
 
       <div className='overflow-hidden absolute z-[-1] w-[0px] h-[0px]'>{children}</div>
     </div>
@@ -2029,23 +1901,22 @@ const TableCell1 = ({ attributes, children, element }) => {
   const selected = useSelected();
   const focused = useFocused();
   const path = ReactEditor.findPath(editor, element);
-  const edges = Editor.edges(editor,path)
+  const edges = Editor.edges(editor, path);
   let checked = false;
-  if(_.isEqual(edges[0], editor.selection.anchor) && _.isEqual(edges[1], editor.selection.focus) && editor.selection.anchor.offset != 0 && editor.selection.focus.offset != 0){
-    
-    checked = true
-
-  }else if((editor.selection.anchor.path[1] != editor.selection.focus.path[1]) || (editor.selection.anchor.path[0] != editor.selection.focus.path[0])){
+  if (_.isEqual(edges[0], editor.selection.anchor) && _.isEqual(edges[1], editor.selection.focus) && editor.selection.anchor.offset != 0 && editor.selection.focus.offset != 0) {
     checked = true;
-  }
-  else{
+  } else if (editor.selection.anchor.path[1] != editor.selection.focus.path[1] || editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
+    checked = true;
+  } else {
     checked = false;
   }
 
-  return <td   {...attributes}>
-    {children}
-   <SlateMobile/>
-    </td>;
+  return (
+    <td {...attributes}>
+      {children}
+      <SlateMobile />
+    </td>
+  );
 };
 
 const CheckListItemElement = ({ attributes, children, element }) => {

@@ -7,6 +7,7 @@ export interface CounterState {
   editor: any;
   openCheck: boolean;
   slateObject: any;
+  slateTable: any;
 }
 
 const initialState: CounterState = {
@@ -14,7 +15,8 @@ const initialState: CounterState = {
   list: null,
   editor: null,
   openCheck: false,
-  slateObject: null
+  slateObject: null,
+  slateTable: null,
 };
 
 export const counterSlice = createSlice({
@@ -35,7 +37,7 @@ export const counterSlice = createSlice({
     },
 
     setSlateCheck: (state, action: PayloadAction<any>) => {
-      state.slateObject = action.payload
+      state.slateObject = action.payload;
     },
     incrementByAmount: (state, action: PayloadAction<number>) => {
       state.value += 1;
