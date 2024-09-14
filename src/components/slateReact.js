@@ -255,33 +255,6 @@ const SlateReact = () => {
     if (block) {
       Transforms.move(editor, { distance: 1, unit: 'offset', reverse: false });
       return;
-    } else if (tableCell) {
-      if (edges[0][0] !== edges[1][0]) {
-        const tableList = Editor.nodes(editor, {
-          match: (n) => n.type === 'table-list',
-          at: editor.selection,
-          reverse: true,
-        });
-        let data = [];
-        for (const tableItem of tableList) {
-          data.push(tableItem[1]);
-        }
-
-        if (data.length > 0) {
-          for (var i = 0; i < data.length; i++) {
-            Transforms.removeNodes(editor, { at: data[i] });
-            // Transforms.insertNodes(
-            //   editor,
-            //   {
-            //     type: 'paragraph',
-            //     children: [{ text: '' }],
-            //   },
-            //   { at: [...data[i], 0] },
-            // );
-          }
-          Transforms.delete(editor, editor.selection);
-        }
-      }
     } else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const block = Editor.above(editor, {
@@ -552,8 +525,6 @@ const SlateReact = () => {
 
     const checked = listItems;
 
-    console.log(editor.selection, 'editor selection');
-
     const [checkListItem] = Editor.nodes(editor, {
       at: listItems[1],
       match: (n) => n.type == 'list-item',
@@ -584,7 +555,6 @@ const SlateReact = () => {
         if (edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]) {
           deleteFragment(...args);
         } else if (edges[0][0] != edges[1][0]) {
-          console.log(editor.selection, 'editor selection');
           const tableList = Editor.nodes(editor, {
             match: (n) => n.type === 'table-list',
             at: editor.selection,
@@ -651,7 +621,6 @@ const SlateReact = () => {
           const ua = navigator.userAgent;
 
           if (editor.selection) {
-            console.log('selection', editor.selection);
             const [block] = Editor.nodes(editor, {
               match: (n) => n.type === 'table-list',
               at: editor.selection.anchor,
@@ -1067,7 +1036,7 @@ const SlateReact = () => {
           onKeyUp={(e) => {}}
           onKeyDown={(event) => {
             const ua = navigator.userAgent;
-            console.log(event, 'target value');
+
             for (const hotkey in HOTKEYS) {
               if (isHotkey(hotkey, event)) {
                 event.preventDefault();
@@ -1101,8 +1070,27 @@ const SlateReact = () => {
 
               Transforms.insertText(editor, '\n');
             } else if (_.sum(editor.selection.anchor.path) > _.sum(editor.selection.focus.path)) {
-              Transforms.delete(editor, editor.selection);
-              Transforms.insertText(editor, textVal, { at: editor.selection });
+              if (listItems && listItems[0].type === 'table-list') {
+                const tableList = Editor.nodes(editor, {
+                  match: (n) => n.type === 'table-list',
+                  at: editor.selection,
+                  reverse: true,
+                });
+                let data = [];
+                for (const tableItem of tableList) {
+                  data.push(tableItem[1]);
+                }
+
+                if (data.length > 0) {
+                  for (var i = 0; i < data.length; i++) {
+                    Transforms.removeNodes(editor, { at: data[i] });
+                  }
+                  Transforms.delete(editor, editor.selection);
+                }
+              } else {
+                Transforms.delete(editor, editor.selection);
+                Transforms.insertText(editor, textVal, { at: editor.selection });
+              }
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
               HistoryEditor.undo(editor);
