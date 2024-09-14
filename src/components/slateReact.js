@@ -1605,9 +1605,9 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table contentEditable='false' id={element.id} style={{ background: selected ? 'blue' : '' }} className='table-list relative' {...attributes}>
+      <table id={element.id} style={{ background: selected ? 'blue' : '' }} className='table-list relative' {...attributes}>
         {children}
-        <tr>
+        <tr contentEditable='false'>
           {element.card.map((o, key) => {
             if (key >= 0 && key <= 1) {
               return (
@@ -1621,7 +1621,7 @@ const TableList = ({ attributes, children, element }) => {
           })}
         </tr>
 
-        <tr>
+        <tr contentEditable='false'>
           {element.card.map((o, key) => {
             if (key >= 2 && key <= 3) {
               return (
