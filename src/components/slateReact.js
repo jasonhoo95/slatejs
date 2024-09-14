@@ -9,8 +9,8 @@ import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateEle
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useModalStore } from '@/globals/zustandGlobal';
 import EditablePopup from './editablePopup';
-import { before } from 'lodash';
-
+import { useSelector, useDispatch } from 'react-redux';
+import { setText } from '@/globals/counterSlice';
 const HOTKEYS = {
   'mod+b': 'bold',
   'mod+i': 'italic',
@@ -145,15 +145,13 @@ const SlateReact = () => {
   let id = v4();
   let ModalProps = useModalStore((state) => state.display);
   let updateAmount = useModalStore((state) => state.updateModal);
-
-  const [focus, setFocus] = useState(true);
-  const [disabled, setDisabled] = useState(false);
+  const dispatch = useDispatch();
   const contentEditableRef = useRef(null);
-  const [check, setCheck] = useState({ bold: false, color: false });
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
   const { deleteFragment, deleteBackward, onChange, insertText, apply } = editor;
+  const textVal = useSelector((state) => state.counter.textVal);
 
   const { insertBreak } = editor;
 
@@ -241,7 +239,6 @@ const SlateReact = () => {
     const block = Editor.above(editor, {
       match: (n) => Editor.isVoid(editor, n),
     });
-
     const tableBlock = Editor.above(editor, {
       at: editor.selection.anchor.path,
       match: (n) => n.type === 'table-list',
@@ -286,7 +283,6 @@ const SlateReact = () => {
         }
       }
     } else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
-      insertText(text);
       const { anchor } = selection;
       const block = Editor.above(editor, {
         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -320,11 +316,9 @@ const SlateReact = () => {
 
         return;
       }
-    } else {
-      insertText(text);
     }
 
-    // Transforms.insertText(editor, text);
+    insertText(text);
   };
 
   editor.insertBreak = () => {
@@ -558,6 +552,8 @@ const SlateReact = () => {
 
     const checked = listItems;
 
+    console.log(editor.selection, 'editor selection');
+
     const [checkListItem] = Editor.nodes(editor, {
       at: listItems[1],
       match: (n) => n.type == 'list-item',
@@ -588,6 +584,7 @@ const SlateReact = () => {
         if (edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]) {
           deleteFragment(...args);
         } else if (edges[0][0] != edges[1][0]) {
+          console.log(editor.selection, 'editor selection');
           const tableList = Editor.nodes(editor, {
             match: (n) => n.type === 'table-list',
             at: editor.selection,
@@ -633,15 +630,12 @@ const SlateReact = () => {
     }
   };
   const onFocus = useCallback((e) => {
-    setFocus(true);
     window.addEventListener('resize', getCaretCoordinates);
 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'focus123');
   }, []);
 
   const onBlur = useCallback((e) => {
-    setFocus(false);
-
     // savedSelection.current = editor.selection;
     window.removeEventListener('resize', getCaretCoordinates);
 
@@ -657,6 +651,7 @@ const SlateReact = () => {
           const ua = navigator.userAgent;
 
           if (editor.selection) {
+            console.log('selection', editor.selection);
             const [block] = Editor.nodes(editor, {
               match: (n) => n.type === 'table-list',
               at: editor.selection.anchor,
@@ -1072,6 +1067,7 @@ const SlateReact = () => {
           onKeyUp={(e) => {}}
           onKeyDown={(event) => {
             const ua = navigator.userAgent;
+            console.log(event, 'target value');
             for (const hotkey in HOTKEYS) {
               if (isHotkey(hotkey, event)) {
                 event.preventDefault();
@@ -1104,6 +1100,9 @@ const SlateReact = () => {
               event.preventDefault();
 
               Transforms.insertText(editor, '\n');
+            } else if (_.sum(editor.selection.anchor.path) > _.sum(editor.selection.focus.path)) {
+              Transforms.delete(editor, editor.selection);
+              Transforms.insertText(editor, textVal, { at: editor.selection });
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
               HistoryEditor.undo(editor);
