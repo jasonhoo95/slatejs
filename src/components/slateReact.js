@@ -262,10 +262,9 @@ const SlateReact = () => {
       if (edges[0][0] !== edges[1][0]) {
         const tableList = Editor.nodes(editor, {
           match: (n) => n.type === 'table-list',
-          mode: 'highest',
           at: editor.selection,
+          reverse: true,
         });
-
         let data = [];
         for (const tableItem of tableList) {
           data.push(tableItem[1]);
@@ -274,41 +273,20 @@ const SlateReact = () => {
         if (data.length > 0) {
           for (var i = 0; i < data.length; i++) {
             Transforms.removeNodes(editor, { at: data[i] });
+            // Transforms.insertNodes(
+            //   editor,
+            //   {
+            //     type: 'paragraph',
+            //     children: [{ text: '' }],
+            //   },
+            //   { at: [...data[i], 0] },
+            // );
           }
+          Transforms.delete(editor, editor.selection);
         }
-
-        insertText(text);
-
-        return;
-      } else {
       }
-      // Transforms.deselect(editor);
-      // if (edges[0][0] !== edges[1][0]) {
-      //   let data = []
-      //   const tableList = Editor.nodes(editor, {
-      //     match: (n) => n.type === 'table-list',
-      //     at:editor.selection
-      //   });
-
-      //   for (const listItem of tableList) {
-      //     if (listItem) {
-      //       data.push(listItem[1]);
-      //     }
-      //   }
-
-      //  if(data.length > 0){
-      //   for (var i =0; i < data.length; i++){
-      //     Transforms.removeNodes(editor,{at:data[i]})
-      //   }
-      //  }
-
-      // } else if (edges[0][1] === edges[1][1] && edges[0][0] === edges[1][0]) {
-      // } else {
-
-      //   Transforms.select(editor, editor.selection);
-      //   return;
-      // }
     } else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+      insertText(text);
       const { anchor } = selection;
       const block = Editor.above(editor, {
         match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -342,9 +320,9 @@ const SlateReact = () => {
 
         return;
       }
+    } else {
+      insertText(text);
     }
-
-    insertText(text);
 
     // Transforms.insertText(editor, text);
   };
@@ -606,16 +584,10 @@ const SlateReact = () => {
       const [startPoint, endPoint] = Range.edges(editor.selection);
       const edges = [startPoint.path, endPoint.path];
       let path1 = [];
-
       Editor.withoutNormalizing(editor, () => {
         if (edges[0][0] === edges[1][0] && edges[0][1] === edges[1][1]) {
           deleteFragment(...args);
         } else if (edges[0][0] != edges[1][0]) {
-          const [startBlock] = Editor.nodes(editor, {
-            match: (n) => n.type == 'table-list',
-            at: editor.selection.anchor,
-          });
-
           const tableList = Editor.nodes(editor, {
             match: (n) => n.type === 'table-list',
             at: editor.selection,
@@ -946,6 +918,7 @@ const SlateReact = () => {
 
         <div
           onClick={(e) => {
+            ReactEditor.focus(editor);
             HistoryEditor.undo(editor);
           }}>
           undo
