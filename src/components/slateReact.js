@@ -848,6 +848,14 @@ const SlateReact = () => {
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
+            HistoryEditor.undo(editor);
+          }}>
+          UNDO
+        </div>
+
+        <div
+          onClick={(e) => {
+            ReactEditor.focus(editor);
             const ua = navigator.userAgent;
             let id = v4();
 
