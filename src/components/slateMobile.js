@@ -404,7 +404,7 @@ const SlateMobile = ({ keyID, tableID }) => {
 
           backwardCheck = false;
         }}
-        initialValue={initialValue}>
+        value={initialValue}>
         <Editable
           renderElement={renderElement}
           style={{ padding: '10px' }}

@@ -242,6 +242,7 @@ const SlateReact = () => {
       match: (n) => Editor.isVoid(editor, n),
     });
 
+    console.log(selection, 'selection');
     const tableBlock = Editor.above(editor, {
       at: editor.selection.anchor.path,
       match: (n) => n.type === 'table-list',
@@ -684,7 +685,7 @@ const SlateReact = () => {
             }
           }
         }}
-        initialValue={initialValue}>
+        value={initialValue}>
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
@@ -1574,6 +1575,7 @@ const TableList = ({ attributes, children, element }) => {
   const selected = useSelected();
   const focused = useFocused();
   const editor = useSlate();
+  const { id, card } = element;
   const [check, setChecked] = useState(false);
 
   function checknow(event) {
@@ -1613,16 +1615,16 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table id={element.id} style={{ background: selected ? 'blue' : '' }} className='table-list relative' {...attributes}>
+      <table id={id} style={{ background: selected ? 'blue' : '' }} className='table-list relative' {...attributes}>
         {children}
         <tr contentEditable='false'>
-          {element.card.map((o, key) => {
+          {card.map((o, key) => {
             if (key >= 0 && key <= 1) {
               return (
                 <td id={'id-' + key}>
                   {children}
 
-                  <SlateMobile tableID={element.id} keyID={key} />
+                  <SlateMobile tableID={id} keyID={key} />
                 </td>
               );
             }
@@ -1630,12 +1632,12 @@ const TableList = ({ attributes, children, element }) => {
         </tr>
 
         <tr contentEditable='false'>
-          {element.card.map((o, key) => {
+          {card.map((o, key) => {
             if (key >= 2 && key <= 3) {
               return (
                 <td id={'id-' + key}>
                   {children}
-                  <SlateMobile tableID={element.id} keyID={key} />
+                  <SlateMobile tableID={id} keyID={key} />
                 </td>
               );
             }
