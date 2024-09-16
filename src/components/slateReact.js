@@ -294,6 +294,11 @@ const SlateReact = () => {
     insertText(text);
   };
 
+  editor.apply = (op) => {
+    console.log(op, 'ops');
+    apply(op);
+  };
+
   editor.insertBreak = () => {
     const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
 
