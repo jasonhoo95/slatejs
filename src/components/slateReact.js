@@ -342,6 +342,7 @@ const SlateReact = () => {
     // }
     else {
       insertBreak();
+
       const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
       if (selectedLeaf1.text.length == 0) {
         const isActive = isBlockActive(editor, 'heading-one', TEXT_ALIGN_TYPES.includes('heading-one') ? 'align' : 'type');
@@ -2188,8 +2189,8 @@ const Element = (props) => {
       return <BannerRed {...props} />;
     case 'paragraph':
       return (
-        <div style={{ marginTop: '5px' }} {...attributes}>
-          {children}
+        <div {...attributes}>
+          <div>{children}</div>
         </div>
       );
     default:
