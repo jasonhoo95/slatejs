@@ -6,18 +6,7 @@ import isHotkey from 'is-hotkey';
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
 import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from 'slate-react';
-import {
-  Editor,
-  Transforms,
-  createEditor,
-  Path,
-  Descendant,
-  Element as SlateElement,
-  Text,
-  Range,
-  Node,
-  Point,
-} from 'slate';
+import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node, Point } from 'slate';
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useBearStore, useAuthStore } from '@/globals/authStorage';
 import PlainTextExample from './plainText';
@@ -138,8 +127,7 @@ const SlateMobile = () => {
 
     const listItems = Editor.nodes(editor, {
       at: editor.selection.anchor,
-      match: (n) =>
-        n.type == 'list-item' || n.type == 'banner-red-wrapper' || n.type == 'katex' || n.type == 'check-list-item',
+      match: (n) => n.type == 'list-item' || n.type == 'banner-red-wrapper' || n.type == 'katex' || n.type == 'check-list-item',
     });
     let currentParent, currentDescendant, previousParent;
     for (const listItem of listItems) {
@@ -149,30 +137,16 @@ const SlateMobile = () => {
     }
     const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == 'paragraph' });
 
-    if (
-      currentParent &&
-      ['list-item'].includes(currentParent[0].type) &&
-      currentParent[0].children.length == 1 &&
-      !/\S/.test(selectedLeaf.text)
-    ) {
+    if (currentParent && ['list-item'].includes(currentParent[0].type) && currentParent[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
       toggleBlock(editor, currentParent[0].type);
-    } else if (
-      currentParent &&
-      ['banner-red-wrapper'].includes(currentParent[0].type) &&
-      parentCheck[0].children.length == 1 &&
-      !/\S/.test(selectedLeaf.text)
-    ) {
+    } else if (currentParent && ['banner-red-wrapper'].includes(currentParent[0].type) && parentCheck[0].children.length == 1 && !/\S/.test(selectedLeaf.text)) {
       toggleBlock(editor, currentParent[0].type);
     } else {
       insertBreak();
       const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
 
       if (selectedLeaf1.text.length == 0) {
-        const isActive = isBlockActive(
-          editor,
-          'heading-one',
-          TEXT_ALIGN_TYPES.includes('heading-one') ? 'align' : 'type',
-        );
+        const isActive = isBlockActive(editor, 'heading-one', TEXT_ALIGN_TYPES.includes('heading-one') ? 'align' : 'type');
         if (isActive) {
           Transforms.setNodes(editor, { type: 'paragraph' });
         }
@@ -206,12 +180,7 @@ const SlateMobile = () => {
       at: editor.selection.anchor.path,
     });
 
-    if (
-      nextParent &&
-      nextParent[0].type == 'banner-red-wrapper' &&
-      previousParent &&
-      previousParent[0].type == 'banner-red-wrapper'
-    ) {
+    if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
       deleteBackward(...args);
       if (!backwardCheck) {
         backwardCheck = true;
@@ -243,8 +212,7 @@ const SlateMobile = () => {
           if (listItems[0].type == nextnode[0].type) {
             Transforms.mergeNodes(editor, {
               at: nextnode[1],
-              match: (n) =>
-                !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes(n.type),
+              match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes(n.type),
             });
           }
         }
@@ -298,8 +266,7 @@ const SlateMobile = () => {
 
         Transforms.mergeNodes(editor, {
           at: listItemParent[1],
-          match: (n) =>
-            !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes(n.type),
+          match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes(n.type),
         });
       }
     } else if (
@@ -424,7 +391,7 @@ const SlateMobile = () => {
 
           backwardCheck = false;
         }}
-        initialValue={initialValue}>
+        value={initialValue}>
         <BlockButton format='katex-link' icon='format_list_item' />
 
         <BlockButton format='banner-red' icon='format_list_item' />
@@ -578,11 +545,7 @@ const SlateMobile = () => {
 
 const wrapperCheck = (editor) => {
   const block = { type: 'banner-red-wrapper', children: [] };
-  const isActive = isBlockActive(
-    editor,
-    'banner-red-wrapper',
-    TEXT_ALIGN_TYPES.includes('banner-red-wrapper') ? 'align' : 'type',
-  );
+  const isActive = isBlockActive(editor, 'banner-red-wrapper', TEXT_ALIGN_TYPES.includes('banner-red-wrapper') ? 'align' : 'type');
 
   const firstNode1 = Editor.parent(editor, editor.selection.anchor.path);
   const lastNode1 = Editor.parent(editor, editor.selection.focus.path);
@@ -610,11 +573,7 @@ const wrapperCheck = (editor) => {
         },
       },
       match: (n) => {
-        return (
-          !Editor.isEditor(n) &&
-          SlateElement.isElement(n) &&
-          (n.type == 'numbered-list' || n.type == 'paragraph' || n.type == 'bulleted-list')
-        );
+        return !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type == 'numbered-list' || n.type == 'paragraph' || n.type == 'bulleted-list');
       },
       split: true,
     });
@@ -687,11 +646,9 @@ const insertKatex = (editor, url, updateAmount) => {
 const withInlines = (editor) => {
   const { insertData, insertText, isInline, markableVoid, isVoid } = editor;
 
-  editor.isInline = (element) =>
-    ['link', 'button', 'katex', 'inline-bug', 'inline-wrapper-bug'].includes(element.type) || isInline(element);
+  editor.isInline = (element) => ['link', 'button', 'katex', 'inline-bug', 'inline-wrapper-bug'].includes(element.type) || isInline(element);
 
-  editor.isVoid = (element) =>
-    ['katex', 'inline-bug', 'link', 'editable-void'].includes(element.type) || isVoid(element);
+  editor.isVoid = (element) => ['katex', 'inline-bug', 'link', 'editable-void'].includes(element.type) || isVoid(element);
 
   editor.markableVoid = (element) => {
     return element.type === 'katex' ? true : markableVoid(element);
@@ -955,13 +912,7 @@ const toggleBlock = (editor, format, type) => {
     currentParent = Editor.node(editor, listItem[1]);
   }
 
-  if (
-    nextParent &&
-    previousParent &&
-    LIST_PARENT.includes(nextParent[0].type) &&
-    LIST_PARENT.includes(previousParent[0].type) &&
-    currentParent[0].type == previousParent[0].type
-  ) {
+  if (nextParent && previousParent && LIST_PARENT.includes(nextParent[0].type) && LIST_PARENT.includes(previousParent[0].type) && currentParent[0].type == previousParent[0].type) {
     Transforms.mergeNodes(editor, {
       at: nextParent[1],
       match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
@@ -970,23 +921,12 @@ const toggleBlock = (editor, format, type) => {
       at: editor.selection.anchor.path,
       match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
     });
-  } else if (
-    currentParent &&
-    nextParent &&
-    currentParent[0].type == nextParent[0].type &&
-    nextParent &&
-    LIST_PARENT.includes(nextParent[0].type)
-  ) {
+  } else if (currentParent && nextParent && currentParent[0].type == nextParent[0].type && nextParent && LIST_PARENT.includes(nextParent[0].type)) {
     Transforms.mergeNodes(editor, {
       at: nextParent[1],
       match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
     });
-  } else if (
-    currentParent &&
-    previousParent &&
-    currentParent[0].type == previousParent[0].type &&
-    LIST_PARENT.includes(previousParent[0].type)
-  ) {
+  } else if (currentParent && previousParent && currentParent[0].type == previousParent[0].type && LIST_PARENT.includes(previousParent[0].type)) {
     Transforms.mergeNodes(editor, {
       at: editor.selection.anchor.path,
       match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
