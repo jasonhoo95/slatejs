@@ -152,7 +152,7 @@ const SlateReact = () => {
   const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
   const { deleteFragment, deleteBackward, onChange, insertText, apply } = editor;
   const textVal = useSelector((state) => state.counter.textVal);
-
+  let androidTxt;
   const { insertBreak } = editor;
 
   const handleDOMBeforeInput = useCallback((e) => {
@@ -163,6 +163,7 @@ const SlateReact = () => {
         const block = Editor.above(editor, {
           match: (n) => Editor.isVoid(editor, n),
         });
+
         const table = Editor.nodes(editor, {
           match: (n) => n.type === 'table-cell1',
         });
@@ -174,17 +175,16 @@ const SlateReact = () => {
           return true;
         }
 
-        if (table && (edges[0][1] != edges[1][1] || edges[0][0] != edges[1][0])) {
-          // ReactEditor.blur(editor);
-          return false;
-        }
+        // if (table && (edges[0][1] != edges[1][1] || edges[0][0] != edges[1][0])) {
+        //   // ReactEditor.blur(editor);
+        //   return false;
+        // }
 
         if (!diff.text.endsWith(' ')) {
           return false;
         }
 
         const { text } = SlateNode.leaf(editor, path);
-
         const blockEntry = Editor.above(editor, {
           at: path,
           match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
@@ -295,7 +295,6 @@ const SlateReact = () => {
   };
 
   editor.apply = (op) => {
-    console.log(op, 'ops');
     apply(op);
   };
 
@@ -754,7 +753,7 @@ const SlateReact = () => {
             }
           }
         }}
-        value={initialValue}>
+        initialValue={initialValue}>
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
@@ -897,6 +896,14 @@ const SlateReact = () => {
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
+            HistoryEditor.redo(editor);
+          }}>
+          redo
+        </div>
+
+        <div
+          onClick={(e) => {
+            ReactEditor.focus(editor);
             // Transforms.insertText(editor, "\u200B".toString(), {
             // 	at: editor.selection.anchor,
             // });
@@ -925,7 +932,6 @@ const SlateReact = () => {
 
         <div
           onClick={(e) => {
-            ReactEditor.focus(editor);
             const ua = navigator.userAgent;
 
             const block = {
@@ -968,16 +974,17 @@ const SlateReact = () => {
             };
 
             const paragraph = { type: 'paragraph', children: [{ text: '' }] };
-            Transforms.insertNodes(editor, paragraph, {
-              at: editor.selection.anchor,
-            });
+            // Transforms.insertNodes(editor, paragraph, {
+            //   at: editor.selection.anchor,
+            // });
             Transforms.insertNodes(editor, block, {
               at: editor.selection.anchor,
             });
-            Transforms.move(editor, { distance: 1, unit: 'offset' });
-            Transforms.unwrapNodes(editor, { mode: 'highest', split: true, match: (n) => n.type === 'numbered-list' });
+            // Transforms.move(editor, { distance: 1, unit: 'offset' });
+            // Transforms.unwrapNodes(editor, { mode: 'highest', split: true, match: (n) => n.type === 'numbered-list' });
 
             // Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
+            ReactEditor.focus(editor);
           }}>
           insert table now
         </div>
@@ -1075,6 +1082,13 @@ const SlateReact = () => {
               event.preventDefault();
 
               Transforms.insertText(editor, '\n');
+            } else if (Range.isBackward(editor.selection) && event.key != 'Backspace' && event.key !== 'Enter' && !event.shiftKey && !event.metaKey) {
+              event.preventDefault();
+              Transforms.delete(editor, editor.selection);
+
+              if (!/android/i.test(ua)) {
+                Transforms.insertText(editor, event.key);
+              }
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
               HistoryEditor.undo(editor);
