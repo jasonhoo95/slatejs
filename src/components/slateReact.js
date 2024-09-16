@@ -748,7 +748,7 @@ const SlateReact = () => {
             }
           }
         }}
-        initialValue={initialValue}>
+        value={initialValue}>
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
@@ -1069,28 +1069,6 @@ const SlateReact = () => {
               event.preventDefault();
 
               Transforms.insertText(editor, '\n');
-            } else if (_.sum(editor.selection.anchor.path) > _.sum(editor.selection.focus.path)) {
-              if (listItems && listItems[0].type === 'table-list') {
-                const tableList = Editor.nodes(editor, {
-                  match: (n) => n.type === 'table-list',
-                  at: editor.selection,
-                  reverse: true,
-                });
-                let data = [];
-                for (const tableItem of tableList) {
-                  data.push(tableItem[1]);
-                }
-
-                if (data.length > 0) {
-                  for (var i = 0; i < data.length; i++) {
-                    Transforms.removeNodes(editor, { at: data[i] });
-                  }
-                  Transforms.delete(editor, editor.selection);
-                }
-              } else {
-                Transforms.delete(editor, editor.selection);
-                Transforms.insertText(editor, textVal, { at: editor.selection });
-              }
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
               HistoryEditor.undo(editor);
