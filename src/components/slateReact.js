@@ -933,6 +933,7 @@ const SlateReact = () => {
         <div
           onClick={(e) => {
             const ua = navigator.userAgent;
+            ReactEditor.focus(editor);
 
             const block = {
               type: 'table-list',
@@ -974,16 +975,11 @@ const SlateReact = () => {
             };
 
             const paragraph = { type: 'paragraph', children: [{ text: '' }] };
-            Transforms.insertNodes(editor, paragraph, {
-              at: editor.selection.anchor,
-            });
             Transforms.insertNodes(editor, block, {
               at: editor.selection.anchor,
             });
-            Transforms.unwrapNodes(editor, { mode: 'highest', split: true, match: (n) => n.type === 'numbered-list' });
             Transforms.move(editor, { distance: 1, unit: 'offset' });
-
-            ReactEditor.focus(editor);
+            Transforms.unwrapNodes(editor, { mode: 'highest', split: true, match: (n) => n.type === 'numbered-list' });
           }}>
           insert table now
         </div>
