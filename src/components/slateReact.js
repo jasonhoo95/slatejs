@@ -685,7 +685,7 @@ const SlateReact = () => {
             }
           }
         }}
-        value={initialValue}>
+        initialValue={initialValue}>
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
