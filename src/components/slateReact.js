@@ -974,16 +974,15 @@ const SlateReact = () => {
             };
 
             const paragraph = { type: 'paragraph', children: [{ text: '' }] };
-            // Transforms.insertNodes(editor, paragraph, {
-            //   at: editor.selection.anchor,
-            // });
+            Transforms.insertNodes(editor, paragraph, {
+              at: editor.selection.anchor,
+            });
             Transforms.insertNodes(editor, block, {
               at: editor.selection.anchor,
             });
-            // Transforms.move(editor, { distance: 1, unit: 'offset' });
-            // Transforms.unwrapNodes(editor, { mode: 'highest', split: true, match: (n) => n.type === 'numbered-list' });
+            Transforms.unwrapNodes(editor, { mode: 'highest', split: true, match: (n) => n.type === 'numbered-list' });
+            Transforms.move(editor, { distance: 1, unit: 'offset' });
 
-            // Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
             ReactEditor.focus(editor);
           }}>
           insert table now
@@ -1082,13 +1081,19 @@ const SlateReact = () => {
               event.preventDefault();
 
               Transforms.insertText(editor, '\n');
-            } else if (Range.isBackward(editor.selection) && event.key != 'Backspace' && event.key !== 'Enter' && !event.shiftKey && !event.metaKey) {
+            } else if (
+              Range.isBackward(editor.selection) &&
+              !/android/i.test(ua) &&
+              event.key != 'Backspace' &&
+              event.key !== 'Enter' &&
+              !event.shiftKey &&
+              !event.metaKey &&
+              !event.ctrlKey
+            ) {
               event.preventDefault();
               Transforms.delete(editor, editor.selection);
 
-              if (!/android/i.test(ua)) {
-                Transforms.insertText(editor, event.key);
-              }
+              Transforms.insertText(editor, event.key);
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
               HistoryEditor.undo(editor);
@@ -2020,9 +2025,6 @@ const Heading1Component = ({ attributes, children, element }) => {
 const TableCell1 = ({ attributes, children, element }) => {
   const editor = useSlate();
   const selected = useSelected();
-  const focused = useFocused();
-  const path = ReactEditor.findPath(editor, element);
-  const edges = Editor.edges(editor, path);
   let checked = false;
   if (editor.selection.anchor.path[1] != editor.selection.focus.path[1] || editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
     checked = true;
