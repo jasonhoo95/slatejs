@@ -165,9 +165,6 @@ const SlateReact = () => {
           match: (n) => Editor.isVoid(editor, n),
         });
 
-        const table = Editor.nodes(editor, {
-          match: (n) => n.type === 'table-cell1',
-        });
         const ua = navigator.userAgent;
         const [startPoint, endPoint] = Range.edges(editor.selection);
         const edges = [startPoint.path, endPoint.path];
@@ -175,11 +172,6 @@ const SlateReact = () => {
         if (block) {
           return true;
         }
-
-        // if (table && (edges[0][1] != edges[1][1] || edges[0][0] != edges[1][0])) {
-        //   // ReactEditor.blur(editor);
-        //   return false;
-        // }
 
         if (!diff.text.endsWith(' ')) {
           return false;
@@ -240,15 +232,6 @@ const SlateReact = () => {
     const block = Editor.above(editor, {
       match: (n) => Editor.isVoid(editor, n),
     });
-    const tableBlock = Editor.above(editor, {
-      at: editor.selection.anchor.path,
-      match: (n) => n.type === 'table-list',
-    });
-
-    const [tableCell] = Editor.nodes(editor, {
-      match: (n) => n.type === 'table-list',
-      at: editor.selection,
-    });
     const ua = navigator.userAgent;
     const [startPoint, endPoint] = Range.edges(editor.selection);
     const edges = [startPoint.path, endPoint.path];
@@ -301,7 +284,6 @@ const SlateReact = () => {
 
   editor.insertBreak = () => {
     const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
-
     const listItems = Editor.nodes(editor, {
       at: editor.selection.anchor,
       match: (n) => ['list-item', 'banner-red-wrapper', 'table-list', 'katex', 'check-list-item', 'dropdown-inner', 'editable-void', 'ImageWrapper'].includes(n.type),
@@ -440,6 +422,7 @@ const SlateReact = () => {
       previousParent &&
       ['numbered-list', 'bulleted-list'].includes(previousParent[0].type) &&
       ['numbered-list', 'bulleted-list'].includes(nextParent[0].type) &&
+      listItemParent[0].type === 'paragraph' &&
       previousParent[0].type == nextParent[0].type
     ) {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
@@ -458,7 +441,6 @@ const SlateReact = () => {
     } else if (listItemParent && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
       const ua = navigator.userAgent;
 
-      const parent = Editor.parent(editor, editor.selection.anchor.path);
       const [cell] = Editor.nodes(editor, {
         match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'table-cell1',
       });
@@ -941,49 +923,51 @@ const SlateReact = () => {
 
             const block = {
               type: 'table-list',
-              insert: true,
-              checked: true,
               children: [
-                // { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
                 {
-                  type: 'table-cell1',
-                  id: 1,
-                  selected: true,
+                  type: 'table-rows',
                   children: [
-                    { type: 'paragraph', children: [{ text: 'asdasda' }] },
-                    { type: 'paragraph', children: [{ text: 'okman' }] },
+                    {
+                      type: 'table-cell1',
+                      id: 1,
+                      selected: true,
+                      children: [{ type: 'paragraph', children: [{ text: '' }] }],
+                    },
+                    {
+                      type: 'table-cell1',
+                      id: 2,
+                      selected: false,
+                      children: [{ type: 'paragraph', children: [{ text: '' }] }],
+                    },
                   ],
                 },
                 {
-                  type: 'table-cell1',
-                  id: 2,
-                  selected: false,
+                  type: 'table-rows',
                   children: [
-                    { type: 'paragraph', children: [{ text: 'asdasda' }] },
-                    { type: 'paragraph', children: [{ text: 'okman' }] },
+                    {
+                      type: 'table-cell1',
+                      id: 3,
+                      selected: true,
+                      children: [{ type: 'paragraph', children: [{ text: '' }] }],
+                    },
+                    {
+                      type: 'table-cell1',
+                      id: 4,
+                      selected: false,
+                      children: [{ type: 'paragraph', children: [{ text: '' }] }],
+                    },
                   ],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 3,
-                  selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
-                },
-                {
-                  type: 'table-cell1',
-                  id: 4,
-                  selected: false,
-                  children: [{ type: 'paragraph', children: [{ text: '' }] }],
                 },
               ],
             };
 
             const paragraph = { type: 'paragraph', children: [{ text: '' }] };
-            Transforms.insertNodes(editor, block, {
-              at: editor.selection.anchor,
-            });
-            Transforms.move(editor, { distance: 1, unit: 'offset' });
+            // Transforms.insertNodes(editor, paragraph);
+            Transforms.insertNodes(editor, block);
+            // Transforms.move(editor, { distance: 1, unit: 'offset' });
             Transforms.unwrapNodes(editor, { mode: 'highest', split: true, match: (n) => n.type === 'numbered-list' });
+
+            // Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
           }}>
           insert table now
         </div>
@@ -1071,7 +1055,6 @@ const SlateReact = () => {
               match: (n) => n.type == 'list-item' || n.type == 'paragraph',
             });
             const stringText = Editor.string(editor, editor.selection.anchor.path);
-
             let pattern = /^\d+\./; // \d+ matches one or more digits, followed by a literal period
 
             // setState({ text: selectedLeaf.text });
@@ -1754,29 +1737,7 @@ const TableList = ({ attributes, children, element }) => {
   return (
     <>
       <table className='table-list my-5' {...attributes}>
-        <tr>
-          {children.map((o, key) => {
-            if (0 <= key && key <= 1) {
-              return children[key];
-            }
-          })}
-          {/* {card.map((o, key) => {
-						return (
-							<CellElement setCallback={arrayCheck} select={selectArray[key]} path={path} card={card} data={o} key={key} />
-
-						)
-
-
-					})} */}
-        </tr>
-
-        <tr>
-          {children.map((o, key) => {
-            if (2 <= key && key <= 3) {
-              return children[key];
-            }
-          })}
-        </tr>
+        <tbody>{children}</tbody>
       </table>
     </>
   );
@@ -2039,11 +2000,15 @@ const Heading1Component = ({ attributes, children, element }) => {
   );
 };
 
+const TableRows = ({ attributes, children, element }) => {
+  return <tr {...attributes}>{children}</tr>;
+};
+
 const TableCell1 = ({ attributes, children, element }) => {
   const editor = useSlate();
   const selected = useSelected();
   let checked = false;
-  if (editor.selection.anchor.path[1] != editor.selection.focus.path[1] || editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
+  if (editor.selection.anchor.path[2] != editor.selection.focus.path[2] || editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
     checked = true;
   } else {
     checked = false;
@@ -2175,6 +2140,8 @@ const Element = (props) => {
 
     case 'table-cell1':
       return <TableCell1 {...props} />;
+    case 'table-rows':
+      return <TableRows {...props} />;
     case 'heading-one':
       return <Heading1Component {...props}></Heading1Component>;
     case 'span-txt':
