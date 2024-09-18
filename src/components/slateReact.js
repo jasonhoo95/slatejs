@@ -154,6 +154,7 @@ const SlateReact = () => {
   const textVal = useSelector((state) => state.counter.textVal);
   let androidTxt;
   const { insertBreak } = editor;
+  const ua = navigator.userAgent;
 
   const handleDOMBeforeInput = useCallback((e) => {
     queueMicrotask(() => {
@@ -552,7 +553,7 @@ const SlateReact = () => {
           at: checked[1],
         },
       );
-    } else if (tableCellList && tableCellList[0].type === 'table-list') {
+    } else if (tableCellList && tableCellList[0].type === 'table-list' && !/android/i.test(ua)) {
       const [startPoint, endPoint] = Range.edges(editor.selection);
       const edges = [startPoint.path, endPoint.path];
       let path1 = [];
@@ -601,6 +602,9 @@ const SlateReact = () => {
         }
       });
     } else {
+      if (tableCellList && /android/i.test(ua)) {
+        return;
+      }
       deleteFragment(...args);
     }
   };
@@ -1043,8 +1047,6 @@ const SlateReact = () => {
           renderLeaf={renderLeaf}
           onKeyUp={(e) => {}}
           onKeyDown={(event) => {
-            const ua = navigator.userAgent;
-
             for (const hotkey in HOTKEYS) {
               if (isHotkey(hotkey, event)) {
                 event.preventDefault();
@@ -1077,19 +1079,38 @@ const SlateReact = () => {
               event.preventDefault();
 
               Transforms.insertText(editor, '\n');
-            } else if (
-              Range.isBackward(editor.selection) &&
-              !/android/i.test(ua) &&
-              event.key != 'Backspace' &&
-              event.key !== 'Enter' &&
-              !event.shiftKey &&
-              !event.metaKey &&
-              !event.ctrlKey
-            ) {
+            } else if (Range.isBackward(editor.selection) && event.key != 'Backspace' && event.key !== 'Enter' && !event.shiftKey && !event.metaKey && !event.ctrlKey) {
+              const [tableCellList] = Editor.nodes(editor, {
+                match: (n) => n.type == 'table-list',
+              });
               event.preventDefault();
-              Transforms.delete(editor, editor.selection);
+              if (tableCellList && /android/i.test(ua)) {
+                if (editor.selection.anchor.path[0] === editor.selection.focus.path[0] && Range.isBackward(editor.selection)) {
+                  for (const [parent, path] of Editor.nodes(editor, {
+                    match: (n) => n.type === 'table-cell1',
+                    at: editor.selection,
+                  })) {
+                    for (const [value, childPath] of Node.children(editor, path, {
+                      reverse: true,
+                    })) {
+                      Transforms.removeNodes(editor, { at: childPath });
+                    }
 
-              Transforms.insertText(editor, event.key);
+                    Transforms.insertNodes(
+                      editor,
+                      {
+                        type: 'paragraph',
+                        children: [{ text: '' }],
+                      },
+                      { at: [...path, 0] },
+                    );
+                  }
+                }
+              } else {
+                Transforms.delete(editor, editor.selection);
+
+                Transforms.insertText(editor, event.key);
+              }
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
               HistoryEditor.undo(editor);
