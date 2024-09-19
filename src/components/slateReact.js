@@ -302,13 +302,23 @@ const SlateReact = () => {
         const [, anchorPath] = anchor;
         const [, focusPath] = focus;
 
-        if (Range.isBackward(selection) && anchor && focus && focusPath[2] !== anchorPath[2]) {
+        if (Range.isBackward(selection) && anchor && focus && (selection.anchor.path[1] != selection.focus.path[1] || selection.anchor.path[2] != selection.focus.path[2])) {
           const focusStart = Editor.start(editor, focusPath);
+          const focusEnd = Editor.end(editor, anchorPath);
+
           op.newProperties.focus = focusStart;
-        } else if (anchor && focus && focusPath[2] !== anchorPath[2]) {
+          op.newProperties.anchor = focusEnd;
+        } else if (
+          anchor &&
+          focus &&
+          Range.isForward(editor.selection) &&
+          (selection.anchor.path[1] != selection.focus.path[1] || selection.anchor.path[2] != selection.focus.path[2])
+        ) {
           const focusEnd = Editor.end(editor, focusPath);
+          const focusStart = Editor.start(editor, anchorPath);
 
           op.newProperties.focus = focusEnd;
+          op.newProperties.anchor = focusStart;
         }
       }
 
@@ -559,6 +569,16 @@ const SlateReact = () => {
       match: (n) => n.type == 'table-list',
     });
 
+    const [tableStart] = Editor.nodes(editor, {
+      match: (n) => n.type == 'table-list',
+      at: editor.selection.anchor,
+    });
+
+    const [tableEnd] = Editor.nodes(editor, {
+      match: (n) => n.type == 'table-list',
+      at: editor.selection.focus,
+    });
+
     const checked = listItems;
 
     const [checkListItem] = Editor.nodes(editor, {
@@ -588,9 +608,9 @@ const SlateReact = () => {
       const edges = [startPoint.path, endPoint.path];
       let path1 = [];
       Editor.withoutNormalizing(editor, () => {
-        if (edges[0][0] === edges[1][0] && edges[0][2] === edges[1][2]) {
+        if (Range.isCollapsed(editor.selection)) {
           deleteFragment(...args);
-        } else if (edges[0][0] != edges[1][0]) {
+        } else if (!tableStart || !tableEnd) {
           const tableList = Editor.nodes(editor, {
             match: (n) => n.type === 'table-list',
             at: editor.selection,
@@ -607,7 +627,7 @@ const SlateReact = () => {
             }
             deleteFragment(...args);
           }
-        } else {
+        } else if (tableStart && tableEnd && !Range.isCollapsed(editor.selection)) {
           for (const [parent, path] of Editor.nodes(editor, {
             match: (n) => n.type === 'table-cell1',
             at: editor.selection,
@@ -2019,7 +2039,12 @@ const TableCell1 = ({ attributes, children, element }) => {
   const editor = useSlate();
   const selected = useSelected();
   let checked = false;
-  if (editor.selection.anchor.path[2] != editor.selection.focus.path[2] || editor.selection.anchor.path[0] != editor.selection.focus.path[0]) {
+
+  if (
+    editor.selection.anchor.path[1] !== editor.selection.focus.path[1] ||
+    editor.selection.anchor.path[2] !== editor.selection.focus.path[2] ||
+    editor.selection.anchor.path[0] != editor.selection.focus.path[0]
+  ) {
     checked = true;
   } else {
     checked = false;
