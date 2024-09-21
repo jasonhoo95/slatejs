@@ -321,19 +321,6 @@ const SlateReact = () => {
           op.newProperties.anchor = focusStart;
         }
       }
-
-      // if (focus) {
-      //     const [, path] = focus;
-
-      //     if (Range.isBackward(selection)) {
-      //         const start = Editor.start(editor, path);
-      //         const before = Editor.before(editor, start);
-
-      //         op.newProperties.focus = before ?? start;
-      //     } else {
-      //         op.newProperties.focus = Editor.end(editor, path);
-      //     }
-      // }
     }
 
     apply(op);
