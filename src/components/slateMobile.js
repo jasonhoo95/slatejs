@@ -86,7 +86,7 @@ function getCaretCoordinates() {
   }
   // return { x, y };
 }
-const SlateMobile = ({ keyID, tableID }) => {
+const SlateMobile = ({ keyID, tableID, focusCheck }) => {
   let id = v4();
   let updateAmount = useModalStore((state) => state.updateModal);
   const slateObject = useSelector((state) => state.counter.slateObject);
@@ -369,7 +369,7 @@ const SlateMobile = ({ keyID, tableID }) => {
   };
   const onFocus = useCallback(() => {
     setFocus(true);
-
+    focusCheck(true);
     // Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
     window.addEventListener('resize', getCaretCoordinates);
@@ -378,6 +378,7 @@ const SlateMobile = ({ keyID, tableID }) => {
 
   const onBlur = useCallback(() => {
     setFocus(false);
+    focusCheck(false);
 
     // savedSelection.current = editor.selection;
     window.removeEventListener('resize', getCaretCoordinates);

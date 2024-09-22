@@ -612,45 +612,6 @@ const SlateReact = () => {
               Transforms.removeNodes(editor, {
                 at: parent[1],
               });
-            } else if (block) {
-              if (editor.selection.anchor.path[1] !== editor.selection.focus.path[1]) {
-                let valuePath = [];
-
-                for (const [parent, path] of Editor.nodes(editor, {
-                  match: (n) => n.type === 'table-cell1',
-                  at: editor.selection,
-                  reverse: editor.selection.anchor.path[1] > editor.selection.focus.path[1],
-                })) {
-                  for (const [parent, childPath] of Editor.nodes(editor, {
-                    mode: 'lowest',
-                    at: path,
-                    reverse: editor.selection.anchor.path[1] > editor.selection.focus.path[1],
-                  })) {
-                    if (valuePath.length === 0) {
-                      if (editor.selection.anchor.path[1] > editor.selection.focus.path[1]) {
-                        valuePath.push({ path: childPath, offset: parent.text.length });
-                      } else {
-                        valuePath.push({ path: childPath, offset: 0 });
-                      }
-                    } else {
-                      if (editor.selection.anchor.path[1] > editor.selection.focus.path[1] && path[1] === editor.selection.focus.path[1]) {
-                        valuePath.push({ path: childPath, offset: 0 });
-                      } else {
-                        valuePath.push({ path: childPath, offset: parent.text.length });
-                      }
-                    }
-                  }
-                }
-
-                if (valuePath.length > 0) {
-                  const anchor = { ...valuePath[0] }; // Starting point (first node, first character)
-                  const focus = { ...valuePath[valuePath.length - 1] };
-                  const range = { ...anchor, ...focus };
-
-                  // Transforms.deselect(editor);
-                  return Transforms.select(editor, { anchor: { ...anchor }, focus: { ...focus } });
-                }
-              }
             }
           }
         }}
@@ -1564,6 +1525,7 @@ const TableList = ({ attributes, children, element }) => {
     }
   }
   useEffect(() => {
+    console.log(selected, 'Selected drag');
     const messageListener = (e) => {
       if (selected) {
         checknow(e);
@@ -1584,16 +1546,14 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table id={id} style={{ background: selected ? 'blue' : '' }} className='table-list relative' {...attributes}>
+      <table id={id} style={{ background: !check && selected ? 'blue' : '' }} className='table-list relative' {...attributes}>
         {children}
         <tr contentEditable='false'>
           {card.map((o, key) => {
             if (key >= 0 && key <= 1) {
               return (
                 <td id={'id-' + key}>
-                  {children}
-
-                  <SlateMobile tableID={id} keyID={key} />
+                  <SlateMobile focusCheck={setChecked} tableID={id} keyID={key} />
                 </td>
               );
             }
@@ -1605,14 +1565,12 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 2 && key <= 3) {
               return (
                 <td id={'id-' + key}>
-                  {children}
-                  <SlateMobile tableID={id} keyID={key} />
+                  <SlateMobile focusCheck={setChecked} tableID={id} keyID={key} />
                 </td>
               );
             }
           })}
         </tr>
-        {children}
       </table>
     </>
   );
