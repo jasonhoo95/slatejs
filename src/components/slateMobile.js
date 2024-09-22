@@ -86,7 +86,7 @@ function getCaretCoordinates() {
   }
   // return { x, y };
 }
-const SlateMobile = ({ keyID, tableID, focusCheck }) => {
+const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
   let id = v4();
   let updateAmount = useModalStore((state) => state.updateModal);
   const slateObject = useSelector((state) => state.counter.slateObject);
@@ -446,7 +446,7 @@ const SlateMobile = ({ keyID, tableID, focusCheck }) => {
               Transforms.move(editor, { unit: 'offset', distance: 1 });
             } else if (event.key == 'ArrowLeft' && editor.selection.anchor.offset === 0) {
               event.preventDefault();
-              dispatch(setSlateCheck({ id: keyID, type: 'arrowLeft', tableId: tableID }));
+              dispatch(setSlateCheck({ id: keyID, type: 'arrowLeft', tableId: tableID, mainPath: path }));
             } else if (event.key === 'ArrowUp') {
               event.preventDefault();
               dispatch(setSlateCheck({ id: keyID, type: 'arrowUp', tableId: tableID }));

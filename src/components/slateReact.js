@@ -10,6 +10,7 @@ import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useModalStore } from '@/globals/zustandGlobal';
 import EditablePopup from './editablePopup';
 import { before } from 'lodash';
+import { useSelector, useDispatch } from 'react-redux';
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -154,6 +155,7 @@ const SlateReact = () => {
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
   const { deleteFragment, deleteBackward, onChange, insertText, apply } = editor;
+  const slateObject = useSelector((state) => state.counter.slateObject);
 
   const { insertBreak } = editor;
 
@@ -204,6 +206,15 @@ const SlateReact = () => {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (slateObject && slateObject.type === 'arrowLeft' && slateObject.id === 0) {
+      console.log('slate object trye', slateObject.mainPath);
+      ReactEditor.focus(editor);
+      Transforms.select(editor, slateObject.mainPath);
+      Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true });
+    }
+  }, [slateObject]);
 
   useEffect(() => {
     const messageListener = (event) => {
@@ -1507,6 +1518,7 @@ const TableList = ({ attributes, children, element }) => {
   const editor = useSlate();
   const { id, card } = element;
   const [check, setChecked] = useState(false);
+  const path = ReactEditor.findPath(editor, element);
 
   function checknow(event) {
     if (event && typeof event.data == 'katexnow') {
@@ -1553,7 +1565,7 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 0 && key <= 1) {
               return (
                 <td id={'id-' + key}>
-                  <SlateMobile focusCheck={setChecked} tableID={id} keyID={key} />
+                  <SlateMobile focusCheck={setChecked} path={path} tableID={id} keyID={key} />
                 </td>
               );
             }
@@ -1565,7 +1577,7 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 2 && key <= 3) {
               return (
                 <td id={'id-' + key}>
-                  <SlateMobile focusCheck={setChecked} tableID={id} keyID={key} />
+                  <SlateMobile focusCheck={setChecked} path={path} tableID={id} keyID={key} />
                 </td>
               );
             }
