@@ -1571,6 +1571,7 @@ const TableList = ({ attributes, children, element }) => {
             }
           })}
         </tr>
+        {children}
       </table>
     </>
   );
