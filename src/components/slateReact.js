@@ -504,39 +504,8 @@ const SlateReact = () => {
       editor.selection.anchor.offset === 0
     ) {
       toggleBlock(editor, listItemCheck[0].type);
-    } else if (listItemParent && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
-      const ua = navigator.userAgent;
-
-      const parent = Editor.parent(editor, editor.selection.anchor.path);
-      const [cell] = Editor.nodes(editor, {
-        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'table-cell1',
-      });
-
-      if (cell) {
-        const [, cellPath] = cell;
-        const start = Editor.start(editor, cellPath);
-
-        if (Point.equals(editor.selection.anchor, start)) {
-          if (/android/i.test(ua)) {
-            Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
-          } else {
-            return;
-          }
-        } else {
-          Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
-        }
-      }
-      // if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
-      //   Transforms.insertText(editor, '\u200B'.toString(), {
-      //     at: editor.selection.anchor,
-      //   });
-      // } else {
-      //   Transforms.delete(editor, {
-      //     distance: 1,
-      //     unit: 'offset',
-      //     reverse: true,
-      //   });
-      // }
+    } else if (previousParent && previousParent[0].type === 'table-list') {
+      Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
     } else if (
       previousParent &&
       ['editable-void', 'ImageWrapper', 'input-component'].includes(previousParent[0].type) &&
