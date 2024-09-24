@@ -209,7 +209,7 @@ const SlateReact = () => {
 
   useEffect(() => {
     if (slateObject && slateObject.type === 'arrowLeft' && slateObject.id === 0) {
-      console.log('slate object trye', slateObject.mainPath);
+      
       ReactEditor.focus(editor);
       Transforms.select(editor, slateObject.mainPath);
       Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true });
@@ -253,7 +253,7 @@ const SlateReact = () => {
       match: (n) => Editor.isVoid(editor, n),
     });
 
-    console.log(selection, 'selection');
+    
     const tableBlock = Editor.above(editor, {
       at: editor.selection.anchor.path,
       match: (n) => n.type === 'table-list',
@@ -270,56 +270,6 @@ const SlateReact = () => {
     if (block) {
       Transforms.move(editor, { distance: 1, unit: 'offset', reverse: false });
       return;
-    } else if (tableCell) {
-      if (edges[0][0] !== edges[1][0]) {
-        const tableList = Editor.nodes(editor, {
-          match: (n) => n.type === 'table-list',
-          mode: 'highest',
-          at: editor.selection,
-        });
-
-        let data = [];
-        for (const tableItem of tableList) {
-          data.push(tableItem[1]);
-        }
-
-        if (data.length > 0) {
-          for (var i = 0; i < data.length; i++) {
-            Transforms.removeNodes(editor, { at: data[i] });
-          }
-        }
-
-        insertText(text);
-
-        return;
-      } else {
-      }
-      // Transforms.deselect(editor);
-      // if (edges[0][0] !== edges[1][0]) {
-      //   let data = []
-      //   const tableList = Editor.nodes(editor, {
-      //     match: (n) => n.type === 'table-list',
-      //     at:editor.selection
-      //   });
-
-      //   for (const listItem of tableList) {
-      //     if (listItem) {
-      //       data.push(listItem[1]);
-      //     }
-      //   }
-
-      //  if(data.length > 0){
-      //   for (var i =0; i < data.length; i++){
-      //     Transforms.removeNodes(editor,{at:data[i]})
-      //   }
-      //  }
-
-      // } else if (edges[0][1] === edges[1][1] && edges[0][0] === edges[1][0]) {
-      // } else {
-
-      //   Transforms.select(editor, editor.selection);
-      //   return;
-      // }
     } else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
       const { anchor } = selection;
       const block = Editor.above(editor, {
@@ -1537,7 +1487,7 @@ const TableList = ({ attributes, children, element }) => {
     }
   }
   useEffect(() => {
-    console.log(selected, 'Selected drag');
+    
     const messageListener = (e) => {
       if (selected) {
         checknow(e);

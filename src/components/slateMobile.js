@@ -99,10 +99,62 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
-  const { deleteFragment, deleteBackward, onChange } = editor;
+  const { deleteFragment, deleteBackward, onChange, insertText } = editor;
 
   const { insertBreak } = editor;
   const savedSelection = React.useRef(editor.selection);
+
+
+  const handleDOMBeforeInput = useCallback((e) => {
+    queueMicrotask(() => {
+      const pendingDiffs = ReactEditor.androidPendingDiffs(editor);
+
+      const scheduleFlush = pendingDiffs?.some(({ diff, path }) => {
+        const block = Editor.above(editor, {
+          match: (n) => Editor.isVoid(editor, n),
+        });
+        const table = Editor.nodes(editor, {
+          match: (n) => n.type === 'table-cell1',
+        });
+        const ua = navigator.userAgent;
+        const [startPoint, endPoint] = Range.edges(editor.selection);
+        const edges = [startPoint.path, endPoint.path];
+
+        if (block) {
+          return true;
+        }
+
+        if (table && (edges[0][1] != edges[1][1] || edges[0][0] != edges[1][0])) {
+          // ReactEditor.blur(editor);
+          return false;
+        }
+
+        if (!diff.text.endsWith(' ')) {
+          return false;
+        }
+
+        const { text } = SlateNode.leaf(editor, path);
+
+        const blockEntry = Editor.above(editor, {
+          at: path,
+          match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+        });
+        if (!blockEntry) {
+          return false;
+        }
+
+        const [, blockPath] = blockEntry;
+        return Editor.isStart(editor, Editor.start(editor, path), blockPath);
+      });
+
+      if (scheduleFlush) {
+        ReactEditor.androidScheduleFlush(editor);
+      }
+    });
+  }, []);
+
+
+
   useEffect(() => {
     window.addEventListener('message', function (event) {
       if (event.data == 'bold') {
@@ -129,12 +181,89 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
     if (slateObject && slateObject.type === 'arrowLeft' && slateObject.tableId === tableID && keyID === slateObject.id - 1) {
       ReactEditor.focus(editor);
     } else if (slateObject && slateObject.type === 'arrowUp' && slateObject.tableId === tableID && keyID === slateObject.id - 2) {
-      console.log(slateObject, keyID, 'slate object check');
+      
       ReactEditor.focus(editor);
     } else {
       ReactEditor.blur(editor);
     }
   }, [slateObject]);
+
+  const SHORTCUTS = {
+    '1.': 'list-item',
+    '-': 'list-item',
+    '+': 'list-item',
+    '>': 'block-quote',
+    '#': 'heading-one',
+    '##': 'heading-two',
+    '###': 'heading-three',
+    '####': 'heading-four',
+    '#####': 'heading-five',
+    '######': 'heading-six',
+  };
+  
+
+  editor.insertText = (text) => {
+    const { selection } = editor;
+    const block = Editor.above(editor, {
+      match: (n) => Editor.isVoid(editor, n),
+    });
+
+    console.log(selection, 'selection');
+    const tableBlock = Editor.above(editor, {
+      at: editor.selection.anchor.path,
+      match: (n) => n.type === 'table-list',
+    });
+
+    const [tableCell] = Editor.nodes(editor, {
+      match: (n) => n.type === 'table-list',
+      at: editor.selection,
+    });
+    const ua = navigator.userAgent;
+    const [startPoint, endPoint] = Range.edges(editor.selection);
+    const edges = [startPoint.path, endPoint.path];
+    if (block) {
+      Transforms.move(editor, { distance: 1, unit: 'offset', reverse: false });
+      return;
+    } else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+      const { anchor } = selection;
+      const block = Editor.above(editor, {
+        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+      });
+      const path = block ? block[1] : [];
+      const start = Editor.start(editor, path);
+      const range = { anchor, focus: start };
+      const beforeText = Editor.string(editor, range) + text.slice(0, -1);
+      const type = SHORTCUTS[beforeText];
+      let pattern = /\u200B1./;
+
+      if (pattern.test(beforeText) || type) {
+        Transforms.select(editor, range);
+
+        if (!Range.isCollapsed(range)) {
+          Transforms.delete(editor);
+        }
+
+        const newProperties = {
+          type,
+        };
+        Transforms.setNodes <
+          SlateElement >
+          (editor,
+          newProperties,
+          {
+            match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+          });
+
+          toggleBlock(editor, 'numbered-list', 'number');
+
+        return;
+      }
+    }
+
+    insertText(text);
+
+    // Transforms.insertText(editor, text);
+  };
 
   editor.insertBreak = () => {
     const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -172,93 +301,78 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
   };
 
   editor.deleteBackward = (...args) => {
-    // alert("delete");
     let listItemParent;
     let previousParent;
+    let previousVoid;
     let nextParent;
+    let parentCheck;
     const [listItems] = Editor.nodes(editor, {
       at: editor.selection.anchor.path,
-      match: (n) => ['paragraph', 'list-item'].includes(n.type),
+      match: (n) => ['span-txt', 'paragraph', 'input-component', 'table-list', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
     });
+
+    const listItemCheck = Editor.above(editor, {
+      match: (n) => n.type == 'list-item' || n.type == 'paragraph',
+    });
+    const stringText = Editor.string(editor, editor.selection.anchor.path);
 
     if (listItems) {
       listItemParent = Editor.node(editor, listItems[1]);
+
       previousParent = Editor.previous(editor, {
         at: listItems[1],
       });
-      nextParent = Editor.next(editor, { at: listItems[1] });
-    }
-    console.log(nextParent, listItems, 'list items');
-
-    const currentNodeParent = Editor.node(editor, {
-      at: editor.selection.anchor.path,
-    });
-
-    if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
-      deleteBackward(...args);
-      if (!backwardCheck) {
-        backwardCheck = true;
-        console.log('banner red merged');
-        const currentNode = Editor.node(editor, editor.selection.anchor.path);
-
-        if (['katex', 'inline-bug'].includes(currentNode[0].type)) {
-          Transforms.move(editor, { distance: 1, unit: 'offset' });
-        }
-
-        Transforms.mergeNodes(editor, {
-          at: listItemParent[1],
-          match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['banner-red-wrapper'].includes(n.type),
-        });
-        const [listItems] = Editor.nodes(editor, {
-          at: editor.selection.anchor.path,
-          match: (n) => ['numbered-list', 'bulleted-list'].includes(n.type),
-        });
-
-        if (listItems) {
-          let nextnode;
-          nextnode = Editor.next(editor, {
-            at: listItems[1],
-            match: (n) => ['paragraph', 'numbered-list', 'bulleted-list'].includes(n.type),
-          });
-
-          console.log(nextnode, 'node check');
-
-          if (listItems[0].type == nextnode[0].type) {
-            Transforms.mergeNodes(editor, {
-              at: nextnode[1],
-              match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes(n.type),
-            });
-          }
-        }
-      }
-    } else if (listItemParent && listItemParent[0].type == 'dropdown-content') {
-      const [listItems] = Editor.nodes(editor, {
-        at: editor.selection.anchor.path,
-        match: (n) => ['dropdown-inner'].includes(n.type),
+      previousVoid = Editor.previous(editor, {
+        at: listItems[1],
+        match: (n) => ['katex', 'span-txt'].includes(n.type),
       });
 
-      const start = Editor.node(editor, editor.selection.anchor.path);
+      nextParent = Editor.next(editor, {
+        at: listItems[1],
+      });
+    }
 
-      if (start[0].text.length == 0 && listItems[0].children.length == 1) {
-        return;
-      } else {
-        deleteBackward(...args);
+    if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
+      Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
+
+      const currentNode = Editor.node(editor, editor.selection.anchor.path);
+
+      if (['katex', 'inline-bug'].includes(currentNode[0].type)) {
+        Transforms.move(editor, { distance: 1, unit: 'offset' });
       }
-    } else if (previousParent && previousParent[0].type == 'dropdown-content' && editor.selection.anchor.offset == 0) {
-      Transforms.removeNodes(editor, { at: previousParent[1] });
-      Transforms.insertNodes(
-        editor,
-        {
-          type: 'paragraph',
-          children: [
-            {
-              text: '',
-            },
-          ],
-        },
-        { at: previousParent[1] },
-      );
-      deleteBackward(...args);
+
+      Transforms.mergeNodes(editor, {
+        at: listItemParent[1],
+        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['banner-red-wrapper'].includes(n.type),
+      });
+      const [listItems] = Editor.nodes(editor, {
+        at: editor.selection.anchor.path,
+        match: (n) => ['numbered-list', 'bulleted-list'].includes(n.type),
+      });
+
+      if (listItems) {
+        let nextnode;
+        nextnode = Editor.next(editor, {
+          at: listItems[1],
+          match: (n) => ['paragraph', 'numbered-list', 'bulleted-list'].includes(n.type),
+        });
+
+        if (listItems[0].type == nextnode[0].type) {
+          Transforms.mergeNodes(editor, {
+            at: nextnode[1],
+            match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes(n.type),
+          });
+        }
+      }
+    } else if (previousParent && previousParent[0].type == 'check-list-item' && editor.selection.anchor.offset == 0) {
+      Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
+
+      if (previousParent[0].children[0].text.length == 0) {
+        Transforms.setNodes(editor, {
+          type: 'check-list-item',
+          checked: previousParent[0].checked,
+        });
+      }
     } else if (
       nextParent &&
       previousParent &&
@@ -266,79 +380,50 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
       ['numbered-list', 'bulleted-list'].includes(nextParent[0].type) &&
       previousParent[0].type == nextParent[0].type
     ) {
-      deleteBackward(...args);
+      Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
-      if (!backwardCheck) {
-        console.log('number list merged');
-
-        backwardCheck = true;
-        const currentNode = Editor.node(editor, editor.selection.anchor);
-
-        if (['katex', 'inline-bug'].includes(currentNode[0].type)) {
-          Transforms.move(editor, { distance: 1, unit: 'offset' });
-        }
-
-        Transforms.mergeNodes(editor, {
-          at: listItemParent[1],
-          match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes(n.type),
-        });
-      }
+      Transforms.mergeNodes(editor, {
+        at: listItemParent[1],
+        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes(n.type),
+      });
     } else if (
-      listItemParent &&
-      listItemParent[0].type == 'list-item' &&
-      listItemParent[1][listItemParent[1].length - 1] == 0 &&
-      editor.selection.anchor.offset == 0 &&
-      currentNodeParent[1].at[currentNodeParent[1].at.length - 1] == 0
+      listItemCheck &&
+      (listItemCheck[0].type == 'list-item' || listItemCheck[0].type == 'check-list-item') &&
+      listItemCheck[1][listItemCheck[1].length - 1] === 0 &&
+      editor.selection.anchor.offset === 0
     ) {
-      toggleBlock(editor, 'list-item');
-    } else {
-      // Editor.deleteBackward(editor, { unit: "word" });
-      const string = Node.leaf(editor, editor.selection.anchor.path);
+      toggleBlock(editor, listItemCheck[0].type);
+    } else if (previousParent && previousParent[0].type === 'table-list') {
+      Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
+    } else if (
+      previousParent &&
+      ['editable-void', 'ImageWrapper', 'input-component'].includes(previousParent[0].type) &&
+      editor.selection.anchor.offset == 0 &&
+      !['editable-void', 'ImageWrapper', 'input-component'].includes(listItemParent[0].type)
+    ) {
+      Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
-      //
-      if (string.text.length == 0) {
-        deleteBackward(...args);
+      Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
+      // Transforms.select(editor, previousVoid[1]);
+    }
 
-        if (!backwardCheck) {
-          backwardCheck = true;
-          const string = Node.leaf(editor, editor.selection.anchor.path);
-          const [listItems] = Editor.nodes(editor, {
-            at: editor.selection.anchor.path,
-            match: (n) => ['list-item', 'katex', 'inline-bug'].includes(n.type),
-          });
+    // else if(listItemParent && ['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)){
+    //   Transforms.removeNodes(editor,{at:listItemParent[1]})
+    // }
+    else {
+      Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
-          const currentNode = Editor.node(editor, editor.selection.anchor);
-
-          if (currentNode && (currentNode[0].type == 'katex' || currentNode[0].type == 'inline-bug')) {
-            Transforms.move(editor, { distance: 1, unit: 'offset' });
-          }
-
-          if (string.text.length == 0 && !listItems) {
-            Transforms.setNodes(editor, { type: 'paragraph' });
-            FORMAT_TYPES.map((o) => {
-              Editor.removeMark(editor, o);
-            });
-          }
-        }
-      } else {
-        deleteBackward(...args);
-
-        if (!backwardCheck) {
-          backwardCheck = true;
-
-          const currentNode = Editor.node(editor, editor.selection.anchor.path);
-          const previousNode = Editor.previous(editor, { at: editor.selection.anchor.path });
-          const nextNode = Editor.next(editor, { at: editor.selection.anchor.path });
-
-          if (currentNode[0].type == 'katex' || currentNode[0].type == 'inline-bug') {
-            Transforms.move(editor, { distance: 1, unit: 'offset' });
-          } else if (previousNode && nextNode && previousNode[0].type == 'link' && nextNode[0].type == 'link') {
-            Transforms.delete(editor, { at: editor.selection.anchor.path });
-          }
-        }
+      const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+      if (/\u200B/.test(currentNode[0].children[0].text)) {
+        Transforms.delete(editor, {
+          distance: 1,
+          unit: 'offset',
+          reverse: true,
+        });
       }
     }
   };
+
 
   editor.deleteFragment = (...args) => {
     const firstNode = Editor.fragment(editor, editor.selection.anchor);
@@ -388,22 +473,29 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
 
   return (
     <div>
+ 
       <Slate
         editor={editor}
-        onChange={(e) => {
-          const string = Node.leaf(editor, editor.selection.anchor.path);
-          if (string.text.startsWith('1. ')) {
-            toggleBlock(editor, 'numbered-list', 'number');
-            Transforms.delete(editor, {
+        onChange={(value) => {
+          const ua = navigator.userAgent;
+
+          if (editor.selection) {
+            const [block] = Editor.nodes(editor, {
+              match: (n) => n.type === 'table-list',
               at: editor.selection.anchor,
-              unit: 'word',
-              reverse: true,
             });
 
-            // checklist(editor);
-          }
+            const parent = Editor.parent(editor, editor.selection.anchor.path);
 
-          backwardCheck = false;
+            let markActive = isMarkActive(editor, 'bold');
+            let pattern = /^\d+\. /; // \d+ matches one or more digits, followed by a literal period
+
+            if (parent[0].type == 'link' && parent[0].children[0].text.length <= 0) {
+              Transforms.removeNodes(editor, {
+                at: parent[1],
+              });
+            }
+          }
         }}
         initialValue={initialValue}>
         <Editable
@@ -413,9 +505,9 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
           autoCapitalize='off'
           spellCheck={false}
           onFocus={onFocus}
+          onDOMBeforeInput={handleDOMBeforeInput}
           onBlur={onBlur}
           autoFocus={false}
-          className='mobile-slate'
           id={id}
           renderLeaf={renderLeaf}
           onKeyDown={(event) => {
@@ -451,7 +543,6 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
               event.preventDefault();
               dispatch(setSlateCheck({ id: keyID, type: 'arrowUp', tableId: tableID }));
             } else if (event.key == 'ArrowRight') {
-              rightCheck = true;
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
               HistoryEditor.undo(editor);
@@ -788,13 +879,13 @@ const toggleMark = (editor, format) => {
 const toggleBlock = (editor, format, type) => {
   const isActive = isBlockActive(editor, format, TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type');
   const isList = LIST_TYPES.includes(format) || format == 'banner-red-wrapper';
-  let LIST_PARENT = ['numbered-list', 'bulleted-list'];
+  let LIST_PARENT = ['numbered-list', 'bulleted-list', 'check-list', 'banner-red-wrapper', 'table-list'];
   let formatCheck;
 
-  if (format == 'list-item') {
-    formatCheck = ['numbered-list', 'bulleted-list'];
+  if (format == 'list-item' || format == 'check-list-item') {
+    formatCheck = ['numbered-list', 'bulleted-list', 'check-list'];
   } else {
-    formatCheck = format;
+    formatCheck = [format];
   }
 
   Transforms.unwrapNodes(editor, {
@@ -812,8 +903,10 @@ const toggleBlock = (editor, format, type) => {
   } else {
     newProperties = {
       type: isActive ? 'paragraph' : isList ? 'list-item' : formatCheck,
+      children: [{ text: '' }],
     };
   }
+
   Transforms.setNodes(editor, newProperties);
 
   if (!isActive && isList) {
@@ -821,40 +914,76 @@ const toggleBlock = (editor, format, type) => {
     Transforms.wrapNodes(editor, block);
   }
 
-  const listItems = Editor.nodes(editor, {
-    at: editor.selection.anchor.path,
+  const [currentNode] = Editor.nodes(editor, {
+    mode: 'lowest',
     match: (n) => LIST_PARENT.includes(n.type),
   });
-  let previousParent, nextParent, currentParent;
-  for (const listItem of listItems) {
-    previousParent = Editor.previous(editor, {
-      at: listItem[1],
+
+  let prevParent, nextParent;
+  let parentCheck;
+  if (currentNode) {
+    parentCheck = Editor.above(editor, {
+      at: currentNode[1],
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type === 'table-cell1' || n.type === 'banner-red-wrapper'),
+    });
+    prevParent = Editor.previous(editor, {
+      at: currentNode[1],
+      mode: parentCheck ? 'lowest' : 'highest',
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && (n.type === 'paragraph' || LIST_PARENT.includes(n.type)),
     });
     nextParent = Editor.next(editor, {
-      at: listItem[1],
+      at: currentNode[1],
+      mode: parentCheck ? 'lowest' : 'highest',
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && (LIST_PARENT.includes(n.type) || n.type === 'paragraph'),
     });
-
-    currentParent = Editor.node(editor, listItem[1]);
   }
 
-  if (nextParent && previousParent && LIST_PARENT.includes(nextParent[0].type) && LIST_PARENT.includes(previousParent[0].type) && currentParent[0].type == previousParent[0].type) {
+  if (
+    currentNode &&
+    prevParent &&
+    nextParent &&
+    nextParent[0].type === prevParent[0].type &&
+    currentNode[0].type == prevParent[0].type &&
+    currentNode[0].type == nextParent[0].type &&
+    currentNode[1][currentNode[1].length - 1] !== 0
+  ) {
+    const [parent, parentPath] = currentNode;
+
+    // Merge current node with the one above
+    Transforms.mergeNodes(editor, {
+      at: parentPath,
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
+    });
+
+    // Merge the newly merged node with the one below
+    Transforms.mergeNodes(editor, {
+      at: parentPath,
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
+    });
+
+    // // Wrap the merged content into a new numbered list
+    // const newList = { type: 'numbered-list', children: [] };
+    // Transforms.wrapNodes(editor, newList, { at: parentPath });
+  } else if (prevParent && currentNode && (!parentCheck || (parentCheck && currentNode[1][currentNode[1].length - 1] !== 0)) && currentNode[0].type === prevParent[0].type) {
+    const [parent, parentPath] = currentNode;
+
+    Transforms.mergeNodes(editor, {
+      at: parentPath,
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
+    });
+  } else if (
+    nextParent &&
+    (!parentCheck ||
+      (parentCheck &&
+        parentCheck[0].children.filter((o) => {
+          return o.type === 'numbered-list';
+        }).length > 1)) &&
+    currentNode &&
+    currentNode[0].type === nextParent[0].type
+  ) {
     Transforms.mergeNodes(editor, {
       at: nextParent[1],
-      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
-    });
-    Transforms.mergeNodes(editor, {
-      at: editor.selection.anchor.path,
-      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
-    });
-  } else if (currentParent && nextParent && currentParent[0].type == nextParent[0].type && nextParent && LIST_PARENT.includes(nextParent[0].type)) {
-    Transforms.mergeNodes(editor, {
-      at: nextParent[1],
-      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
-    });
-  } else if (currentParent && previousParent && currentParent[0].type == previousParent[0].type && LIST_PARENT.includes(previousParent[0].type)) {
-    Transforms.mergeNodes(editor, {
-      at: editor.selection.anchor.path,
-      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && LIST_PARENT.includes(n.type),
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
     });
   }
 };
@@ -954,7 +1083,7 @@ const EditableVoid = ({ attributes, children, element }) => {
     cardObj.id = card.length;
     cardnow = [...card, cardObj];
 
-    console.log(cardnow, 'card now');
+    
     setObj(cardnow);
     Transforms.setNodes(editor, { card: cardnow }, { at: path });
   };
@@ -970,7 +1099,7 @@ const EditableVoid = ({ attributes, children, element }) => {
   const setModal = useCallback((key, card1, check) => {
     let cardnow = [...card1];
     var index = _.findIndex(cardnow, { id: key });
-    console.log(cardnow[index], 'card index');
+    
     // cardnow.splice(index, 1, { ...cardnow[index], check: check });
     setObj(cardnow[index]);
     // Transforms.setNodes(editor, { card: cardnow }, { at: path });
@@ -1170,7 +1299,7 @@ const Element = (props) => {
       );
     case 'list-item':
       return (
-        <li style={style} {...attributes}>
+        <li style={style} className='list-item' {...attributes}>
           {children}
         </li>
       );
