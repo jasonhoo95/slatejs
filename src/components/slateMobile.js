@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
 import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from 'slate-react';
-import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Text, Range, Node, Point } from 'slate';
+import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Node as SlateNode, Text, Range, Node, Point, setPoint } from 'slate';
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useBearStore, useAuthStore } from '@/globals/authStorage';
 import PlainTextExample from './plainText';
