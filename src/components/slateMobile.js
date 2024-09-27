@@ -469,6 +469,7 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
     focusCheck(false);
 
     // savedSelection.current = editor.selection;
+    Transforms.deselect(editor);
     window.removeEventListener('resize', getCaretCoordinates);
 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
