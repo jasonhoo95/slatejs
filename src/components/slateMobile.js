@@ -156,27 +156,35 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
 
 
   useEffect(() => {
-    window.addEventListener('message', function (event) {
+    const messageListener = (event) => {
       if (event.data == 'bold') {
         toggleMark(editor, 'bold');
       } else if (event.data == 'blur') {
-        window.scrollTo(0, 0);
         ReactEditor.blur(editor);
-        this.window.removeEventListener('message', this);
-        window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur1');
+        // this.window.scrollTo(0, 0);
+      } else if (event.data == 'katexinsert') {
+        Transforms.insertText(editor, '\u200B'.toString(), {
+          at: editor.selection.anchor,
+        });
       } else if (event.data == 'katex') {
-        insertKatex(editor, 'kkasdl', updateAmount);
-      } else if (event.data == 'focus') {
-        const parentCheck = Editor.parent(editor, editor.selection.anchor.path, { match: (n) => n.type == 'katex' });
-        if (parentCheck[0].type == 'katex') {
-          Transforms.move(editor, { distance: 1, unit: 'offset' });
-        }
         ReactEditor.focus(editor);
-        window.removeEventListener('resize', getCaretCoordinates);
-      }
-    });
-  }, [editor]);
 
+        insertKatex(editor, 'flutter123');
+      } else if (event.data == 'focus') {
+        ReactEditor.focus(editor);
+      } else {
+        window.removeEventListener('message', messageListener);
+      }
+    };
+
+    window.addEventListener('message', messageListener);
+
+    return () => {
+      window.removeEventListener('message', messageListener);
+    };
+
+    // Cleanup when the component unmounts or when the dependency changes
+  }, []);
   useEffect(() => {
     if (slateObject && slateObject.type === 'arrowLeft' && slateObject.tableId === tableID && keyID === slateObject.id - 1) {
       ReactEditor.focus(editor);
@@ -208,7 +216,7 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
       match: (n) => Editor.isVoid(editor, n),
     });
 
-    console.log(selection, 'selection');
+    
     const tableBlock = Editor.above(editor, {
       at: editor.selection.anchor.path,
       match: (n) => n.type === 'table-list',
@@ -411,6 +419,7 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
     //   Transforms.removeNodes(editor,{at:listItemParent[1]})
     // }
     else {
+      
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
       const currentNode = Editor.parent(editor, editor.selection.anchor.path);
@@ -542,7 +551,6 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
             } else if (event.key === 'ArrowUp') {
               event.preventDefault();
               dispatch(setSlateCheck({ id: keyID, type: 'arrowUp', tableId: tableID }));
-            } else if (event.key == 'ArrowRight') {
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
               HistoryEditor.undo(editor);
