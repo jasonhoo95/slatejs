@@ -104,7 +104,6 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
   const { insertBreak } = editor;
   const savedSelection = React.useRef(editor.selection);
 
-
   const handleDOMBeforeInput = useCallback((e) => {
     queueMicrotask(() => {
       const pendingDiffs = ReactEditor.androidPendingDiffs(editor);
@@ -153,16 +152,16 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
     });
   }, []);
 
-
-
   useEffect(() => {
-    const messageListener = (event) => {
-      if (event.data == 'bold') {
+    const messageListener = window.addEventListener('message', function (event) {
+      const data = JSON.parse(event.data);
+      if (data && data.bold && data.id === keyID) {
         toggleMark(editor, 'bold');
       } else if (event.data == 'blur') {
         ReactEditor.blur(editor);
         // this.window.scrollTo(0, 0);
       } else if (event.data == 'katexinsert') {
+        x;
         Transforms.insertText(editor, '\u200B'.toString(), {
           at: editor.selection.anchor,
         });
@@ -175,7 +174,7 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
       } else {
         window.removeEventListener('message', messageListener);
       }
-    };
+    });
 
     window.addEventListener('message', messageListener);
 
@@ -189,7 +188,6 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
     if (slateObject && slateObject.type === 'arrowLeft' && slateObject.tableId === tableID && keyID === slateObject.id - 1) {
       ReactEditor.focus(editor);
     } else if (slateObject && slateObject.type === 'arrowUp' && slateObject.tableId === tableID && keyID === slateObject.id - 2) {
-      
       ReactEditor.focus(editor);
     } else {
       ReactEditor.blur(editor);
@@ -208,7 +206,6 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
     '#####': 'heading-five',
     '######': 'heading-six',
   };
-  
 
   editor.insertText = (text) => {
     const { selection } = editor;
@@ -216,7 +213,6 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
       match: (n) => Editor.isVoid(editor, n),
     });
 
-    
     const tableBlock = Editor.above(editor, {
       at: editor.selection.anchor.path,
       match: (n) => n.type === 'table-list',
@@ -262,7 +258,7 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
             match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
           });
 
-          toggleBlock(editor, 'numbered-list', 'number');
+        toggleBlock(editor, 'numbered-list', 'number');
 
         return;
       }
@@ -419,7 +415,6 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
     //   Transforms.removeNodes(editor,{at:listItemParent[1]})
     // }
     else {
-      
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
       const currentNode = Editor.parent(editor, editor.selection.anchor.path);
@@ -432,7 +427,6 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
       }
     }
   };
-
 
   editor.deleteFragment = (...args) => {
     const firstNode = Editor.fragment(editor, editor.selection.anchor);
@@ -467,7 +461,7 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
     // Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
     window.addEventListener('resize', getCaretCoordinates);
-    window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'focus123');
+    window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid', keyID);
   }, []);
 
   const onBlur = useCallback(() => {
@@ -482,7 +476,6 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
 
   return (
     <div>
- 
       <Slate
         editor={editor}
         onChange={(value) => {
@@ -1091,7 +1084,6 @@ const EditableVoid = ({ attributes, children, element }) => {
     cardObj.id = card.length;
     cardnow = [...card, cardObj];
 
-    
     setObj(cardnow);
     Transforms.setNodes(editor, { card: cardnow }, { at: path });
   };
@@ -1107,7 +1099,7 @@ const EditableVoid = ({ attributes, children, element }) => {
   const setModal = useCallback((key, card1, check) => {
     let cardnow = [...card1];
     var index = _.findIndex(cardnow, { id: key });
-    
+
     // cardnow.splice(index, 1, { ...cardnow[index], check: check });
     setObj(cardnow[index]);
     // Transforms.setNodes(editor, { card: cardnow }, { at: path });
