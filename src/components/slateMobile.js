@@ -155,7 +155,7 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
   useEffect(() => {
     const messageListener = window.addEventListener('message', function (event) {
       const data = JSON.parse(event.data);
-      if (data && data.bold && data.id === keyID) {
+      if (data && data.bold && data.id === keyID && data.tableid === tableID) {
         toggleMark(editor, 'bold');
       } else if (event.data == 'blur') {
         ReactEditor.blur(editor);
@@ -461,7 +461,7 @@ const SlateMobile = ({ keyID, tableID, focusCheck, path }) => {
     // Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
     window.addEventListener('resize', getCaretCoordinates);
-    window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid', keyID);
+    window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid', keyID, tableID);
   }, []);
 
   const onBlur = useCallback(() => {
