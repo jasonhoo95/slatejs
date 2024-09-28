@@ -138,17 +138,6 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
   }, []);
 
-  const toggleMark = (editor, format) => {
-    const isActive = isMarkActive(editor, format);
-
-    if (isActive) {
-      Editor.removeMark(editor, format);
-    } else {
-      Editor.addMark(editor, format, true);
-    }
-    ReactEditor.focus(editor);
-  };
-
   useEffect(() => {
     const messageListener = window.addEventListener('message', function (event) {
       const data = JSON.parse(event.data);
@@ -472,6 +461,17 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
       />
     </Slate>
   );
+};
+
+const toggleMark = (editor, format) => {
+  const isActive = isMarkActive(editor, format);
+
+  if (isActive) {
+    Editor.removeMark(editor, format);
+  } else {
+    Editor.addMark(editor, format, true);
+  }
+  ReactEditor.focus(editor);
 };
 
 const Element = (props) => {
