@@ -407,25 +407,6 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
   };
   return (
     <Slate editor={editor} initialValue={initialValue}>
-      <div
-        onClick={(e) => {
-          e.preventDefault();
-          toggleMark(editor, 'bold');
-        }}
-        style={{
-          color: isBlockActive(editor, 'bold', TEXT_ALIGN_TYPES.includes('bold') ? 'align' : 'type') ? 'red' : 'black',
-        }}>
-        BOLD
-      </div>
-
-      <div
-        onClick={(e) => {
-          ReactEditor.focus(editor);
-          toggleBlock(editor, 'numbered-list', 'number');
-        }}>
-        insert numbered list
-      </div>
-
       <Editable
         autoCapitalize='off'
         spellCheck={false}
