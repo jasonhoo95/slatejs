@@ -207,14 +207,13 @@ const SlateReact = () => {
     });
   }, []);
 
-  // useEffect(() => {
-  //   if (slateObject && slateObject.type === 'arrowLeft' && slateObject.id === 0) {
-
-  //     ReactEditor.focus(editor);
-  //     Transforms.select(editor, slateObject.mainPath);
-  //     Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true });
-  //   }
-  // }, [slateObject]);
+  useEffect(() => {
+    if (slateObject && slateObject.type === 'arrowLeft' && slateObject.id === 0) {
+      ReactEditor.focus(editor);
+      Transforms.select(editor, slateObject.mainPath);
+      Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true });
+    }
+  }, [slateObject]);
 
   useEffect(() => {
     const messageListener = (event) => {
