@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react';
-
 import isHotkey, { isKeyHotkey } from 'is-hotkey';
 import SlateMobile from './slateMobile';
+import SlatePlainText from './slatePlainText';
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
 import { Editable, withReact, useSlate, useSlateStatic, Slate, ReactEditor, useSelected, useFocused, useReadOnly } from 'slate-react';
@@ -207,14 +207,14 @@ const SlateReact = () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (slateObject && slateObject.type === 'arrowLeft' && slateObject.id === 0) {
-      
-      ReactEditor.focus(editor);
-      Transforms.select(editor, slateObject.mainPath);
-      Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true });
-    }
-  }, [slateObject]);
+  // useEffect(() => {
+  //   if (slateObject && slateObject.type === 'arrowLeft' && slateObject.id === 0) {
+
+  //     ReactEditor.focus(editor);
+  //     Transforms.select(editor, slateObject.mainPath);
+  //     Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true });
+  //   }
+  // }, [slateObject]);
 
   useEffect(() => {
     const messageListener = (event) => {
@@ -253,7 +253,6 @@ const SlateReact = () => {
       match: (n) => Editor.isVoid(editor, n),
     });
 
-    
     const tableBlock = Editor.above(editor, {
       at: editor.selection.anchor.path,
       match: (n) => n.type === 'table-list',
@@ -1487,7 +1486,6 @@ const TableList = ({ attributes, children, element }) => {
     }
   }
   useEffect(() => {
-    
     const messageListener = (e) => {
       if (selected) {
         checknow(e);
@@ -1515,7 +1513,7 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 0 && key <= 1) {
               return (
                 <td id={'id-' + key}>
-                  <SlateMobile focusCheck={setChecked} path={path} tableID={id} keyID={key} />
+                  <SlatePlainText focusCheck={setChecked} path={path} tableID={id} keyID={key} />
                 </td>
               );
             }
@@ -1527,7 +1525,7 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 2 && key <= 3) {
               return (
                 <td id={'id-' + key}>
-                  <SlateMobile focusCheck={setChecked} path={path} tableID={id} keyID={key} />
+                  <SlatePlainText focusCheck={setChecked} path={path} tableID={id} keyID={key} />
                 </td>
               );
             }
