@@ -25,37 +25,6 @@ const LIST_TYPES = ['numbered-list', 'bulleted-list', 'list-item', 'check-list-i
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
 const FORMAT_TYPES = ['bold', 'italic', 'underline'];
 
-function getCaretCoordinates() {
-  let x = 0,
-    y = 0;
-  const isSupported = typeof window.getSelection !== 'undefined';
-  if (isSupported) {
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) {
-      return;
-    }
-    const range = sel.getRangeAt(0);
-    // we can still workaround the default behavior too
-    const rects = range.getClientRects();
-    if (!rects.length) {
-      if (range.startContainer && range.collapsed) {
-        range.selectNodeContents(range.startContainer);
-      }
-    }
-
-    let position = range.getBoundingClientRect();
-    const char_before = range.startContainer.textContent;
-
-    x = position.x;
-    y = position.y + window.scrollY - 100;
-    anchorPoint = y;
-    if (y > 0) {
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-  }
-  // return { x, y };
-}
-
 const SHORTCUTS = {
   '1.': 'list-item',
   '-': 'list-item',
@@ -124,7 +93,6 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
     focusCheck(true);
     // Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
-    window.addEventListener('resize', getCaretCoordinates);
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid', keyID, tableID);
   }, []);
 
@@ -133,7 +101,6 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
 
     // savedSelection.current = editor.selection;
     Transforms.deselect(editor);
-    window.removeEventListener('resize', getCaretCoordinates);
 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
   }, []);
@@ -410,6 +377,7 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
       <Editable
         autoCapitalize='off'
         spellCheck={false}
+        className='content-slate'
         onFocus={onFocus}
         style={{ padding: '10px' }}
         onDOMBeforeInput={handleDOMBeforeInput}
