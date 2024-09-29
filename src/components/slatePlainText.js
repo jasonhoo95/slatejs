@@ -3,7 +3,7 @@ import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocu
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Node as SlateNode, Text, Range, Node, Point, setPoint } from 'slate';
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useSelector, useDispatch } from 'react-redux';
-import { setSlateCheck } from '@/globals/counterSlice';
+import { setSlateCheck, setMobileFocus } from '@/globals/counterSlice';
 import isHotkey from 'is-hotkey';
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
@@ -101,7 +101,7 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
 
     // savedSelection.current = editor.selection;
     Transforms.deselect(editor);
-
+    dispatch(setMobileFocus({ focus: true }));
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
   }, []);
 

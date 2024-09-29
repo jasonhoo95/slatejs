@@ -11,6 +11,7 @@ import { useModalStore } from '@/globals/zustandGlobal';
 import EditablePopup from './editablePopup';
 import { before } from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
+import { setMobileFocus } from '@/globals/counterSlice';
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -146,6 +147,7 @@ const SlateReact = () => {
   let id = v4();
   let ModalProps = useModalStore((state) => state.display);
   let updateAmount = useModalStore((state) => state.updateModal);
+  const dispatch = useDispatch();
 
   const [focus, setFocus] = useState(true);
   const [disabled, setDisabled] = useState(false);
@@ -156,6 +158,7 @@ const SlateReact = () => {
   const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
   const { deleteFragment, deleteBackward, onChange, insertText, apply } = editor;
   const slateObject = useSelector((state) => state.counter.slateObject);
+  const mobileFocus = useSelector((state) => state.counter.focus);
 
   const { insertBreak } = editor;
 
@@ -532,16 +535,21 @@ const SlateReact = () => {
       deleteFragment(...args);
     }
   };
-  const onFocus = useCallback((e) => {
-    setFocus(true);
-    window.addEventListener('resize', getCaretCoordinates);
+  const onFocus = useCallback(
+    (e) => {
+      if (!mobileFocus) {
+        setFocus(true);
+        window.addEventListener('resize', getCaretCoordinates);
 
-    window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'focus123');
-  }, []);
+        window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'focus123');
+      }
+    },
+    [mobileFocus],
+  );
 
   const onBlur = useCallback((e) => {
     setFocus(false);
-
+    dispatch(setMobileFocus({ focus: false }));
     // savedSelection.current = editor.selection;
     window.removeEventListener('resize', getCaretCoordinates);
 
