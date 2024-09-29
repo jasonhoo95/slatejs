@@ -1505,8 +1505,15 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table id={id} style={{ background: !check && selected ? 'blue' : '' }} className='table-list relative' {...attributes}>
-        {children}
+      <table
+        id={id}
+        onClick={(e) => {
+          setChecked(true);
+        }}
+        style={{ background: !check && selected ? 'blue' : '' }}
+        className='table-list relative'
+        {...attributes}>
+        {!check && !selected ? <div className='absolute left-0 top-0 w-full h-full z-[4]'>{children}</div> : children}
         <tr contentEditable='false'>
           {card.map((o, key) => {
             if (key >= 0 && key <= 1) {
