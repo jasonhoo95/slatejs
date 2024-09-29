@@ -535,16 +535,11 @@ const SlateReact = () => {
       deleteFragment(...args);
     }
   };
-  const onFocus = useCallback(
-    (e) => {
-      window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'focus123');
-      if (!mobileFocus) {
-        setFocus(true);
-        window.addEventListener('resize', getCaretCoordinates);
-      }
-    },
-    [mobileFocus],
-  );
+  const onFocus = useCallback((e) => {
+    window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'focus123');
+    setFocus(true);
+    window.addEventListener('resize', getCaretCoordinates);
+  }, []);
 
   const onBlur = useCallback((e) => {
     setFocus(false);
