@@ -105,37 +105,37 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
   }, []);
 
-  // useEffect(() => {
-  //   const messageListener = window.addEventListener('message', function (event) {
-  //     const data = JSON.parse(event.data);
-  //     if (data && data.bold && data.id === keyID && data.tableid === tableID) {
-  //       toggleMark(editor, 'bold');
-  //     } else if (event.data == 'blur') {
-  //       ReactEditor.blur(editor);
-  //       // this.window.scrollTo(0, 0);
-  //     } else if (event.data == 'katexinsert') {
-  //       Transforms.insertText(editor, '\u200B'.toString(), {
-  //         at: editor.selection.anchor,
-  //       });
-  //     } else if (event.data == 'katex') {
-  //       ReactEditor.focus(editor);
+  useEffect(() => {
+    const messageListener = window.addEventListener('message', function (event) {
+      const data = JSON.parse(event.data);
+      if (data && data.bold && data.id === keyID && data.tableid === tableID) {
+        toggleMark(editor, 'bold');
+      } else if (event.data == 'blur') {
+        ReactEditor.blur(editor);
+        // this.window.scrollTo(0, 0);
+      } else if (event.data == 'katexinsert') {
+        Transforms.insertText(editor, '\u200B'.toString(), {
+          at: editor.selection.anchor,
+        });
+      } else if (event.data == 'katex') {
+        ReactEditor.focus(editor);
 
-  //       insertKatex(editor, 'flutter123');
-  //     } else if (event.data == 'focus') {
-  //       ReactEditor.focus(editor);
-  //     } else {
-  //       window.removeEventListener('message', messageListener);
-  //     }
-  //   });
+        insertKatex(editor, 'flutter123');
+      } else if (event.data == 'focus') {
+        ReactEditor.focus(editor);
+      } else {
+        window.removeEventListener('message', messageListener);
+      }
+    });
 
-  //   window.addEventListener('message', messageListener);
+    window.addEventListener('message', messageListener);
 
-  //   return () => {
-  //     window.removeEventListener('message', messageListener);
-  //   };
+    return () => {
+      window.removeEventListener('message', messageListener);
+    };
 
-  //   // Cleanup when the component unmounts or when the dependency changes
-  // }, []);
+    // Cleanup when the component unmounts or when the dependency changes
+  }, []);
 
   useEffect(() => {
     if (slateObject && slateObject.type === 'arrowLeft' && slateObject.tableId === tableID && keyID === slateObject.id - 1) {
