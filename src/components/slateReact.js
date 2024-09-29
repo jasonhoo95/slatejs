@@ -537,11 +537,10 @@ const SlateReact = () => {
   };
   const onFocus = useCallback(
     (e) => {
+      window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'focus123');
       if (!mobileFocus) {
         setFocus(true);
         window.addEventListener('resize', getCaretCoordinates);
-
-        window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'focus123');
       }
     },
     [mobileFocus],
