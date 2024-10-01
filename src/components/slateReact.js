@@ -755,7 +755,44 @@ const SlateReact = () => {
               type: 'table-list',
               checked: true,
               id: id,
-              card: [{ table: 'asd' }, { table: 'okman' }, { table: 'oklah' }, { table: 'oklah' }],
+              card: [
+                {
+                  val: [
+                    {
+                      type: 'paragraph',
+                      children: [{ text: 'This is editable plain text, just like a <textarea>!' }],
+                    },
+                  ],
+                  check: false,
+                },
+                {
+                  val: [
+                    {
+                      type: 'paragraph',
+                      children: [{ text: 'This is editable plain text, just like a <textarea>!' }],
+                    },
+                  ],
+                  check: false,
+                },
+                {
+                  val: [
+                    {
+                      type: 'paragraph',
+                      children: [{ text: 'This is editable plain text, just like a <textarea>!' }],
+                    },
+                  ],
+                  check: false,
+                },
+                {
+                  val: [
+                    {
+                      type: 'paragraph',
+                      children: [{ text: 'This is editable plain text, just like a <textarea>!' }],
+                    },
+                  ],
+                  check: false,
+                },
+              ],
               children: [{ text: '' }],
             };
 
@@ -1486,6 +1523,18 @@ const TableList = ({ attributes, children, element }) => {
       }
     }
   }
+
+  const setChanged = (val, id) => {
+    const cardVal = card.map((o, key) => {
+      if (key === id) {
+        return { val: [...val], check: true };
+      } else {
+        return { val: o.val, check: false };
+      }
+    });
+
+    Transforms.setNodes(editor, { card: cardVal }, { at: path });
+  };
   useEffect(() => {
     const messageListener = (e) => {
       if (selected) {
@@ -1512,16 +1561,16 @@ const TableList = ({ attributes, children, element }) => {
         onClick={(e) => {
           setChecked(true);
         }}
-        style={{ background: !check && selected ? 'blue' : '' }}
+        style={{ border: selected && !Range.isCollapsed(editor.selection) ? '3px solid red' : '' }}
         className='table-list relative'
         {...attributes}>
-        {!check && !Range.isCollapsed(editor.selection) ? <div className='absolute left-0 top-0 w-full h-full z-[4]'>{children}</div> : children}
+        {selected && !Range.isCollapsed(editor.selection) ? <div className='absolute left-0 top-0 w-full h-full z-[4]'>{children}</div> : children}
         <tr contentEditable='false'>
           {card.map((o, key) => {
             if (key >= 0 && key <= 1) {
               return (
                 <td id={'id-' + key}>
-                  <SlatePlainText focusCheck={setChecked} path={path} tableID={id} keyID={key} />
+                  <SlatePlainText value={o.val} check={o.check} slateChange={setChanged} focusCheck={setChecked} path={path} tableID={id} keyID={key} />
                 </td>
               );
             }
@@ -1533,7 +1582,7 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 2 && key <= 3) {
               return (
                 <td id={'id-' + key}>
-                  <SlatePlainText focusCheck={setChecked} path={path} tableID={id} keyID={key} />
+                  <SlatePlainText value={o.val} check={o.check} slateChange={setChanged} focusCheck={setChecked} path={path} tableID={id} keyID={key} />
                 </td>
               );
             }

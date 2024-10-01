@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect } from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from 'slate-react';
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Node as SlateNode, Text, Range, Node, Point, setPoint } from 'slate';
 import { withHistory, HistoryEditor, History } from 'slate-history';
@@ -37,10 +37,12 @@ const SHORTCUTS = {
   '#####': 'heading-five',
   '######': 'heading-six',
 };
-const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
+const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateChange }) => {
   const slateObject = useSelector((state) => state.counter.slateObject);
   const dispatch = useDispatch();
-
+  const [textChange, setText] = useState(false);
+  const [nodes, setNodes] = useState();
+  const [focus, setFocus] = useState(false);
   const handleDOMBeforeInput = useCallback((e) => {
     queueMicrotask(() => {
       const pendingDiffs = ReactEditor.androidPendingDiffs(editor);
@@ -91,19 +93,30 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
 
   const onFocus = useCallback(() => {
     focusCheck(true);
+    setFocus(true);
+
+    ReactEditor.focus(editor);
     // Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid', keyID, tableID);
   }, []);
 
   const onBlur = useCallback(() => {
-    focusCheck(false);
+    setFocus(false);
 
-    // savedSelection.current = editor.selection;
     Transforms.deselect(editor);
-    dispatch(setMobileFocus({ focus: true }));
+
+    slateChange(nodes, keyID);
+
+    // if (textChange) {
+    //   focusCheck(true);
+    //   setText(false);
+    // } else {
+    //   focusCheck(false);
+    // }
+
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
-  }, []);
+  }, [nodes]);
 
   useEffect(() => {
     const messageListener = window.addEventListener('message', function (event) {
@@ -372,8 +385,16 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
       }
     }
   };
+
+  useEffect(() => {}, [check]);
   return (
-    <Slate editor={editor} initialValue={initialValue}>
+    <Slate
+      editor={editor}
+      key={JSON.stringify(value)}
+      initialValue={value}
+      onChange={(e) => {
+        setNodes(e);
+      }}>
       <Editable
         autoCapitalize='off'
         spellCheck={false}
@@ -386,6 +407,7 @@ const SlatePlainText = ({ keyID, tableID, focusCheck, path }) => {
         renderElement={renderElement}
         renderLeaf={renderLeaf}
         onKeyDown={(event) => {
+          // setText(true);
           for (const hotkey in HOTKEYS) {
             if (isHotkey(hotkey, event)) {
               event.preventDefault();
