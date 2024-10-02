@@ -43,6 +43,7 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
   const [textChange, setText] = useState(false);
   const [nodes, setNodes] = useState();
   const [focus, setFocus] = useState(false);
+  const [selected, setSelected] = useState(false);
   const handleDOMBeforeInput = useCallback((e) => {
     queueMicrotask(() => {
       const pendingDiffs = ReactEditor.androidPendingDiffs(editor);
@@ -99,56 +100,58 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
     // Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid', keyID, tableID);
-  }, []);
+  }, [textChange]);
 
   const onBlur = useCallback(() => {
+    Transforms.deselect(editor);
     setFocus(false);
 
-    Transforms.deselect(editor);
-
-    slateChange(nodes, keyID);
-
-    // if (textChange) {
-    //   focusCheck(true);
-    //   setText(false);
-    // } else {
-    //   focusCheck(false);
-    // }
+    if (textChange) {
+      slateChange(nodes, keyID);
+      setText(false);
+    }
 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
-  }, [nodes]);
+  }, [nodes, textChange]);
 
   useEffect(() => {
-    const messageListener = window.addEventListener('message', function (event) {
-      const data = JSON.parse(event.data);
-      if (data && data.bold && data.id === keyID && data.tableid === tableID) {
-        toggleMark(editor, 'bold');
-      } else if (event.data == 'blur') {
-        ReactEditor.blur(editor);
-        // this.window.scrollTo(0, 0);
-      } else if (event.data == 'katexinsert') {
-        Transforms.insertText(editor, '\u200B'.toString(), {
-          at: editor.selection.anchor,
-        });
-      } else if (event.data == 'katex') {
-        ReactEditor.focus(editor);
+    if (value) {
+      setFocus(true);
+      console.log('value is checj', value);
+    }
+  }, [value]);
 
-        insertKatex(editor, 'flutter123');
-      } else if (event.data == 'focus') {
-        ReactEditor.focus(editor);
-      } else {
-        window.removeEventListener('message', messageListener);
-      }
-    });
+  // useEffect(() => {
+  //   const messageListener = window.addEventListener('message', function (event) {
+  //     const data = JSON.parse(event.data);
+  //     if (data && data.bold && data.id === keyID && data.tableid === tableID) {
+  //       toggleMark(editor, 'bold');
+  //     } else if (event.data == 'blur') {
+  //       ReactEditor.blur(editor);
+  //       // this.window.scrollTo(0, 0);
+  //     } else if (event.data == 'katexinsert') {
+  //       Transforms.insertText(editor, '\u200B'.toString(), {
+  //         at: editor.selection.anchor,
+  //       });
+  //     } else if (event.data == 'katex') {
+  //       ReactEditor.focus(editor);
 
-    window.addEventListener('message', messageListener);
+  //       insertKatex(editor, 'flutter123');
+  //     } else if (event.data == 'focus') {
+  //       ReactEditor.focus(editor);
+  //     } else {
+  //       window.removeEventListener('message', messageListener);
+  //     }
+  //   });
 
-    return () => {
-      window.removeEventListener('message', messageListener);
-    };
+  //   window.addEventListener('message', messageListener);
 
-    // Cleanup when the component unmounts or when the dependency changes
-  }, []);
+  //   return () => {
+  //     window.removeEventListener('message', messageListener);
+  //   };
+
+  //   // Cleanup when the component unmounts or when the dependency changes
+  // }, []);
 
   useEffect(() => {
     if (slateObject && slateObject.type === 'arrowLeft' && slateObject.tableId === tableID && keyID === slateObject.id - 1) {
@@ -386,7 +389,6 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
     }
   };
 
-  useEffect(() => {}, [check]);
   return (
     <Slate
       editor={editor}
@@ -400,14 +402,14 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
         spellCheck={false}
         className='content-slate'
         onFocus={onFocus}
-        style={{ padding: '10px' }}
+        style={{ padding: '10px', border: focus ? '2px solid red' : '' }}
         onDOMBeforeInput={handleDOMBeforeInput}
         onBlur={onBlur}
         autoFocus={false}
         renderElement={renderElement}
         renderLeaf={renderLeaf}
         onKeyDown={(event) => {
-          // setText(true);
+          setText(true);
           for (const hotkey in HOTKEYS) {
             if (isHotkey(hotkey, event)) {
               event.preventDefault();
