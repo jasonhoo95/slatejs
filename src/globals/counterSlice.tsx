@@ -6,7 +6,8 @@ export interface CounterState {
   list: any;
   editor: any;
   openCheck: boolean;
-  focus: boolean;
+  undo: boolean;
+  slateFocus: any;
   slateObject: any;
   slateTable: any;
 }
@@ -15,7 +16,8 @@ const initialState: CounterState = {
   value: 0,
   list: null,
   editor: null,
-  focus: false,
+  slateFocus: null,
+  undo: false,
   openCheck: false,
   slateObject: null,
   slateTable: null,
@@ -42,8 +44,12 @@ export const counterSlice = createSlice({
       state.slateObject = action.payload;
     },
 
+    setSlateUndo: (state, action: PayloadAction<any>) => {
+      state.undo = action.payload;
+    },
+
     setMobileFocus: (state, action: PayloadAction<any>) => {
-      state.focus = action.payload.focus;
+      state.slateFocus = action.payload;
     },
     incrementByAmount: (state, action: PayloadAction<number>) => {
       state.value += 1;
@@ -52,6 +58,6 @@ export const counterSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { increment, decrement, setMobileFocus, incrementByAmount, setSlateCheck } = counterSlice.actions;
+export const { increment, decrement, setMobileFocus, incrementByAmount, setSlateCheck, setSlateUndo } = counterSlice.actions;
 
 export default counterSlice.reducer;

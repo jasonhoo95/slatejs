@@ -11,7 +11,7 @@ import { useModalStore } from '@/globals/zustandGlobal';
 import EditablePopup from './editablePopup';
 import { before } from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
-import { setMobileFocus } from '@/globals/counterSlice';
+import { setMobileFocus, setSlateUndo } from '@/globals/counterSlice';
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -543,7 +543,6 @@ const SlateReact = () => {
 
   const onBlur = useCallback((e) => {
     setFocus(false);
-    dispatch(setMobileFocus({ focus: false }));
     // savedSelection.current = editor.selection;
     window.removeEventListener('resize', getCaretCoordinates);
 
@@ -902,10 +901,12 @@ const SlateReact = () => {
               Transforms.insertText(editor, '\n');
             } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
               event.preventDefault();
+              dispatch(setSlateUndo(true));
               HistoryEditor.undo(editor);
             } else if (event.metaKey && event.shiftKey && event.key === 'z') {
               event.preventDefault();
               HistoryEditor.redo(editor);
+              dispatch(setSlateUndo(true));
             } else if (event.key === 'ArrowUp' && previousParent) {
               Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true });
             } else if (event.key == 'Enter' && listItems && ['editable-void', 'ImageWrapper'].includes(listItems[0].type)) {
@@ -914,6 +915,7 @@ const SlateReact = () => {
 
               Transforms.move(editor, { distance: 1, unit: 'offset' });
               ReactEditor.focus(editor);
+            } else {
             }
           }}
         />
@@ -1535,6 +1537,8 @@ const TableList = ({ attributes, children, element }) => {
 
     Transforms.setNodes(editor, { card: cardVal }, { at: path });
   };
+
+  useEffect(() => {}, []);
   useEffect(() => {
     const messageListener = (e) => {
       if (selected) {

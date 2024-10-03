@@ -3,7 +3,7 @@ import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocu
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Node as SlateNode, Text, Range, Node, Point, setPoint } from 'slate';
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useSelector, useDispatch } from 'react-redux';
-import { setSlateCheck, setMobileFocus } from '@/globals/counterSlice';
+import { setSlateCheck, setSlateUndo, setMobileFocus } from '@/globals/counterSlice';
 import isHotkey from 'is-hotkey';
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
@@ -39,6 +39,9 @@ const SHORTCUTS = {
 };
 const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateChange }) => {
   const slateObject = useSelector((state) => state.counter.slateObject);
+  const slateUndo = useSelector((state) => state.counter.undo);
+  const slateFocus = useSelector((state) => state.counter.slateFocus);
+
   const dispatch = useDispatch();
   const [textChange, setText] = useState(false);
   const [nodes, setNodes] = useState();
@@ -95,7 +98,7 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
   const onFocus = useCallback(() => {
     focusCheck(true);
     setFocus(true);
-
+    dispatch(setMobileFocus({ val: true, id: keyID }));
     ReactEditor.focus(editor);
     // Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
@@ -104,54 +107,56 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
 
   const onBlur = useCallback(() => {
     Transforms.deselect(editor);
-    setFocus(false);
 
     if (textChange) {
       slateChange(nodes, keyID);
       setText(false);
     }
+    dispatch(setSlateUndo(false));
+    setFocus(false);
 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
   }, [nodes, textChange]);
 
   useEffect(() => {
-    if (value) {
+    if (value && slateUndo) {
       setFocus(true);
-      console.log('value is checj', value);
+      dispatch(setMobileFocus({ val: true, id: keyID }));
+      dispatch(setSlateUndo(false));
     }
   }, [value]);
 
-  // useEffect(() => {
-  //   const messageListener = window.addEventListener('message', function (event) {
-  //     const data = JSON.parse(event.data);
-  //     if (data && data.bold && data.id === keyID && data.tableid === tableID) {
-  //       toggleMark(editor, 'bold');
-  //     } else if (event.data == 'blur') {
-  //       ReactEditor.blur(editor);
-  //       // this.window.scrollTo(0, 0);
-  //     } else if (event.data == 'katexinsert') {
-  //       Transforms.insertText(editor, '\u200B'.toString(), {
-  //         at: editor.selection.anchor,
-  //       });
-  //     } else if (event.data == 'katex') {
-  //       ReactEditor.focus(editor);
+  useEffect(() => {
+    const messageListener = window.addEventListener('message', function (event) {
+      const data = JSON.parse(event.data);
+      if (data && data.bold && data.id === keyID && data.tableid === tableID) {
+        toggleMark(editor, 'bold');
+      } else if (event.data == 'blur') {
+        ReactEditor.blur(editor);
+        // this.window.scrollTo(0, 0);
+      } else if (event.data == 'katexinsert') {
+        Transforms.insertText(editor, '\u200B'.toString(), {
+          at: editor.selection.anchor,
+        });
+      } else if (event.data == 'katex') {
+        ReactEditor.focus(editor);
 
-  //       insertKatex(editor, 'flutter123');
-  //     } else if (event.data == 'focus') {
-  //       ReactEditor.focus(editor);
-  //     } else {
-  //       window.removeEventListener('message', messageListener);
-  //     }
-  //   });
+        insertKatex(editor, 'flutter123');
+      } else if (event.data == 'focus') {
+        ReactEditor.focus(editor);
+      } else {
+        window.removeEventListener('message', messageListener);
+      }
+    });
 
-  //   window.addEventListener('message', messageListener);
+    window.addEventListener('message', messageListener);
 
-  //   return () => {
-  //     window.removeEventListener('message', messageListener);
-  //   };
+    return () => {
+      window.removeEventListener('message', messageListener);
+    };
 
-  //   // Cleanup when the component unmounts or when the dependency changes
-  // }, []);
+    // Cleanup when the component unmounts or when the dependency changes
+  }, []);
 
   useEffect(() => {
     if (slateObject && slateObject.type === 'arrowLeft' && slateObject.tableId === tableID && keyID === slateObject.id - 1) {
@@ -402,7 +407,7 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
         spellCheck={false}
         className='content-slate'
         onFocus={onFocus}
-        style={{ padding: '10px', border: focus ? '2px solid red' : '' }}
+        style={{ padding: '10px', border: focus && slateFocus && slateFocus.id === keyID ? '2px solid red' : '' }}
         onDOMBeforeInput={handleDOMBeforeInput}
         onBlur={onBlur}
         autoFocus={false}
