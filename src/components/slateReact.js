@@ -159,6 +159,7 @@ const SlateReact = () => {
   const { deleteFragment, deleteBackward, onChange, insertText, apply } = editor;
   const slateObject = useSelector((state) => state.counter.slateObject);
   const mobileFocus = useSelector((state) => state.counter.focus);
+  const slateUndo = useSelector((state) => state.counter.undo);
 
   const { insertBreak } = editor;
 
@@ -549,6 +550,12 @@ const SlateReact = () => {
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
   }, []);
 
+
+  useEffect(()=>{
+   console.log(slateUndo,"slate undo");
+
+  },[slateUndo])
+
   return (
     <div>
       <EditablePopup editor={editor} ModalProps={ModalProps} />
@@ -739,6 +746,7 @@ const SlateReact = () => {
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
+            dispatch(setSlateUndo(true));
             HistoryEditor.undo(editor);
           }}>
           UNDO
@@ -899,14 +907,14 @@ const SlateReact = () => {
               event.preventDefault();
 
               Transforms.insertText(editor, '\n');
-            } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
-              event.preventDefault();
+            } else if ((event.metaKey || event.ctrlKey) && event.key === 'z' && !event.shiftKey) {
               dispatch(setSlateUndo(true));
+              event.preventDefault();
               HistoryEditor.undo(editor);
-            } else if (event.metaKey && event.shiftKey && event.key === 'z') {
+            } else if ((event.metaKey || event.ctrlKey)  && event.shiftKey && event.key === 'z') {
+              dispatch(setSlateUndo(true));
               event.preventDefault();
               HistoryEditor.redo(editor);
-              dispatch(setSlateUndo(true));
             } else if (event.key === 'ArrowUp' && previousParent) {
               Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true });
             } else if (event.key == 'Enter' && listItems && ['editable-void', 'ImageWrapper'].includes(listItems[0].type)) {
