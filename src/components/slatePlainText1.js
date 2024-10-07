@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect, useState } from 'react';
+import React, { useMemo, useCallback, useEffect, useState, useRef } from 'react';
 import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocused } from 'slate-react';
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Node as SlateNode, Text, Range, Node, Point, setPoint } from 'slate';
 import { withHistory, HistoryEditor, History } from 'slate-history';
@@ -37,7 +37,7 @@ const SHORTCUTS = {
   '#####': 'heading-five',
   '######': 'heading-six',
 };
-const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateChange }) => {
+const SlatePlainText1 = ({ keyID, editormain, value, check, tableID, focusCheck, path, slateChange }) => {
   const slateObject = useSelector((state) => state.counter.slateObject);
   const slateUndo = useSelector((state) => state.counter.undo);
   const slateFocus = useSelector((state) => state.counter.slateFocus);
@@ -47,6 +47,7 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
   const [nodes, setNodes] = useState();
   const [focus, setFocus] = useState(false);
   const [selected, setSelected] = useState(false);
+
   const handleDOMBeforeInput = useCallback((e) => {
     queueMicrotask(() => {
       const pendingDiffs = ReactEditor.androidPendingDiffs(editor);
@@ -99,6 +100,7 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
     focusCheck(true);
     setFocus(true);
     dispatch(setMobileFocus({ val: true, id: keyID }));
+
     ReactEditor.focus(editor);
     // Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
@@ -109,7 +111,6 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
     Transforms.deselect(editor);
 
     if (textChange) {
-      slateChange(nodes, keyID);
       setText(false);
     }
     dispatch(setSlateUndo(false));
@@ -122,7 +123,10 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
     if (value && slateUndo) {
       setFocus(true);
       dispatch(setMobileFocus({ val: true, id: keyID }));
-      dispatch(setSlateUndo(false));
+      // dispatch(setSlateUndo(false));
+
+      ReactEditor.focus(editor);
+      console.log(Editor.end(editor, editor.selection), 'editor end');
     }
   }, [value]);
 
@@ -172,7 +176,7 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
 
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-  const { deleteFragment, deleteBackward, onChange, insertText, insertBreak } = editor;
+  const { deleteFragment, deleteBackward, onChange, insertText, insertBreak, apply } = editor;
 
   editor.insertText = (text) => {
     const { selection } = editor;
@@ -235,6 +239,11 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
 
     // Transforms.insertText(editor, text);
   };
+
+  //   editor.apply = (args) => {
+  //     apply(args);
+  //     console.log(args, 'Args');
+  //   };
 
   editor.insertBreak = () => {
     const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -393,13 +402,16 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
       }
     }
   };
-
+  let typingTimer; // Use `useRef` to persist the timer across renders
+  let undo;
   return (
     <Slate
       editor={editor}
       key={JSON.stringify(value)}
       initialValue={value}
       onChange={(e) => {
+        console.log(typingTimer, 'typing timer'); // 500ms delay to detect typing completion
+
         setNodes(e);
       }}>
       <Editable
@@ -407,13 +419,28 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
         spellCheck={false}
         className='content-slate'
         onFocus={onFocus}
-        style={{ padding: '10px', border: focus && slateFocus && slateFocus.id === keyID ? '2px solid red' : '' }}
+        style={{ padding: '10px', caretColor: slateUndo ? 'transparent' : '', border: focus && slateFocus && slateFocus.id === keyID ? '2px solid red' : '' }}
         onDOMBeforeInput={handleDOMBeforeInput}
         onBlur={onBlur}
         autoFocus={false}
         renderElement={renderElement}
         renderLeaf={renderLeaf}
+        onKeyUp={(e) => {
+          // console.log(slateUndo, 'undo keyup');
+          if (!slateUndo) {
+            window.clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+              slateChange(nodes, keyID);
+              console.log('User has finished typing', nodes);
+              // Add your logic here for when typing is finished
+            }, 100);
+          }
+        }}
         onKeyDown={(event) => {
+          dispatch(setSlateUndo(false));
+
+          window.clearTimeout(typingTimer);
+
           setText(true);
           for (const hotkey in HOTKEYS) {
             if (isHotkey(hotkey, event)) {
@@ -422,7 +449,6 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
               toggleMark(editor, mark);
             }
           }
-
           const [listItems] = Editor.nodes(editor, {
             match: (n) => n.type === 'list-item' || n.type == 'inline-bug',
           });
@@ -447,12 +473,17 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
             dispatch(setSlateCheck({ id: keyID, type: 'arrowUp', tableId: tableID }));
           } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
             event.preventDefault();
-            HistoryEditor.undo(editor);
+            Transforms.select(editor, { anchor: { offset: 0, path: [0, 0] }, focus: { offset: 0, path: [0, 0] } });
+            HistoryEditor.undo(editormain);
+            dispatch(setSlateUndo(true));
 
             // document.execCommand("undo");
           } else if (event.metaKey && event.shiftKey && event.key === 'z') {
             event.preventDefault();
-            HistoryEditor.redo(editor);
+            Transforms.select(editor, { anchor: { offset: 0, path: [0, 0] }, focus: { offset: 0, path: [0, 0] } });
+            dispatch(setSlateUndo(true));
+
+            HistoryEditor.redo(editormain);
           }
         }}
       />
@@ -698,4 +729,4 @@ const Leaf = ({ attributes, children, leaf }) => {
   );
 };
 
-export default SlatePlainText;
+export default SlatePlainText1;

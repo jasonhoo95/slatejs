@@ -12,7 +12,7 @@ import EditablePopup from './editablePopup';
 import { before } from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
 import { setMobileFocus, setSlateUndo } from '@/globals/counterSlice';
-
+import SlatePlainText1 from './slatePlainText1';
 const HOTKEYS = {
   'mod+b': 'bold',
   'mod+i': 'italic',
@@ -794,7 +794,7 @@ const SlateReact = () => {
                   val: [
                     {
                       type: 'paragraph',
-                      children: [{ text: 'This is editable plain text, just like a <textarea>!' }],
+                      children: [{ text: '' }],
                     },
                   ],
                   check: false,
@@ -1582,7 +1582,7 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 0 && key <= 1) {
               return (
                 <td id={'id-' + key}>
-                  <SlatePlainText value={o.val} check={o.check} slateChange={setChanged} focusCheck={setChecked} path={path} tableID={id} keyID={key} />
+                  <SlatePlainText1 editormain={editor} value={o.val} check={o.check} slateChange={setChanged} focusCheck={setChecked} path={path} tableID={id} keyID={key} />
                 </td>
               );
             }
@@ -1594,7 +1594,7 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 2 && key <= 3) {
               return (
                 <td id={'id-' + key}>
-                  <SlatePlainText value={o.val} check={o.check} slateChange={setChanged} focusCheck={setChecked} path={path} tableID={id} keyID={key} />
+                  <SlatePlainText1 editormain={editor} value={o.val} check={o.check} slateChange={setChanged} focusCheck={setChecked} path={path} tableID={id} keyID={key} />
                 </td>
               );
             }
