@@ -3,7 +3,7 @@ import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocu
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Node as SlateNode, Text, Range, Node, Point, setPoint } from 'slate';
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useSelector, useDispatch } from 'react-redux';
-import { setSlateCheck, setSlateUndo, setMobileFocus } from '@/globals/counterSlice';
+import { setSlateCheck, setSlateUndo, setMobileFocus, setSlateUndosPayload } from '@/globals/counterSlice';
 import isHotkey from 'is-hotkey';
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
@@ -37,10 +37,12 @@ const SHORTCUTS = {
   '#####': 'heading-five',
   '######': 'heading-six',
 };
-const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateChange }) => {
+const SlatePlainText = ({ keyID, editormain, value, check, tableID, focusCheck, path, slateChange }) => {
   const slateObject = useSelector((state) => state.counter.slateObject);
   const slateUndo = useSelector((state) => state.counter.undo);
   const slateFocus = useSelector((state) => state.counter.slateFocus);
+  const slateUndoPayload = useSelector((state) => state.counter.undosPayload);
+  const [undocheck, setUndoCheck] = useState(false);
 
   const dispatch = useDispatch();
   const [textChange, setText] = useState(false);
@@ -105,6 +107,10 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid', keyID, tableID);
   }, [textChange]);
 
+
+
+
+
   const onBlur = useCallback(() => {
     Transforms.deselect(editor);
 
@@ -113,6 +119,8 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
       setText(false);
     }
     dispatch(setSlateUndo(false));
+    console.log(editor.history.undos,"undos history");
+    dispatch(setSlateUndosPayload(JSON.stringify(editor.history.undos)));
     setFocus(false);
 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
@@ -170,10 +178,12 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
 
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
+  let typingTimer;
 
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
   const { deleteFragment, deleteBackward, onChange, insertText, insertBreak } = editor;
 
+ 
   editor.insertText = (text) => {
     const { selection } = editor;
     const block = Editor.above(editor, {
@@ -233,7 +243,7 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
 
     insertText(text);
 
-    // Transforms.insertText(editor, text);
+   
   };
 
   editor.insertBreak = () => {
@@ -393,7 +403,7 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
       }
     }
   };
-
+  
   return (
     <Slate
       editor={editor}
@@ -412,9 +422,13 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
         onBlur={onBlur}
         autoFocus={false}
         renderElement={renderElement}
+     
         renderLeaf={renderLeaf}
         onKeyDown={(event) => {
           setText(true);
+
+
+
           for (const hotkey in HOTKEYS) {
             if (isHotkey(hotkey, event)) {
               event.preventDefault();
@@ -445,13 +459,21 @@ const SlatePlainText = ({ keyID, value, check, tableID, focusCheck, path, slateC
           } else if (event.key === 'ArrowUp') {
             event.preventDefault();
             dispatch(setSlateCheck({ id: keyID, type: 'arrowUp', tableId: tableID }));
-          } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
+          } else if ((event.metaKey || event.ctrlKey) && event.key === 'z' && !event.shiftKey) {
             event.preventDefault();
-            HistoryEditor.undo(editor);
 
+            console.log(editor.history.undos,undocheck,"history undos1");
+            if(slateUndoPayload && !undocheck){
+              editor.history.undos = JSON.parse(slateUndoPayload[0])
+              console.log(editor.history.undos,"history undos slatepayload");
+              setUndoCheck(true);
+
+            }
+            HistoryEditor.undo(editor);
             // document.execCommand("undo");
-          } else if (event.metaKey && event.shiftKey && event.key === 'z') {
+          } else if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'z') {
             event.preventDefault();
+            console.log("Redo");
             HistoryEditor.redo(editor);
           }
         }}

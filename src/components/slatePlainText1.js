@@ -3,7 +3,7 @@ import { Editable, withReact, useSlate, Slate, ReactEditor, useSelected, useFocu
 import { Editor, Transforms, createEditor, Path, Descendant, Element as SlateElement, Node as SlateNode, Text, Range, Node, Point, setPoint } from 'slate';
 import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useSelector, useDispatch } from 'react-redux';
-import { setSlateCheck, setSlateUndo, setMobileFocus } from '@/globals/counterSlice';
+import { setSlateCheck, setSlateUndo, setMobileFocus, setSlateUndosPayload } from '@/globals/counterSlice';
 import isHotkey from 'is-hotkey';
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
@@ -41,6 +41,7 @@ const SlatePlainText1 = ({ keyID, editormain, value, check, tableID, focusCheck,
   const slateObject = useSelector((state) => state.counter.slateObject);
   const slateUndo = useSelector((state) => state.counter.undo);
   const slateFocus = useSelector((state) => state.counter.slateFocus);
+  const slateUndoPayload = useSelector((state) => state.counter.undosPayload);
 
   const dispatch = useDispatch();
   const [textChange, setText] = useState(false);
@@ -111,7 +112,10 @@ const SlatePlainText1 = ({ keyID, editormain, value, check, tableID, focusCheck,
     Transforms.deselect(editor);
 
     if (textChange) {
+      slateChange(nodes, keyID);
       setText(false);
+      dispatch(setSlateUndosPayload(editor.history.undos));
+
     }
     dispatch(setSlateUndo(false));
     setFocus(false);
@@ -471,18 +475,19 @@ const SlatePlainText1 = ({ keyID, editormain, value, check, tableID, focusCheck,
           } else if (event.key === 'ArrowUp') {
             event.preventDefault();
             dispatch(setSlateCheck({ id: keyID, type: 'arrowUp', tableId: tableID }));
-          } else if (event.metaKey && event.key === 'z' && !event.shiftKey) {
+          } else if ((event.metaKey || event.ctrlKey) && (event.key === 'z' || event.key === 'Z') && !event.shiftKey) {
             event.preventDefault();
+            dispatch(setSlateUndo(true));
             Transforms.select(editor, { anchor: { offset: 0, path: [0, 0] }, focus: { offset: 0, path: [0, 0] } });
             HistoryEditor.undo(editormain);
-            dispatch(setSlateUndo(true));
+            console.log(slateUndoPayload,"undo payload");
+
 
             // document.execCommand("undo");
-          } else if (event.metaKey && event.shiftKey && event.key === 'z') {
+          } else if ((event.metaKey || event.ctrlKey) && event.shiftKey && (event.key === 'z' || event.key === 'Z')) {
             event.preventDefault();
-            Transforms.select(editor, { anchor: { offset: 0, path: [0, 0] }, focus: { offset: 0, path: [0, 0] } });
             dispatch(setSlateUndo(true));
-
+            Transforms.select(editor, { anchor: { offset: 0, path: [0, 0] }, focus: { offset: 0, path: [0, 0] } });
             HistoryEditor.redo(editormain);
           }
         }}
