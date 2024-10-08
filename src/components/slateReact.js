@@ -550,11 +550,7 @@ const SlateReact = () => {
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
   }, []);
 
-
-  useEffect(()=>{
-   
-
-  },[slateUndo])
+  useEffect(() => {}, [slateUndo]);
 
   return (
     <div>
@@ -901,19 +897,17 @@ const SlateReact = () => {
             const stringText = Editor.string(editor, editor.selection.anchor.path);
 
             let pattern = /^\d+\./; // \d+ matches one or more digits, followed by a literal period
-            
+
             // setState({ text: selectedLeaf.text });
             if (event.key == 'Enter' && event.shiftKey && parentCheck) {
               event.preventDefault();
 
               Transforms.insertText(editor, '\n');
             } else if ((event.metaKey || event.ctrlKey) && event.key === 'z' && !event.shiftKey) {
-              
               dispatch(setSlateUndo(true));
               event.preventDefault();
               HistoryEditor.undo(editor);
-            } else if ((event.metaKey || event.ctrlKey)  && event.shiftKey && (event.key === 'z' || event.key === 'Z')) {
-              
+            } else if ((event.metaKey || event.ctrlKey) && event.shiftKey && (event.key === 'z' || event.key === 'Z')) {
               dispatch(setSlateUndo(true));
               event.preventDefault();
               HistoryEditor.redo(editor);
@@ -1536,19 +1530,18 @@ const TableList = ({ attributes, children, element }) => {
     }
   }
 
-  const setChanged = (val, id) => {
+  const setChanged = (val, keyid, id) => {
     const cardVal = card.map((o, key) => {
-      if (key === id) {
-        return { val: [...val], check: true };
+      if (key === keyid) {
+        return { val: [...val], check: true, id: id };
       } else {
-        return { val: o.val, check: false };
+        return { ...o };
       }
     });
 
     Transforms.setNodes(editor, { card: cardVal }, { at: path });
   };
 
-  useEffect(() => {}, []);
   useEffect(() => {
     const messageListener = (e) => {
       if (selected) {
@@ -1584,7 +1577,17 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 0 && key <= 1) {
               return (
                 <td id={'id-' + key}>
-                  <SlatePlainText editormain={editor} value={o.val} check={o.check} slateChange={setChanged} focusCheck={setChecked} path={path} tableID={id} keyID={key} />
+                  <SlatePlainText
+                    idCheck={o.id}
+                    editormain={editor}
+                    value={o.val}
+                    check={o.check}
+                    slateChange={setChanged}
+                    focusCheck={setChecked}
+                    path={path}
+                    tableID={id}
+                    keyID={key}
+                  />
                 </td>
               );
             }
@@ -1596,7 +1599,17 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 2 && key <= 3) {
               return (
                 <td id={'id-' + key}>
-                  <SlatePlainText editormain={editor} value={o.val} check={o.check} slateChange={setChanged} focusCheck={setChecked} path={path} tableID={id} keyID={key} />
+                  <SlatePlainText
+                    idCheck={o.id}
+                    editormain={editor}
+                    value={o.val}
+                    check={o.check}
+                    slateChange={setChanged}
+                    focusCheck={setChecked}
+                    path={path}
+                    tableID={id}
+                    keyID={key}
+                  />
                 </td>
               );
             }

@@ -37,7 +37,7 @@ const SHORTCUTS = {
   '#####': 'heading-five',
   '######': 'heading-six',
 };
-const SlatePlainText = ({ keyID, editormain, value, check, tableID, focusCheck, path, slateChange }) => {
+const SlatePlainText = ({ keyID, idCheck, editormain, value, check, tableID, focusCheck, path, slateChange }) => {
   const slateObject = useSelector((state) => state.counter.slateObject);
   const slateUndo = useSelector((state) => state.counter.undo);
   const slateFocus = useSelector((state) => state.counter.slateFocus);
@@ -48,7 +48,6 @@ const SlatePlainText = ({ keyID, editormain, value, check, tableID, focusCheck, 
   const [textChange, setText] = useState(false);
   const [nodes, setNodes] = useState();
   const [focus, setFocus] = useState(false);
-  const [selected, setSelected] = useState(false);
   const handleDOMBeforeInput = useCallback((e) => {
     queueMicrotask(() => {
       const pendingDiffs = ReactEditor.androidPendingDiffs(editor);
@@ -107,20 +106,16 @@ const SlatePlainText = ({ keyID, editormain, value, check, tableID, focusCheck, 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid', keyID, tableID);
   }, [textChange]);
 
-
-
-
-
   const onBlur = useCallback(() => {
     Transforms.deselect(editor);
-
+    let id = v4();
     if (textChange) {
-      slateChange(nodes, keyID);
+      slateChange(nodes, keyID, id);
       setText(false);
     }
     dispatch(setSlateUndo(false));
-    console.log(editor.history.undos,"undos history");
-    dispatch(setSlateUndosPayload(JSON.stringify(editor.history.undos)));
+
+    dispatch(setSlateUndosPayload({ id: id, payload: JSON.stringify(editor.history.undos) }));
     setFocus(false);
 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
@@ -134,37 +129,37 @@ const SlatePlainText = ({ keyID, editormain, value, check, tableID, focusCheck, 
     }
   }, [value]);
 
-  // useEffect(() => {
-  //   const messageListener = window.addEventListener('message', function (event) {
-  //     const data = JSON.parse(event.data);
-  //     if (data && data.bold && data.id === keyID && data.tableid === tableID) {
-  //       toggleMark(editor, 'bold');
-  //     } else if (event.data == 'blur') {
-  //       ReactEditor.blur(editor);
-  //       // this.window.scrollTo(0, 0);
-  //     } else if (event.data == 'katexinsert') {
-  //       Transforms.insertText(editor, '\u200B'.toString(), {
-  //         at: editor.selection.anchor,
-  //       });
-  //     } else if (event.data == 'katex') {
-  //       ReactEditor.focus(editor);
+  useEffect(() => {
+    const messageListener = window.addEventListener('message', function (event) {
+      const data = JSON.parse(event.data);
+      if (data && data.bold && data.id === keyID && data.tableid === tableID) {
+        toggleMark(editor, 'bold');
+      } else if (event.data == 'blur') {
+        ReactEditor.blur(editor);
+        // this.window.scrollTo(0, 0);
+      } else if (event.data == 'katexinsert') {
+        Transforms.insertText(editor, '\u200B'.toString(), {
+          at: editor.selection.anchor,
+        });
+      } else if (event.data == 'katex') {
+        ReactEditor.focus(editor);
 
-  //       insertKatex(editor, 'flutter123');
-  //     } else if (event.data == 'focus') {
-  //       ReactEditor.focus(editor);
-  //     } else {
-  //       window.removeEventListener('message', messageListener);
-  //     }
-  //   });
+        insertKatex(editor, 'flutter123');
+      } else if (event.data == 'focus') {
+        ReactEditor.focus(editor);
+      } else {
+        window.removeEventListener('message', messageListener);
+      }
+    });
 
-  //   window.addEventListener('message', messageListener);
+    window.addEventListener('message', messageListener);
 
-  //   return () => {
-  //     window.removeEventListener('message', messageListener);
-  //   };
+    return () => {
+      window.removeEventListener('message', messageListener);
+    };
 
-  //   // Cleanup when the component unmounts or when the dependency changes
-  // }, []);
+    // Cleanup when the component unmounts or when the dependency changes
+  }, []);
 
   useEffect(() => {
     if (slateObject && slateObject.type === 'arrowLeft' && slateObject.tableId === tableID && keyID === slateObject.id - 1) {
@@ -178,12 +173,10 @@ const SlatePlainText = ({ keyID, editormain, value, check, tableID, focusCheck, 
 
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
-  let typingTimer;
 
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
   const { deleteFragment, deleteBackward, onChange, insertText, insertBreak } = editor;
 
- 
   editor.insertText = (text) => {
     const { selection } = editor;
     const block = Editor.above(editor, {
@@ -242,8 +235,6 @@ const SlatePlainText = ({ keyID, editormain, value, check, tableID, focusCheck, 
     }
 
     insertText(text);
-
-   
   };
 
   editor.insertBreak = () => {
@@ -403,7 +394,7 @@ const SlatePlainText = ({ keyID, editormain, value, check, tableID, focusCheck, 
       }
     }
   };
-  
+
   return (
     <Slate
       editor={editor}
@@ -422,13 +413,9 @@ const SlatePlainText = ({ keyID, editormain, value, check, tableID, focusCheck, 
         onBlur={onBlur}
         autoFocus={false}
         renderElement={renderElement}
-     
         renderLeaf={renderLeaf}
         onKeyDown={(event) => {
           setText(true);
-
-
-
           for (const hotkey in HOTKEYS) {
             if (isHotkey(hotkey, event)) {
               event.preventDefault();
@@ -462,18 +449,19 @@ const SlatePlainText = ({ keyID, editormain, value, check, tableID, focusCheck, 
           } else if ((event.metaKey || event.ctrlKey) && event.key === 'z' && !event.shiftKey) {
             event.preventDefault();
 
-            console.log(editor.history.undos,undocheck,"history undos1");
-            if(slateUndoPayload && !undocheck){
-              editor.history.undos = JSON.parse(slateUndoPayload[0])
-              console.log(editor.history.undos,"history undos slatepayload");
-              setUndoCheck(true);
+            if (slateUndoPayload && !undocheck) {
+              const valueCheck = _.filter(slateUndoPayload, function (o) {
+                return o.id === idCheck;
+              });
+              editor.history.undos = JSON.parse(valueCheck[0].payload);
 
+              setUndoCheck(true);
             }
             HistoryEditor.undo(editor);
             // document.execCommand("undo");
           } else if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'z') {
             event.preventDefault();
-            console.log("Redo");
+
             HistoryEditor.redo(editor);
           }
         }}
