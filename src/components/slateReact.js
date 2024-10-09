@@ -402,7 +402,8 @@ const SlateReact = () => {
       match: (n) => n.type == 'list-item' || n.type == 'paragraph',
     });
     const stringText = Editor.string(editor, editor.selection.anchor.path);
-
+    
+    console.log(Range.isCollapsed(editor.selection),"editor selection collasped");
     if (listItems) {
       listItemParent = Editor.node(editor, listItems[1]);
 
@@ -503,17 +504,7 @@ const SlateReact = () => {
           Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
         }
       }
-      // if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
-      //   Transforms.insertText(editor, '\u200B'.toString(), {
-      //     at: editor.selection.anchor,
-      //   });
-      // } else {
-      //   Transforms.delete(editor, {
-      //     distance: 1,
-      //     unit: 'offset',
-      //     reverse: true,
-      //   });
-      // }
+
     } else if (previousParent && previousParent[0].type === 'table-list' && editor.selection.anchor.offset === 0) {
       Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
     } else if (
@@ -561,10 +552,13 @@ const SlateReact = () => {
       at: editor.selection.anchor,
     });
 
+    alert(Range.isCollapsed(editor.selection))
+
     const [tableEnd] = Editor.nodes(editor, {
       match: (n) => n.type == 'table-list',
       at: editor.selection.focus,
     });
+    console.log(tableStart,tableEnd,tableCellList,Range.isCollapsed(editor.selection),"table start end");
 
     const checked = listItems;
 
@@ -590,7 +584,7 @@ const SlateReact = () => {
           at: checked[1],
         },
       );
-    } else if (tableCellList && tableCellList[0].type === 'table-list') {
+    } else if (tableCellList && tableCellList[0].type === 'table-list' && !Range.isCollapsed(editor.selection)) {
       const [startPoint, endPoint] = Range.edges(editor.selection);
       const edges = [startPoint.path, endPoint.path];
       let path1 = [];
