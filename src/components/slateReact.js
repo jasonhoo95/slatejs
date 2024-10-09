@@ -1531,6 +1531,7 @@ const TableList = ({ attributes, children, element }) => {
   }
 
   const setChanged = (val, keyid, id) => {
+    
     const cardVal = card.map((o, key) => {
       if (key === keyid) {
         return { val: [...val], check: true, id: id };

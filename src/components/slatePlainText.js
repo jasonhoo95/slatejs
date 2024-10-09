@@ -108,6 +108,8 @@ const SlatePlainText = ({ keyID, idCheck, editormain, value, check, tableID, foc
 
   const onBlur = useCallback(() => {
     Transforms.deselect(editor);
+    setUndoCheck(false);
+
     let id = v4();
     if (textChange) {
       slateChange(nodes, keyID, id);
@@ -129,37 +131,37 @@ const SlatePlainText = ({ keyID, idCheck, editormain, value, check, tableID, foc
     }
   }, [value]);
 
-  useEffect(() => {
-    const messageListener = window.addEventListener('message', function (event) {
-      const data = JSON.parse(event.data);
-      if (data && data.bold && data.id === keyID && data.tableid === tableID) {
-        toggleMark(editor, 'bold');
-      } else if (event.data == 'blur') {
-        ReactEditor.blur(editor);
-        // this.window.scrollTo(0, 0);
-      } else if (event.data == 'katexinsert') {
-        Transforms.insertText(editor, '\u200B'.toString(), {
-          at: editor.selection.anchor,
-        });
-      } else if (event.data == 'katex') {
-        ReactEditor.focus(editor);
+  // useEffect(() => {
+  //   const messageListener = window.addEventListener('message', function (event) {
+  //     const data = JSON.parse(event.data);
+  //     if (data && data.bold && data.id === keyID && data.tableid === tableID) {
+  //       toggleMark(editor, 'bold');
+  //     } else if (event.data == 'blur') {
+  //       ReactEditor.blur(editor);
+  //       // this.window.scrollTo(0, 0);
+  //     } else if (event.data == 'katexinsert') {
+  //       Transforms.insertText(editor, '\u200B'.toString(), {
+  //         at: editor.selection.anchor,
+  //       });
+  //     } else if (event.data == 'katex') {
+  //       ReactEditor.focus(editor);
 
-        insertKatex(editor, 'flutter123');
-      } else if (event.data == 'focus') {
-        ReactEditor.focus(editor);
-      } else {
-        window.removeEventListener('message', messageListener);
-      }
-    });
+  //       insertKatex(editor, 'flutter123');
+  //     } else if (event.data == 'focus') {
+  //       ReactEditor.focus(editor);
+  //     } else {
+  //       window.removeEventListener('message', messageListener);
+  //     }
+  //   });
 
-    window.addEventListener('message', messageListener);
+  //   window.addEventListener('message', messageListener);
 
-    return () => {
-      window.removeEventListener('message', messageListener);
-    };
+  //   return () => {
+  //     window.removeEventListener('message', messageListener);
+  //   };
 
-    // Cleanup when the component unmounts or when the dependency changes
-  }, []);
+  //   // Cleanup when the component unmounts or when the dependency changes
+  // }, []);
 
   useEffect(() => {
     if (slateObject && slateObject.type === 'arrowLeft' && slateObject.tableId === tableID && keyID === slateObject.id - 1) {
@@ -448,14 +450,19 @@ const SlatePlainText = ({ keyID, idCheck, editormain, value, check, tableID, foc
             dispatch(setSlateCheck({ id: keyID, type: 'arrowUp', tableId: tableID }));
           } else if ((event.metaKey || event.ctrlKey) && event.key === 'z' && !event.shiftKey) {
             event.preventDefault();
-
-            if (slateUndoPayload && !undocheck) {
+            
+            if (slateUndoPayload && !undocheck && idCheck) {
               const valueCheck = _.filter(slateUndoPayload, function (o) {
                 return o.id === idCheck;
               });
-              editor.history.undos = JSON.parse(valueCheck[0].payload);
 
+              if(valueCheck.length > 0){
+                editor.history.undos = JSON.parse(valueCheck[0].payload);
+
+              }
               setUndoCheck(true);
+            }else if(!idCheck){
+              editor.history.undos = [];
             }
             HistoryEditor.undo(editor);
             // document.execCommand("undo");
