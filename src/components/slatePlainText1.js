@@ -102,7 +102,6 @@ const SlatePlainText1 = ({ keyID, editormain, value, check, tableID, focusCheck,
     setFocus(true);
     dispatch(setMobileFocus({ val: true, id: keyID }));
 
-    ReactEditor.focus(editor);
     // Transforms.select(editor, savedSelection.current ?? Editor.end(editor, []));
 
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid', keyID, tableID);
@@ -114,7 +113,6 @@ const SlatePlainText1 = ({ keyID, editormain, value, check, tableID, focusCheck,
     if (textChange) {
       slateChange(nodes, keyID);
       setText(false);
-      dispatch(setSlateUndosPayload(editor.history.undos));
 
     }
     dispatch(setSlateUndo(false));
@@ -241,13 +239,8 @@ const SlatePlainText1 = ({ keyID, editormain, value, check, tableID, focusCheck,
 
     insertText(text);
 
-    // Transforms.insertText(editor, text);
   };
 
-  //   editor.apply = (args) => {
-  //     apply(args);
-  //     console.log(args, 'Args');
-  //   };
 
   editor.insertBreak = () => {
     const selectedLeaf = Node.leaf(editor, editor.selection.anchor.path);
@@ -423,7 +416,7 @@ const SlatePlainText1 = ({ keyID, editormain, value, check, tableID, focusCheck,
         spellCheck={false}
         className='content-slate'
         onFocus={onFocus}
-        style={{ padding: '10px', caretColor: slateUndo ? 'transparent' : '', border: focus && slateFocus && slateFocus.id === keyID ? '2px solid red' : '' }}
+        style={{ padding: '10px', border: focus && slateFocus && slateFocus.id === keyID ? '2px solid red' : '' }}
         onDOMBeforeInput={handleDOMBeforeInput}
         onBlur={onBlur}
         autoFocus={false}
@@ -431,19 +424,18 @@ const SlatePlainText1 = ({ keyID, editormain, value, check, tableID, focusCheck,
         renderLeaf={renderLeaf}
         onKeyUp={(e) => {
           // console.log(slateUndo, 'undo keyup');
-          if (!slateUndo) {
-            window.clearTimeout(typingTimer);
-            typingTimer = setTimeout(() => {
-              slateChange(nodes, keyID);
-              console.log('User has finished typing', nodes);
-              // Add your logic here for when typing is finished
-            }, 100);
-          }
+          // if (!slateUndo) {
+          //   window.clearTimeout(typingTimer);
+          //   typingTimer = setTimeout(() => {
+          //     slateChange(nodes, keyID);
+          //     console.log('User has finished typing', nodes);
+          //     // Add your logic here for when typing is finished
+          //   }, 300);
+          // }
         }}
         onKeyDown={(event) => {
-          dispatch(setSlateUndo(false));
 
-          window.clearTimeout(typingTimer);
+          // window.clearTimeout(typingTimer);
 
           setText(true);
           for (const hotkey in HOTKEYS) {
@@ -478,16 +470,13 @@ const SlatePlainText1 = ({ keyID, editormain, value, check, tableID, focusCheck,
           } else if ((event.metaKey || event.ctrlKey) && (event.key === 'z' || event.key === 'Z') && !event.shiftKey) {
             event.preventDefault();
             dispatch(setSlateUndo(true));
-            Transforms.select(editor, { anchor: { offset: 0, path: [0, 0] }, focus: { offset: 0, path: [0, 0] } });
             HistoryEditor.undo(editormain);
-            console.log(slateUndoPayload,"undo payload");
 
 
             // document.execCommand("undo");
           } else if ((event.metaKey || event.ctrlKey) && event.shiftKey && (event.key === 'z' || event.key === 'Z')) {
             event.preventDefault();
             dispatch(setSlateUndo(true));
-            Transforms.select(editor, { anchor: { offset: 0, path: [0, 0] }, focus: { offset: 0, path: [0, 0] } });
             HistoryEditor.redo(editormain);
           }
         }}

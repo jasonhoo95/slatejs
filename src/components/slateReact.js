@@ -550,7 +550,6 @@ const SlateReact = () => {
     window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'blur');
   }, []);
 
-  useEffect(() => {}, [slateUndo]);
 
   return (
     <div>
@@ -1512,7 +1511,7 @@ const TableList = ({ attributes, children, element }) => {
   const { id, card } = element;
   const [check, setChecked] = useState(false);
   const path = ReactEditor.findPath(editor, element);
-
+  let typingTimer;
   function checknow(event) {
     if (event && typeof event.data == 'katexnow') {
       let value = JSON.parse(event.data);
@@ -1531,16 +1530,19 @@ const TableList = ({ attributes, children, element }) => {
   }
 
   const setChanged = (val, keyid, id) => {
-    
-    const cardVal = card.map((o, key) => {
-      if (key === keyid) {
-        return { val: [...val], check: true, id: id };
-      } else {
-        return { ...o };
-      }
-    });
 
-    Transforms.setNodes(editor, { card: cardVal }, { at: path });
+      const cardVal = card.map((o, key) => {
+        if (key === keyid) {
+          return { val: [...val], check: true, id: id };
+        } else {
+          return { ...o };
+        }
+      });
+  
+      Transforms.setNodes(editor, { card: cardVal }, { at: path });
+
+
+
   };
 
   useEffect(() => {
@@ -1578,7 +1580,7 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 0 && key <= 1) {
               return (
                 <td id={'id-' + key}>
-                  <SlatePlainText
+                  <SlatePlainText1
                     idCheck={o.id}
                     editormain={editor}
                     value={o.val}
@@ -1600,7 +1602,7 @@ const TableList = ({ attributes, children, element }) => {
             if (key >= 2 && key <= 3) {
               return (
                 <td id={'id-' + key}>
-                  <SlatePlainText
+                  <SlatePlainText1
                     idCheck={o.id}
                     editormain={editor}
                     value={o.val}
