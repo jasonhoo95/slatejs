@@ -579,11 +579,12 @@ const SlateReact = () => {
           at: checked[1],
         },
       );
-    } else if (tableStart && tableEnd && tableStart[0].id !== tableEnd[0].id) {
+    } else if (tableStart || tableEnd) {
+      
       const [startPoint, endPoint] = Range.edges(editor.selection);
       const edges = [startPoint.path, endPoint.path];
       Editor.withoutNormalizing(editor, () => {
-        if (Range.isCollapsed(editor.selection)) {
+        if (tableStart && tableEnd && tableStart[0].id === tableEnd[0].id) {
           deleteFragment(...args);
         } else if (!tableStart || !tableEnd) {
           const tableList = Editor.nodes(editor, {
@@ -971,19 +972,13 @@ const SlateReact = () => {
               ],
             };
 
-            const paragraph = { type: 'paragraph', children: [{ text: '' }] };
+            Editor.insertBreak(editor);
             Transforms.insertNodes(editor, block);
-            Transforms.unwrapNodes(editor, {
-              mode: 'highest',
-              split: true,
-              match: (n) => n.type === 'numbered-list',
-            });
-
-            Transforms.move(editor, { distance: 1, unit: 'offset' });
-
-            // Editor.insertBreak(editor);
-
-            // Transforms.select(editor, [editor.selection.anchor.path[0], 0]);
+            Transforms.select(editor,{anchor:{offset:0,path:[editor.selection.anchor.path[0]-1,0]},focus:{offset:0,path:[editor.selection.anchor.path[0]-1,0]}})
+            const nextNodes = Editor.next(editor,{match:(n) => n.type === 'table-list'})
+            Transforms.moveNodes(editor,{
+              to:nextNodes[1]
+            })
           }}>
           insert table now
         </div>
@@ -1735,7 +1730,7 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table className='table-list my-5' {...attributes}>
+      <table style={{border:selected? '2px solid red': ''}} className='table-list my-5' {...attributes}>
         <tbody>{children}</tbody>
       </table>
     </>
