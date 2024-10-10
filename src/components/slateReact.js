@@ -419,7 +419,7 @@ const SlateReact = () => {
         at: listItems[1],
       });
     }
-    console.log(listItemCheck, 'list item check delete');
+
     if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -1782,7 +1782,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
 
   return (
     <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[100px] w-[100px] relative overflow-hidden' {...attributes}>
-      <div className='w-full h-full absolute left-0 top-0 z-[2] overflow-hidden' contentEditable='false'>
+      <div className='w-full h-full absolute left-0 top-0 z-[2] overflow-hidden'>
         <img
           className='w-full h-full object-cover'
           src='https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw='
