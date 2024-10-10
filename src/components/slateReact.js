@@ -399,7 +399,7 @@ const SlateReact = () => {
     });
 
     const listItemCheck = Editor.above(editor, {
-      match: (n) => n.type == 'list-item' || n.type == 'paragraph',
+      match: (n) => n.type == 'list-item' || n.type == 'paragraph' || n.type === 'ImageWrapper' || n.type === 'table-list',
     });
     const stringText = Editor.string(editor, editor.selection.anchor.path);
 
@@ -419,7 +419,7 @@ const SlateReact = () => {
         at: listItems[1],
       });
     }
-
+    console.log(listItemCheck, 'list item check delete');
     if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -482,7 +482,7 @@ const SlateReact = () => {
       editor.selection.anchor.offset === 0
     ) {
       toggleBlock(editor, listItemCheck[0].type);
-    } else if (listItemParent && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
+    } else if (listItemParent && listItemCheck && listItemCheck[0].type === 'paragraph' && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
       const ua = navigator.userAgent;
 
       const [cell] = Editor.nodes(editor, {
@@ -507,20 +507,17 @@ const SlateReact = () => {
       Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
     } else if (
       previousParent &&
-      ['editable-void', 'ImageWrapper', 'input-component'].includes(previousParent[0].type) &&
+      ['editable-void', 'input-component'].includes(previousParent[0].type) &&
       editor.selection.anchor.offset == 0 &&
-      !['editable-void', 'ImageWrapper', 'input-component'].includes(listItemParent[0].type)
+      !['editable-void', 'input-component'].includes(listItemParent[0].type)
     ) {
       Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
       Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
       // Transforms.select(editor, previousVoid[1]);
-    }
-
-    // else if(listItemParent && ['editable-void', 'ImageWrapper'].includes(listItemParent[0].type)){
-    //   Transforms.removeNodes(editor,{at:listItemParent[1]})
-    // }
-    else {
+    } else if (listItemCheck && ['editable-void', 'ImageWrapper'].includes(listItemCheck[0].type)) {
+      Transforms.removeNodes(editor, { at: listItemCheck[1] });
+    } else {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
       const currentNode = Editor.parent(editor, editor.selection.anchor.path);
@@ -580,7 +577,6 @@ const SlateReact = () => {
         },
       );
     } else if (tableStart || tableEnd) {
-      
       const [startPoint, endPoint] = Range.edges(editor.selection);
       const edges = [startPoint.path, endPoint.path];
       Editor.withoutNormalizing(editor, () => {
@@ -874,10 +870,9 @@ const SlateReact = () => {
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
-
+            Editor.insertBreak(editor);
             Transforms.insertNodes(editor, { type: 'ImageWrapper', children: [{ text: '' }] }, { at: editor.selection.anchor.path });
-
-            Transforms.unwrapNodes(editor, { mode: 'highest' });
+            Transforms.insertNodes(editor, { type: 'paragraph', children: [{ text: '' }] });
           }}>
           insert image
         </div>
@@ -974,11 +969,14 @@ const SlateReact = () => {
 
             Editor.insertBreak(editor);
             Transforms.insertNodes(editor, block);
-            Transforms.select(editor,{anchor:{offset:0,path:[editor.selection.anchor.path[0]-1,0]},focus:{offset:0,path:[editor.selection.anchor.path[0]-1,0]}})
-            const nextNodes = Editor.next(editor,{match:(n) => n.type === 'table-list'})
-            Transforms.moveNodes(editor,{
-              to:nextNodes[1]
-            })
+            Transforms.select(editor, {
+              anchor: { offset: 0, path: [editor.selection.anchor.path[0] - 1, 0] },
+              focus: { offset: 0, path: [editor.selection.anchor.path[0] - 1, 0] },
+            });
+            const nextNodes = Editor.next(editor, { match: (n) => n.type === 'table-list' });
+            Transforms.moveNodes(editor, {
+              to: nextNodes[1],
+            });
           }}>
           insert table now
         </div>
@@ -1317,9 +1315,6 @@ const KatexComponent = ({ attributes, children, element }) => {
     <span
       onClick={(e) => {
         window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'katex', { id: 1 });
-      }}
-      style={{
-        background: selected ? 'red' : '',
       }}
       className='span-katex'
       {...attributes}>
@@ -1730,7 +1725,7 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table style={{border:selected? '2px solid red': ''}} className='table-list my-5' {...attributes}>
+      <table style={{ border: selected ? '2px solid red' : '' }} className='table-list my-5' {...attributes}>
         <tbody>{children}</tbody>
       </table>
     </>
