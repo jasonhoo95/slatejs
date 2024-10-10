@@ -412,14 +412,13 @@ const SlateReact = () => {
       });
       previousVoid = Editor.previous(editor, {
         at: listItems[1],
-        match: (n) => ['katex', 'span-txt'].includes(n.type),
+        match: (n) => Editor.isVoid(editor, n),
       });
 
       nextParent = Editor.next(editor, {
         at: listItems[1],
       });
     }
-
     if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -503,7 +502,7 @@ const SlateReact = () => {
           Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
         }
       }
-    } else if (previousParent && previousParent[0].type === 'table-list' && editor.selection.anchor.offset === 0) {
+    } else if (previousParent && (previousParent[0].type === 'table-list' || previousParent[0].type === 'ImageWrapper') && editor.selection.anchor.offset === 0) {
       Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
     } else if (
       previousParent &&
@@ -872,6 +871,7 @@ const SlateReact = () => {
             ReactEditor.focus(editor);
             Editor.insertBreak(editor);
             Transforms.insertNodes(editor, { type: 'ImageWrapper', children: [{ text: '' }] }, { at: editor.selection.anchor.path });
+            Transforms.unwrapNodes(editor, { match: (n) => n.type === 'paragraph' });
             Transforms.insertNodes(editor, { type: 'paragraph', children: [{ text: '' }] });
           }}>
           insert image
@@ -1784,6 +1784,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
     <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[100px] w-[100px] relative overflow-hidden' {...attributes}>
       <div className='w-full h-full absolute left-0 top-0 z-[2] overflow-hidden'>
         <img
+          contentEditable='false'
           className='w-full h-full object-cover'
           src='https://media.istockphoto.com/id/1217649450/photo/chicken-or-hen-on-a-green-meadow.jpg?s=612x612&w=0&k=20&c=zRlZTkwoc-aWb3kI10OqlRLbiQw3R3_KUIchNVFgYgw='
         />
