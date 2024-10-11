@@ -298,7 +298,7 @@ const SlateReact = () => {
         at: selection.focus,
       });
 
-      if (anchor) {
+      if (anchor && focus) {
         const [, anchorPath] = anchor;
         const [, focusPath] = focus;
 
