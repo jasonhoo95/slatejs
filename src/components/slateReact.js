@@ -972,16 +972,20 @@ const SlateReact = () => {
               ],
             };
 
-            Editor.insertBreak(editor);
+            Transforms.insertNodes(editor, { type: 'paragraph', children: [{ text: '' }] });
+            Transforms.unwrapNodes(editor, { split: true, match: (n) => n.type === 'numbered-list' || n.type === 'check-list' });
             Transforms.insertNodes(editor, block);
             Transforms.select(editor, {
-              anchor: { offset: 0, path: [editor.selection.anchor.path[0] - 1, 0] },
-              focus: { offset: 0, path: [editor.selection.anchor.path[0] - 1, 0] },
+              anchor: { offset: 0, path: [editor.selection.anchor.path[0], 0, 0, 0, 0] },
+              focus: { offset: 0, path: [editor.selection.anchor.path[0], 0, 0, 0, 0] },
             });
-            const nextNodes = Editor.next(editor, { match: (n) => n.type === 'table-list' });
-            Transforms.moveNodes(editor, {
-              to: nextNodes[1],
-            });
+            Transforms.move(editor, { distance: 1, unit: 'offset', reverse: true });
+            const nextNode = Editor.next(editor, { match: (n) => n.type === 'table-list' });
+            Transforms.moveNodes(editor, { to: nextNode[1] });
+            // Transforms.select(editor, {
+            //   anchor: { offset: 0, path: [editor.selection.anchor.path[0] - 1, 0] },
+            //   focus: { offset: 0, path: [editor.selection.anchor.path[0] - 1, 0] },
+            // });
           }}>
           insert table now
         </div>
