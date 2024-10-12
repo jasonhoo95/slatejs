@@ -395,13 +395,12 @@ const SlateReact = () => {
     let parentCheck;
     const [listItems] = Editor.nodes(editor, {
       at: editor.selection.anchor.path,
-      match: (n) => ['span-txt', 'paragraph', 'input-component', 'table-list', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
+      match: (n) => ['span-txt', 'paragraph', 'input-component', 'table-cell1', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
     });
 
     const listItemCheck = Editor.above(editor, {
       match: (n) => n.type == 'list-item' || n.type == 'paragraph' || n.type === 'ImageWrapper' || n.type === 'table-list',
     });
-    const stringText = Editor.string(editor, editor.selection.anchor.path);
 
     if (listItems) {
       listItemParent = Editor.node(editor, listItems[1]);
@@ -419,7 +418,6 @@ const SlateReact = () => {
       });
     }
 
-    console.log(previousVoid, 'previous parent');
     if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -482,8 +480,13 @@ const SlateReact = () => {
       editor.selection.anchor.offset === 0
     ) {
       toggleBlock(editor, listItemCheck[0].type);
-    } else if (listItemParent && listItemCheck && listItemCheck[0].type === 'paragraph' && ['dropdown-content', 'table-list'].includes(listItemParent[0].type)) {
-      console.log('table list');
+    } else if (
+      listItemParent &&
+      listItemCheck &&
+      listItemCheck[0].type === 'paragraph' &&
+      ['dropdown-content', 'table-cell1'].includes(listItemParent[0].type) &&
+      listItemParent[0].children.length === 1
+    ) {
       const ua = navigator.userAgent;
 
       const [cell] = Editor.nodes(editor, {
@@ -504,10 +507,7 @@ const SlateReact = () => {
           Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
         }
       }
-    } else if (previousParent && previousParent[0].type === 'table-list' && editor.selection.anchor.offset === 0) {
-      Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
-    } else if (previousVoid && editor.selection.anchor.offset === 0) {
-      console.log('previous void 123');
+    } else if ((previousVoid && editor.selection.anchor.offset === 0) || (previousParent && previousParent[0].type === 'table-list')) {
       Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
     } else if (
       previousParent &&
