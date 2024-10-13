@@ -402,7 +402,7 @@ const SlateReact = () => {
       match: (n) => n.type == 'list-item' || n.type == 'paragraph' || n.type === 'ImageWrapper' || n.type === 'table-list',
     });
 
-    if (listItems) {
+    if (listItems && listItemCheck) {
       listItemParent = Editor.node(editor, listItems[1]);
 
       previousParent = Editor.previous(editor, {
