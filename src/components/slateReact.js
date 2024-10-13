@@ -450,15 +450,6 @@ const SlateReact = () => {
           });
         }
       }
-    } else if (previousParent && previousParent[0].type == 'check-list-item' && editor.selection.anchor.offset == 0) {
-      Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
-
-      if (previousParent[0].children[0].text.length == 0) {
-        Transforms.setNodes(editor, {
-          type: 'check-list-item',
-          checked: previousParent[0].checked,
-        });
-      }
     } else if (
       nextParent &&
       previousParent &&
@@ -537,13 +528,7 @@ const SlateReact = () => {
 
   editor.deleteFragment = (...args) => {
     const [listItems] = Editor.nodes(editor, {
-      match: (n) => n.type === 'list-item' || n.type == 'check-list-item' || n.type == 'paragraph' || n.type == 'dropdown-content',
-    });
-    const string = Node.leaf(editor, editor.selection.anchor.path);
-    const ua = navigator.userAgent;
-
-    const [tableCellList] = Editor.nodes(editor, {
-      match: (n) => n.type == 'table-list',
+      match: (n) => n.type === 'list-item' || n.type == 'check-list-item' || n.type === 'paragraph',
     });
 
     const [tableStart] = Editor.nodes(editor, {
@@ -556,30 +541,19 @@ const SlateReact = () => {
       at: editor.selection.focus,
     });
 
-    const checked = listItems;
-
-    const [checkListItem] = Editor.nodes(editor, {
-      at: listItems[1],
-      match: (n) => n.type == 'list-item',
-    });
-
-    if (checkListItem && !['list-item', 'check-list-item'].includes(checkListItem[0].type)) {
-      Transforms.setNodes(
-        editor,
-        { type: 'paragraph' },
-        {
-          at: checkListItem[1],
-          match: (n) => n.type === 'list-item' || n.type == 'check-list-item',
-        },
-      );
-    } else if (checked[0].type == 'check-list-item' && string.text.length > 0) {
-      Transforms.setNodes(
-        editor,
-        { type: 'check-list-item', checked: checked[0].checked ? true : false },
-        {
-          at: checked[1],
-        },
-      );
+    if (listItems && !tableStart && !tableEnd) {
+      deleteFragment(...args);
+      const parent = Editor.parent(editor, listItems[1]);
+      if (parent && !['numbered-list', 'check-list'].includes(parent[0].type)) {
+        Transforms.setNodes(
+          editor,
+          { type: 'paragraph' },
+          {
+            at: listItems[1],
+            match: (n) => n.type === 'list-item' || n.type == 'check-list-item',
+          },
+        );
+      }
     } else if (tableStart || tableEnd) {
       const [startPoint, endPoint] = Range.edges(editor.selection);
       const edges = [startPoint.path, endPoint.path];
