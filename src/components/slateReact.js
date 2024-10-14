@@ -18,7 +18,7 @@ const HOTKEYS = {
   'mod+`': 'code',
 };
 
-const LIST_TYPES = ['numbered-list', 'bulleted-list', 'list-item', 'check-list-item'];
+const LIST_TYPES = ['numbered-list', 'bulleted-list', 'list-item'];
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
 const FORMAT_TYPES = ['bold', 'italic', 'underline'];
 const FORMAT_NONE = ['numbered-list', 'paragraph'];
@@ -754,6 +754,14 @@ const SlateReact = () => {
         <div
           onClick={(e) => {
             ReactEditor.focus(editor);
+            toggleBlock(editor, 'check-list-item');
+          }}>
+          insert check list
+        </div>
+
+        <div
+          onClick={(e) => {
+            ReactEditor.focus(editor);
 
             wrapperCheck(editor);
           }}>
@@ -960,7 +968,7 @@ const SlateReact = () => {
                 n.type == 'dropdown-content',
             });
             const parentCheck = Editor.above(editor, {
-              match: (n) => n.type == 'list-item' || n.type == 'paragraph',
+              match: (n) => n.type == 'list-item' || n.type == 'paragraph' || n.type === 'check-list-item',
             });
             const stringText = Editor.string(editor, editor.selection.anchor.path);
             let pattern = /^\d+\./; // \d+ matches one or more digits, followed by a literal period
@@ -1329,7 +1337,7 @@ const toggleBlock = (editor, format, type) => {
   if (format == 'list-item' || format == 'check-list-item') {
     formatCheck = ['numbered-list', 'bulleted-list', 'check-list'];
   } else {
-    formatCheck = [format];
+    formatCheck = format;
   }
 
   Transforms.unwrapNodes(editor, {
@@ -1346,11 +1354,12 @@ const toggleBlock = (editor, format, type) => {
     };
   } else {
     newProperties = {
-      type: isActive ? 'paragraph' : isList ? 'list-item' : formatCheck,
+      type: isActive ? 'paragraph' : isList ? 'list-item' : format,
       children: [{ text: '' }],
     };
   }
-
+  
+  
   Transforms.setNodes(editor, newProperties);
 
   if (!isActive && isList) {
@@ -1946,7 +1955,6 @@ const CheckListItemElement = ({ attributes, children, element }) => {
       {...attributes}
       className={css`
         display: flex;
-        flex-direction: row;
         align-items: flex-start;
       `}>
       <span
@@ -1954,7 +1962,7 @@ const CheckListItemElement = ({ attributes, children, element }) => {
         className={css`
           user-select: none;
           margin-right: 0.5em;
-          margin-top: 0.1em;
+          margin-top: 0.3em;
           display: block;
         `}>
         <input
