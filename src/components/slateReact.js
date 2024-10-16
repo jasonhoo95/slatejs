@@ -636,7 +636,7 @@ const SlateReact = () => {
               Transforms.removeNodes(editor, {
                 at: parent[1],
               });
-            } 
+            }
           }
         }}
         initialValue={initialValue}>
@@ -1358,8 +1358,7 @@ const toggleBlock = (editor, format, type) => {
       children: [{ text: '' }],
     };
   }
-  
-  
+
   Transforms.setNodes(editor, newProperties);
 
   if (!isActive && isList) {
@@ -1636,7 +1635,10 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table style={{ border: (!startPath || !endPath) && selected ? '2px solid red' : '' }} className='table-list my-5' {...attributes}>
+      <table
+        style={{ border: (!startPath || !endPath) && selected ? '2px solid red' : '' }}
+        className={`table-list my-5 ${(!startPath || !endPath) && selected ? 'bg-sky-200' : ''}`}
+        {...attributes}>
         <tbody>{children}</tbody>
       </table>
     </>
