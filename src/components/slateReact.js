@@ -868,7 +868,8 @@ const SlateReact = () => {
                 },
               ],
             };
-
+            const end = Editor.end(editor, editor.selection.anchor.path);
+            Transforms.setSelection(editor, { anchor: { ...end }, focus: { ...end } });
             Transforms.insertNodes(editor, { type: 'paragraph', children: [{ text: '' }] });
             Transforms.unwrapNodes(editor, { split: true, match: (n) => n.type === 'numbered-list' || n.type === 'check-list' });
             Transforms.insertNodes(editor, block);
