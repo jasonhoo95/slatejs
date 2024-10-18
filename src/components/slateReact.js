@@ -10,7 +10,7 @@ import { withHistory, HistoryEditor, History } from 'slate-history';
 import { useModalStore } from '@/globals/zustandGlobal';
 import EditablePopup from './editablePopup';
 import { useSelector, useDispatch } from 'react-redux';
-import { setText } from '@/globals/counterSlice';
+import { setText, checkByTable } from '@/globals/counterSlice';
 const HOTKEYS = {
   'mod+b': 'bold',
   'mod+i': 'italic',
@@ -145,7 +145,6 @@ const SlateReact = () => {
   let id = v4();
   let ModalProps = useModalStore((state) => state.display);
   let updateAmount = useModalStore((state) => state.updateModal);
-  const dispatch = useDispatch();
   const contentEditableRef = useRef(null);
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
@@ -1594,6 +1593,8 @@ const TableList = ({ attributes, children, element }) => {
   const focused = useFocused();
   const editor = useSlate();
   const [check, setChecked] = useState(false);
+  const dispatch = useDispatch();
+  const checkTable = useSelector((state) => state.counter.checkTable)
 
   const [startPath] = Editor.nodes(editor, { match: (n) => n.type === 'table-list', at: editor.selection.anchor.path });
 
@@ -1615,6 +1616,8 @@ const TableList = ({ attributes, children, element }) => {
       }
     }
   }
+
+  
   useEffect(() => {
     const messageListener = (e) => {
       if (selected) {
@@ -1625,6 +1628,10 @@ const TableList = ({ attributes, children, element }) => {
     if (selected) {
       window.addEventListener('message', messageListener);
     } else {
+      if(checkTable){
+        dispatch(checkByTable(false));
+
+      }
       window.removeEventListener('message', messageListener);
     }
 
@@ -1636,10 +1643,11 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <>
-      <table
-        style={{ border: (!startPath || !endPath) && selected ? '2px solid red' : '' }}
-        className={`table-list my-5 ${(!startPath || !endPath) && selected ? 'bg-sky-200' : ''}`}
-        {...attributes}>
+      <table className={`table-list my-3 relative ${(!startPath || !endPath) && selected  && !checkTable ? 'bg-sky-200' : ''}`} {...attributes}>
+        {(!startPath || !endPath) && selected && !checkTable ? <div onClick={e=>{
+          dispatch(checkByTable(true));
+        }} style={{ border: '2px solid red' }} className='absolute left-0 top-0 z-[5] w-full h-full'></div> : null}
+
         <tbody>{children}</tbody>
       </table>
     </>
@@ -1918,8 +1926,18 @@ const TableRows = ({ attributes, children, element }) => {
 const TableCell1 = ({ attributes, children, element }) => {
   const editor = useSlate();
   const selected = useSelected();
+  const checkTable = useSelector((state) => state.counter.checkTable)
+  const dispatch = useDispatch();
+
   let checked = false;
 
+  useEffect(()=>{
+    if(selected && checkTable){
+      dispatch(checkByTable(false));
+    }
+
+  },[selected])
+  
   if (
     editor.selection.anchor.path[1] !== editor.selection.focus.path[1] ||
     editor.selection.anchor.path[2] !== editor.selection.focus.path[2] ||
@@ -1931,7 +1949,7 @@ const TableCell1 = ({ attributes, children, element }) => {
   }
 
   return (
-    <td className={checked && selected ? 'bg-sky-200' : ''} {...attributes}>
+    <td className={checked && selected && !checkTable  ? 'bg-sky-200' : ''} {...attributes}>
       {children}
     </td>
   );

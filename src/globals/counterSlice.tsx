@@ -6,6 +6,7 @@ export interface CounterState {
   list: any;
   editor: any;
   openCheck: boolean;
+  checkTable: boolean;
 }
 
 const initialState: CounterState = {
@@ -13,6 +14,7 @@ const initialState: CounterState = {
   list: null,
   editor: null,
   openCheck: false,
+  checkTable: false
 };
 
 export const counterSlice = createSlice({
@@ -34,10 +36,14 @@ export const counterSlice = createSlice({
     incrementByAmount: (state, action: PayloadAction<number>) => {
       state.value += 1;
     },
+    checkByTable: (state, action: PayloadAction<any>) => {
+      state.checkTable = action.payload;
+
+    }
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { increment, decrement, incrementByAmount } = counterSlice.actions;
+export const { increment, decrement, incrementByAmount, checkByTable } = counterSlice.actions;
 
 export default counterSlice.reducer;
