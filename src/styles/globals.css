@@ -25,6 +25,22 @@
   margin-right: auto;
 } */
 
+.table-wrapper {
+  position: relative;
+}
+
+.table-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  border: 2px solid red; /* Customize the border as needed */
+  pointer-events: none; /* Allows clicks to pass through */
+}
+
 #editor {
   padding: 5px 20px;
 }
