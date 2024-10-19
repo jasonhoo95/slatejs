@@ -298,6 +298,8 @@ const SlateReact = () => {
       });
 
       if (anchor && focus) {
+        console.log(anchor, focus, 'apply focus');
+
         const [, anchorPath] = anchor;
         const [, focusPath] = focus;
 
@@ -831,6 +833,7 @@ const SlateReact = () => {
             const block = {
               type: 'table-list',
               children: [
+                { type: 'span-txt', children: [{ text: '' }] },
                 {
                   type: 'table-rows',
                   children: [
@@ -1588,7 +1591,6 @@ const DropDownList = ({ attributes, children, element }) => {
   );
 };
 
-
 const InputComponent = ({ attributes, children, element }) => {
   const editor = useSlate();
   const selected = useSelected();
@@ -1864,12 +1866,13 @@ const TableList = ({ attributes, children, element }) => {
   const editor = useSlate();
   const [check, setChecked] = useState(false);
   const dispatch = useDispatch();
-  const checkTable = useSelector((state) => state.counter.checkTable)
+  const checkTable = useSelector((state) => state.counter.checkTable);
 
   const [startPath] = Editor.nodes(editor, { match: (n) => n.type === 'table-list', at: editor.selection.anchor.path });
 
   const [endPath] = Editor.nodes(editor, { match: (n) => n.type === 'table-list', at: editor.selection.focus.path });
 
+  console.log(children, 'table list selection');
   function checknow(event) {
     if (event && typeof event.data == 'katexnow') {
       let value = JSON.parse(event.data);
@@ -1887,8 +1890,6 @@ const TableList = ({ attributes, children, element }) => {
     }
   }
 
-  
-  
   useEffect(() => {
     const messageListener = (e) => {
       if (selected) {
@@ -1899,9 +1900,8 @@ const TableList = ({ attributes, children, element }) => {
     if (selected) {
       window.addEventListener('message', messageListener);
     } else {
-      if(checkTable){
+      if (checkTable) {
         dispatch(checkByTable(false));
-
       }
       window.removeEventListener('message', messageListener);
     }
@@ -1913,53 +1913,51 @@ const TableList = ({ attributes, children, element }) => {
   }, [selected]);
 
   return (
-    <div className={`w-[200px] ${(!startPath || !endPath) && selected ? 'table-wrapper' : ''}`}>
-      <table className={`table-list w-full my-3 relative ${(!startPath || !endPath) && selected  ? 'bg-sky-200' : ''}`} {...attributes}>
-        <tbody>{children}</tbody>
+    <div className={`w-[200px] my-2 mx-2 ${(!startPath || !endPath) && selected ? 'table-wrapper' : ''}`}>
+      <table className={`table-list w-full relative ${(!startPath || !endPath) && selected ? 'bg-sky-200' : ''}`} {...attributes}>
+        <tbody>
+          {children.filter((o) => {
+            return o.type === 'table-rows';
+          })}
+        </tbody>
       </table>
     </div>
   );
 };
 
-
 const TableCell1 = ({ attributes, children, element }) => {
   const editor = useSlate();
   const selected = useSelected();
   const focused = useFocused();
-  const checkTable = useSelector((state) => state.counter.checkTable)
+  const checkTable = useSelector((state) => state.counter.checkTable);
   const dispatch = useDispatch();
 
   let checked = false;
 
   // if(!Range.isCollapsed(editor.selection) && checkTable){
-  //   
+  //
   //   dispatch(checkByTable(true));
   // }
 
-  useEffect(()=>{
+  useEffect(() => {
     // if(focused && checkTable){
-    //   
+    //
     //   dispatch(checkByTable(false));
     // }
+  }, [editor]);
 
-    
-
-  },[editor])
-  
   if (
     editor.selection.anchor.path[1] !== editor.selection.focus.path[1] ||
     editor.selection.anchor.path[2] !== editor.selection.focus.path[2] ||
     editor.selection.anchor.path[0] != editor.selection.focus.path[0]
   ) {
     checked = true;
-    
   } else {
-    
     checked = false;
   }
 
   return (
-    <td className={checked && selected && !checkTable  ? 'bg-sky-200' : ''} {...attributes}>
+    <td className={checked && selected && !checkTable ? 'bg-sky-200' : ''} {...attributes}>
       {children}
     </td>
   );
