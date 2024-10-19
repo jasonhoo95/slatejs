@@ -394,7 +394,7 @@ const SlateReact = () => {
     let parentCheck;
     const [listItems] = Editor.nodes(editor, {
       at: editor.selection.anchor.path,
-      match: (n) => ['span-txt', 'paragraph', 'input-component', 'table-cell1', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
+      match: (n) => ['paragraph', 'input-component', 'table-cell1', 'list-item', 'editable-void', 'dropdown-content', 'check-list-item', 'katex'].includes(n.type),
     });
 
     const listItemCheck = Editor.above(editor, {
@@ -497,7 +497,7 @@ const SlateReact = () => {
           Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
         }
       }
-    } else if ((previousVoid && editor.selection.anchor.offset === 0) || (previousParent && previousParent[0].type === 'table-list')) {
+    } else if ((previousVoid && previousVoid[0].type !== 'span-txt') || (previousParent && previousParent[0].type === 'table-list')) {
       Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
     } else if (
       previousParent &&
@@ -1911,7 +1911,6 @@ const TableList = ({ attributes, children, element }) => {
 
   return (
     <div className={`w-[200px] inline-flex relative my-2 mx-2 ${(!startPath || !endPath) && selected ? 'table-wrapper' : ''}`}>
-      <div className='absolute right-0 h-full'>{children[0]}</div>
       <table className={`table-list w-full relative ${(!startPath || !endPath) && selected ? 'bg-sky-200' : ''}`} {...attributes}>
         <tbody>
           {children.filter((o, key) => {
@@ -1919,6 +1918,7 @@ const TableList = ({ attributes, children, element }) => {
           })}
         </tbody>
       </table>
+      <div className='absolute right-0 h-full bg-red'>{children[0]}</div>
     </div>
   );
 };
