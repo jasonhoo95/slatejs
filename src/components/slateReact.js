@@ -298,8 +298,6 @@ const SlateReact = () => {
       });
 
       if (anchor && focus) {
-        console.log(anchor, focus, 'apply focus');
-
         const [, anchorPath] = anchor;
         const [, focusPath] = focus;
 
@@ -1872,7 +1870,6 @@ const TableList = ({ attributes, children, element }) => {
 
   const [endPath] = Editor.nodes(editor, { match: (n) => n.type === 'table-list', at: editor.selection.focus.path });
 
-  console.log(children, 'table list selection');
   function checknow(event) {
     if (event && typeof event.data == 'katexnow') {
       let value = JSON.parse(event.data);
@@ -1913,11 +1910,12 @@ const TableList = ({ attributes, children, element }) => {
   }, [selected]);
 
   return (
-    <div className={`w-[200px] my-2 mx-2 ${(!startPath || !endPath) && selected ? 'table-wrapper' : ''}`}>
+    <div className={`w-[200px] inline-flex relative my-2 mx-2 ${(!startPath || !endPath) && selected ? 'table-wrapper' : ''}`}>
+      <div className='absolute right-0 h-full'>{children[0]}</div>
       <table className={`table-list w-full relative ${(!startPath || !endPath) && selected ? 'bg-sky-200' : ''}`} {...attributes}>
         <tbody>
-          {children.filter((o) => {
-            return o.type === 'table-rows';
+          {children.filter((o, key) => {
+            return key !== 0;
           })}
         </tbody>
       </table>
