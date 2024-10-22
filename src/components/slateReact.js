@@ -63,38 +63,6 @@ const initialValue = [
     ],
   },
 
-  // {
-  //   type: 'table-list',
-  //   insert: true,
-  //   checked: true,
-  //   children: [
-  //     // { type: 'span-txt', id: 'span-txt', children: [{ text: '' }] },
-  //     {
-  //       type: 'table-cell1',
-  //       id: 1,
-  //       selected: true,
-  //       children: [{ type: 'paragraph', children: [{ text: '' }] }],
-  //     },
-  //     {
-  //       type: 'table-cell1',
-  //       id: 2,
-  //       selected: false,
-  //       children: [{ type: 'paragraph', children: [{ text: '' }] }],
-  //     },
-  //     {
-  //       type: 'table-cell1',
-  //       id: 3,
-  //       selected: false,
-  //       children: [{ type: 'paragraph', children: [{ text: '' }] }],
-  //     },
-  //     {
-  //       type: 'table-cell1',
-  //       id: 4,
-  //       selected: false,
-  //       children: [{ type: 'paragraph', children: [{ text: '' }] }],
-  //     },
-  //   ],
-  // }
 ];
 
 const SHORTCUTS = {
@@ -416,7 +384,7 @@ const SlateReact = () => {
         at: listItemCheck[1],
       });
     }
-
+   console.log(previousVoid,"previous void");
     if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -497,7 +465,7 @@ const SlateReact = () => {
           Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
         }
       }
-    } else if ((previousVoid && previousVoid[0].type !== 'span-txt') || (previousParent && previousParent[0].type === 'table-list' && editor.selection.anchor.offset === 0)) {
+    } else if (((previousVoid && previousVoid[0].type !== 'span-txt') || (previousParent && previousParent[0].type === 'table-list')) && editor.selection.anchor.offset === 0) {
       Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
     } else if (
       previousParent &&
@@ -1918,7 +1886,7 @@ const TableList = ({ attributes, children, element }) => {
           })}
         </tbody>
       </table>
-      <div style={{ display: selected ? 'block' : 'none' }} className='absolute right-0 h-full'>
+      <div style={{ display: selected ? 'block' : 'none' }} className='absolute select-none right-0 h-full'>
         {children[0]}
       </div>
     </div>
