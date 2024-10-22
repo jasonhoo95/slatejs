@@ -1878,7 +1878,7 @@ const TableList = ({ attributes, children, element }) => {
   }, [selected]);
 
   return (
-    <div className={`w-[200px] inline-flex relative my-2 mx-2 ${(!startPath || !endPath) && selected ? 'table-wrapper' : ''}`}>
+    <div className={`inline-flex relative my-2 mx-2 ${(!startPath || !endPath) && selected ? 'table-wrapper' : ''}`}>
       <table className={`table-list w-full relative ${(!startPath || !endPath) && selected ? 'bg-sky-200' : ''}`} {...attributes}>
         <tbody>
           {children.filter((o, key) => {
