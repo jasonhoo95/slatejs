@@ -62,7 +62,6 @@ const initialValue = [
       },
     ],
   },
-
 ];
 
 const SHORTCUTS = {
@@ -384,7 +383,7 @@ const SlateReact = () => {
         at: listItemCheck[1],
       });
     }
-   console.log(previousVoid,"previous void");
+    console.log(previousVoid, 'previous void');
     if (nextParent && nextParent[0].type == 'banner-red-wrapper' && previousParent && previousParent[0].type == 'banner-red-wrapper') {
       Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -446,24 +445,17 @@ const SlateReact = () => {
       listItemParent[0].children.length === 1
     ) {
       const ua = navigator.userAgent;
-
-      const [cell] = Editor.nodes(editor, {
-        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'table-cell1',
-      });
-
-      if (cell) {
-        const [, cellPath] = cell;
-        const start = Editor.start(editor, cellPath);
-
-        if (Point.equals(editor.selection.anchor, start)) {
-          if (/android/i.test(ua)) {
-            Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
-          } else {
-            return;
-          }
-        } else {
-          Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
-        }
+      const parent = Editor.parent(editor, editor.selection.anchor.path);
+      if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
+        Transforms.insertText(editor, '\u200B'.toString(), {
+          at: editor.selection.anchor,
+        });
+      } else {
+        Transforms.delete(editor, {
+          distance: 1,
+          unit: 'offset',
+          reverse: true,
+        });
       }
     } else if (((previousVoid && previousVoid[0].type !== 'span-txt') || (previousParent && previousParent[0].type === 'table-list')) && editor.selection.anchor.offset === 0) {
       Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
@@ -1886,7 +1878,7 @@ const TableList = ({ attributes, children, element }) => {
           })}
         </tbody>
       </table>
-      <div style={{ display: selected ? 'block' : 'none' }} className='absolute select-none right-0 h-full'>
+      <div contentEditable='false' style={{ display: selected ? 'block' : 'none' }} className='absolute right-0 h-full'>
         {children[0]}
       </div>
     </div>
