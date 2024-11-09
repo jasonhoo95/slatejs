@@ -1607,7 +1607,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
         />
       </div>
 
-      <div>{children}</div>
+      <div contentEditable={!/android/i.test(ua) ? false : true}>{children}</div>
     </div>
   );
 };
