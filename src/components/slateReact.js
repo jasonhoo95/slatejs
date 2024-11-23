@@ -1878,7 +1878,7 @@ const TableList = ({ attributes, children, element }) => {
           })}
         </tbody>
       </table>
-      <div contentEditable='false' style={{ display: selected ? 'block' : 'none' }} className='absolute right-0'>
+      <div contentEditable='false' style={{ display: selected ? 'block' : 'none' }} className='absolute right-0 h-0 w-0'>
         {children[0]}
       </div>
     </div>
