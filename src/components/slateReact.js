@@ -1598,7 +1598,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
   const ua = navigator.userAgent;
 
   return (
-    <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[100px] w-[100px] relative overflow-hidden' {...attributes}>
+    <div style={{ border: selected ? '3px solid blue' : '' }} contentEditable='false' className='h-[100px] w-[100px] relative overflow-hidden' {...attributes}>
       <div className='w-full h-full absolute left-0 top-0 z-[2] overflow-hidden'>
         <img
           contentEditable='false'
@@ -1607,7 +1607,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
         />
       </div>
 
-      <div contentEditable={!/android/i.test(ua) ? false : true}>{children}</div>
+      <div contentEditable={false}>{children}</div>
     </div>
   );
 };
@@ -1665,18 +1665,16 @@ const EditableVoid = ({ attributes, children, element }) => {
 
   function checknow(event) {
     if (event && typeof event.data == 'string') {
-      let value = JSON.parse(event.data);
+      // let value = JSON.parse(event.data);
 
-      if (value && value.id == 'katex') {
-        ReactEditor.focus(editor);
-        var index = _.findIndex(cardnow, { id: value.key });
-        Transforms.setNodes(editor, { card: [{ card: value.card, id: value.cardId, check: false }] }, { at: path });
+      // ReactEditor.focus(editor);
+      // var index = _.findIndex(cardnow, { id: value.key });
+      Transforms.setNodes(editor, { card: [{ card: 'HELLO', id: 'ASD', check: false }] }, { at: path });
 
-        // if (cardnow[index].card != 'hello world') {
-        // 	cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
+      // if (cardnow[index].card != 'hello world') {
+      // 	cardnow.splice(index, 1, { ...cardnow[index], card: 'hello world', check: false });
 
-        // }
-      }
+      // }
     }
   }
 
@@ -1771,7 +1769,10 @@ const EditableVoid = ({ attributes, children, element }) => {
         <button
           className=''
           onClick={(e) => {
-            Transforms.removeNodes(editor, { at: path });
+            ReactEditor.blur(editor);
+            window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid');
+
+            // Transforms.removeNodes(editor, { at: path });
           }}>
           CLICK ME
         </button>
