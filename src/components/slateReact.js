@@ -176,6 +176,9 @@ const SlateReact = () => {
         ReactEditor.focus(editor);
 
         insertKatex(editor, 'flutter123');
+      } else if (event.data === 'undo') {
+        ReactEditor.focus(editor);
+        HistoryEditor.undo(editor);
       } else if (event.data == 'focus') {
         ReactEditor.focus(editor);
       } else {
@@ -1747,7 +1750,7 @@ const EditableVoid = ({ attributes, children, element }) => {
 							<div
 								contentEditable="false"
 								// onClick={(e) => {
-								// 	setModal(key, card, true);
+								// 	setModal(key, card, twrue);
 								// }}
 								style={{ height: "100%", width: "100%", background: "red" }}
 								key={key}>
