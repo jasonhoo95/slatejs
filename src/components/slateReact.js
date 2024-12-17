@@ -440,25 +440,27 @@ const SlateReact = () => {
       editor.selection.anchor.offset === 0
     ) {
       toggleBlock(editor, listItemCheck[0].type);
-    } else if (
-      listItemParent &&
-      listItemCheck &&
-      listItemCheck[0].type === 'paragraph' &&
-      ['dropdown-content', 'table-cell1'].includes(listItemParent[0].type) &&
-      listItemParent[0].children.length === 1
-    ) {
+    } else if (listItemParent && listItemCheck && listItemCheck[0].type === 'paragraph' && ['dropdown-content', 'table-cell1'].includes(listItemParent[0].type)) {
       const ua = navigator.userAgent;
+      const { selection } = editor;
       const parent = Editor.parent(editor, editor.selection.anchor.path);
-      if (parent[1][parent[1].length - 1] == 0 && editor.selection.anchor.offset == 0 && parent[0].children.length == 1) {
-        Transforms.insertText(editor, '\u200B'.toString(), {
-          at: editor.selection.anchor,
-        });
-      } else {
-        Transforms.delete(editor, {
-          distance: 1,
-          unit: 'offset',
-          reverse: true,
-        });
+      const [cell] = Editor.nodes(editor, {
+        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'table-cell1',
+      });
+      if (cell) {
+        const [, cellPath] = cell;
+        const start = Editor.start(editor, cellPath);
+        if (Point.equals(selection.anchor, start)) {
+          Transforms.insertText(editor, '\u200B'.toString(), {
+            at: editor.selection.anchor,
+          });
+        } else {
+          Transforms.delete(editor, {
+            distance: 1,
+            unit: 'offset',
+            reverse: true,
+          });
+        }
       }
     } else if (((previousVoid && previousVoid[0].type !== 'span-txt') || (previousParent && previousParent[0].type === 'table-list')) && editor.selection.anchor.offset === 0) {
       Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
