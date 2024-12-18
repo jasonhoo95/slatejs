@@ -11,6 +11,7 @@ import { useModalStore } from '@/globals/zustandGlobal';
 import EditablePopup from './editablePopup';
 import { useSelector, useDispatch } from 'react-redux';
 import { setText, checkByTable } from '@/globals/counterSlice';
+import _ from 'lodash';
 const HOTKEYS = {
   'mod+b': 'bold',
   'mod+i': 'italic',
@@ -1038,7 +1039,7 @@ const wrapperCheck = (editor) => {
     // Transforms.setNodes(editor, { type: 'list-item' });
     // const block = { type: 'numbered-list', children: [] };
 
-    // Transforms.wrapNodes(editor, block);
+    Transforms.wrapNodes(editor, block);
 
     // toggleBlock(editor, "numbered-list", "number");
   }
@@ -1607,7 +1608,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
   const ua = navigator.userAgent;
 
   return (
-    <div style={{ border: selected ? '3px solid blue' : '' }} contentEditable='false' className='h-[100px] w-[100px] relative overflow-hidden' {...attributes}>
+    <div style={{ border: selected ? '3px solid blue' : '' }} className='h-[100px] w-[100px] relative overflow-hidden' {...attributes}>
       <div className='w-full h-full absolute left-0 top-0 z-[2] overflow-hidden'>
         <img
           contentEditable='false'
@@ -1616,7 +1617,7 @@ const ImageWrapper = ({ attributes, children, element }) => {
         />
       </div>
 
-      <div contentEditable={false}>{children}</div>
+      <div>{children}</div>
     </div>
   );
 };
