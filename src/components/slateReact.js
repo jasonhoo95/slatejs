@@ -451,9 +451,13 @@ const SlateReact = () => {
         const [, cellPath] = cell;
         const start = Editor.start(editor, cellPath);
         if (Point.equals(selection.anchor, start)) {
-          Transforms.insertText(editor, '\u200B'.toString(), {
-            at: editor.selection.anchor,
-          });
+          if (!/android/i.test(ua)) {
+            return;
+          } else {
+            Transforms.insertText(editor, '\u200B'.toString(), {
+              at: editor.selection.anchor,
+            });
+          }
         } else {
           Transforms.delete(editor, {
             distance: 1,
