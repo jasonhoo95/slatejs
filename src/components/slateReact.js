@@ -444,8 +444,8 @@ const SlateReact = () => {
                 at: listItemCheck[1],
             });
             previousVoid = Editor.previous(editor, {
-                at: listItemCheck[1],
-                match: (n) => Editor.isVoid(editor, n) && !Editor.isInline(editor, n),
+                at: editor.selection.anchor.path,
+                match: (n) => Editor.isVoid(editor, n),
             });
 
             nextParent = Editor.next(editor, {
@@ -551,13 +551,26 @@ const SlateReact = () => {
             }
         } else if (previousParent && previousParent[0].type === 'table-list' && editor.selection.anchor.offset === 0) {
             Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
-        } else if (previousVoid && editor.selection.anchor.offset == 0) {
+        } else if (
+            previousVoid &&
+            editor.selection.anchor.offset == 0 &&
+            listItemCheck &&
+            listItemCheck[0].type !== 'list-item'
+        ) {
             Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
             Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
             // Transforms.select(editor, previousVoid[1]);
-        } else if (listItemCheck && ['editable-void', 'ImageWrapper'].includes(listItemCheck[0].type)) {
-            Transforms.removeNodes(editor, { at: listItemCheck[1] });
+        } else if (listItemCheck && previousVoid) {
+            if (previousVoid[0].type === 'katex') {
+                Transforms.delete(editor, {
+                    distance: 4,
+                    unit: 'offset',
+                    reverse: true,
+                });
+            } else {
+                Transforms.removeNodes(editor, { at: listItemCheck[1] });
+            }
         } else {
             Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
@@ -1191,11 +1204,9 @@ const insertLink = (editor, url) => {
 const insertKatex = (editor, url, updateAmount) => {
     const ua = navigator.userAgent;
 
-    if (/android/i.test(ua)) {
-        Transforms.insertText(editor, '\u200B'.toString(), {
-            at: editor.selection.anchor,
-        });
-    }
+    Transforms.insertText(editor, '\u200B'.toString(), {
+        at: editor.selection.anchor,
+    });
 
     let id = v4();
     const katex = {
@@ -1208,6 +1219,9 @@ const insertKatex = (editor, url, updateAmount) => {
     Transforms.insertNodes(editor, katex);
 
     Transforms.move(editor);
+    Transforms.insertText(editor, '\u00a0'.toString(), {
+        at: editor.selection.anchor,
+    });
 };
 
 const withInlines = (editor) => {
@@ -1324,7 +1338,6 @@ const KatexComponent = ({ attributes, children, element }) => {
                 dangerouslySetInnerHTML={{ __html: katextext }}></span>
             <ChromiumBugfix />
             {children}
-            &nbsp;
             <ChromiumBugfix />
         </span>
     );
