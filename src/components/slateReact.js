@@ -2051,9 +2051,6 @@ const TableList = ({ attributes, children, element }) => {
                     })}
                 </tbody>
             </table>
-            {/* <div contentEditable={false} style={{ display: selected ? 'block' : 'none' }} className='absolute z-[-1] bg-red-200 right-[-20px] h-0 w-0'>
-        {children[0]}
-      </div> */}
         </div>
     );
 };
@@ -2066,18 +2063,6 @@ const TableCell1 = ({ attributes, children, element }) => {
     const dispatch = useDispatch();
 
     let checked = false;
-
-    // if(!Range.isCollapsed(editor.selection) && checkTable){
-    //
-    //   dispatch(checkByTable(true));
-    // }
-
-    useEffect(() => {
-        // if(focused && checkTable){
-        //
-        //   dispatch(checkByTable(false));
-        // }
-    }, [editor]);
 
     if (
         editor.selection.anchor.path[1] !== editor.selection.focus.path[1] ||
