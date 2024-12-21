@@ -1924,9 +1924,9 @@ const EditableVoid = ({ attributes, children, element }) => {
 					);
 				})}
 			</div> */}
-            <div contentEditable='false' className='h-full w-full absolute left-0 top-0 z-[2]'>
+            <div contentEditable='false' className='h-full w-full'>
                 <button
-                    className=''
+                    className='absolute right-0 z-[5]'
                     onClick={(e) => {
                         ReactEditor.blur(editor);
                         window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'tablevoid');
@@ -1951,8 +1951,7 @@ const EditableVoid = ({ attributes, children, element }) => {
                     })}
                 </div>
             </div>
-
-            <div className='overflow-hidden absolute z-[-1] w-[0px] h-[0px]'>{children}</div>
+            <div className='absolute w-full h-full left-0 top-0 z-[2]'>{children}</div>
         </div>
     );
 };
