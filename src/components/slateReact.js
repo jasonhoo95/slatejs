@@ -1881,7 +1881,7 @@ const EditableVoid = ({ attributes, children, element }) => {
                 height: '100px',
                 width: '100%',
             }}
-            className='shadow-box'
+            className='shadow-box select-none'
             {...attributes}>
             {/* <EditablePopup
 					open={open}
