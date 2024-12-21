@@ -413,10 +413,11 @@ const SlateReact = () => {
 
     editor.deleteBackward = (...args) => {
         let listItemParent;
+        let parentVoid;
         let previousParent;
         let previousVoid;
         let nextParent;
-        let parentCheck;
+        let katexCheck;
         const [listItems] = Editor.nodes(editor, {
             at: editor.selection.anchor.path,
             match: (n) =>
@@ -441,7 +442,16 @@ const SlateReact = () => {
             listItemParent = Editor.node(editor, listItems[1]);
 
             previousParent = Editor.previous(editor, {
-                at: listItemCheck[1],
+                at: listItems[1],
+            });
+
+            katexCheck = Editor.previous(editor, {
+                at: editor.selection.anchor.path,
+                match: (n) => n.type === 'katex',
+            });
+
+            parentVoid = Editor.above(editor, {
+                match: (n) => Editor.isVoid(editor, n),
             });
             previousVoid = Editor.previous(editor, {
                 at: editor.selection.anchor.path,
@@ -452,7 +462,6 @@ const SlateReact = () => {
                 at: listItemCheck[1],
             });
         }
-
         if (
             nextParent &&
             nextParent[0].type == 'banner-red-wrapper' &&
@@ -511,13 +520,8 @@ const SlateReact = () => {
                     SlateElement.isElement(n) &&
                     ['numbered-list', 'bulleted-list'].includes(n.type),
             });
-        } else if (
-            listItemCheck &&
-            (listItemCheck[0].type == 'list-item' || listItemCheck[0].type == 'check-list-item') &&
-            listItemCheck[1][listItemCheck[1].length - 1] === 0 &&
-            editor.selection.anchor.offset === 0
-        ) {
-            toggleBlock(editor, listItemCheck[0].type);
+        } else if (previousParent && previousParent[0].type === 'table-list' && editor.selection.anchor.offset === 0) {
+            Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
         } else if (
             listItemParent &&
             listItemCheck &&
@@ -549,39 +553,41 @@ const SlateReact = () => {
                     });
                 }
             }
-        } else if (previousParent && previousParent[0].type === 'table-list' && editor.selection.anchor.offset === 0) {
-            Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
         } else if (
-            previousVoid &&
-            editor.selection.anchor.offset == 0 &&
             listItemCheck &&
-            listItemCheck[0].type !== 'list-item'
+            (listItemCheck[0].type == 'list-item' || listItemCheck[0].type == 'check-list-item') &&
+            listItemCheck[1][listItemCheck[1].length - 1] === 0 &&
+            !katexCheck &&
+            editor.selection.anchor.offset === 0
         ) {
-            Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
-
-            Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
-            // Transforms.select(editor, previousVoid[1]);
-        } else if (listItemCheck && previousVoid) {
-            if (previousVoid[0].type === 'katex') {
+            toggleBlock(editor, listItemCheck[0].type);
+        } else if (previousVoid) {
+            if (katexCheck) {
                 Transforms.delete(editor, {
-                    distance: 4,
+                    distance: 3,
                     unit: 'offset',
                     reverse: true,
                 });
+            } else if (editor.selection.anchor.offset === 0 && listItemCheck && listItemCheck[0].type !== 'list-item') {
+                Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousVoid[1] });
+
+                Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
             } else {
-                Transforms.removeNodes(editor, { at: listItemCheck[1] });
+                Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
             }
+        } else if (parentVoid) {
+            Transforms.removeNodes(editor, { at: parentVoid[1] });
         } else {
             Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
-            const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-            if (/\u200B/.test(currentNode[0].children[0].text)) {
-                Transforms.delete(editor, {
-                    distance: 1,
-                    unit: 'offset',
-                    reverse: true,
-                });
-            }
+            // const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+            // if (/\u200B/.test(currentNode[0].children[0].text)) {
+            //     Transforms.delete(editor, {
+            //         distance: 1,
+            //         unit: 'offset',
+            //         reverse: true,
+            //     });
+            // }
         }
     };
 
@@ -1203,11 +1209,9 @@ const insertLink = (editor, url) => {
 
 const insertKatex = (editor, url, updateAmount) => {
     const ua = navigator.userAgent;
-
     Transforms.insertText(editor, '\u200B'.toString(), {
         at: editor.selection.anchor,
     });
-
     let id = v4();
     const katex = {
         type: 'katex',
@@ -1219,9 +1223,6 @@ const insertKatex = (editor, url, updateAmount) => {
     Transforms.insertNodes(editor, katex);
 
     Transforms.move(editor);
-    Transforms.insertText(editor, '\u00a0'.toString(), {
-        at: editor.selection.anchor,
-    });
 };
 
 const withInlines = (editor) => {
@@ -1338,6 +1339,7 @@ const KatexComponent = ({ attributes, children, element }) => {
                 dangerouslySetInnerHTML={{ __html: katextext }}></span>
             <ChromiumBugfix />
             {children}
+            &nbsp;
             <ChromiumBugfix />
         </span>
     );
