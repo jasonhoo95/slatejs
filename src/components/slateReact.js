@@ -888,7 +888,6 @@ const SlateReact = () => {
                         const block = {
                             type: 'table-list',
                             children: [
-                                { type: 'span-txt', children: [{ text: '' }] },
                                 {
                                     type: 'table-rows',
                                     children: [
@@ -2048,7 +2047,7 @@ const TableList = ({ attributes, children, element }) => {
                 {...attributes}>
                 <tbody>
                     {children.filter((o, key) => {
-                        return key !== 0;
+                        return o;
                     })}
                 </tbody>
             </table>
