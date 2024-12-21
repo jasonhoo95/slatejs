@@ -561,33 +561,28 @@ const SlateReact = () => {
             editor.selection.anchor.offset === 0
         ) {
             toggleBlock(editor, listItemCheck[0].type);
-        } else if (previousVoid) {
-            if (katexCheck) {
-                Transforms.delete(editor, {
-                    distance: 3,
-                    unit: 'offset',
-                    reverse: true,
-                });
-            } else if (editor.selection.anchor.offset === 0 && listItemCheck && listItemCheck[0].type !== 'list-item') {
-                Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousVoid[1] });
+        } else if (
+            previousVoid &&
+            editor.selection.anchor.offset === 0 &&
+            listItemCheck &&
+            listItemCheck[0].type !== 'list-item'
+        ) {
+            Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousVoid[1] });
 
-                Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
-            } else {
-                Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
-            }
+            Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
         } else if (parentVoid) {
             Transforms.removeNodes(editor, { at: parentVoid[1] });
         } else {
             Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
-            // const currentNode = Editor.parent(editor, editor.selection.anchor.path);
-            // if (/\u200B/.test(currentNode[0].children[0].text)) {
-            //     Transforms.delete(editor, {
-            //         distance: 1,
-            //         unit: 'offset',
-            //         reverse: true,
-            //     });
-            // }
+            const currentNode = Editor.parent(editor, editor.selection.anchor.path);
+            if (/\u200B/.test(currentNode[0].children[0].text)) {
+                Transforms.delete(editor, {
+                    distance: 1,
+                    unit: 'offset',
+                    reverse: true,
+                });
+            }
         }
     };
 
