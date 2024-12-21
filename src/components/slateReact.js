@@ -445,14 +445,14 @@ const SlateReact = () => {
             });
             previousVoid = Editor.previous(editor, {
                 at: listItemCheck[1],
-                match: (n) => Editor.isVoid(editor, n),
+                match: (n) => Editor.isVoid(editor, n) && !Editor.isInline(editor, n),
             });
 
             nextParent = Editor.next(editor, {
                 at: listItemCheck[1],
             });
         }
-        console.log(previousVoid, 'previous void');
+
         if (
             nextParent &&
             nextParent[0].type == 'banner-red-wrapper' &&
@@ -549,18 +549,9 @@ const SlateReact = () => {
                     });
                 }
             }
-        } else if (
-            ((previousVoid && previousVoid[0].type !== 'span-txt') ||
-                (previousParent && previousParent[0].type === 'table-list')) &&
-            editor.selection.anchor.offset === 0
-        ) {
+        } else if (previousParent && previousParent[0].type === 'table-list' && editor.selection.anchor.offset === 0) {
             Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
-        } else if (
-            previousParent &&
-            ['editable-void', 'input-component'].includes(previousParent[0].type) &&
-            editor.selection.anchor.offset == 0 &&
-            !['editable-void', 'input-component'].includes(listItemParent[0].type)
-        ) {
+        } else if (previousVoid && editor.selection.anchor.offset == 0) {
             Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousParent[1] });
 
             Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
