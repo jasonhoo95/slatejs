@@ -442,7 +442,13 @@ const SlateReact = () => {
             listItemParent = Editor.node(editor, listItems[1]);
 
             previousParent = Editor.previous(editor, {
-                at: listItems[1],
+                at: editor.selection.anchor.path,
+                mode: 'highest',
+                match: (n) =>
+                    n.type === 'paragraph' ||
+                    n.type === 'table-list' ||
+                    n.type === 'numbered-list' ||
+                    n.type === 'banner-red-wrapper',
             });
 
             katexCheck = Editor.previous(editor, {
@@ -520,7 +526,13 @@ const SlateReact = () => {
                     SlateElement.isElement(n) &&
                     ['numbered-list', 'bulleted-list'].includes(n.type),
             });
-        } else if (previousParent && previousParent[0].type === 'table-list' && editor.selection.anchor.offset === 0) {
+        } else if (
+            previousParent &&
+            previousParent[0].type === 'table-list' &&
+            editor.selection.anchor.offset === 0 &&
+            listItemParent &&
+            listItemParent[0].type !== 'table-cell1'
+        ) {
             Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
         } else if (
             listItemParent &&
