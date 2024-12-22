@@ -448,7 +448,8 @@ const SlateReact = () => {
                     n.type === 'paragraph' ||
                     n.type === 'table-list' ||
                     n.type === 'numbered-list' ||
-                    n.type === 'banner-red-wrapper',
+                    n.type === 'banner-red-wrapper' ||
+                    Editor.isVoid(editor, n),
             });
 
             katexCheck = Editor.previous(editor, {
@@ -527,14 +528,6 @@ const SlateReact = () => {
                     ['numbered-list', 'bulleted-list'].includes(n.type),
             });
         } else if (
-            previousParent &&
-            previousParent[0].type === 'table-list' &&
-            editor.selection.anchor.offset === 0 &&
-            listItemParent &&
-            listItemParent[0].type !== 'table-cell1'
-        ) {
-            Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
-        } else if (
             listItemParent &&
             listItemCheck &&
             listItemCheck[0].type === 'paragraph' &&
@@ -574,16 +567,23 @@ const SlateReact = () => {
         ) {
             toggleBlock(editor, listItemCheck[0].type);
         } else if (
-            previousVoid &&
-            editor.selection.anchor.offset === 0 &&
-            listItemCheck &&
-            listItemCheck[0].type !== 'list-item'
+            previousParent &&
+            ['editable-void', 'ImageWrapper'].includes(previousParent[0].type) &&
+            editor.selection.anchor.offset === 0
         ) {
             Transforms.setNodes(editor, { checked: true, selectNode: true }, { at: previousVoid[1] });
 
             Transforms.move(editor, { distance: 1, reverse: true, offset: 1 });
         } else if (parentVoid) {
             Transforms.removeNodes(editor, { at: parentVoid[1] });
+        } else if (
+            previousParent &&
+            previousParent[0].type === 'table-list' &&
+            editor.selection.anchor.offset === 0 &&
+            listItemParent &&
+            listItemParent[0].type !== 'table-cell1'
+        ) {
+            Transforms.move(editor, { reverse: true, unit: 'offset', distance: 1 });
         } else {
             Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
 
