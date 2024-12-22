@@ -455,7 +455,7 @@ const SlateReact = () => {
             });
             previousVoid = Editor.previous(editor, {
                 at: editor.selection.anchor.path,
-                match: (n) => Editor.isVoid(editor, n),
+                match: (n) => Editor.isVoid(editor, n) && n.type !== 'katex',
             });
 
             nextParent = Editor.next(editor, {
