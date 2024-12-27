@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 
 import isHotkey, { isKeyHotkey } from 'is-hotkey';
+import { jsx } from 'slate-hyperscript';
 
 import { css } from '@emotion/css';
 import { v4 } from 'uuid';
@@ -100,6 +101,34 @@ const SHORTCUTS = {
     '#####': 'heading-five',
     '######': 'heading-six',
 };
+
+const ELEMENT_TAGS = {
+    A: (el) => ({ type: 'link', url: el.getAttribute('href') }),
+    BLOCKQUOTE: () => ({ type: 'quote' }),
+    H1: () => ({ type: 'heading-one' }),
+    H2: () => ({ type: 'heading-two' }),
+    H3: () => ({ type: 'heading-three' }),
+    H4: () => ({ type: 'heading-four' }),
+    H5: () => ({ type: 'heading-five' }),
+    H6: () => ({ type: 'heading-six' }),
+    IMG: (el) => ({ type: 'image', url: el.getAttribute('src') }),
+    LI: () => ({ type: 'list-item' }),
+    OL: () => ({ type: 'numbered-list' }),
+    P: () => ({ type: 'paragraph' }),
+    PRE: () => ({ type: 'code' }),
+    UL: () => ({ type: 'bulleted-list' }),
+};
+
+const TEXT_TAGS = {
+    CODE: () => ({ code: true }),
+    DEL: () => ({ strikethrough: true }),
+    EM: () => ({ italic: true }),
+    I: () => ({ italic: true }),
+    S: () => ({ strikethrough: true }),
+    STRONG: () => ({ bold: true }),
+    U: () => ({ underline: true }),
+};
+
 function getCaretCoordinates(height) {
     let x = 0,
         y = 0;
@@ -130,8 +159,40 @@ function getCaretCoordinates(height) {
             window.scrollTo({ top: y, behavior: 'smooth' });
         }
     }
-    // return { x, y };
+    // return { x,
+    //  y };
 }
+
+export const deserialize = (el) => {
+    if (el.nodeType === 3) {
+        return el.textContent;
+    } else if (el.nodeType !== 1) {
+        return null;
+    } else if (el.nodeName === 'BR') {
+        return '\n';
+    }
+    const { nodeName } = el;
+    let parent = el;
+    if (nodeName === 'PRE' && el.childNodes[0] && el.childNodes[0].nodeName === 'CODE') {
+        parent = el.childNodes[0];
+    }
+    let children = Array.from(parent.childNodes).map(deserialize).flat();
+    if (children.length === 0) {
+        children = [{ text: '' }];
+    }
+    if (el.nodeName === 'BODY') {
+        return jsx('fragment', {}, children);
+    }
+    if (ELEMENT_TAGS[nodeName]) {
+        const attrs = ELEMENT_TAGS[nodeName](el);
+        return jsx('element', attrs, children);
+    }
+    if (TEXT_TAGS[nodeName]) {
+        const attrs = TEXT_TAGS[nodeName](el);
+        return children.map((child) => jsx('text', attrs, child));
+    }
+    return children;
+};
 const SlateReact = () => {
     let id = v4();
     let ModalProps = useModalStore((state) => state.display);
@@ -140,7 +201,7 @@ const SlateReact = () => {
     const renderElement = useCallback((props) => <Element {...props} />, []);
     const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
     const editor = useMemo(() => withInlines(withReact(withHistory(createEditor()))), []);
-    const { deleteFragment, deleteBackward, onChange, insertText, apply } = editor;
+    const { deleteFragment, deleteBackward, insertData, insertText, apply } = editor;
     const textVal = useSelector((state) => state.counter.textVal);
     let androidTxt;
     const { insertBreak } = editor;
@@ -219,6 +280,19 @@ const SlateReact = () => {
         // Cleanup when the component unmounts or when the dependency changes
     }, []);
 
+    editor.insertData = (data) => {
+        const html = data.getData('text/html');
+        if (html) {
+            const parsed = new DOMParser().parseFromString(html, 'text/html');
+            const fragment = deserialize(parsed.body);
+
+            Transforms.insertFragment(editor, fragment);
+            return;
+        }
+
+        insertData(data);
+    };
+
     editor.insertText = (text) => {
         const { selection } = editor;
         const block = Editor.above(editor, {
@@ -262,6 +336,8 @@ const SlateReact = () => {
 
                 return;
             }
+        } else if (text.startsWith('1. ')) {
+            toggleBlock(editor, 'numbered-list', 'number');
         }
 
         insertText(text);
