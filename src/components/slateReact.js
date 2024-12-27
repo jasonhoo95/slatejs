@@ -89,7 +89,7 @@ const initialValue = [
 ];
 
 const SHORTCUTS = {
-    '1.': 'list-item',
+    '1.': 'numbered-list',
     '-': 'list-item',
     '+': 'list-item',
     '>': 'block-quote',
@@ -243,7 +243,7 @@ const SlateReact = () => {
             const type = SHORTCUTS[beforeText];
             let pattern = /\u200B1./;
 
-            if (pattern.test(beforeText) || type) {
+            if (type) {
                 Transforms.select(editor, range);
 
                 if (!Range.isCollapsed(range)) {
@@ -253,15 +253,12 @@ const SlateReact = () => {
                 const newProperties = {
                     type,
                 };
-                Transforms.setNodes <
-                    SlateElement >
-                    (editor,
-                    newProperties,
-                    {
-                        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-                    });
 
-                toggleBlock(editor, 'numbered-list', 'number');
+                if (type === 'numbered-list') {
+                    toggleBlock(editor, 'numbered-list', 'number');
+                } else {
+                    Transforms.setNodes(editor, newProperties);
+                }
 
                 return;
             }
@@ -789,7 +786,7 @@ const SlateReact = () => {
                 <div
                     onClick={(e) => {
                         ReactEditor.focus(editor);
-                        toggleMark(editor, 'bold');
+                        Transforms.setNodes(editor, { text: '', type: 'heading-one' });
                     }}
                     style={{
                         color: isBlockActive(editor, 'bold', TEXT_ALIGN_TYPES.includes('bold') ? 'align' : 'type')
