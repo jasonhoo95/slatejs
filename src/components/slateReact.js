@@ -1194,7 +1194,10 @@ const wrapperCheck = (editor) => {
 
     const firstNode1 = Editor.parent(editor, editor.selection.anchor.path);
     const lastNode1 = Editor.parent(editor, editor.selection.focus.path);
-
+    const previousNode = Editor.previous(editor, {
+        at: editor.selection.anchor.path,
+        match: (n) => n.type === 'numbered-list' || n.type === 'bulleted-list',
+    });
     let anchorPath, focusPath;
     if (_.sum(firstNode1) <= _.sum(lastNode1)) {
         let lastnode = Editor.last(editor, lastNode1[1]);
@@ -1232,25 +1235,14 @@ const wrapperCheck = (editor) => {
             split: true,
         });
     } else {
-        // Transforms.unwrapNodes(editor, {
-        //   match: (n) => {
-        //     return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == 'numbered-list';
-        //   },
-        //   split: true,
-        // });
-
         Transforms.unwrapNodes(editor, {
+            at: editor.selection.anchor.path[0],
             match: (n) => {
                 return !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == 'banner-red-wrapper';
             },
-            split: true,
         });
-        // Transforms.setNodes(editor, { type: 'list-item' });
-        // const block = { type: 'numbered-list', children: [] };
 
-        Transforms.wrapNodes(editor, block);
-
-        // toggleBlock(editor, "numbered-list", "number");
+        // toggleBlock(editor, 'numbered-list', 'number');
     }
 
     ReactEditor.focus(editor);
@@ -1572,13 +1564,13 @@ const toggleBlock = (editor, format, type) => {
     const previousNode = Editor.previous(editor, {
         at: editor.selection.anchor.path,
         mode: 'lowest',
-        match: (n) => LIST_PARENT.includes(n.type),
+        match: (n) => LIST_PARENT.includes(n.type) || n.type === 'paragraph',
     });
 
     const nextNode = Editor.next(editor, {
         at: editor.selection.anchor.path,
         mode: 'lowest',
-        match: (n) => LIST_PARENT.includes(n.type),
+        match: (n) => LIST_PARENT.includes(n.type) || n.type === 'paragraph',
 
         // match: (n) => n.type === 'numbered-list',
     });
@@ -1611,6 +1603,7 @@ const toggleBlock = (editor, format, type) => {
         ((parentNode && parentNode[1][0] === nextNode[1][0]) || !parentNode) &&
         currentNode[0].type === nextNode[0].type
     ) {
+        alert('merged');
         return Transforms.mergeNodes(editor, { at: nextNode[1], match: (n) => n.type === nextNode[0].type });
     }
 };
