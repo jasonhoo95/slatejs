@@ -522,14 +522,7 @@ const SlateReact = () => {
             listItemParent = Editor.node(editor, listItems[1]);
 
             previousParent = Editor.previous(editor, {
-                at: editor.selection.anchor.path,
-                mode: 'highest',
-                match: (n) =>
-                    n.type === 'paragraph' ||
-                    n.type === 'table-list' ||
-                    n.type === 'numbered-list' ||
-                    n.type === 'banner-red-wrapper' ||
-                    Editor.isVoid(editor, n),
+                at: listItemCheck[1],
             });
 
             katexCheck = Editor.previous(editor, {
@@ -549,6 +542,7 @@ const SlateReact = () => {
                 at: listItemCheck[1],
             });
         }
+
         if (
             nextParent &&
             nextParent[0].type == 'banner-red-wrapper' &&
@@ -595,7 +589,6 @@ const SlateReact = () => {
             previousParent &&
             ['numbered-list', 'bulleted-list'].includes(previousParent[0].type) &&
             ['numbered-list', 'bulleted-list'].includes(nextParent[0].type) &&
-            listItemCheck[0].type === 'paragraph' &&
             previousParent[0].type == nextParent[0].type
         ) {
             Transforms.delete(editor, { distance: 1, unit: 'offset', reverse: true });
@@ -1532,7 +1525,7 @@ const toggleMark = (editor, format) => {
 const toggleBlock = (editor, format, type) => {
     const isActive = isBlockActive(editor, format, TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type');
     const isList = LIST_TYPES.includes(format) || format == 'banner-red-wrapper';
-    let LIST_PARENT = ['numbered-list', 'bulleted-list', 'check-list', 'banner-red-wrapper', 'table-list'];
+    let LIST_PARENT = ['numbered-list', 'bulleted-list', 'check-list'];
     let formatCheck;
 
     if (format == 'list-item' || format == 'check-list-item') {
@@ -1567,38 +1560,58 @@ const toggleBlock = (editor, format, type) => {
         Transforms.wrapNodes(editor, block);
     }
 
+    const parentNode = Editor.above(editor, {
+        match: (n) => n.type === 'table-list' || n.type === 'banner-red-wrapper',
+    });
+
     const [currentNode] = Editor.nodes(editor, {
+        mode: 'lowest',
         match: (n) => LIST_PARENT.includes(n.type),
     });
 
     const previousNode = Editor.previous(editor, {
         at: editor.selection.anchor.path,
-        match: (n) => n.type === 'numbered-list',
+        mode: 'lowest',
+        match: (n) => LIST_PARENT.includes(n.type),
     });
 
     const nextNode = Editor.next(editor, {
         at: editor.selection.anchor.path,
-        match: (n) => n.type === 'numbered-list',
+        mode: 'lowest',
+        match: (n) => LIST_PARENT.includes(n.type),
+
+        // match: (n) => n.type === 'numbered-list',
     });
-
-    if (previousNode && !nextNode && currentNode && currentNode[0].type === previousNode[0].type) {
-        Transforms.mergeNodes(editor, { at: currentNode[1], match: (n) => n.type === currentNode[0].type });
-    }
-
-    if (!previousNode && nextNode && currentNode && currentNode[0].type === nextNode[0].type) {
-        Transforms.mergeNodes(editor, { at: nextNode[1], match: (n) => n.type === nextNode[0].type });
-    }
 
     if (
         previousNode &&
         nextNode &&
         currentNode &&
         previousNode[0].type === nextNode[0].type &&
-        currentNode[0].type === nextNode[0].type
+        currentNode[0].type === nextNode[0].type &&
+        (!parentNode || (parentNode && nextNode[1][0] === parentNode[1][0] && previousNode[1][0] === parentNode[1][0]))
     ) {
         Transforms.mergeNodes(editor, { at: currentNode[1], match: (n) => n.type === currentNode[0].type });
 
         Transforms.mergeNodes(editor, { at: currentNode[1], match: (n) => n.type === currentNode[0].type });
+        return;
+    }
+    if (
+        previousNode &&
+        currentNode &&
+        ((parentNode && parentNode[1][0] === previousNode[1][0]) || !parentNode) &&
+        currentNode[0].type === previousNode[0].type
+    ) {
+        return Transforms.mergeNodes(editor, { at: currentNode[1], match: (n) => n.type === currentNode[0].type });
+    }
+
+    if (
+        nextNode &&
+        currentNode &&
+        ((parentNode && parentNode[1][0] === nextNode[1][0]) || !parentNode) &&
+        currentNode[0].type === nextNode[0].type
+    ) {
+        return Transforms.mergeNodes(editor, { at: nextNode[1], match: (n) => n.type === nextNode[0].type });
     }
 };
 
