@@ -36,6 +36,7 @@ import EditablePopup from './editablePopup';
 import { useSelector, useDispatch } from 'react-redux';
 import { setText, checkByTable } from '@/globals/counterSlice';
 import _ from 'lodash';
+import { current } from '@reduxjs/toolkit';
 const HOTKEYS = {
     'mod+b': 'bold',
     'mod+i': 'italic',
@@ -168,29 +169,42 @@ export const deserialize = (el) => {
         return el.textContent;
     } else if (el.nodeType !== 1) {
         return null;
-    } else if (el.nodeName === 'BR') {
-        return '\n';
     }
     const { nodeName } = el;
+
     let parent = el;
     if (nodeName === 'PRE' && el.childNodes[0] && el.childNodes[0].nodeName === 'CODE') {
         parent = el.childNodes[0];
     }
     let children = Array.from(parent.childNodes).map(deserialize).flat();
+
     if (children.length === 0) {
         children = [{ text: '' }];
     }
+
     if (el.nodeName === 'BODY') {
         return jsx('fragment', {}, children);
     }
     if (ELEMENT_TAGS[nodeName]) {
         const attrs = ELEMENT_TAGS[nodeName](el);
+
+        const children = Array.from(el.childNodes).map(deserialize).flat();
+
         return jsx('element', attrs, children);
     }
     if (TEXT_TAGS[nodeName]) {
         const attrs = TEXT_TAGS[nodeName](el);
         return children.map((child) => jsx('text', attrs, child));
     }
+
+    if (nodeName === 'SPAN') {
+        const fontWeight = el.style.fontWeight;
+
+        if (fontWeight === '600' || fontWeight === '700' || fontWeight === 'bold') {
+            return [{ bold: true, text: el.textContent }];
+        }
+    }
+
     return children;
 };
 const SlateReact = () => {
@@ -282,6 +296,7 @@ const SlateReact = () => {
 
     editor.insertData = (data) => {
         const html = data.getData('text/html');
+
         if (html) {
             const parsed = new DOMParser().parseFromString(html, 'text/html');
             const fragment = deserialize(parsed.body);
@@ -336,8 +351,6 @@ const SlateReact = () => {
 
                 return;
             }
-        } else if (text.startsWith('1. ')) {
-            toggleBlock(editor, 'numbered-list', 'number');
         }
 
         insertText(text);
@@ -458,13 +471,7 @@ const SlateReact = () => {
                 children: [{ text: parentCheck[0].children[0].text }],
             };
             Transforms.setNodes(editor, newProperties, { at: parentCheck[1] });
-        }
-        //  else if (currentParent && ['editable-void', 'ImageWrapper'].includes(currentParent[0].type)) {
-        //   Transforms.setNodes(editor, { checked: false, selectNode: true }, { at: currentParent[1] });
-
-        //   Transforms.move(editor, { distance: 1, unit: 'offset' });
-        // }
-        else {
+        } else {
             insertBreak();
 
             const selectedLeaf1 = Node.leaf(editor, editor.selection.anchor.path);
@@ -1561,90 +1568,37 @@ const toggleBlock = (editor, format, type) => {
     }
 
     const [currentNode] = Editor.nodes(editor, {
-        mode: 'lowest',
         match: (n) => LIST_PARENT.includes(n.type),
     });
 
-    let prevParent, nextParent;
-    let parentCheck;
-    if (currentNode) {
-        parentCheck = Editor.above(editor, {
-            at: currentNode[1],
-            match: (n) =>
-                !Editor.isEditor(n) &&
-                SlateElement.isElement(n) &&
-                (n.type === 'table-cell1' || n.type === 'banner-red-wrapper'),
-        });
-        prevParent = Editor.previous(editor, {
-            at: currentNode[1],
-            mode: parentCheck ? 'lowest' : 'highest',
-            match: (n) =>
-                !Editor.isEditor(n) &&
-                SlateElement.isElement(n) &&
-                (n.type === 'paragraph' || LIST_PARENT.includes(n.type)),
-        });
-        nextParent = Editor.next(editor, {
-            at: currentNode[1],
-            mode: parentCheck ? 'lowest' : 'highest',
-            match: (n) =>
-                !Editor.isEditor(n) &&
-                SlateElement.isElement(n) &&
-                (LIST_PARENT.includes(n.type) || n.type === 'paragraph'),
-        });
+    const previousNode = Editor.previous(editor, {
+        at: editor.selection.anchor.path,
+        match: (n) => n.type === 'numbered-list',
+    });
+
+    const nextNode = Editor.next(editor, {
+        at: editor.selection.anchor.path,
+        match: (n) => n.type === 'numbered-list',
+    });
+
+    if (previousNode && !nextNode && currentNode && currentNode[0].type === previousNode[0].type) {
+        Transforms.mergeNodes(editor, { at: currentNode[1], match: (n) => n.type === currentNode[0].type });
+    }
+
+    if (!previousNode && nextNode && currentNode && currentNode[0].type === nextNode[0].type) {
+        Transforms.mergeNodes(editor, { at: nextNode[1], match: (n) => n.type === nextNode[0].type });
     }
 
     if (
+        previousNode &&
+        nextNode &&
         currentNode &&
-        prevParent &&
-        nextParent &&
-        nextParent[0].type === prevParent[0].type &&
-        currentNode[0].type == prevParent[0].type &&
-        currentNode[0].type == nextParent[0].type &&
-        currentNode[1][currentNode[1].length - 1] !== 0
+        previousNode[0].type === nextNode[0].type &&
+        currentNode[0].type === nextNode[0].type
     ) {
-        const [parent, parentPath] = currentNode;
+        Transforms.mergeNodes(editor, { at: currentNode[1], match: (n) => n.type === currentNode[0].type });
 
-        // Merge current node with the one above
-        Transforms.mergeNodes(editor, {
-            at: parentPath,
-            match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
-        });
-
-        // Merge the newly merged node with the one below
-        Transforms.mergeNodes(editor, {
-            at: parentPath,
-            match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
-        });
-
-        // // Wrap the merged content into a new numbered list
-        // const newList = { type: 'numbered-list', children: [] };
-        // Transforms.wrapNodes(editor, newList, { at: parentPath });
-    } else if (
-        prevParent &&
-        currentNode &&
-        (!parentCheck || (parentCheck && currentNode[1][currentNode[1].length - 1] !== 0)) &&
-        currentNode[0].type === prevParent[0].type
-    ) {
-        const [parent, parentPath] = currentNode;
-
-        Transforms.mergeNodes(editor, {
-            at: parentPath,
-            match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
-        });
-    } else if (
-        nextParent &&
-        (!parentCheck ||
-            (parentCheck &&
-                parentCheck[0].children.filter((o) => {
-                    return o.type === 'numbered-list';
-                }).length > 1)) &&
-        currentNode &&
-        currentNode[0].type === nextParent[0].type
-    ) {
-        Transforms.mergeNodes(editor, {
-            at: nextParent[1],
-            match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type == currentNode[0].type,
-        });
+        Transforms.mergeNodes(editor, { at: currentNode[1], match: (n) => n.type === currentNode[0].type });
     }
 };
 
@@ -2346,11 +2300,7 @@ const Element = (props) => {
         case 'banner-red-wrapper':
             return <BannerRed {...props} />;
         case 'paragraph':
-            return (
-                <div {...attributes}>
-                    <div>{children}</div>
-                </div>
-            );
+            return <p {...attributes}>{children}</p>;
         default:
             return <div {...attributes}>{children}</div>;
     }
