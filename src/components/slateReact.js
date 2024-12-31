@@ -1517,7 +1517,7 @@ const toggleMark = (editor, format) => {
 const toggleBlock = (editor, format, type) => {
     const isActive = isBlockActive(editor, format, TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type');
     const isList = LIST_TYPES.includes(format) || format == 'banner-red-wrapper';
-    let LIST_PARENT = ['numbered-list', 'bulleted-list', 'check-list'];
+    let LIST_PARENT = ['numbered-list', 'bulleted-list', 'check-list', 'banner-red-wrapper', 'table-list'];
     let formatCheck;
 
     if (format == 'list-item' || format == 'check-list-item') {
@@ -1563,16 +1563,14 @@ const toggleBlock = (editor, format, type) => {
 
     const previousNode = Editor.previous(editor, {
         at: editor.selection.anchor.path,
-        mode: 'lowest',
+        mode: parentNode ? 'lowest' : 'highest',
         match: (n) => LIST_PARENT.includes(n.type) || n.type === 'paragraph',
     });
 
     const nextNode = Editor.next(editor, {
         at: editor.selection.anchor.path,
-        mode: 'lowest',
+        mode: parentNode ? 'lowest' : 'highest',
         match: (n) => LIST_PARENT.includes(n.type) || n.type === 'paragraph',
-
-        // match: (n) => n.type === 'numbered-list',
     });
 
     if (
@@ -1603,7 +1601,6 @@ const toggleBlock = (editor, format, type) => {
         ((parentNode && parentNode[1][0] === nextNode[1][0]) || !parentNode) &&
         currentNode[0].type === nextNode[0].type
     ) {
-        alert('merged');
         return Transforms.mergeNodes(editor, { at: nextNode[1], match: (n) => n.type === nextNode[0].type });
     }
 };
