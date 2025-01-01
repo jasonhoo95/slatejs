@@ -1562,18 +1562,15 @@ const toggleBlock = (editor, format, type) => {
     });
 
     const previousNode = Editor.previous(editor, {
-        at: editor.selection.anchor.path,
         mode: parentNode ? 'lowest' : 'highest',
-        match: (n) => LIST_PARENT.includes(n.type) || n.type === 'paragraph',
+        at: currentNode && currentNode[1],
     });
 
     const nextNode = Editor.next(editor, {
-        at: editor.selection.anchor.path,
+        at: currentNode && currentNode[1],
         mode: parentNode ? 'lowest' : 'highest',
-        match: (n) => LIST_PARENT.includes(n.type) || n.type === 'paragraph',
     });
 
-    console.log(previousNode, 'previous node');
     if (
         previousNode &&
         nextNode &&
