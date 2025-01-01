@@ -318,7 +318,7 @@ const SlateReact = () => {
         const edges = [startPoint.path, endPoint.path];
 
         if (block) {
-            Transforms.move(editor, { distance: 1, unit: 'offset', reverse: false });
+            Transforms.removeNodes(editor, { at: block[1] });
             return;
         } else if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
             const { anchor } = selection;
@@ -1573,6 +1573,7 @@ const toggleBlock = (editor, format, type) => {
         match: (n) => LIST_PARENT.includes(n.type) || n.type === 'paragraph',
     });
 
+    console.log(previousNode, 'previous node');
     if (
         previousNode &&
         nextNode &&
