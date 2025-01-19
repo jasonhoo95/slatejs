@@ -2031,9 +2031,6 @@ const TableList = ({ attributes, children, element }) => {
     const selected = useSelected();
     const focused = useFocused();
     const editor = useSlate();
-    const [check, setChecked] = useState(false);
-    const dispatch = useDispatch();
-    const checkTable = useSelector((state) => state.counter.checkTable);
 
     const [startPath] = Editor.nodes(editor, {
         match: (n) => n.type === 'table-list',
@@ -2076,9 +2073,6 @@ const TableList = ({ attributes, children, element }) => {
         if (selected) {
             window.addEventListener('message', messageListener);
         } else {
-            if (checkTable) {
-                dispatch(checkByTable(false));
-            }
             window.removeEventListener('message', messageListener);
         }
 
@@ -2108,8 +2102,6 @@ const TableCell1 = ({ attributes, children, element }) => {
     const editor = useSlate();
     const selected = useSelected();
     const focused = useFocused();
-    const checkTable = useSelector((state) => state.counter.checkTable);
-    const dispatch = useDispatch();
 
     let checked = false;
 
@@ -2124,7 +2116,7 @@ const TableCell1 = ({ attributes, children, element }) => {
     }
 
     return (
-        <td className={checked && selected && !checkTable ? 'bg-sky-200' : ''} {...attributes}>
+        <td className={checked && selected ? 'bg-sky-200' : ''} {...attributes}>
             {children}
         </td>
     );
