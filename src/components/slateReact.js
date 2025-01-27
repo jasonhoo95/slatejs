@@ -278,6 +278,9 @@ const SlateReact = () => {
             } else if (event.data === 'undo') {
                 ReactEditor.focus(editor);
                 HistoryEditor.undo(editor);
+            } else if (event.data === 'bannerRed') {
+                ReactEditor.focus(editor);
+                wrapperCheck(editor);
             } else if (event.data == 'focus') {
                 ReactEditor.focus(editor);
             } else {
