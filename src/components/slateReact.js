@@ -276,6 +276,8 @@ const SlateReact = () => {
 
                 insertKatex(editor, 'flutter123');
             } else if (event.data === 'undo') {
+                window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'UNDO');
+
                 ReactEditor.focus(editor);
                 HistoryEditor.undo(editor);
             } else if (event.data === 'bannerRed') {
@@ -288,7 +290,11 @@ const SlateReact = () => {
             }
         };
 
-        window.addEventListener('message', messageListener);
+        window.addEventListener('message', (event) => {
+            if (event.ports.length > 0) {
+                messageListener(event);
+            }
+        });
 
         return () => {
             window.removeEventListener('message', messageListener);
