@@ -130,38 +130,47 @@ const TEXT_TAGS = {
     U: () => ({ underline: true }),
 };
 
-function getCaretCoordinates(height) {
+function getCaretCoordinates() {
     let x = 0,
         y = 0;
     const isSupported = typeof window.getSelection !== 'undefined';
     if (isSupported) {
         const sel = window.getSelection();
-        if (!sel || sel.rangeCount === 0) {
-            return;
+        if (sel.rangeCount === 0) {
+            return { x, y };
         }
         const range = sel.getRangeAt(0);
-        // we can still workaround the default behavior too
+
+        // Workaround for empty elements (e.g., empty <div> or <p>)
+        if (range.startContainer.nodeType === Node.ELEMENT_NODE && range.startContainer.childNodes.length === 0) {
+            // Insert a temporary zero-width space to make the caret position calculable
+            const tempTextNode = document.createTextNode('\u200B'); // Zero-width space
+            range.insertNode(tempTextNode);
+            range.setStart(tempTextNode, 0);
+            range.setEnd(tempTextNode, 0);
+        }
+
         const rects = range.getClientRects();
-        if (!rects.length) {
+        if (rects.length === 0) {
             if (range.startContainer && range.collapsed) {
                 range.selectNodeContents(range.startContainer);
             }
         }
-        let position = range.getBoundingClientRect();
-        const char_before = range.startContainer.textContent;
 
+        const position = range.getBoundingClientRect();
         x = position.x;
+        y = position.y + window.scrollY;
 
-        y = position.y + window.scrollY - 100;
-
-        // }
-
-        if (y > 0) {
-            window.scrollTo({ top: y, behavior: 'smooth' });
+        // Clean up the temporary zero-width space if it was inserted
+        if (range.startContainer.nodeType === Node.TEXT_NODE && range.startContainer.textContent === '\u200B') {
+            range.startContainer.remove();
         }
+
+        // Adjust the scroll position to ensure the caret is visible
+        const scrollY = y - window.innerHeight / 2; // Center the caret vertically
+        window.scrollTo({ top: scrollY, behavior: 'smooth' });
     }
-    // return { x,
-    //  y };
+    return { x, y };
 }
 
 export const deserialize = (el) => {
@@ -276,10 +285,12 @@ const SlateReact = () => {
 
                 insertKatex(editor, 'flutter123');
             } else if (event.data === 'undo') {
-                window.flutter_inappwebview?.callHandler('handlerFooWithArgs', 'UNDO');
-
                 ReactEditor.focus(editor);
                 HistoryEditor.undo(editor);
+                Transforms.insertText(editor, '\u200B'.toString(), {
+                    at: editor.selection.anchor,
+                });
+                // getCaretCoordinates();
             } else if (event.data === 'bannerRed') {
                 ReactEditor.focus(editor);
                 wrapperCheck(editor);
